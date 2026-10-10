@@ -11,6 +11,8 @@ def required_oracles(root=ROOT):
         names.update({'verify_algorithms_fixtures.py','verify_communications_fixtures.py','verify_http_fixtures.py','verify_networking_fixtures.py'})
     if (root/'curriculum/performance_debugging_taxonomy.json').exists():
         names.update({'verify_performance_fixtures.py','verify_debugging_fixtures.py','verify_memory_lab_fixtures.py'})
+    if (root/'curriculum/v2_taxonomy.json').exists():
+        names.update({'verify_runtime_fixtures.py','verify_storage_fixtures.py','verify_kernel_fixtures.py'})
     return names
 
 def check_oracle_presence(scripts,root=ROOT):

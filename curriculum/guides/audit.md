@@ -1,6 +1,6 @@
 # Coverage audit and limitations
 
-The three original inputs remain unchanged: 35 domains, 395 topics and 1,185 exact objectives. The architecture/networking extension preserves its seven domains, 66 topics and 198 objectives. The performance/debugging extension adds three domains, 36 topics and 108 objectives. The combined map contains 45 domains, 497 topics and 1,491 objectives. Generated checklists link each objective to teaching and a local activity; integration and drill directories add reuse rather than replacing coverage.
+The three original inputs remain unchanged: 35 domains, 395 topics and 1,185 exact objectives. The architecture/networking extension preserves its seven domains, 66 topics and 198 objectives. The performance/debugging extension adds three domains, 36 topics and 108 objectives. Those 45 historical domains, 497 topics and 1,491 objectives are mapped explicitly in edition 2; runtime, storage and kernel teaching expands the active map. Generated checklists link each objective to teaching and a local activity; integration and drill directories add reuse rather than replacing coverage.
 
 ## Requirements beyond the leaf headings
 
@@ -65,3 +65,6 @@ Resolve every core objective's evidence checklist, defend both capstones, repeat
 | Experiments, drills and prevention | Prediction, negative/repaired controls, causal explanation, invariant repair, regressions and delayed unseen transfer across all three tracks |
 
 The independent content reviews and publishing receipts accept the curriculum and finite supplied-data checks. They do not claim that learner C, actual profiling/debugger/tool runs, child exhaustion or target hardware tests have been performed. Unavailable observations keep their associated claims open.
+
+
+Current edition receipts live in reviews/v2 and bind to current source hashes. The v1 final_acceptance.json is historical and cannot accept changed v2 files. Project-to-family links name scoped executable support; a whole-family pass does not automatically accept every linked project or objective.

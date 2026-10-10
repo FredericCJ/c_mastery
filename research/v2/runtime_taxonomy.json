@@ -1,0 +1,239 @@
+{
+  "edition": "C mastery v2 runtime family",
+  "domains": [
+    {
+      "id": "T46",
+      "title": "A bounded language runtime from representation to execution",
+      "subtopics": [
+        {
+          "id": "T46.01",
+          "title": "Values and a portable bytecode image",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.01.a",
+              "text": "Specify tagged int32, Boolean, nil and generation-checked object references without conflating a language value with C object bytes."
+            },
+            {
+              "id": "T46.01.b",
+              "text": "Encode and decode a bounded CVM1 image using explicit little-endian fields and failure-atomic loading."
+            },
+            {
+              "id": "T46.01.c",
+              "text": "Reject truncated, unsupported and oversized images and explain which checks belong before execution."
+            }
+          ]
+        },
+        {
+          "id": "T46.02",
+          "title": "Structural and stack-height verification",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.02.a",
+              "text": "Separate instruction-boundary discovery from control-flow stack analysis over every function."
+            },
+            {
+              "id": "T46.02.b",
+              "text": "Reject malformed operands, interior or cross-function branches, wrong call arity and incompatible stack heights at joins."
+            },
+            {
+              "id": "T46.02.c",
+              "text": "Explain why accepted structural bytecode still needs runtime type, initialization, resource and termination checks."
+            }
+          ]
+        },
+        {
+          "id": "T46.03",
+          "title": "Checked dispatch and operand stack",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.03.a",
+              "text": "Implement a bounded opcode dispatch loop with explicit stack effects and checked int32 operations."
+            },
+            {
+              "id": "T46.03.b",
+              "text": "Distinguish type, range, stack-capacity and bytecode-format errors using deliberate counterexamples."
+            },
+            {
+              "id": "T46.03.c",
+              "text": "Preserve a declared result/error boundary and explain why VM arithmetic cannot inherit C signed-overflow behavior."
+            }
+          ]
+        },
+        {
+          "id": "T46.04",
+          "title": "Explicit call frames and recursion",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.04.a",
+              "text": "Represent each invocation with an independent instruction position, local slots, initialization state and operand-stack base."
+            },
+            {
+              "id": "T46.04.b",
+              "text": "Implement direct calls and returns with checked arity and frame capacity without recursing through the C interpreter."
+            },
+            {
+              "id": "T46.04.c",
+              "text": "Explain recursive execution and demonstrate bounded exhaustion distinct from native stack exhaustion."
+            }
+          ]
+        },
+        {
+          "id": "T46.05",
+          "title": "A bounded hosted expression compiler",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.05.a",
+              "text": "Scan explicit source spans and resolve bounded lexical names while rejecting unknown or duplicate function definitions."
+            },
+            {
+              "id": "T46.05.b",
+              "text": "Compile literals, lexical bindings and arithmetic into the declared bytecode and validate the emitted program."
+            },
+            {
+              "id": "T46.05.c",
+              "text": "Separate hosted compiler limits and source errors from runtime errors and preserve output on failed compilation."
+            }
+          ]
+        },
+        {
+          "id": "T46.06",
+          "title": "Conditionals, mutation and bounded loops",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.06.a",
+              "text": "Lower Boolean conditionals and loops into patched instruction-boundary branches with compatible stack joins."
+            },
+            {
+              "id": "T46.06.b",
+              "text": "Define mutable local assignment, sequencing and loop-result semantics without accidental host-language control behavior."
+            },
+            {
+              "id": "T46.06.c",
+              "text": "Demonstrate both a terminating source loop and an infinite guest loop bounded by fuel."
+            }
+          ]
+        },
+        {
+          "id": "T46.07",
+          "title": "Arena phase and object handles",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.07.a",
+              "text": "Build fixed pair objects in caller-owned storage and distinguish slot identity from generation identity."
+            },
+            {
+              "id": "T46.07.b",
+              "text": "Demonstrate arena exhaustion without pretending unreachable objects are reclaimed during that phase."
+            },
+            {
+              "id": "T46.07.c",
+              "text": "Specify reset invalidation, reference ownership and the transition to an explicit-root collector."
+            }
+          ]
+        },
+        {
+          "id": "T46.08",
+          "title": "Nonmoving mark-sweep and temporary roots",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.08.a",
+              "text": "Trace live operand values, initialized frame locals and explicit temporary roots with a bounded iterative mark worklist."
+            },
+            {
+              "id": "T46.08.b",
+              "text": "Reclaim unreachable cycles while preserving rooted graphs and allocation-time C temporaries."
+            },
+            {
+              "id": "T46.08.c",
+              "text": "Reject stale references and explain collection-budget exhaustion before sweep and remaining stop-the-world limits."
+            }
+          ]
+        },
+        {
+          "id": "T46.09",
+          "title": "Guest, collection and host budgets",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.09.a",
+              "text": "Maintain separate guest-dispatch, garbage-collection and host-call budgets with explicit units."
+            },
+            {
+              "id": "T46.09.b",
+              "text": "Stop infinite guest loops and resource-exhausting programs with observable structured outcomes."
+            },
+            {
+              "id": "T46.09.c",
+              "text": "Explain why instruction fuel alone cannot bound verifier cost, compiler cost, GC latency or a blocking host callback."
+            }
+          ]
+        },
+        {
+          "id": "T46.10",
+          "title": "Embedding and bounded store services",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.10.a",
+              "text": "Embed the VM through a narrow integer service callback with explicit capabilities and failure propagation."
+            },
+            {
+              "id": "T46.10.b",
+              "text": "Connect an already accepted store through fixed-key little-endian values without exposing arbitrary native calls."
+            },
+            {
+              "id": "T46.10.c",
+              "text": "Distinguish callback failure, uncertain persistence and guest completion when a service performs external work."
+            }
+          ]
+        },
+        {
+          "id": "T46.11",
+          "title": "One VM core across Linux, Thumb and a kernel",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.11.a",
+              "text": "Build one VM core for hosted Linux and freestanding Thumb without compiling the source-language compiler into firmware."
+            },
+            {
+              "id": "T46.11.b",
+              "text": "Run the same portable bytecode in an emulated Cortex-M target and an independently implemented kernel environment."
+            },
+            {
+              "id": "T46.11.c",
+              "text": "Audit compiler helpers, startup, memory placement and host-service adapters while keeping emulator and physical-board claims separate."
+            }
+          ]
+        },
+        {
+          "id": "T46.12",
+          "title": "Runtime defense, mutation and delayed transfer",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.12.a",
+              "text": "Defend the source-to-bytecode-to-execution provenance and distinguish tested anchors from complete runtime mastery."
+            },
+            {
+              "id": "T46.12.b",
+              "text": "Use independent malformed programs and fault mutations to challenge verifier, lifetime and resource claims."
+            },
+            {
+              "id": "T46.12.c",
+              "text": "Repeat a changed-capacity or changed-host-service task after a delay without consulting the prior implementation."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

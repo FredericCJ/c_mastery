@@ -1,0 +1,25 @@
+name: Curriculum and portable C checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  publication-and-portable-labs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-lock.txt
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y cmake ninja-build gcc clang libclang-rt-dev
+      - run: python tools/build_v2.py
+      - run: python tools/check_cli.py
+      - run: python tools/run_lab_matrix.py --native --family runtime --family storage
+      # Target suites require the pinned QEMU 10.2 machine and ARM toolchain.
+      # This job does not certify those suites or any physical measurement.

@@ -20,6 +20,9 @@ def write_zip(path, files, base):
     return entries
 
 def main():
+    if (ROOT/'curriculum/edition.json').exists():
+        from package_v2 import main as v2_main
+        return v2_main()
     acceptance=read_json(ROOT/'reviews/final_acceptance.json')
     if acceptance.get('accepted') is not True: raise ValueError('Accept the current teaching/publication before packaging')
     canonical_roots=['curriculum','fixtures','references','research','site','tools']

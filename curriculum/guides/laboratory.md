@@ -56,7 +56,7 @@ For first power-up and flashing, preserve the known image and record reset/boot 
 
 ## Rebuilding this handbook
 
-The extension adds handwritten x86-64/Thumb assembly, small architecture models, serial/electrical measurements and two physical stack routes. Follow {ref}`guide-enhancement` and the equipment table in {ref}`guide-communication-stacks` before acquiring parts. Record exact interface voltage, connector, transceiver supply and timing contracts. F439 classic bxCAN and an external analog transceiver do not supply a CAN FD controller; the optional physical FD route requires its own supported controller and additional inspected setup.
+The extension adds handwritten x86-64/Thumb assembly, small architecture models, serial/electrical measurements and two physical stack routes. Follow {ref}`guide-enhancement` and the equipment table in {ref}`guide-communication-stacks` before acquiring parts. Record exact interface voltage, connector, transceiver supply and timing contracts. F439 classic bxCAN and an external analog transceiver do not supply a CAN FD controller; the required physical FD route requires its own supported controller and additional inspected setup.
 
 The editable sources are under `curriculum/`, `references/`, `research/`, `fixtures/`, `site/` and `tools/`. Create a Python virtual environment and install `requirements-lock.txt`, then run `build.ps1`. This validates canonical metadata, recomputes fixture expectations, builds Sphinx with warnings as errors and checks local links and source fidelity. `serve.ps1` serves the generated HTML on loopback port 8766. Normal rebuilding does not query the Knowledge library or resource graphs and needs none of their document payloads.
 
@@ -69,3 +69,6 @@ Keep native, debug, optimized, sanitized, coverage, profiling and firmware outpu
 Store controlled fault cases under a separate learner test target, with finite capacities/timeouts and paired repaired controls. Native exhaustion runs in a learner-owned child process with verified child-only limits and supervisor evidence. Undefined behavior has no promised native crash value or diagnostic string. ASan/UBSan and unsanitized Memcheck runs are separate; conditional MSan needs its own supported instrumented environment.
 
 Use permitted per-process profiling and read-only cgroup observations first. A prepared delegated subtree supports the optional quota experiment. Hardware profiling and fault work reuse the recorded target map, drivers, clock and trace ownership. Static/captured-data analysis is available when a capability is missing, but it leaves the corresponding runtime or physical claim open. Follow {ref}`guide-performance-debugging` and the exact project limits.
+
+
+Edition 2 requires physical closure for every named interface; see {ref}`guide-physical-evidence`. Run the learner CLI and retain its scoped receipts as described in {ref}`guide-second-edition`.

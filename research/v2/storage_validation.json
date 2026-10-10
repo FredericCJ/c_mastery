@@ -1,0 +1,98 @@
+{
+  "status": "passed",
+  "scope": "Author-run executable C storage family and optional actual bytecode VM callback integration",
+  "date": "2026-10-10",
+  "actor": "/root/source_audit",
+  "environment": "WSL Ubuntu x86_64, CMake, GNU 15.2.0 and Clang 21.1.8",
+  "runs": [
+    {
+      "compiler": "GNU 15.2.0",
+      "configuration": "Debug",
+      "ctest_passed": 13,
+      "ctest_failed": 0,
+      "includes_vm": true
+    },
+    {
+      "compiler": "GNU 15.2.0",
+      "configuration": "Debug ASan+UBSan",
+      "ctest_passed": 12,
+      "ctest_failed": 0,
+      "includes_vm": false
+    },
+    {
+      "compiler": "Clang 21.1.8",
+      "configuration": "Debug ASan+UBSan",
+      "ctest_passed": 13,
+      "ctest_failed": 0,
+      "includes_vm": true
+    },
+    {
+      "compiler": "GNU 15.2.0",
+      "configuration": "Default learner placeholder",
+      "build": "passed",
+      "storage.format": "expected semantic failure: store_format returns STORE_UNIMPLEMENTED"
+    },
+    {
+      "compiler": "GNU 15.2.0",
+      "configuration": "Release, final progressive gates",
+      "ctest_passed": 22,
+      "ctest_failed": 0,
+      "includes_vm": true
+    },
+    {
+      "compiler": "Clang 21.1.8",
+      "configuration": "Debug ASan+UBSan, final progressive gates",
+      "ctest_passed": 22,
+      "ctest_failed": 0,
+      "includes_vm": true
+    },
+    {
+      "compiler": "GNU 15.2.0",
+      "configuration": "Default learner final progressive gates",
+      "build": "passed",
+      "codec/cache/lookup": "all three selected semantic tests failed as required"
+    }
+  ],
+  "positive_cases": [
+    "format and input contracts",
+    "92-key multi-level tree, deletion permutation and reuse",
+    "800 mixed operations against independent 80-key model",
+    "commit crash boundaries",
+    "checkpoint crash boundaries",
+    "interrupted recovery boundaries",
+    "corruption rejection and cache reuse",
+    "capacity failure abort",
+    "POSIX existing-image commit/reopen",
+    "actual VM bytecode store/get and durable commit with lost response"
+  ],
+  "compiled_mutations_killed": [
+    "NO_COMMIT_FLUSH",
+    "EARLY_RECLAIM",
+    "BAD_SEPARATOR"
+  ],
+  "source_freshness": "Root edition runner independently rebuilds and binds final file hashes; this author receipt records the observed runs rather than serving as final acceptance.",
+  "limitations": [
+    "Five representative persistence patterns at each selected write/flush boundary, not all possible tear offsets or subsets",
+    "Checksummed damage with collisions excluded",
+    "No physical power cut or lying-flush proof",
+    "No concurrent reader/writer implementation",
+    "Initial Clang sanitizer link attempt failed for missing compiler-rt; after central dependency installation the recorded sanitized run passed",
+    "Kernel integration is independently owned and recorded by /root/lab_audit"
+  ],
+  "progression": "Separate codec, initial image, cache, lookup, insertion, deletion, transaction, publish and checkpoint-order gates; later integration checks explicitly deferred and assessor mutations separately mapped.",
+  "canonical_encoding": "Only live key/value spans and active internal children are persisted; inactive/split scratch and padding serialize as zero. Nonzero-prefill regression passed.",
+  "source_sha256": {
+    "labs/storage/CMakeLists.txt": "8e1e3e13f6cb2f73a2b4722230332d3aa3d142890f17a4ae7dbd6538bbab058b",
+    "labs/storage/family.json": "d22aa132222a4da38e4125b89b6e373dba18f59d0160a99a20612cea10c73f65",
+    "labs/storage/FORMAT.md": "fa93849005db990854bfe5252edfa9380e1fcb366725e1586af1792462f82ca4",
+    "labs/storage/HINTS.md": "7068059ff5c14da04676b77d1c86ff5712645e4de08694327fb37471d601b7e2",
+    "labs/storage/include/store.h": "278dcc78bcf2756629c466e751e4358d1c3b21dd65aaf721ae8f43314e28d5d2",
+    "labs/storage/include/store_file.h": "12ab7bf9b472d7cee6f46ba93d4721a4814246ff2dd5ca63dfc0a6b138f1b17d",
+    "labs/storage/INTEGRATION.md": "a3a9da074883d408fff70703295cec164b0667c36e33b6ce0def4bfbf36348df",
+    "labs/storage/README.md": "77e88a7f57f810edd73b96785054c1a915f6b7bf3519b8b480a649f91e5a5fe4",
+    "labs/storage/src/store.c": "d5cda535c5ea24d4522e4e1b621c0da27b4fa5b9ddf67153de5323325c3cb43d",
+    "labs/storage/src/store_file.c": "b76d705764de9ea0cae12bc9b9fb344e9b47baf8aa7256d709af137008c31b4d",
+    "labs/storage/tests/test_store.c": "ba1dc79f128d89f21a3f577c3a65407a2e607e9a5ba7f3e9b4411e2eb61a3462",
+    "assessor/storage/store.c": "ff8f3b35057cfbd4e8834cd32c4b630cd66975289abe882ef4f9d0df2c549626"
+  }
+}

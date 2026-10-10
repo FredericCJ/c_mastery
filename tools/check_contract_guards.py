@@ -44,15 +44,16 @@ def main():
     trial('boolean reading budget',lambda d:d[1]['T02']['meta']['readings'][0].update(hours=True), 'unbounded reading assignment')
     trial('fixture escape',lambda d:next(iter(d[2].values()))['meta'].update(fixtures=['../outside.json']), 'escaping fixture')
     trial('missing teaching',lambda d:d[1]['T02'].update(body=d[1]['T02']['body'].replace('### T02.01','### LOST.01')), 'missing substantive')
-    trial('missing leaf',lambda d:d[0][0]['subtopics'][0]['objectives'].pop(), '1,185 unique')
-    trial('changed original objective',lambda d:d[0][0]['subtopics'][0]['objectives'][0].update(text='replacement'), 'preserved exactly')
+    v2=(ROOT/'curriculum/edition.json').exists()
+    trial('missing leaf',lambda d:d[0][0]['subtopics'][0]['objectives'].pop(), 'Unmapped prior objective' if v2 else '1,185 unique')
+    trial('changed original objective',lambda d:d[0][0]['subtopics'][0]['objectives'][0].update(text='replacement'), 'Retained objective changed' if v2 else 'preserved exactly')
     trial('duplicate taxonomy domain',lambda d:d[0].append(deepcopy(d[0][-1])), 'Duplicate taxonomy domain')
-    if len(original[0])>35:
+    if len(original[0])>35 and not v2:
         trial('missing enhancement objective',lambda d:d[0][-1]['subtopics'][0]['objectives'].pop(), 'three distinct')
     if (ROOT/'curriculum/performance_debugging_taxonomy.json').exists():
         def alter_prior_extension(data):
             next(d for d in data[0] if d['id']=='T36')['subtopics'][0]['objectives'][0]['text']='replacement'
-        trial('changed prior enhancement objective',alter_prior_extension,'Prior 198 enhancement objectives')
+        trial('changed prior enhancement objective',alter_prior_extension,'Retained objective changed' if v2 else 'Prior 198 enhancement objectives')
         gate=deepcopy(read_json(ROOT/'reviews/performance_debugging_research_gate.json'))
         path=next(iter(gate['research_input_sha256']))
         gate['research_input_sha256'][path]='0'*64

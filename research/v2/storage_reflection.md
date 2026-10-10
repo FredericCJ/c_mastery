@@ -1,0 +1,5 @@
+# Storage reflection
+
+The prior curriculum covers partial I/O, ownership and finite storage models, but a persistent engine requires a crash contract between them. A write can be accepted without persistence; a failed flush leaves an indeterminate result. The first implementation uses a bounded B+tree and one serialized writer, with no independent readers, one pending transaction and no uncommitted home-page writes. A full-page redo record and checksum are useful only under stated overwrite and corruption-detection assumptions. The old tree or complete new tree must survive every admitted cut; a clean reopen alone is not enough.
+
+The held redo text supports ordered prepare/commit/write-back/reclaim stages. Its historical kernel barrier name is not copied into a current adapter. ARIES is retained as a foundational publication lead with an explicit uninspected algorithm boundary. B-tree evidence supports balance/split/merge reasoning; B+tree separators and linked leaves receive an original contract.

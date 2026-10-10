@@ -1,0 +1,746 @@
+{
+  "edition": 2,
+  "domains": [
+    {
+      "id": "T46",
+      "title": "A bounded language runtime from representation to execution",
+      "subtopics": [
+        {
+          "id": "T46.01",
+          "title": "Values and a portable bytecode image",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.01.a",
+              "text": "Specify tagged int32, Boolean, nil and generation-checked object references without conflating a language value with C object bytes."
+            },
+            {
+              "id": "T46.01.b",
+              "text": "Encode and decode a bounded CVM1 image using explicit little-endian fields and failure-atomic loading."
+            },
+            {
+              "id": "T46.01.c",
+              "text": "Reject truncated, unsupported and oversized images and explain which checks belong before execution."
+            }
+          ]
+        },
+        {
+          "id": "T46.02",
+          "title": "Structural and stack-height verification",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.02.a",
+              "text": "Separate instruction-boundary discovery from control-flow stack analysis over every function."
+            },
+            {
+              "id": "T46.02.b",
+              "text": "Reject malformed operands, interior or cross-function branches, wrong call arity and incompatible stack heights at joins."
+            },
+            {
+              "id": "T46.02.c",
+              "text": "Explain why accepted structural bytecode still needs runtime type, initialization, resource and termination checks."
+            }
+          ]
+        },
+        {
+          "id": "T46.03",
+          "title": "Checked dispatch and operand stack",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.03.a",
+              "text": "Implement a bounded opcode dispatch loop with explicit stack effects and checked int32 operations."
+            },
+            {
+              "id": "T46.03.b",
+              "text": "Distinguish type, range, stack-capacity and bytecode-format errors using deliberate counterexamples."
+            },
+            {
+              "id": "T46.03.c",
+              "text": "Preserve a declared result/error boundary and explain why VM arithmetic cannot inherit C signed-overflow behavior."
+            }
+          ]
+        },
+        {
+          "id": "T46.04",
+          "title": "Explicit call frames and recursion",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.04.a",
+              "text": "Represent each invocation with an independent instruction position, local slots, initialization state and operand-stack base."
+            },
+            {
+              "id": "T46.04.b",
+              "text": "Implement direct calls and returns with checked arity and frame capacity without recursing through the C interpreter."
+            },
+            {
+              "id": "T46.04.c",
+              "text": "Explain recursive execution and demonstrate bounded exhaustion distinct from native stack exhaustion."
+            }
+          ]
+        },
+        {
+          "id": "T46.05",
+          "title": "A bounded hosted expression compiler",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.05.a",
+              "text": "Scan explicit source spans and resolve bounded lexical names while rejecting unknown or duplicate function definitions."
+            },
+            {
+              "id": "T46.05.b",
+              "text": "Compile literals, lexical bindings and arithmetic into the declared bytecode and validate the emitted program."
+            },
+            {
+              "id": "T46.05.c",
+              "text": "Separate hosted compiler limits and source errors from runtime errors and preserve output on failed compilation."
+            }
+          ]
+        },
+        {
+          "id": "T46.06",
+          "title": "Conditionals, mutation and bounded loops",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.06.a",
+              "text": "Lower Boolean conditionals and loops into patched instruction-boundary branches with compatible stack joins."
+            },
+            {
+              "id": "T46.06.b",
+              "text": "Define mutable local assignment, sequencing and loop-result semantics without accidental host-language control behavior."
+            },
+            {
+              "id": "T46.06.c",
+              "text": "Demonstrate both a terminating source loop and an infinite guest loop bounded by fuel."
+            }
+          ]
+        },
+        {
+          "id": "T46.07",
+          "title": "Arena phase and object handles",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.07.a",
+              "text": "Build fixed pair objects in caller-owned storage and distinguish slot identity from generation identity."
+            },
+            {
+              "id": "T46.07.b",
+              "text": "Demonstrate arena exhaustion without pretending unreachable objects are reclaimed during that phase."
+            },
+            {
+              "id": "T46.07.c",
+              "text": "Specify reset invalidation, reference ownership and the transition to an explicit-root collector."
+            }
+          ]
+        },
+        {
+          "id": "T46.08",
+          "title": "Nonmoving mark-sweep and temporary roots",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.08.a",
+              "text": "Trace live operand values, initialized frame locals and explicit temporary roots with a bounded iterative mark worklist."
+            },
+            {
+              "id": "T46.08.b",
+              "text": "Reclaim unreachable cycles while preserving rooted graphs and allocation-time C temporaries."
+            },
+            {
+              "id": "T46.08.c",
+              "text": "Reject stale references and explain collection-budget exhaustion before sweep and remaining stop-the-world limits."
+            }
+          ]
+        },
+        {
+          "id": "T46.09",
+          "title": "Guest, collection and host budgets",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.09.a",
+              "text": "Maintain separate guest-dispatch, garbage-collection and host-call budgets with explicit units."
+            },
+            {
+              "id": "T46.09.b",
+              "text": "Stop infinite guest loops and resource-exhausting programs with observable structured outcomes."
+            },
+            {
+              "id": "T46.09.c",
+              "text": "Explain why instruction fuel alone cannot bound verifier cost, compiler cost, GC latency or a blocking host callback."
+            }
+          ]
+        },
+        {
+          "id": "T46.10",
+          "title": "Embedding and bounded store services",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.10.a",
+              "text": "Embed the VM through a narrow integer service callback with explicit capabilities and failure propagation."
+            },
+            {
+              "id": "T46.10.b",
+              "text": "Connect an already accepted store through fixed-key little-endian values without exposing arbitrary native calls."
+            },
+            {
+              "id": "T46.10.c",
+              "text": "Distinguish callback failure, uncertain persistence and guest completion when a service performs external work."
+            }
+          ]
+        },
+        {
+          "id": "T46.11",
+          "title": "One VM core across Linux, Thumb and a kernel",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.11.a",
+              "text": "Build one VM core for hosted Linux and freestanding Thumb without compiling the source-language compiler into firmware."
+            },
+            {
+              "id": "T46.11.b",
+              "text": "Run the same portable bytecode in an emulated Cortex-M target and an independently implemented kernel environment."
+            },
+            {
+              "id": "T46.11.c",
+              "text": "Audit compiler helpers, startup, memory placement and host-service adapters while keeping emulator and physical-board claims separate."
+            }
+          ]
+        },
+        {
+          "id": "T46.12",
+          "title": "Runtime defense, mutation and delayed transfer",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T46.12.a",
+              "text": "Defend the source-to-bytecode-to-execution provenance and distinguish tested anchors from complete runtime mastery."
+            },
+            {
+              "id": "T46.12.b",
+              "text": "Use independent malformed programs and fault mutations to challenge verifier, lifetime and resource claims."
+            },
+            {
+              "id": "T46.12.c",
+              "text": "Repeat a changed-capacity or changed-host-service task after a delay without consulting the prior implementation."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T47",
+      "title": "Persistent storage engine and crash consistency",
+      "depth": "advanced implementation",
+      "subtopics": [
+        {
+          "id": "T47.01",
+          "title": "A byte-exact page codec",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.01.a",
+              "text": "Encode and decode 4096-byte pages with explicit byte order, version, identity, count, bounds and CRC checks; explain why casting a struct cannot define this format."
+            },
+            {
+              "id": "T47.01.b",
+              "text": "Reject invalid key/value extents and corrupt page metadata before following references or changing caller outputs."
+            },
+            {
+              "id": "T47.01.c",
+              "text": "Distinguish fresh-image format from reopen; diagnose a changed identity, count, checksum or short block without silently constructing an empty tree."
+            }
+          ]
+        },
+        {
+          "id": "T47.02",
+          "title": "A bounded clean page cache",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.02.a",
+              "text": "Implement a four-entry clean page cache whose tags identify exact physical pages; keep transaction-owned dirty nodes outside the cache."
+            },
+            {
+              "id": "T47.02.b",
+              "text": "Invalidate cached home or WAL bytes on publication and checkpoint transitions, demonstrating a stale-generation counterexample when invalidation is removed."
+            },
+            {
+              "id": "T47.02.c",
+              "text": "Account separately for cache hits, backend reads and fixed memory bytes on repeated and conflicting-page traces."
+            }
+          ]
+        },
+        {
+          "id": "T47.03",
+          "title": "B+tree lookup and ordered scan",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.03.a",
+              "text": "Use unsigned length-delimited key order and right-child separator equality to derive every lookup decision, including embedded zeros and equal prefixes."
+            },
+            {
+              "id": "T47.03.b",
+              "text": "Implement bounded lookup and linked-leaf lower-bound scans with early-stop callbacks and unchanged outputs on missing or undersized results."
+            },
+            {
+              "id": "T47.03.c",
+              "text": "Cross-check tree descent, leaf order, reachability and allocation; reject a dangling reference or leaf cycle before exceeding the page bound."
+            }
+          ]
+        },
+        {
+          "id": "T47.04",
+          "title": "Insertion, splits and root growth",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.04.a",
+              "text": "Split full leaf and internal nodes while preserving separator minima, occupancy, child ownership and leaf links through root growth."
+            },
+            {
+              "id": "T47.04.b",
+              "text": "Make updates and failed page allocations preserve the declared transaction state; distinguish replacement from insertion of a new key."
+            },
+            {
+              "id": "T47.04.c",
+              "text": "Reproduce a split-propagation error and compare all keys with an independent map; report the implementation's O(P) separator refresh cost explicitly."
+            }
+          ]
+        },
+        {
+          "id": "T47.05",
+          "title": "Deletion, redistribution and page reuse",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.05.a",
+              "text": "Derive sibling borrowing, merging and root contraction from minimum occupancy and separator invariants."
+            },
+            {
+              "id": "T47.05.b",
+              "text": "Implement deletion with leaf-link repair and allocation-bitmap page reuse without leaving a reachable free page or an unreachable allocated page."
+            },
+            {
+              "id": "T47.05.c",
+              "text": "Demonstrate left/right redistribution, multi-level merge and reuse after deletion; preserve whole-map equality against an independent oracle."
+            }
+          ]
+        },
+        {
+          "id": "T47.06",
+          "title": "Bounded no-steal transactions",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.06.a",
+              "text": "Bound transaction scratch memory and enforce one writer with no concurrent readers; explain why private dirty nodes must not reach home pages before commit."
+            },
+            {
+              "id": "T47.06.b",
+              "text": "Implement begin, abort and capacity rejection so an abandoned transaction leaves the committed logical map unchanged."
+            },
+            {
+              "id": "T47.06.c",
+              "text": "Separate clean cache, committed WAL view and transaction-owned nodes when diagnosing a leaked uncommitted update."
+            }
+          ]
+        },
+        {
+          "id": "T47.07",
+          "title": "Full-page redo and commit outcomes",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.07.a",
+              "text": "Derive the persistence order: invalidate the old marker and flush, write complete after-images and flush, then publish and flush the new commit marker."
+            },
+            {
+              "id": "T47.07.b",
+              "text": "Implement explicit committed, aborted/error and indeterminate outcomes; close the handle after an uncertain publication instead of permitting blind retry."
+            },
+            {
+              "id": "T47.07.c",
+              "text": "Kill the omitted-commit-flush variant and show why a failed response may accompany either complete persistence or no committed change."
+            }
+          ]
+        },
+        {
+          "id": "T47.08",
+          "title": "Checkpoint generations and reclamation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.08.a",
+              "text": "Validate the complete committed WAL batch before installing any home page; flush homes before publishing alternate generation metadata."
+            },
+            {
+              "id": "T47.08.b",
+              "text": "Select valid metadata generations and delay WAL reclamation until the new checkpoint is durably discoverable."
+            },
+            {
+              "id": "T47.08.c",
+              "text": "Recover from an interrupted checkpoint and explain why early marker reclamation can destroy the only authoritative committed generation."
+            }
+          ]
+        },
+        {
+          "id": "T47.09",
+          "title": "Recovery and repeated interruption",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.09.a",
+              "text": "Reopen an established image by validating generations, commit marker and every required after-image before replay."
+            },
+            {
+              "id": "T47.09.b",
+              "text": "Implement idempotent full-page redo that can itself be interrupted and repeated without changing the recovered application map."
+            },
+            {
+              "id": "T47.09.c",
+              "text": "Reject corrupt committed input and failed recovery I/O while preserving the failure image; distinguish corruption from an admissible old-or-new crash result."
+            }
+          ]
+        },
+        {
+          "id": "T47.10",
+          "title": "Crash schedules and adversarial oracles",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.10.a",
+              "text": "Implement stable/pending block state and reproducible crash cuts that model admitted reorder, partial persistence, tears and failed acknowledgments."
+            },
+            {
+              "id": "T47.10.b",
+              "text": "Compare complete recovered maps against the independent transaction oracle across commit, checkpoint and repeated-recovery cuts."
+            },
+            {
+              "id": "T47.10.c",
+              "text": "Record tested cut counts and persistence patterns, kill semantic mutants, and explain why finite representative schedules do not exhaust physical failure behavior."
+            }
+          ]
+        },
+        {
+          "id": "T47.11",
+          "title": "Linux file I/O and amplification",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.11.a",
+              "text": "Translate complete-page operations into bounded pread/pwrite loops that handle EINTR, positive short transfers, zero progress and errors."
+            },
+            {
+              "id": "T47.11.b",
+              "text": "Implement the existing-file fsync contract and demonstrate commit-close-reopen on a disposable preallocated image with platform failures reported explicitly."
+            },
+            {
+              "id": "T47.11.c",
+              "text": "Compute page traffic, flush count and write amplification separately from useful payload, cached host traffic, device operations and physical power-loss claims."
+            }
+          ]
+        },
+        {
+          "id": "T47.12",
+          "title": "VM and kernel storage boundaries",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.12.a",
+              "text": "Connect narrow VM integer services to the existing store through bounded byte encoding and explicit transaction outcomes without exposing arbitrary pointers or paths."
+            },
+            {
+              "id": "T47.12.b",
+              "text": "Adapt kernel whole-page read/write/flush capabilities to an exclusive store image slice, preserving user-buffer validation and durability responsibilities."
+            },
+            {
+              "id": "T47.12.c",
+              "text": "Execute write, lost-response failure, restart and read through the application boundary; reconcile indeterminate results instead of assuming an error proves absence."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T48",
+      "title": "A small isolated x86-64 operating system",
+      "subtopics": [
+        {
+          "id": "T48.01",
+          "title": "Boot contracts and the long-mode transition",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.01.a",
+              "text": "Derive the machine-state and memory contract between GRUB, transition assembly and C."
+            },
+            {
+              "id": "T48.01.b",
+              "text": "Build and execute an original protected-to-long-mode transition with a correctly linked freestanding image."
+            },
+            {
+              "id": "T48.01.c",
+              "text": "Diagnose a deliberately broken entry/mapping assumption from the first supported machine-state divergence."
+            }
+          ]
+        },
+        {
+          "id": "T48.02",
+          "title": "Bounded boot information and memory reservations",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.02.a",
+              "text": "Validate complete boot-tag and memory-map spans before interpreting fields."
+            },
+            {
+              "id": "T48.02.b",
+              "text": "Reserve boot-owned memory and give reserved overlaps precedence over available ranges."
+            },
+            {
+              "id": "T48.02.c",
+              "text": "Reject truncated or overflowing records while preserving the prior output contract."
+            }
+          ]
+        },
+        {
+          "id": "T48.03",
+          "title": "Serial diagnosis and normalized exception frames",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.03.a",
+              "text": "Separate architectural and software-saved exception state."
+            },
+            {
+              "id": "T48.03.b",
+              "text": "Implement a normalized trap entry/return and bounded first-cause diagnostics."
+            },
+            {
+              "id": "T48.03.c",
+              "text": "Distinguish a recoverable user fault from a fatal kernel-mode exception."
+            }
+          ]
+        },
+        {
+          "id": "T48.04",
+          "title": "Physical frames and explicit page-table ownership",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.04.a",
+              "text": "Derive and implement frame ownership and exhaustion invariants."
+            },
+            {
+              "id": "T48.04.b",
+              "text": "Construct explicit process mappings with zero-fill and bounded allocation rollback."
+            },
+            {
+              "id": "T48.04.c",
+              "text": "Explain when page-table and frame storage may be reclaimed after a context switch."
+            }
+          ]
+        },
+        {
+          "id": "T48.05",
+          "title": "Ring-3 isolation and guarded user storage",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.05.a",
+              "text": "Construct separate address spaces with explicit user/supervisor and write/execute policy."
+            },
+            {
+              "id": "T48.05.b",
+              "text": "Demonstrate process isolation with both positive and negative machine-level observations."
+            },
+            {
+              "id": "T48.05.c",
+              "text": "Explain guard-page detection and the limits of a finite memory-safety campaign."
+            }
+          ]
+        },
+        {
+          "id": "T48.06",
+          "title": "Timer preemption with a nonpreemptible kernel",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.06.a",
+              "text": "Separate scheduling policy from context-save and address-space-switch mechanisms."
+            },
+            {
+              "id": "T48.06.b",
+              "text": "Implement timer-driven round-robin user preemption with valid stack ownership."
+            },
+            {
+              "id": "T48.06.c",
+              "text": "Measure and explain latency introduced by a nonpreemptible kernel."
+            }
+          ]
+        },
+        {
+          "id": "T48.07",
+          "title": "Static ELF64 and a read-only boot archive",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.07.a",
+              "text": "Validate the bounded ELF program-header contract before committing mappings."
+            },
+            {
+              "id": "T48.07.b",
+              "text": "Implement a checked named-span boot archive and zero-filled static image loader."
+            },
+            {
+              "id": "T48.07.c",
+              "text": "Distinguish the educational executable profile from general ELF and filesystem support."
+            }
+          ]
+        },
+        {
+          "id": "T48.08",
+          "title": "Bounded syscalls and revocable process handles",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.08.a",
+              "text": "Define an explicit syscall ABI and checked copy-in/copy-out contract."
+            },
+            {
+              "id": "T48.08.b",
+              "text": "Implement process-local handle ownership, closure and generation rejection."
+            },
+            {
+              "id": "T48.08.c",
+              "text": "Demonstrate that untrusted argument rejection preserves kernel and peer state."
+            }
+          ]
+        },
+        {
+          "id": "T48.09",
+          "title": "Modern PCI virtio discovery and split queues",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.09.a",
+              "text": "Decode the selected PCI capability and feature negotiation contracts."
+            },
+            {
+              "id": "T48.09.b",
+              "text": "Implement split-queue publication and completion ownership with bounded descriptors."
+            },
+            {
+              "id": "T48.09.c",
+              "text": "Explain transport-specific ordering and why volatile alone does not establish the complete DMA protocol."
+            }
+          ]
+        },
+        {
+          "id": "T48.10",
+          "title": "Block completion, flush and persistence boundaries",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.10.a",
+              "text": "Separate request completion, buffer release and persistent-state claims."
+            },
+            {
+              "id": "T48.10.b",
+              "text": "Implement explicit bounded page/sector conversion and flush propagation."
+            },
+            {
+              "id": "T48.10.c",
+              "text": "Qualify reboot observations against the actual emulated backend failure model."
+            }
+          ]
+        },
+        {
+          "id": "T48.11",
+          "title": "Init, bounded console shell and teardown",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.11.a",
+              "text": "Build init and a bounded shell against the custom ABI rather than hosted libc."
+            },
+            {
+              "id": "T48.11.b",
+              "text": "Test interactive input and process teardown through actual guest execution."
+            },
+            {
+              "id": "T48.11.c",
+              "text": "Defend the boundary between a boot archive, shell and general process/filesystem services."
+            }
+          ]
+        },
+        {
+          "id": "T48.12",
+          "title": "One portable VM core inside a user process",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.12.a",
+              "text": "Port the unchanged portable VM through explicit user-space adapters."
+            },
+            {
+              "id": "T48.12.b",
+              "text": "Reconcile VM, compiler-helper and process resource contracts."
+            },
+            {
+              "id": "T48.12.c",
+              "text": "Demonstrate runtime error and host-call budget behavior inside the original OS."
+            }
+          ]
+        },
+        {
+          "id": "T48.13",
+          "title": "VM, durable store and kernel reboot integration",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.13.a",
+              "text": "Compose runtime, transaction and block interfaces without bypassing ownership layers."
+            },
+            {
+              "id": "T48.13.b",
+              "text": "Execute bytecode-to-durable-storage and reboot recovery on the original OS."
+            },
+            {
+              "id": "T48.13.c",
+              "text": "Explain lost-response ambiguity without equating a reported error to absence of commit."
+            }
+          ]
+        },
+        {
+          "id": "T48.14",
+          "title": "Kernel diagnosis, negative controls and delayed transfer",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T48.14.a",
+              "text": "Use independent host and machine-level evidence to diagnose an original kernel defect."
+            },
+            {
+              "id": "T48.14.b",
+              "text": "Preserve matching source/image/tool identities and reject inadequate negative controls."
+            },
+            {
+              "id": "T48.14.c",
+              "text": "Transfer the mechanism to a delayed changed-condition assessment with explicit limits."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -13,9 +13,21 @@
   "profile": "A",
   "fixtures": [
     "fixtures/integration/wire.json"
-  ]
+  ],
+  "edition": 2,
+  "evidence_template": "component"
 }
 ```
+
+## Working card
+
+**Build:** Linux architecture and threat model. **Evidence:** component dossier. **Start:** predict the supplied case before reading its expected result.
+
+**Engineering question:** Declare the newly exercised boundary and reference existing component evidence.
+
+**Changed-condition challenge:** A changed adapter completion or ownership assumption invalidating an otherwise correct component.
+
+Use `python -m cmastery init PR-CAP-LINUX-01 <empty-workspace>` to obtain the brief, fixtures and any executable family scaffold. A `not-run` or `unavailable` result leaves the corresponding claim open. Apply the [shared contract cards](../guides/component-contracts.md), then the project-specific obligations below.
 
 ## Contract
 
@@ -44,3 +56,4 @@ Start from the smallest deterministic fixture and write a state/ownership table.
 ## Transfer challenge
 
 Change one declared capacity, backend or environment assumption. Predict the surviving invariants and regenerate the affected evidence. Explain the cost of the change and preserve the previous regression. No complete C solution is supplied: the implementation and its defense are learner work.
+

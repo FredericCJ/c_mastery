@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-10",
+  "author": "/root/source_audit",
+  "status": "observed-pass",
+  "scope": "Author execution receipt; root independent review and edition acceptance remain separate.",
+  "implementation": "original C17 and original handwritten SysV x86-64/Thumb assembly",
+  "runs": [
+    {
+      "environment": "WSL Ubuntu GCC15.2.0",
+      "command": "cmake -S labs/algorithms -B <outside-repo> -DCMASTERY_ASSESSOR_ROOT=<absolute assessor/algorithms>; cmake --build <build>; ctest --test-dir <build> --output-on-failure",
+      "result": "20/20 passed"
+    },
+    {
+      "environment": "WSL Ubuntu Clang21.1.8 ASan/UBSan",
+      "command": "same with -DCMAKE_C_COMPILER=clang -DCMASTERY_SANITIZERS=ON",
+      "result": "20/20 passed; assembly itself is not sanitizer-instrumented"
+    },
+    {
+      "environment": "Default learner GCC15.2.0",
+      "command": "configure without assessor; build; ctest -R algorithms.ring|algorithms.x86_64|algorithms.thumb",
+      "result": "build succeeded; all three selected semantic tests failed as required"
+    },
+    {
+      "environment": "QEMU mps2-an386 Cortex-M4",
+      "result": "500 generated arrays with permutation/stability, linear oracle, nested scalar ABI; 1024-word boundary; three compiled semantic mutants explicitly rejected"
+    },
+    {
+      "environment": "Native Linux x86-64",
+      "result": "1000 generated arrays; all three kernel ABI probes; unsigned duplicates, max extent and mmap guard-page boundary"
+    },
+    {
+      "environment": "GCC hosted observations",
+      "command": "algorithms_measure",
+      "result": "nine CSV samples emitted, each32768queries/327728searchcomparisons/checksum16778360/4096arraybytes; no timing acceptance claim"
+    },
+    {
+      "environment": "WSL Ubuntu GCC 15.2.0 Release, final narrow gates",
+      "result": "34/34 passed; 25 positive/combined cases and nine explicit mutation rejections"
+    },
+    {
+      "environment": "WSL Ubuntu Clang 21.1.8 Debug ASan/UBSan, final narrow gates",
+      "result": "34/34 passed; handwritten assembly itself is not sanitizer-instrumented"
+    },
+    {
+      "environment": "Default learner GCC 15.2.0, final narrow gates",
+      "result": "Build succeeded; all 25 semantic CTests failed as required, including native and QEMU narrow cases"
+    },
+    {
+      "environment": "Final Cortex-M4 startup revision",
+      "result": "Seven selected Thumb tests passed after replacing cross-symbol pointer ordering with integer address intervals; native+Thumb staged-source probe again passed lower and rejected both future stubs."
+    }
+  ],
+  "negative_controls": [
+    "C tombstone",
+    "C stability",
+    "C generation reuse",
+    "x86 signed branch",
+    "x86 unstable tie",
+    "x86 callee-saved clobber",
+    "Thumb signed branch",
+    "Thumb unstable tie",
+    "Thumb callee-saved clobber"
+  ],
+  "oracle_repair": "Thumb nested wrapper initially restored r4 before probing and masked the ABI mutant. It now uses caller-scratch r3; expected guest semantic rejection observed.",
+  "limits": [
+    "Not full-project or objective acceptance",
+    "No physical MCU timing or PMU access",
+    "Finite randomized and bounded exhaustive cases only",
+    "Conservative checked distance overflow contract",
+    "Historical pinned scalar ABI scopes",
+    "Benchmark includes validation and instrumentation overhead"
+  ],
+  "source_sha256": {
+    "labs/algorithms/adapters/checked_asm.c": "4eda3b9f505c3a7213a605b009364db2de8983ce1905f6299a3f69c2104587db",
+    "labs/algorithms/CMakeLists.txt": "33df0f9517e8075b68ac8f19450812287ca26e85ca7a42ae4a699dfa2689f022",
+    "labs/algorithms/family.json": "f061e4c622f710a6b7bc4a67d2ebea793f7a69bff5aa6752d4781f05714d87a3",
+    "labs/algorithms/HINTS.md": "e004efa62f9dcbf1ddd82841e424c577c21f97fbca74b94a194727bd5b838c00",
+    "labs/algorithms/include/algo.h": "d7cd32dbc308060a1fa0396412b525ab7aa426f3c03549c19d86bd4cc1213f5c",
+    "labs/algorithms/README.md": "c0c88a025430c259c02cad045da4cdf4a57c5f137254f36e0a589919020aa051",
+    "labs/algorithms/SPEC.md": "9ab88d640d39c9cd21635e6feab626a7753a0fd22fa9da9ef9c6173dce2d105f",
+    "labs/algorithms/src/algo.c": "ca3e23142585a994358109f3f99984937068f83fd26254b28a9b0dad972b5d19",
+    "labs/algorithms/src/thumb.S": "dad7bcb80191a206acf69ef93a91c031fc79b510ded84a9defa279d80c74a355",
+    "labs/algorithms/src/x86_64.S": "dfeb7b7c979d37bc2cbe81f629861a9d4a5075a78337120163c9939d8c709888",
+    "labs/algorithms/tests/abi_thumb.S": "84681454380eaf8e10d6588577bffe65eaaabb09d636a7969daa35ea62e47f6a",
+    "labs/algorithms/tests/abi_x86_64.S": "a1220c0ba33ca02c2ef4933e21088c28150085cf8c5d7f7a0cbdc1a71c542f79",
+    "labs/algorithms/tests/measure.c": "cae3a708412203b973bc6009a82904da3068e4404857f3206e53dbe27ab098ed",
+    "labs/algorithms/tests/test_algo.c": "0b63455eb7255940cb805759140aebf564124de5b8ee4a1be89949652447cb54",
+    "labs/algorithms/thumb/link.ld": "155a7c369ba9dc3580fe942fabac0c5afe8c8b203836ded1bf8e7631b1f73f9e",
+    "labs/algorithms/thumb/run.py": "2e7536f86e954edd8a773c040c7972ab52dd858ceaad6ebdb636516388a46fb5",
+    "labs/algorithms/thumb/startup.c": "a2c82fbd721f4806125f70e78a80a1659c2cdf1bdf2bcb7d57769209222897df",
+    "assessor/algorithms/algo.c": "3f50787a7e97d6160dcf006ce90a576e3d569d626e2cc25695c671a617e148c1",
+    "assessor/algorithms/thumb.S": "aba24a165710da827d49e3a2f02e519a6beed296dae21aaefb54baf7cbe2a4b5",
+    "assessor/algorithms/x86_64.S": "0426a490cdd9621763e045f13bd599f7833dfa4ca81aa4317f11f8ac24909bcc"
+  },
+  "review_repairs": [
+    "Native ABI mutation first passes through restoring probe, preventing deliberate callee-save corruption from crashing optimized harness before its semantic verdict.",
+    "Sift checks the possible promoted child against parent(p); rejected internal-root counterexample and admitted internal repair executed in C, native and Thumb facades.",
+    "Earlier mechanism gates no longer call future arena/pool, sum/Q7, ALU/cache, sets/path or insertion/sift implementations. Full-suite combined cases remain.",
+    "Freestanding reset uses uintptr_t arithmetic under explicit Cortex-M4/linker profile; linker asserts word alignment, avoiding relational comparisons of separately declared symbols."
+  ]
+}

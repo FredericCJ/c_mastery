@@ -1,0 +1,95 @@
+{
+  "status": "passed",
+  "scope": "Fresh GCC ASan/UBSan family suite plus independent prefix-key complete-map probe; finite semantic and modeled-crash evidence only.",
+  "fresh_workspace": "/var/tmp/cmastery-review-storage-oafflnsf/learner-export",
+  "commands": [
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "/var/tmp/cmastery-review-storage-oafflnsf/learner-export",
+        "-B",
+        "/var/tmp/cmastery-review-storage-oafflnsf/build",
+        "-G",
+        "Ninja",
+        "-DCMAKE_C_COMPILER=gcc",
+        "-DCMAKE_BUILD_TYPE=Debug",
+        "-DCMASTERY_ASSESSOR_ROOT=/mnt/f/Learning/Curricula/c_mastery/assessor/storage",
+        "-DCMASTERY_SANITIZERS=ON"
+      ],
+      "exit_code": 0,
+      "stdout": "-- The C compiler identification is GNU 15.2.0\n-- Detecting C compiler ABI info\n-- Detecting C compiler ABI info - done\n-- Check for working C compiler: /usr/bin/gcc - skipped\n-- Detecting C compile features\n-- Detecting C compile features - done\n-- Configuring done (1.4s)\n-- Generating done (0.0s)\n-- Build files have been written to: /var/tmp/cmastery-review-storage-oafflnsf/build\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "/var/tmp/cmastery-review-storage-oafflnsf/build",
+        "-j",
+        "4"
+      ],
+      "exit_code": 0,
+      "stdout": "[1/16] Building C object CMakeFiles/storage_tests.dir/src/store_file.c.o\n[2/16] Building C object CMakeFiles/storage_tests.dir/tests/test_store.c.o\n[3/16] Building C object CMakeFiles/storage_mutant_NO_COMMIT_FLUSH.dir/tests/test_store.c.o\n[4/16] Building C object CMakeFiles/storage_mutant_NO_COMMIT_FLUSH.dir/src/store_file.c.o\n[5/16] Building C object CMakeFiles/storage_tests.dir/mnt/f/Learning/Curricula/c_mastery/assessor/storage/store.c.o\n[6/16] Building C object CMakeFiles/storage_mutant_NO_COMMIT_FLUSH.dir/mnt/f/Learning/Curricula/c_mastery/assessor/storage/store.c.o\n[7/16] Building C object CMakeFiles/storage_mutant_EARLY_RECLAIM.dir/src/store_file.c.o\n[8/16] Building C object CMakeFiles/storage_mutant_EARLY_RECLAIM.dir/tests/test_store.c.o\n[9/16] Building C object CMakeFiles/storage_mutant_BAD_SEPARATOR.dir/src/store_file.c.o\n[10/16] Building C object CMakeFiles/storage_mutant_EARLY_RECLAIM.dir/mnt/f/Learning/Curricula/c_mastery/assessor/storage/store.c.o\n[11/16] Building C object CMakeFiles/storage_mutant_BAD_SEPARATOR.dir/tests/test_store.c.o\n[12/16] Building C object CMakeFiles/storage_mutant_BAD_SEPARATOR.dir/mnt/f/Learning/Curricula/c_mastery/assessor/storage/store.c.o\n[13/16] Linking C executable storage_tests\n[14/16] Linking C executable storage_mutant_NO_COMMIT_FLUSH\n[15/16] Linking C executable storage_mutant_EARLY_RECLAIM\n[16/16] Linking C executable storage_mutant_BAD_SEPARATOR\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "/var/tmp/cmastery-review-storage-oafflnsf/build",
+        "--output-on-failure"
+      ],
+      "exit_code": 0,
+      "stdout": "Test project /var/tmp/cmastery-review-storage-oafflnsf/build\n      Start  1: storage.codec\n 1/21 Test  #1: storage.codec ......................   Passed    0.01 sec\n      Start  2: storage.initial_image\n 2/21 Test  #2: storage.initial_image ..............   Passed    0.01 sec\n      Start  3: storage.cache\n 3/21 Test  #3: storage.cache ......................   Passed    0.01 sec\n      Start  4: storage.lookup\n 4/21 Test  #4: storage.lookup .....................   Passed    0.01 sec\n      Start  5: storage.insertion\n 5/21 Test  #5: storage.insertion ..................   Passed    0.01 sec\n      Start  6: storage.deletion\n 6/21 Test  #6: storage.deletion ...................   Passed    0.01 sec\n      Start  7: storage.transaction\n 7/21 Test  #7: storage.transaction ................   Passed    0.01 sec\n      Start  8: storage.publish\n 8/21 Test  #8: storage.publish ....................   Passed    0.01 sec\n      Start  9: storage.checkpoint_order\n 9/21 Test  #9: storage.checkpoint_order ...........   Passed    0.01 sec\n      Start 10: storage.format\n10/21 Test #10: storage.format .....................   Passed    0.01 sec\n      Start 11: storage.tree\n11/21 Test #11: storage.tree .......................   Passed    0.02 sec\n      Start 12: storage.differential\n12/21 Test #12: storage.differential ...............   Passed    0.04 sec\n      Start 13: storage.crash\n13/21 Test #13: storage.crash ......................   Passed    0.41 sec\n      Start 14: storage.checkpoint\n14/21 Test #14: storage.checkpoint .................   Passed    1.31 sec\n      Start 15: storage.recovery\n15/21 Test #15: storage.recovery ...................   Passed    0.86 sec\n      Start 16: storage.corruption\n16/21 Test #16: storage.corruption .................   Passed    0.02 sec\n      Start 17: storage.capacity\n17/21 Test #17: storage.capacity ...................   Passed    0.01 sec\n      Start 18: storage.file\n18/21 Test #18: storage.file .......................   Passed    0.01 sec\n      Start 19: storage.mutation_no_commit_flush\n19/21 Test #19: storage.mutation_no_commit_flush ...   Passed    0.01 sec\n      Start 20: storage.mutation_early_reclaim\n20/21 Test #20: storage.mutation_early_reclaim .....   Passed    0.04 sec\n      Start 21: storage.mutation_bad_separator\n21/21 Test #21: storage.mutation_bad_separator .....   Passed    0.01 sec\n\n100% tests passed, 0 tests failed out of 21\n\nTotal Test time (real) =   2.83 sec\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-g",
+        "-I/var/tmp/cmastery-review-storage-oafflnsf/learner-export/include",
+        "/mnt/f/Learning/Curricula/c_mastery/reviews/v2/pedagogy_storage_probe.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/storage/store.c",
+        "-o",
+        "/var/tmp/cmastery-review-storage-oafflnsf/prefix-probe"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/var/tmp/cmastery-review-storage-oafflnsf/prefix-probe"
+      ],
+      "exit_code": 0,
+      "stdout": "64 prefix/embedded-zero keys, reverse insertion, interleaved deletion, complete maps and reopen: PASS\n",
+      "stderr": ""
+    }
+  ],
+  "source_sha256": {
+    "labs/storage/CMakeLists.txt": "8e1e3e13f6cb2f73a2b4722230332d3aa3d142890f17a4ae7dbd6538bbab058b",
+    "labs/storage/family.json": "d22aa132222a4da38e4125b89b6e373dba18f59d0160a99a20612cea10c73f65",
+    "labs/storage/FORMAT.md": "fa93849005db990854bfe5252edfa9380e1fcb366725e1586af1792462f82ca4",
+    "labs/storage/HINTS.md": "7068059ff5c14da04676b77d1c86ff5712645e4de08694327fb37471d601b7e2",
+    "labs/storage/INTEGRATION.md": "a3a9da074883d408fff70703295cec164b0667c36e33b6ce0def4bfbf36348df",
+    "labs/storage/README.md": "77e88a7f57f810edd73b96785054c1a915f6b7bf3519b8b480a649f91e5a5fe4",
+    "labs/storage/include/store.h": "278dcc78bcf2756629c466e751e4358d1c3b21dd65aaf721ae8f43314e28d5d2",
+    "labs/storage/include/store_file.h": "12ab7bf9b472d7cee6f46ba93d4721a4814246ff2dd5ca63dfc0a6b138f1b17d",
+    "labs/storage/src/store.c": "d5cda535c5ea24d4522e4e1b621c0da27b4fa5b9ddf67153de5323325c3cb43d",
+    "labs/storage/src/store_file.c": "b76d705764de9ea0cae12bc9b9fb344e9b47baf8aa7256d709af137008c31b4d",
+    "labs/storage/tests/test_store.c": "ba1dc79f128d89f21a3f577c3a65407a2e607e9a5ba7f3e9b4411e2eb61a3462",
+    "assessor/storage/store.c": "ff8f3b35057cfbd4e8834cd32c4b630cd66975289abe882ef4f9d0df2c549626"
+  },
+  "limits": [
+    "No physical power loss",
+    "Independent prefix probe uses immediate-persistence RAM backend",
+    "Suite does not enumerate every admitted torn byte or pending subset"
+  ]
+}

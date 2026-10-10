@@ -9,6 +9,9 @@ from common import ROOT, dump, read_json, sha, write, load_taxonomy, require_res
 
 
 def main():
+    if (ROOT/'curriculum/edition.json').exists():
+        from accept_v2 import main as v2_main
+        return v2_main()
     require_research_gates()
     checks = ['canonical_validation', 'fixture_checks', 'contract_guard_checks',
               'sphinx_build', 'html_checks', 'markdown_checks', 'browser_review', 'baseline_preservation']

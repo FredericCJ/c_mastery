@@ -414,16 +414,22 @@ def verify(fixture_root):
             require(m['id'] not in projects,'duplicate project ID')
             projects[m['id']]=m
     expected_ids={f'PR-T38-{i:02d}' for i in range(1,11)}|{f'PR-T39-{i:02d}' for i in range(1,9)}
-    require(set(projects)==expected_ids,'project set differs from 18 owned milestones')
+    physical={'PR-T38-11','PR-T38-12'} if (ROOT/'curriculum/edition.json').exists() else set()
+    expected_ids |= physical
+    require(set(projects)==expected_ids,'project set differs from declared communication milestones')
     for module in OWNED:
         m=metadata(ROOT/'curriculum/modules'/f'{module}.md')
         pids={key for key,p in projects.items() if p['module']==module}
         require(m['id']==module and set(m['projects'])==pids and len(m['projects'])==len(pids),'module/project correspondence')
         require(m['workload']['implementation']+m['workload']['verification']==sum(projects[key]['hours'] for key in pids),'module project-hour budget')
-    require(sum(projects[p]['hours'] for p in projects if p.startswith('PR-T38'))==80,'T38 project-hour sum')
+    require(sum(projects[p]['hours'] for p in projects if p.startswith('PR-T38'))==(100 if physical else 80),'T38 project-hour sum')
     require(sum(projects[p]['hours'] for p in projects if p.startswith('PR-T39'))==66,'T39 project-hour sum')
     listed={}
     for key,m in projects.items():
+        if key in physical:
+            require(m['fixtures']==['fixtures/communications/PR-T38-10.json'],'physical continuation must reuse declared metadata fixture')
+            require(m.get('evidence_template')=='physical','physical continuation needs physical evidence')
+            continue
         require(m['fixtures']==['fixtures/communications/'+key+'.json'],'canonical fixture/project binding')
         listed[key+'.json']=key
     actual={p.relative_to(fixture_root).as_posix():p for p in fixture_root.rglob('*.json')}

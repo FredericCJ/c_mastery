@@ -2,6 +2,8 @@
 
 Domain numbering preserves coverage, not chronology. Begin with the diagnostic, build a shared portable core, then branch into Linux and firmware. Contracts, error handling and tests recur from the first project; their deeper modules consolidate practice.
 
+For the recommended working sequence use the [project route](project-route.md). It brings introductory diagnosis, bounds experiments and measurement forward through selected prerequisites. The complete-domain order below is a reference traversal, not a demand to delay those projects.
+
 ## Phases and handoffs
 
 | Phase | Main work | Handoff and gate |
@@ -18,6 +20,7 @@ Domain numbering preserves coverage, not chronology. Begin with the diagnostic, 
 | Complete stack families | T40–T42 after their distinct prerequisites | Seven-layer telemetry, Ethernet-to-HTTP and socket-based HTTP server defenses |
 | Measurement and diagnosis | T43–T45 after their named foundations; use introductory habits from the first component | Multi-axis cost evidence, causal diagnosis, repaired fault experiments and delayed transfer |
 | Capstones | Shared core plus completed relevant branches | Independently defended Linux and firmware applications |
+| Runtime, storage and kernel | T46–T48 after their explicit prerequisites | Portable VM, recoverable store, isolated kernel processes and an integrated persistent guest |
 
 T18 ownership and API foundations precede T14 container design. T29 requires selected race/atomic/ordering leaves from T25, rather than finishing all POSIX threading projects. Module front cards enumerate the precise preludes. Complete an explicitly named prelude before its dependent project even if the full domain is scheduled later. T26 contributes core awareness; advanced implementation work is elective.
 
@@ -25,7 +28,7 @@ T18 ownership and API foundations precede T14 container design. T29 requires sel
 
 The following order is computed from full prerequisites and the owning domains of selected module and project objective preludes. It supports full-domain completion. Early projects may begin after their own named entry/prelude gates; this serial traversal does not require postponing them until all later milestone foundations are complete:
 
-{ref}`T01` → {ref}`T02` → {ref}`T03` → {ref}`T04` → {ref}`T05` → {ref}`T06` → {ref}`T07` → {ref}`T08` → {ref}`T09` → {ref}`T12` → {ref}`T18` → {ref}`T32` → {ref}`T14` → {ref}`T15` → {ref}`T16` → {ref}`T19` → {ref}`T20` → {ref}`T21` → {ref}`T22` → {ref}`T13` → {ref}`T11` → {ref}`T10` → {ref}`T17` → {ref}`T23` → {ref}`T24` → {ref}`T25` → {ref}`T26` → {ref}`T27` → {ref}`T28` → {ref}`T29` → {ref}`T30` → {ref}`T31` → {ref}`T33` → {ref}`T34` → {ref}`T35` → {ref}`T36` → {ref}`T37` → {ref}`T38` → {ref}`T39` → {ref}`T40` → {ref}`T42` → {ref}`T41` → {ref}`T43` → {ref}`T44` → {ref}`T45`
+{ref}`T01` → {ref}`T02` → {ref}`T03` → {ref}`T04` → {ref}`T05` → {ref}`T06` → {ref}`T07` → {ref}`T08` → {ref}`T09` → {ref}`T12` → {ref}`T18` → {ref}`T32` → {ref}`T14` → {ref}`T15` → {ref}`T16` → {ref}`T19` → {ref}`T20` → {ref}`T21` → {ref}`T22` → {ref}`T13` → {ref}`T11` → {ref}`T10` → {ref}`T17` → {ref}`T23` → {ref}`T24` → {ref}`T25` → {ref}`T26` → {ref}`T27` → {ref}`T28` → {ref}`T29` → {ref}`T30` → {ref}`T31` → {ref}`T33` → {ref}`T34` → {ref}`T35` → {ref}`T36` → {ref}`T37` → {ref}`T38` → {ref}`T39` → {ref}`T40` → {ref}`T42` → {ref}`T41` → {ref}`T43` → {ref}`T44` → {ref}`T45` → {ref}`T46` → {ref}`T47` → {ref}`T48`
 
 ## Domain dependencies and selected preludes
 
@@ -74,8 +77,11 @@ The following order is computed from full prerequisites and the owning domains o
 | {ref}`T42` | {ref}`T15`, {ref}`T18`, {ref}`T23`, {ref}`T24`, {ref}`T32` | None additional |
 | {ref}`T41` | {ref}`T18`, {ref}`T27`, {ref}`T28`, {ref}`T29` | {ref}`T42.02.a`, {ref}`T42.02.b`, {ref}`T42.02.c`, {ref}`T42.03.a`, {ref}`T42.03.b`, {ref}`T42.03.c`, {ref}`T42.04.a`, {ref}`T42.04.b`, {ref}`T42.04.c`, {ref}`T42.05.a`, {ref}`T42.05.b`, {ref}`T42.05.c`, {ref}`T39.02.a`, {ref}`T39.02.b`, {ref}`T39.02.c`, {ref}`T39.05.a`, {ref}`T39.05.b`, {ref}`T39.05.c`, {ref}`T39.06.a`, {ref}`T39.06.b`, {ref}`T39.06.c`, {ref}`T39.07.c`, {ref}`T39.09.b`, {ref}`T39.09.c` |
 | {ref}`T43` | {ref}`T13`, {ref}`T15`, {ref}`T18`, {ref}`T23`, {ref}`T34` | {ref}`T36.03.a`, {ref}`T36.03.b`, {ref}`T36.03.c`, {ref}`T37.07.a`, {ref}`T37.07.b`, {ref}`T37.10.a`, {ref}`T37.10.b`, {ref}`T37.10.c`, {ref}`T30.04.a`, {ref}`T30.04.b`, {ref}`T30.04.c`, {ref}`T30.05.a`, {ref}`T30.05.b`, {ref}`T30.05.c` |
-| {ref}`T44` | {ref}`T03`, {ref}`T07` | {ref}`T21.07.a`, {ref}`T21.08.a`, {ref}`T32.01.b`, {ref}`T32.14.a`, {ref}`T32.12.a`, {ref}`T08.01.a`, {ref}`T08.02.b`, {ref}`T08.04.a`, {ref}`T08.10.a`, {ref}`T16.01.c`, {ref}`T16.11.b`, {ref}`T16.11.c`, {ref}`T32.08.a`, {ref}`T21.04.b`, {ref}`T24.07.a`, {ref}`T24.07.b`, {ref}`T24.08.b`, {ref}`T24.01.b`, {ref}`T25.03.a`, {ref}`T25.03.b`, {ref}`T25.04.a`, {ref}`T25.04.b`, {ref}`T25.12.c`, {ref}`T27.03.a`, {ref}`T27.05.b`, {ref}`T29.01.a`, {ref}`T29.07.a`, {ref}`T31.03.a`, {ref}`T31.05.a`, {ref}`T32.05.a`, {ref}`T32.06.a`, {ref}`T32.09.b`, {ref}`T33.07.a` |
+| {ref}`T44` | {ref}`T03`, {ref}`T07` | {ref}`T21.07.a`, {ref}`T21.08.a`, {ref}`T32.01.b`, {ref}`T32.14.a`, {ref}`T08.01.a`, {ref}`T08.02.b`, {ref}`T08.04.a`, {ref}`T08.10.a`, {ref}`T16.01.c`, {ref}`T16.11.b`, {ref}`T16.11.c`, {ref}`T32.08.a`, {ref}`T21.04.b`, {ref}`T24.07.a`, {ref}`T24.07.b`, {ref}`T24.08.b`, {ref}`T24.01.b`, {ref}`T25.03.a`, {ref}`T25.03.b`, {ref}`T25.04.a`, {ref}`T25.04.b`, {ref}`T25.12.c`, {ref}`T27.03.a`, {ref}`T27.05.b`, {ref}`T29.01.a`, {ref}`T29.07.a`, {ref}`T31.03.a`, {ref}`T31.05.a`, {ref}`T32.05.a`, {ref}`T32.06.a`, {ref}`T32.09.b`, {ref}`T33.07.a` |
 | {ref}`T45` | {ref}`T03`, {ref}`T21`, {ref}`T32` | {ref}`T13.03.a`, {ref}`T16.01.a`, {ref}`T16.11.a`, {ref}`T23.02.a`, {ref}`T23.13.a`, {ref}`T27.04.a`, {ref}`T27.05.a`, {ref}`T29.01.a`, {ref}`T29.03.a`, {ref}`T29.07.a`, {ref}`T29.08.a`, {ref}`T31.03.a`, {ref}`T31.04.a` |
+| {ref}`T46` | {ref}`T03`, {ref}`T04`, {ref}`T07`, {ref}`T14`, {ref}`T15`, {ref}`T18`, {ref}`T32` | {ref}`T16.01.a` |
+| {ref}`T47` | {ref}`T03`, {ref}`T15`, {ref}`T21`, {ref}`T32`, {ref}`T36`, {ref}`T43`, {ref}`T45` | None additional |
+| {ref}`T48` | {ref}`T08`, {ref}`T09`, {ref}`T16`, {ref}`T23`, {ref}`T27`, {ref}`T32`, {ref}`T37`, {ref}`T46`, {ref}`T47` | None additional |
 
 ## Parallel progress
 

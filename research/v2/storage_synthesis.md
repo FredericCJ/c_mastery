@@ -1,0 +1,5 @@
+# Storage synthesis
+
+Build one engine through small milestones: byte format, bounded clean cache, lookup/scan, split propagation, deletion repair/reuse, no-steal scratch, full-image WAL, checkpoint generation selection, recovery, injected failures, POSIX adapter and cross-family integration. The disk is preallocated; its creation/directory durability is outside the established-image recovery contract. A successful flush persists all prior page writes; unsuccessful operations may persist a subset in any order. Tears affect only the addressed page; post-flush media corruption and checksum collisions are outside the atomicity claim and must not be disguised as passed cases.
+
+Two checksummed generation records retain one previous checkpoint while a newer one is installed. Committed WAL pages remain intact until home pages and the new checkpoint generation are flushed. Full-page replay is idempotent. Single-writer exclusion is an application obligation, not a lock implementation. Classify a failure before commit publication as aborted; after attempting commit publication as indeterminate, requiring reopen/recovery.

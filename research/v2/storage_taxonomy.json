@@ -1,0 +1,239 @@
+{
+  "domains": [
+    {
+      "id": "T47",
+      "title": "Persistent storage engine and crash consistency",
+      "depth": "advanced implementation",
+      "subtopics": [
+        {
+          "id": "T47.01",
+          "title": "A byte-exact page codec",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.01.a",
+              "text": "Encode and decode 4096-byte pages with explicit byte order, version, identity, count, bounds and CRC checks; explain why casting a struct cannot define this format."
+            },
+            {
+              "id": "T47.01.b",
+              "text": "Reject invalid key/value extents and corrupt page metadata before following references or changing caller outputs."
+            },
+            {
+              "id": "T47.01.c",
+              "text": "Distinguish fresh-image format from reopen; diagnose a changed identity, count, checksum or short block without silently constructing an empty tree."
+            }
+          ]
+        },
+        {
+          "id": "T47.02",
+          "title": "A bounded clean page cache",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.02.a",
+              "text": "Implement a four-entry clean page cache whose tags identify exact physical pages; keep transaction-owned dirty nodes outside the cache."
+            },
+            {
+              "id": "T47.02.b",
+              "text": "Invalidate cached home or WAL bytes on publication and checkpoint transitions, demonstrating a stale-generation counterexample when invalidation is removed."
+            },
+            {
+              "id": "T47.02.c",
+              "text": "Account separately for cache hits, backend reads and fixed memory bytes on repeated and conflicting-page traces."
+            }
+          ]
+        },
+        {
+          "id": "T47.03",
+          "title": "B+tree lookup and ordered scan",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.03.a",
+              "text": "Use unsigned length-delimited key order and right-child separator equality to derive every lookup decision, including embedded zeros and equal prefixes."
+            },
+            {
+              "id": "T47.03.b",
+              "text": "Implement bounded lookup and linked-leaf lower-bound scans with early-stop callbacks and unchanged outputs on missing or undersized results."
+            },
+            {
+              "id": "T47.03.c",
+              "text": "Cross-check tree descent, leaf order, reachability and allocation; reject a dangling reference or leaf cycle before exceeding the page bound."
+            }
+          ]
+        },
+        {
+          "id": "T47.04",
+          "title": "Insertion, splits and root growth",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.04.a",
+              "text": "Split full leaf and internal nodes while preserving separator minima, occupancy, child ownership and leaf links through root growth."
+            },
+            {
+              "id": "T47.04.b",
+              "text": "Make updates and failed page allocations preserve the declared transaction state; distinguish replacement from insertion of a new key."
+            },
+            {
+              "id": "T47.04.c",
+              "text": "Reproduce a split-propagation error and compare all keys with an independent map; report the implementation's O(P) separator refresh cost explicitly."
+            }
+          ]
+        },
+        {
+          "id": "T47.05",
+          "title": "Deletion, redistribution and page reuse",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.05.a",
+              "text": "Derive sibling borrowing, merging and root contraction from minimum occupancy and separator invariants."
+            },
+            {
+              "id": "T47.05.b",
+              "text": "Implement deletion with leaf-link repair and allocation-bitmap page reuse without leaving a reachable free page or an unreachable allocated page."
+            },
+            {
+              "id": "T47.05.c",
+              "text": "Demonstrate left/right redistribution, multi-level merge and reuse after deletion; preserve whole-map equality against an independent oracle."
+            }
+          ]
+        },
+        {
+          "id": "T47.06",
+          "title": "Bounded no-steal transactions",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.06.a",
+              "text": "Bound transaction scratch memory and enforce one writer with no concurrent readers; explain why private dirty nodes must not reach home pages before commit."
+            },
+            {
+              "id": "T47.06.b",
+              "text": "Implement begin, abort and capacity rejection so an abandoned transaction leaves the committed logical map unchanged."
+            },
+            {
+              "id": "T47.06.c",
+              "text": "Separate clean cache, committed WAL view and transaction-owned nodes when diagnosing a leaked uncommitted update."
+            }
+          ]
+        },
+        {
+          "id": "T47.07",
+          "title": "Full-page redo and commit outcomes",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.07.a",
+              "text": "Derive the persistence order: invalidate the old marker and flush, write complete after-images and flush, then publish and flush the new commit marker."
+            },
+            {
+              "id": "T47.07.b",
+              "text": "Implement explicit committed, aborted/error and indeterminate outcomes; close the handle after an uncertain publication instead of permitting blind retry."
+            },
+            {
+              "id": "T47.07.c",
+              "text": "Kill the omitted-commit-flush variant and show why a failed response may accompany either complete persistence or no committed change."
+            }
+          ]
+        },
+        {
+          "id": "T47.08",
+          "title": "Checkpoint generations and reclamation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.08.a",
+              "text": "Validate the complete committed WAL batch before installing any home page; flush homes before publishing alternate generation metadata."
+            },
+            {
+              "id": "T47.08.b",
+              "text": "Select valid metadata generations and delay WAL reclamation until the new checkpoint is durably discoverable."
+            },
+            {
+              "id": "T47.08.c",
+              "text": "Recover from an interrupted checkpoint and explain why early marker reclamation can destroy the only authoritative committed generation."
+            }
+          ]
+        },
+        {
+          "id": "T47.09",
+          "title": "Recovery and repeated interruption",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.09.a",
+              "text": "Reopen an established image by validating generations, commit marker and every required after-image before replay."
+            },
+            {
+              "id": "T47.09.b",
+              "text": "Implement idempotent full-page redo that can itself be interrupted and repeated without changing the recovered application map."
+            },
+            {
+              "id": "T47.09.c",
+              "text": "Reject corrupt committed input and failed recovery I/O while preserving the failure image; distinguish corruption from an admissible old-or-new crash result."
+            }
+          ]
+        },
+        {
+          "id": "T47.10",
+          "title": "Crash schedules and adversarial oracles",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.10.a",
+              "text": "Implement stable/pending block state and reproducible crash cuts that model admitted reorder, partial persistence, tears and failed acknowledgments."
+            },
+            {
+              "id": "T47.10.b",
+              "text": "Compare complete recovered maps against the independent transaction oracle across commit, checkpoint and repeated-recovery cuts."
+            },
+            {
+              "id": "T47.10.c",
+              "text": "Record tested cut counts and persistence patterns, kill semantic mutants, and explain why finite representative schedules do not exhaust physical failure behavior."
+            }
+          ]
+        },
+        {
+          "id": "T47.11",
+          "title": "Linux file I/O and amplification",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.11.a",
+              "text": "Translate complete-page operations into bounded pread/pwrite loops that handle EINTR, positive short transfers, zero progress and errors."
+            },
+            {
+              "id": "T47.11.b",
+              "text": "Implement the existing-file fsync contract and demonstrate commit-close-reopen on a disposable preallocated image with platform failures reported explicitly."
+            },
+            {
+              "id": "T47.11.c",
+              "text": "Compute page traffic, flush count and write amplification separately from useful payload, cached host traffic, device operations and physical power-loss claims."
+            }
+          ]
+        },
+        {
+          "id": "T47.12",
+          "title": "VM and kernel storage boundaries",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T47.12.a",
+              "text": "Connect narrow VM integer services to the existing store through bounded byte encoding and explicit transaction outcomes without exposing arbitrary pointers or paths."
+            },
+            {
+              "id": "T47.12.b",
+              "text": "Adapt kernel whole-page read/write/flush capabilities to an exclusive store image slice, preserving user-buffer validation and durability responsibilities."
+            },
+            {
+              "id": "T47.12.c",
+              "text": "Execute write, lost-response failure, restart and read through the application boundary; reconcile indeterminate results instead of assuming an error proves absence."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -13,12 +13,12 @@ def read_json(path):
 def dump(path, value):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='\n')
 
 def write(path, value):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(value, encoding='utf-8')
+    path.write_text(value, encoding='utf-8', newline='\n')
 
 def parse(path):
     value = Path(path).read_text(encoding='utf-8-sig')
@@ -32,7 +32,7 @@ def sha(path):
 
 def load_taxonomy():
     taxonomy = read_json(ROOT / 'curriculum/taxonomy.json')['domains']
-    for name in ['enhancement_taxonomy.json','performance_debugging_taxonomy.json']:
+    for name in ['enhancement_taxonomy.json','performance_debugging_taxonomy.json','v2_taxonomy.json']:
         extension = ROOT / 'curriculum' / name
         if extension.exists(): taxonomy += read_json(extension)['domains']
     return taxonomy
@@ -66,8 +66,16 @@ def require_research_gates():
         if not gate.exists() or read_json(gate).get('accepted') is not True or read_json(gate).get('accepted_domains')!=['T43','T44','T45']:
             raise ValueError('Performance/debugging research gate not accepted')
         verify_research_hashes(read_json(gate),'research/performance_debugging')
+    if (ROOT/'curriculum/edition.json').exists():
+        gate=ROOT/'reviews/v2/research_gate.json'
+        if not gate.exists() or read_json(gate).get('accepted') is not True:
+            raise ValueError('Second-edition source research gate not accepted')
+        verify_research_hashes(read_json(gate),'research/v2','*_resources.json')
 
 def check_taxonomy_preservation(taxonomy):
+    if (ROOT/'curriculum/edition.json').exists():
+        from v2_common import check_migration
+        return check_migration(taxonomy)
     errors = []
     base = read_json(ROOT / 'curriculum/taxonomy.json')['domains']
     actual_base = [d for d in taxonomy if d['id'] in {x['id'] for x in base}]

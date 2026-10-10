@@ -1,16 +1,54 @@
-# C mastery curriculum
+# C Mastery 2
 
-Read [the complete Markdown curriculum](c_programming_mastery_curriculum.md), or serve `build/html` locally with `serve.ps1` and open `http://127.0.0.1:8766/`.
+Learn C by building small components, from representation and assembly to firmware,
+communication stacks, a bytecode runtime, a persistent store and an educational OS.
 
-The editable teaching sources are `curriculum/modules/`, `curriculum/projects/` and `curriculum/guides/`. Supplied project data lives in `fixtures/`. `references/` records bounded source inspections; `research/` contains the public search/reflection/synthesis record. Original specification files remain unchanged.
+Start with [the second-edition guide](curriculum/guides/second-edition.md), then
+[the project route](curriculum/guides/project-route.md). The
+[complete Markdown curriculum](c_programming_mastery_curriculum.md) and generated
+HTML handbook combine teaching, readings, project contracts and objective maps.
 
-The enhancement adds T36–T42: algorithms and data structures derived from invariants through handwritten x86-64/Thumb assembly and reusable C; computer and microcontroller architecture; serial buses, electrical interfaces, CAN/CAN FD and Ethernet; and three complete communication project families. Start with [the extension route](curriculum/guides/enhancement.md) and [the stack families](curriculum/guides/communication-stacks.md). The families comprise small milestones already charged in their module budgets. T41 reuses T42's portable HTTP implementation.
+The v1 Git tag `curriculum-v1-2026-10-10` preserves the earlier edition.
+`curriculum/migration.json` maps all 1,491 previous objectives and 297 projects.
+T46–T48 add the runtime, store and kernel. Their final integration persists a
+VM-generated value in a guest process, reboots the kernel and recovers it.
 
-T43–T45 add complexity and performance measurement, progressive debugging, and controlled memory/storage/lifetime failure experiments. Start with [the performance and debugging route](curriculum/guides/performance-debugging.md). The addition has 36 topics, 108 objectives and 32 bounded projects, with readings from held textbooks, foundational publications and exact official documents. Its 370-hour allocation includes project work; existing implementations and the drill directory are charged once.
+## Use the laboratories
 
-## Build
+Run C laboratories in Linux or WSL with Python 3.11+, CMake, Ninja and GCC/Clang.
+The capability report lists optional tools and target requirements.
 
-Use Python 3.11 or later. On Windows:
+```sh
+python3 -m cmastery doctor
+python3 -m cmastery list --module T46
+python3 -m cmastery init PR-T46-01 ../my-bytecode-lab
+# Implement the assigned boundary in the new workspace.
+python3 -m cmastery check ../my-bytecode-lab
+python3 -m cmastery report ../my-bytecode-lab
+# After completing the project dossier, preserve the code and select the next brief.
+python3 -m cmastery advance ../my-bytecode-lab PR-T46-02
+```
+
+Learner scaffolds compile but leave semantic work unsolved. Ordinary initialization
+copies no assessor implementation. `--assessor` is an explicit author/reviewer
+option; `--all-tests` runs a complete family. `--dependency runtime=PATH` and
+`--dependency storage=PATH` select completed learner components for integrations.
+Each family manifest states executable scope and remaining project work.
+A passed anchor test does not establish every linked objective.
+`advance` selects another supported project in the same family, archives its prior
+brief, predictions and latest receipt under `evidence/history/`, and starts fresh
+evidence for the new project. It preserves learner code and existing fixtures.
+
+Full completion includes [physical evidence](curriculum/guides/physical-evidence.md)
+for all ten named interfaces. Hardware observations, target timing, formal claims,
+independent transfer and learner-time calibration remain separate from host tests.
+
+## Build and verify the handbook
+
+These publishing commands require the source checkout or `c_mastery_v2_sources.zip`.
+The learner bundle supports the laboratory runner above, but excludes author review
+records and assessor implementations, so it cannot rebuild or accept the handbook.
+Use `c_mastery_v2_html.zip` for a ready-to-open handbook alongside learner work.
 
 ```powershell
 python -m venv .venv
@@ -19,27 +57,18 @@ python -m venv .venv
 .\serve.ps1
 ```
 
-The same Python build steps work on Linux/macOS after creating a virtual environment and installing the locked dependencies:
+On Linux, install the same locked publishing dependencies in a virtual environment
+and run `python tools/build_v2.py`. Open the local handbook with
+`python -m http.server 8766 --bind 127.0.0.1 --directory build/html`.
 
-```sh
-python tools/write_program.py
-python tools/validate.py
-python tools/check_fixtures.py
-python tools/check_contract_guards.py
-python tools/check_baseline_preservation.py
-python tools/check_performance_debugging_preservation.py
-python tools/publish.py
-python tools/check_html.py
-python tools/check_markdown.py
-python -m http.server 8766 --bind 127.0.0.1 --directory build/html
-```
+`tools/run_lab_matrix.py` runs actual assessor and unsolved-scaffold checks; on
+Windows it dispatches to WSL. `reviews/v2/` contains current source-bound reports.
+The older `reviews/final_acceptance.json` is historical and does not accept v2.
+`tools/accept_v2.py` checks current receipts before `tools/package_v2.py` exports
+source, learner, assessor and HTML archives and rebuilds extracted sources.
 
-The publication uses local assets, including MathJax. Rebuilding needs neither the Knowledge library nor the SWE graph. Research helpers are optional authoring utilities, separate from the normal build. Private book extracts/captures and the publishing virtual environment are excluded from archives.
-
-## Verification and exports
-
-`reviews/` contains structural, fixture, source/publication, independent-content and browser review receipts. Publishing checks do not claim that learner C implementations, physical firmware gates or formal proofs have already been completed.
-
-The final teaching/publication receipt is `reviews/final_acceptance.json`; archive hashes and the fresh extracted-source build are recorded separately in `reviews/package_report.json`.
-
-`tools/package.py` creates an editable source archive and a portable HTML archive, records hashes and rebuilds a fresh extracted source copy using the recorded publishing environment. The archive manifest lists exact included files. Local source changes require rebuilding and new receipts before being described as accepted.
+Canonical teaching lives in `curriculum/`, executable work in `labs/`, solutions in
+`assessor/`, and supplied data in `fixtures/`. Bounded source inspections are in
+`references/` and `research/`; research used the local library and seed graphs.
+Rebuilding requires neither absolute library paths nor private source captures.
+Archives exclude private book extracts and the publishing virtual environment.

@@ -44,11 +44,13 @@ def main():
     passed_diagnostic_core=core-(diagnostic-entry_check)
     architecture_hours=sum(total_hours(m['meta']) for k,m in modules.items() if 36<=int(k[1:])<=42)
     performance_hours=sum(total_hours(m['meta']) for k,m in modules.items() if 43<=int(k[1:])<=45)
+    new_family_hours=sum(total_hours(m['meta']) for k,m in modules.items() if int(k[1:])>=46)
     enhancement_hours=architecture_hours+performance_hours
     summary={'catalog_hours':catalog,'enhancement_module_hours':enhancement_hours,
         'architecture_networking_module_hours':architecture_hours,'performance_debugging_module_hours':performance_hours,
-        'prior_42_domain_catalog_hours':catalog-performance_hours,
-        'prior_edition_catalog_hours':catalog-enhancement_hours,'core_with_full_diagnostic_hours':core,'diagnostic_full_module_hours':diagnostic,
+        'new_required_family_hours':new_family_hours,
+        'current_through_T42_catalog_hours':catalog-performance_hours-new_family_hours,
+        'current_35_domain_catalog_hours':catalog-enhancement_hours-new_family_hours,'core_with_full_diagnostic_hours':core,'diagnostic_full_module_hours':diagnostic,
         'elective_implementation_verification_hours':elective,'integration_implementation_verification_hours':integr,
         'entry_check_hours':entry_check,'core_after_passed_diagnostic_hours':passed_diagnostic_core,
         'integration_additional_reading_assessment_consolidation_hours':overhead,
@@ -101,7 +103,7 @@ The five values are reading / implementation / verification / assessment / conso
         content+='| '+f['id']+' | '+str(ph)+' | '+' | '.join(str(w[x]) for x in ['reading','assessment','consolidation'])+' | '+str(ph+sum(w.values()))+' |\n'
     content+=f'''\n## Planning totals
 
-The architecture and networking domains T36–T42 contribute **{architecture_hours:,} hours**. The performance and debugging domains T43–T45 contribute **{performance_hours:,} hours**. Both extensions are already included below. The original 35-domain catalog contributes **{catalog-enhancement_hours:,} hours**; the preceding 42-domain edition totals **{catalog-performance_hours:,} hours**. Communication families and the performance/debugging drill directory are views of module milestones; they add no second budget. Reuse previous implementations and their evidence, then charge only newly assigned work.
+The architecture and networking domains T36–T42 contribute **{architecture_hours:,} hours**. The performance and debugging domains T43–T45 contribute **{performance_hours:,} hours**. The runtime, storage and kernel families contribute **{new_family_hours:,} hours**. All are already included below. The current allocation to the original 35-domain catalog is **{catalog-enhancement_hours-new_family_hours:,} hours**; the current allocation through T42 is **{catalog-performance_hours-new_family_hours:,} hours**. The archived first edition remains the source of historical estimates. Communication and runtime family directories add no second budget. Reuse previous implementations and charge only newly assigned work.
 
 The full catalog estimate is **{catalog:,} hours**. The conservative core estimate including the complete T01 diagnostic/remediation allocation is **{core:,} hours**. Elective implementation/verification slices total **{elective:,} hours**. T01's full allocation is **{diagnostic} hours**; after passing the initial diagnostic, retain its evidence and remove only its unneeded remedial activities from your personal plan.
 
@@ -126,6 +128,8 @@ Track planned and actual hours in the five categories, with reused evidence iden
 
 Domain numbering preserves coverage, not chronology. Begin with the diagnostic, build a shared portable core, then branch into Linux and firmware. Contracts, error handling and tests recur from the first project; their deeper modules consolidate practice.
 
+For the recommended working sequence use the [project route](project-route.md). It brings introductory diagnosis, bounds experiments and measurement forward through selected prerequisites. The complete-domain order below is a reference traversal, not a demand to delay those projects.
+
 ## Phases and handoffs
 
 | Phase | Main work | Handoff and gate |
@@ -142,6 +146,7 @@ Domain numbering preserves coverage, not chronology. Begin with the diagnostic, 
 | Complete stack families | T40–T42 after their distinct prerequisites | Seven-layer telemetry, Ethernet-to-HTTP and socket-based HTTP server defenses |
 | Measurement and diagnosis | T43–T45 after their named foundations; use introductory habits from the first component | Multi-axis cost evidence, causal diagnosis, repaired fault experiments and delayed transfer |
 | Capstones | Shared core plus completed relevant branches | Independently defended Linux and firmware applications |
+| Runtime, storage and kernel | T46–T48 after their explicit prerequisites | Portable VM, recoverable store, isolated kernel processes and an integrated persistent guest |
 
 T18 ownership and API foundations precede T14 container design. T29 requires selected race/atomic/ordering leaves from T25, rather than finishing all POSIX threading projects. Module front cards enumerate the precise preludes. Complete an explicitly named prelude before its dependent project even if the full domain is scheduled later. T26 contributes core awareness; advanced implementation work is elective.
 

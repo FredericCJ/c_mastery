@@ -76,7 +76,7 @@ No HTTP library implements the target. OS sockets supply the lower stack; curl a
 | Serial electrical labs | Declared matching UART/USART/SPI/I2C targets, logic analyzer/appropriate voltage measurement, transceiver/connector/power documentation |
 | EDU7 physical | Three declared MCU nodes, router with two UARTs, four THVD1400 adapters, two short terminated bench segments and common-reference measurement |
 | Ethernet physical | Declared F439ZI/LAN8742A board, dedicated host Ethernet adapter/cable and independent packet capture; isolated same-link configuration |
-| Optional physical CAN FD | Supported external controller/adapter or alternate native-FD board, correct separate supplies, exact additional setup readings and an independent peer |
+| Required physical CAN FD | Supported external controller/adapter or alternate native-FD board, correct separate supplies, exact additional setup readings and an independent peer |
 
 Equipment identity and physical measurements belong to the learner's evidence. The curriculum supplies contracts and static/reference oracles; it does not report these future hardware runs as completed. See {ref}`guide-workload` for totals and {ref}`guide-assessment` for mastery records.
 

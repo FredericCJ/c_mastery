@@ -1,0 +1,62 @@
+[
+  [
+    "Encode and decode 4096-byte pages with explicit byte order, version, identity, count, bounds and CRC checks; explain why casting a struct cannot define this format.",
+    "Reject invalid key/value extents and corrupt page metadata before following references or changing caller outputs.",
+    "Distinguish fresh-image format from reopen; diagnose a changed identity, count, checksum or short block without silently constructing an empty tree."
+  ],
+  [
+    "Implement a four-entry clean page cache whose tags identify exact physical pages; keep transaction-owned dirty nodes outside the cache.",
+    "Invalidate cached home or WAL bytes on publication and checkpoint transitions, demonstrating a stale-generation counterexample when invalidation is removed.",
+    "Account separately for cache hits, backend reads and fixed memory bytes on repeated and conflicting-page traces."
+  ],
+  [
+    "Use unsigned length-delimited key order and right-child separator equality to derive every lookup decision, including embedded zeros and equal prefixes.",
+    "Implement bounded lookup and linked-leaf lower-bound scans with early-stop callbacks and unchanged outputs on missing or undersized results.",
+    "Cross-check tree descent, leaf order, reachability and allocation; reject a dangling reference or leaf cycle before exceeding the page bound."
+  ],
+  [
+    "Split full leaf and internal nodes while preserving separator minima, occupancy, child ownership and leaf links through root growth.",
+    "Make updates and failed page allocations preserve the declared transaction state; distinguish replacement from insertion of a new key.",
+    "Reproduce a split-propagation error and compare all keys with an independent map; report the implementation's O(P) separator refresh cost explicitly."
+  ],
+  [
+    "Derive sibling borrowing, merging and root contraction from minimum occupancy and separator invariants.",
+    "Implement deletion with leaf-link repair and allocation-bitmap page reuse without leaving a reachable free page or an unreachable allocated page.",
+    "Demonstrate left/right redistribution, multi-level merge and reuse after deletion; preserve whole-map equality against an independent oracle."
+  ],
+  [
+    "Bound transaction scratch memory and enforce one writer with no concurrent readers; explain why private dirty nodes must not reach home pages before commit.",
+    "Implement begin, abort and capacity rejection so an abandoned transaction leaves the committed logical map unchanged.",
+    "Separate clean cache, committed WAL view and transaction-owned nodes when diagnosing a leaked uncommitted update."
+  ],
+  [
+    "Derive the persistence order: invalidate the old marker and flush, write complete after-images and flush, then publish and flush the new commit marker.",
+    "Implement explicit committed, aborted/error and indeterminate outcomes; close the handle after an uncertain publication instead of permitting blind retry.",
+    "Kill the omitted-commit-flush variant and show why a failed response may accompany either complete persistence or no committed change."
+  ],
+  [
+    "Validate the complete committed WAL batch before installing any home page; flush homes before publishing alternate generation metadata.",
+    "Select valid metadata generations and delay WAL reclamation until the new checkpoint is durably discoverable.",
+    "Recover from an interrupted checkpoint and explain why early marker reclamation can destroy the only authoritative committed generation."
+  ],
+  [
+    "Reopen an established image by validating generations, commit marker and every required after-image before replay.",
+    "Implement idempotent full-page redo that can itself be interrupted and repeated without changing the recovered application map.",
+    "Reject corrupt committed input and failed recovery I/O while preserving the failure image; distinguish corruption from an admissible old-or-new crash result."
+  ],
+  [
+    "Implement stable/pending block state and reproducible crash cuts that model admitted reorder, partial persistence, tears and failed acknowledgments.",
+    "Compare complete recovered maps against the independent transaction oracle across commit, checkpoint and repeated-recovery cuts.",
+    "Record tested cut counts and persistence patterns, kill semantic mutants, and explain why finite representative schedules do not exhaust physical failure behavior."
+  ],
+  [
+    "Translate complete-page operations into bounded pread/pwrite loops that handle EINTR, positive short transfers, zero progress and errors.",
+    "Implement the existing-file fsync contract and demonstrate commit-close-reopen on a disposable preallocated image with platform failures reported explicitly.",
+    "Compute page traffic, flush count and write amplification separately from useful payload, cached host traffic, device operations and physical power-loss claims."
+  ],
+  [
+    "Connect narrow VM integer services to the existing store through bounded byte encoding and explicit transaction outcomes without exposing arbitrary pointers or paths.",
+    "Adapt kernel whole-page read/write/flush capabilities to an exclusive store image slice, preserving user-buffer validation and durability responsibilities.",
+    "Execute write, lost-response failure, restart and read through the application boundary; reconcile indeterminate results instead of assuming an error proves absence."
+  ]
+]

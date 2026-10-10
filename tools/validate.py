@@ -31,13 +31,13 @@ def check_data(taxonomy, modules, projects, resources):
         meta, body = project['meta'], project['body']
         if meta.get('module') not in expected | {'INTEGRATION'}:
             errors.append(key + ': unknown owning module')
-        for field in ['prelude_objectives','optional_runtime_prelude_objectives']:
+        for field in ['prelude_objectives','prelude_override','optional_runtime_prelude_objectives']:
             for prelude in meta.get(field,[]):
                 if prelude not in valid_leaves:
                     errors.append(key + ': invalid project prelude in ' + field + ': ' + str(prelude))
         if type(meta.get('hours')) is not int or not 4 <= meta['hours'] <= 12:
             errors.append(key + ': project must have 4–12-hour budget')
-        if meta.get('profile') not in ['A', 'B', 'C', 'D', 'E']:
+        if meta.get('profile') not in ['A', 'B', 'C', 'D', 'E', 'F']:
             errors.append(key + ': missing dependency profile')
         if not meta.get('fixtures'):
             errors.append(key + ': no supplied fixture')
@@ -72,7 +72,7 @@ def check_data(taxonomy, modules, projects, resources):
             resource = by_resource.get(reading.get('resource_id'))
             if resource is None:
                 errors.append(key + ': unknown reading ' + str(reading.get('resource_id')))
-            elif resource.get('assignable') is False:
+            elif resource.get('assignable') is not True:
                 errors.append(key + ': bibliography-only lead assigned as teaching reading ' + resource['id'])
             elif reading.get('locator') not in resource['locators']:
                 errors.append(key + ': uninspected reading locator for ' + resource['id'])

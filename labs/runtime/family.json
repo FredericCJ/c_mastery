@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "family": "runtime",
+  "module": "T46",
+  "title": "Bounded CVM runtime",
+  "build_system": "cmake",
+  "default": "learner stubs compile; gates fail with NOT_IMPLEMENTED",
+  "assessor_root": "assessor/runtime",
+  "projects": [
+    {
+      "id": "PR-T46-01",
+      "tests": [
+        "runtime.wire"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Immediate finite mechanism gates; deferred tests are later cumulative integration, never an earlier checkpoint prerequisite. Independent evidence and delayed transfer remain required.",
+      "deferred_tests": [
+        "runtime.portability",
+        "runtime.integration"
+      ]
+    },
+    {
+      "id": "PR-T46-02",
+      "tests": [
+        "runtime.verifier",
+        "runtime.image_verifier"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Immediate finite mechanism gates; deferred tests are later cumulative integration, never an earlier checkpoint prerequisite. Independent evidence and delayed transfer remain required.",
+      "deferred_tests": [
+        "runtime.portability",
+        "runtime.integration"
+      ]
+    },
+    {
+      "id": "PR-T46-03",
+      "tests": [
+        "runtime.arithmetic"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Immediate finite mechanism gates; deferred tests are later cumulative integration, never an earlier checkpoint prerequisite. Independent evidence and delayed transfer remain required.",
+      "deferred_tests": [
+        "runtime.portability",
+        "runtime.integration"
+      ]
+    },
+    {
+      "id": "PR-T46-04",
+      "tests": [
+        "runtime.calls"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Immediate finite mechanism gates; deferred tests are later cumulative integration, never an earlier checkpoint prerequisite. Independent evidence and delayed transfer remain required.",
+      "deferred_tests": [
+        "runtime.portability",
+        "runtime.integration"
+      ]
+    },
+    {
+      "id": "PR-T46-05",
+      "tests": [
+        "runtime.compiler"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Immediate finite mechanism gates; deferred tests are later cumulative integration, never an earlier checkpoint prerequisite. Independent evidence and delayed transfer remain required.",
+      "deferred_tests": [
+        "runtime.portability",
+        "runtime.integration"
+      ]
+    },
+    {
+      "id": "PR-T46-06",
+      "tests": [
+        "runtime.control",
+        "runtime.fuel"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Immediate finite mechanism gates; deferred tests are later cumulative integration, never an earlier checkpoint prerequisite. Independent evidence and delayed transfer remain required.",
+      "deferred_tests": [
+        "runtime.portability",
+        "runtime.integration"
+      ]
+    },
+    {
+      "id": "PR-T46-07",
+      "tests": [
+        "runtime.arena"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Immediate finite mechanism gates; deferred tests are later cumulative integration, never an earlier checkpoint prerequisite. Independent evidence and delayed transfer remain required.",
+      "deferred_tests": [
+        "runtime.portability",
+        "runtime.integration"
+      ]
+    },
+    {
+      "id": "PR-T46-08",
+      "tests": [
+        "runtime.gc"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Immediate finite mechanism gates; deferred tests are later cumulative integration, never an earlier checkpoint prerequisite. Independent evidence and delayed transfer remain required.",
+      "assessor_tests": [
+        "runtime.mutation.roots"
+      ],
+      "deferred_tests": [
+        "runtime.portability",
+        "runtime.integration"
+      ]
+    },
+    {
+      "id": "PR-T46-09",
+      "tests": [
+        "runtime.fuel",
+        "runtime.gc",
+        "runtime.host"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Immediate finite mechanism gates; deferred tests are later cumulative integration, never an earlier checkpoint prerequisite. Independent evidence and delayed transfer remain required.",
+      "deferred_tests": [
+        "runtime.portability",
+        "runtime.integration"
+      ]
+    },
+    {
+      "id": "PR-T46-10",
+      "tests": [
+        "runtime.host"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Immediate finite mechanism gates; deferred tests are later cumulative integration, never an earlier checkpoint prerequisite. Independent evidence and delayed transfer remain required.",
+      "deferred_tests": [
+        "runtime.portability",
+        "runtime.integration"
+      ]
+    },
+    {
+      "id": "PR-T46-11",
+      "tests": [
+        "runtime.portability"
+      ],
+      "capabilities": [
+        "linux-c17",
+        "qemu-mps2-an386",
+        "own-kernel-user"
+      ],
+      "scope": "Immediate finite mechanism gates; deferred tests are later cumulative integration, never an earlier checkpoint prerequisite. Independent evidence and delayed transfer remain required.",
+      "deferred_tests": [
+        "runtime.integration"
+      ]
+    },
+    {
+      "id": "PR-T46-12",
+      "tests": [
+        "runtime.wire",
+        "runtime.image_verifier",
+        "runtime.verifier",
+        "runtime.arithmetic",
+        "runtime.calls",
+        "runtime.compiler",
+        "runtime.control",
+        "runtime.arena",
+        "runtime.gc",
+        "runtime.fuel",
+        "runtime.host",
+        "runtime.portability",
+        "runtime.integration"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Immediate finite mechanism gates; deferred tests are later cumulative integration, never an earlier checkpoint prerequisite. Independent evidence and delayed transfer remain required.",
+      "deferred_tests": []
+    }
+  ],
+  "commands": {
+    "configure": "cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug",
+    "build": "cmake --build build",
+    "test": "ctest --test-dir build --output-on-failure",
+    "thumb": "python3 thumb/run.py"
+  },
+  "integration": {
+    "core_sources": [
+      "cvm.c"
+    ],
+    "core_header": "include/cvm.h",
+    "hosted_only": [
+      "compiler.c"
+    ],
+    "store_adapter": "adapters/store_host.c"
+  },
+  "evidence_kinds": [
+    "static-model",
+    "actual-hosted-C",
+    "actual-emulated-Thumb",
+    "actual-own-kernel-user",
+    "physical-pending"
+  ]
+}
