@@ -316,6 +316,66 @@
         "hosted-c17"
       ],
       "scope": "Reusable correct workload and optional timing CSV; paired interventions, placement and statistical interpretation remain learner work."
+    },
+    {
+      "id": "PR-T14-02",
+      "tests": [
+        "algorithms.v4_array"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Use explicit typed allocation callbacks, check byte-size overflow, preserve storage on failure and invalidate old borrows only after success."
+    },
+    {
+      "id": "PR-T14-03",
+      "tests": [
+        "algorithms.v4_list"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Maintain head/tail and a typed eight-slot pool across full, empty, wrap and reuse transitions."
+    },
+    {
+      "id": "PR-T16-04",
+      "tests": [
+        "algorithms.v4_freelist"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Split first-fit spans, reject overlapping returns, coalesce both neighbors and preserve state when capacity is unavailable."
+    },
+    {
+      "id": "PR-T15-03",
+      "tests": [
+        "algorithms.v4_radix"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Implement four byte passes with caller-owned scratch, explicit capacity, and unsigned ordering over the complete uint32 domain."
+    },
+    {
+      "id": "PR-T15-06",
+      "tests": [
+        "algorithms.v4_dp"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Derive descending capacity updates, reject zero weights and arithmetic overflow; demonstrate why ascending updates change the problem."
+    },
+    {
+      "id": "PR-T17-05",
+      "tests": [
+        "algorithms.v4_filter"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Preserve sample history across calls; use wide accumulators and explicit signed rounding. Compare impulse and extreme-value traces."
     }
   ],
   "tests": [
@@ -343,7 +403,13 @@
     "algorithms.thumb",
     "algorithms.thumb_lower",
     "algorithms.thumb_insert",
-    "algorithms.thumb_sift"
+    "algorithms.thumb_sift",
+    "algorithms.v4_array",
+    "algorithms.v4_list",
+    "algorithms.v4_freelist",
+    "algorithms.v4_radix",
+    "algorithms.v4_dp",
+    "algorithms.v4_filter"
   ],
   "negative_controls": [
     "algorithms.mutation_tombstone",
@@ -354,7 +420,13 @@
     "algorithms.mutation_asm_ABI",
     "algorithms.mutation_thumb_SIGNED",
     "algorithms.mutation_thumb_UNSTABLE",
-    "algorithms.mutation_thumb_ABI"
+    "algorithms.mutation_thumb_ABI",
+    "algorithms.negative.array",
+    "algorithms.negative.list",
+    "algorithms.negative.freelist",
+    "algorithms.negative.radix",
+    "algorithms.negative.dp",
+    "algorithms.negative.filter"
   ],
   "optional_measurement": "algorithms_measure emits raw wall/process CPU observations without timing thresholds",
   "not_covered": [
@@ -363,5 +435,254 @@
     "Matrix/filter/ODE sequence",
     "Pipeline and instruction decoder models",
     "Physical MCU, DMA, PMU/cgroup access and calibrated cycle claims"
+  ],
+  "units": [
+    {
+      "id": "LAB-EX-01",
+      "project": "PR-T14-02",
+      "title": "Failure-preserving dynamic-array reserve",
+      "tests": [
+        "algorithms.v4_array"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T14.03.a",
+        "T14.15.a"
+      ],
+      "new_executable": true,
+      "scope": "Use explicit typed allocation callbacks, check byte-size overflow, preserve storage on failure and invalidate old borrows only after success.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "algorithms.v4_array",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "containers.array",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-clrs-4",
+          "locator": "Data structures, dynamic programming, amortized analysis and sorting"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-EX-02",
+      "project": "PR-T14-03",
+      "title": "Typed linked queue with reusable slots",
+      "tests": [
+        "algorithms.v4_list"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T14.04.a",
+        "T14.05.a"
+      ],
+      "new_executable": true,
+      "scope": "Maintain head/tail and a typed eight-slot pool across full, empty, wrap and reuse transitions.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "algorithms.v4_list",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "algorithms.list",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-clrs-4",
+          "locator": "Data structures, dynamic programming, amortized analysis and sorting"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-EX-03",
+      "project": "PR-T16-04",
+      "title": "Byte-offset free-list coalescing",
+      "tests": [
+        "algorithms.v4_freelist"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T16.07.a",
+        "T16.08.a"
+      ],
+      "new_executable": true,
+      "scope": "Split first-fit spans, reject overlapping returns, coalesce both neighbors and preserve state when capacity is unavailable.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "algorithms.v4_freelist",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "algorithms.freelist",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-clrs-4",
+          "locator": "Data structures, dynamic programming, amortized analysis and sorting"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-EX-04",
+      "project": "PR-T15-03",
+      "title": "Unsigned stable radix passes",
+      "tests": [
+        "algorithms.v4_radix"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T15.04.a"
+      ],
+      "new_executable": true,
+      "scope": "Implement four byte passes with caller-owned scratch, explicit capacity, and unsigned ordering over the complete uint32 domain.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "algorithms.v4_radix",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "algorithms.radix",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-clrs-4",
+          "locator": "Data structures, dynamic programming, amortized analysis and sorting"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-EX-05",
+      "project": "PR-T15-06",
+      "title": "Bounded zero-one dynamic programming",
+      "tests": [
+        "algorithms.v4_dp"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T15.09.a"
+      ],
+      "new_executable": true,
+      "scope": "Derive descending capacity updates, reject zero weights and arithmetic overflow; demonstrate why ascending updates change the problem.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "algorithms.v4_dp",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "algorithms.dp",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-clrs-4",
+          "locator": "Data structures, dynamic programming, amortized analysis and sorting"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-EX-06",
+      "project": "PR-T17-05",
+      "title": "Streaming FIR and first-order IIR",
+      "tests": [
+        "algorithms.v4_filter"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T17.06.a"
+      ],
+      "new_executable": true,
+      "scope": "Preserve sample history across calls; use wide accumulators and explicit signed rounding. Compare impulse and extreme-value traces.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "algorithms.v4_filter",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "numeric.filter",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-clrs-4",
+          "locator": "Data structures, dynamic programming, amortized analysis and sorting"
+        },
+        {
+          "resource": "R-smith-dsp-guide",
+          "locator": "Chapters 6, 14 and 19: convolution and recursive filters"
+        }
+      ],
+      "reused_functions": []
+    }
   ]
 }

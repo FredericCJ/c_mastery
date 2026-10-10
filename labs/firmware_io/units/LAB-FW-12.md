@@ -1,0 +1,24 @@
+# LAB-FW-12: Progress-qualified watchdog and fault trace
+
+Parent: `PR-T30-05`. Budget: 2 hours, charged inside the parent project.
+
+## Contract
+
+Feed only after all required progress bits; retain the first supplied fault observation without feeding.
+
+## Steps
+
+1. Write the state, ownership and failure contract; predict normal, boundary and fault cases.
+2. Implement the selected mechanism against the imported interfaces without reading assessor code.
+3. Run the semantic gate and a deliberate negative control; minimize a disagreement.
+4. Change one capacity, timing, ownership or failure assumption and record the design consequence.
+
+## Acceptance boundary
+
+Run `firmware_io.watchdog` with the selected learner implementation. Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.
+
+A passing visible check is practice evidence. Record assistance; preserve a sealed independent diagnosis or reconstruction before inspecting assessor material.
+
+## References
+
+- `R-ST-RM0090-21`: Independent watchdog: IWDG_KR reload key and watchdog reset.

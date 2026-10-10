@@ -1,0 +1,666 @@
+{
+  "schema_version": 1,
+  "id": "firmware_io",
+  "modules": [
+    "T27",
+    "T29",
+    "T28",
+    "T38",
+    "T39",
+    "T30"
+  ],
+  "language": "C17",
+  "build_system": "cmake",
+  "default": "Compiling learner scaffolds; semantic gates reject",
+  "assessor_option": "CMASTERY_ASSESSOR_ROOT",
+  "assessor_directory": "assessor/firmware_io",
+  "acceptance_scope": "Finite mechanism evidence only; no automatic project, objective or physical acceptance.",
+  "projects": [
+    {
+      "id": "PR-T27-03",
+      "tests": [
+        "firmware_io.startup"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Copy only the linker-declared data span and zero only BSS; preserve surrounding canaries."
+    },
+    {
+      "id": "PR-T29-01",
+      "tests": [
+        "firmware_io.vectors"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Reject unaligned stacks, out-of-RAM stack tops, non-Thumb reset addresses and out-of-flash entry points."
+    },
+    {
+      "id": "PR-T28-01",
+      "tests": [
+        "firmware_io.gpio"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Write set/reset registers without read-modify-write side effects; reject invalid pins."
+    },
+    {
+      "id": "PR-T28-02",
+      "tests": [
+        "firmware_io.uart"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Wait for TXE with a finite poll budget; never publish data on timeout."
+    },
+    {
+      "id": "PR-T38-05",
+      "tests": [
+        "firmware_io.spi"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Assert chip select, exchange a byte, wait for not-busy and release selection on every failure."
+    },
+    {
+      "id": "PR-T38-04",
+      "tests": [
+        "firmware_io.i2c"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "With exclusive bus authority, clock at most nine pulses, observe release and produce STOP; fail on stuck lines."
+    },
+    {
+      "id": "PR-T28-03",
+      "tests": [
+        "firmware_io.timer"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Reject inexact or out-of-range divisors; configure disabled then publish period/duty atomically at the adapter boundary."
+    },
+    {
+      "id": "PR-T28-05",
+      "tests": [
+        "firmware_io.adc"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Start conversion, poll bounded completion, mask sample width and preserve output on timeout."
+    },
+    {
+      "id": "PR-T29-04",
+      "tests": [
+        "firmware_io.dma"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Model CPU, device and cancelling ownership; require matching generation and observed quiescence before reuse."
+    },
+    {
+      "id": "PR-T39-07",
+      "tests": [
+        "firmware_io.ethernet"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Wait bounded MDIO readiness and populate descriptor length/generation before publishing ownership; reject device-owned reuse."
+    },
+    {
+      "id": "PR-T38-08",
+      "tests": [
+        "firmware_io.rs485"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Keep driver enable asserted until TC, not merely TXE. A timeout after publication remains uncertain and requires explicit recovery."
+    },
+    {
+      "id": "PR-T30-05",
+      "tests": [
+        "firmware_io.watchdog"
+      ],
+      "capabilities": [
+        "hosted-c17"
+      ],
+      "scope": "Feed only after all required progress bits; retain the first supplied fault observation without feeding."
+    }
+  ],
+  "tests": [
+    "firmware_io.startup",
+    "firmware_io.vectors",
+    "firmware_io.gpio",
+    "firmware_io.uart",
+    "firmware_io.spi",
+    "firmware_io.i2c",
+    "firmware_io.timer",
+    "firmware_io.adc",
+    "firmware_io.dma",
+    "firmware_io.ethernet",
+    "firmware_io.rs485",
+    "firmware_io.watchdog",
+    "firmware_io.cortex_compile"
+  ],
+  "negative_controls": [
+    "firmware_io.negative.startup",
+    "firmware_io.negative.vectors",
+    "firmware_io.negative.gpio",
+    "firmware_io.negative.uart",
+    "firmware_io.negative.spi",
+    "firmware_io.negative.i2c",
+    "firmware_io.negative.timer",
+    "firmware_io.negative.adc",
+    "firmware_io.negative.dma",
+    "firmware_io.negative.ethernet",
+    "firmware_io.negative.rs485",
+    "firmware_io.negative.watchdog"
+  ],
+  "units": [
+    {
+      "id": "LAB-FW-01",
+      "project": "PR-T27-03",
+      "title": "Reset data and BSS boundaries",
+      "tests": [
+        "firmware_io.startup"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T27.05.a",
+        "T27.07.a"
+      ],
+      "new_executable": true,
+      "scope": "Copy only the linker-declared data span and zero only BSS; preserve surrounding canaries.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "firmware_io.startup",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "firmware_io.startup",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-ENH-ARMV7M-DDI0403EE",
+          "locator": "System-level architecture: reset and exception entry"
+        },
+        {
+          "resource": "R-ST-RM0090-21",
+          "locator": "Memory and bus architecture; embedded SRAM and Flash memory map"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-FW-02",
+      "project": "PR-T29-01",
+      "title": "Stack and reset-vector validation",
+      "tests": [
+        "firmware_io.vectors"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T29.01.a",
+        "T29.02.a"
+      ],
+      "new_executable": true,
+      "scope": "Reject unaligned stacks, out-of-RAM stack tops, non-Thumb reset addresses and out-of-flash entry points.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "firmware_io.vectors",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "firmware_io.vectors",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-ENH-ARMV7M-DDI0403EE",
+          "locator": "Exception handling: vector table, initial stack pointer and Thumb execution state"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-FW-03",
+      "project": "PR-T28-01",
+      "title": "Atomic GPIO adapter",
+      "tests": [
+        "firmware_io.gpio"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T28.01.a",
+        "T28.02.a",
+        "T28.04.a"
+      ],
+      "new_executable": true,
+      "scope": "Write set/reset registers without read-modify-write side effects; reject invalid pins.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "firmware_io.gpio",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "firmware_io.gpio",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-ST-RM0090-21",
+          "locator": "General-purpose I/Os: GPIOx_BSRR bit set/reset register"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-FW-04",
+      "project": "PR-T28-02",
+      "title": "Bounded UART publication",
+      "tests": [
+        "firmware_io.uart"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T28.03.a",
+        "T28.05.a"
+      ],
+      "new_executable": true,
+      "scope": "Wait for TXE with a finite poll budget; never publish data on timeout.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "firmware_io.uart",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "firmware_io.uart",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-ST-RM0090-21",
+          "locator": "Universal synchronous asynchronous receiver transmitter: USART_SR TXE and USART_DR"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-FW-05",
+      "project": "PR-T38-05",
+      "title": "SPI selection and completion",
+      "tests": [
+        "firmware_io.spi"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T38.06.a"
+      ],
+      "new_executable": true,
+      "scope": "Assert chip select, exchange a byte, wait for not-busy and release selection on every failure.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "firmware_io.spi",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "firmware_io.spi",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-ST-RM0090-21",
+          "locator": "Serial peripheral interface: SPI_SR TXE, RXNE and BSY; software slave management"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-FW-06",
+      "project": "PR-T38-04",
+      "title": "Conditional I2C bus recovery",
+      "tests": [
+        "firmware_io.i2c"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T38.05.a"
+      ],
+      "new_executable": true,
+      "scope": "With exclusive bus authority, clock at most nine pulses, observe release and produce STOP; fail on stuck lines.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "firmware_io.i2c",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "firmware_io.i2c",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-ST-RM0090-21",
+          "locator": "Inter-integrated circuit interface: START/STOP conditions and error conditions"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-FW-07",
+      "project": "PR-T28-03",
+      "title": "Timer/PWM arithmetic and update order",
+      "tests": [
+        "firmware_io.timer"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T28.06.a"
+      ],
+      "new_executable": true,
+      "scope": "Reject inexact or out-of-range divisors; configure disabled then publish period/duty atomically at the adapter boundary.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "firmware_io.timer",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "firmware_io.timer",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-ST-RM0090-21",
+          "locator": "General-purpose timers: counter auto-reload, capture/compare and PWM mode"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-FW-08",
+      "project": "PR-T28-05",
+      "title": "ADC deadline and unchanged output",
+      "tests": [
+        "firmware_io.adc"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T28.09.a"
+      ],
+      "new_executable": true,
+      "scope": "Start conversion, poll bounded completion, mask sample width and preserve output on timeout.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "firmware_io.adc",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "firmware_io.adc",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-ST-RM0090-21",
+          "locator": "Analog-to-digital converter: regular conversions, ADC_SR EOC and ADC_DR"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-FW-09",
+      "project": "PR-T29-04",
+      "title": "DMA generation and cancellation",
+      "tests": [
+        "firmware_io.dma"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T29.07.a",
+        "T29.08.a"
+      ],
+      "new_executable": true,
+      "scope": "Model CPU, device and cancelling ownership; require matching generation and observed quiescence before reuse.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "firmware_io.dma",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "firmware_io.dma",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-ST-RM0090-21",
+          "locator": "DMA controller: stream enable/disable and DMA_SxCR EN"
+        },
+        {
+          "resource": "R-OS3-ST-RM0399-R4",
+          "locator": "DMA and memory architecture: domain reachability and cache maintenance obligations"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-FW-10",
+      "project": "PR-T39-07",
+      "title": "MDIO readiness and TX descriptors",
+      "tests": [
+        "firmware_io.ethernet"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T39.08.a"
+      ],
+      "new_executable": true,
+      "scope": "Wait bounded MDIO readiness and populate descriptor length/generation before publishing ownership; reject device-owned reuse.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "firmware_io.ethernet",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "firmware_io.ethernet",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-ST-RM0090-21",
+          "locator": "Ethernet MAC: MII management interface and normal DMA transmit descriptors"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-FW-11",
+      "project": "PR-T38-08",
+      "title": "RS-485 true-completion turnaround",
+      "tests": [
+        "firmware_io.rs485"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T38.09.a"
+      ],
+      "new_executable": true,
+      "scope": "Keep driver enable asserted until TC, not merely TXE. A timeout after publication remains uncertain and requires explicit recovery.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "firmware_io.rs485",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "firmware_io.rs485",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-ST-RM0090-21",
+          "locator": "USART: transmission complete TC versus transmit-data-register empty TXE"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-FW-12",
+      "project": "PR-T30-05",
+      "title": "Progress-qualified watchdog and fault trace",
+      "tests": [
+        "firmware_io.watchdog"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T30.08.a",
+        "T30.09.a"
+      ],
+      "new_executable": true,
+      "scope": "Feed only after all required progress bits; retain the first supplied fault observation without feeding.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "firmware_io.watchdog",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "firmware_io.watchdog",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-ST-RM0090-21",
+          "locator": "Independent watchdog: IWDG_KR reload key and watchdog reset"
+        }
+      ],
+      "reused_functions": []
+    }
+  ]
+}

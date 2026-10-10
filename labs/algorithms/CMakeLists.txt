@@ -91,3 +91,17 @@ if(Python3_FOUND AND ARM_GCC AND QEMU_ARM)
   endforeach()
  endif()
 endif()
+
+# v4 additive implementation units
+add_executable(v4_algorithms_tests "${ENGINE_DIR}/v4_algo.c" tests/v4_algo.c)
+target_include_directories(v4_algorithms_tests PRIVATE include)
+target_compile_options(v4_algorithms_tests PRIVATE -Wall -Wextra -Wpedantic)
+
+foreach(case array list freelist radix dp filter)
+ add_test(NAME algorithms.v4_${case} COMMAND v4_algorithms_tests ${case})
+ set_tests_properties(algorithms.v4_${case} PROPERTIES TIMEOUT 10)
+endforeach()
+if(CMASTERY_ASSESSOR_ROOT)
+ find_package(Python3 COMPONENTS Interpreter REQUIRED)
+ include(tests/v4_mutations.cmake)
+endif()

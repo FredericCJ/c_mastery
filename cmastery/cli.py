@@ -101,21 +101,29 @@ def snapshot(folder):
     records = {}
     for path in sorted(Path(folder).rglob("*")):
         relative = path.relative_to(folder)
-        if not path.is_file() or set(relative.parts) & {"build", ".cmastery", "evidence", ".git", "__pycache__"}:
+        if not path.is_file() or set(relative.parts) & {"build", ".cmastery", ".cmastery-study", "evidence", ".git", "__pycache__"}:
             continue
         records[relative.as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
     identity = hashlib.sha256(json.dumps(records, sort_keys=True).encode()).hexdigest()
     return {"sha256": identity, "files": records}
 
-def instantiate(project, destination, family_name=None):
+def instantiate(project, destination, family_name=None, unit_id=None):
     item, family = locate(project)
+    learning_unit = None
+    if unit_id:
+        from . import learning
+        learning_unit = learning.unit(unit_id, project)
+        family_name = family_name or learning_unit.get('family')
+        if family_name != learning_unit.get('family'):
+            raise ValueError('Selected family differs from learning unit')
     if family_name:
         candidates=families()
         if family_name not in candidates: raise ValueError('Unknown laboratory family: '+family_name)
         candidate=candidates[family_name]
         entries=candidate['meta'].get('projects',[])
         ids=set(entries) if isinstance(entries,dict) else {p if isinstance(p,str) else p['id'] for p in entries}
-        if project not in ids: raise ValueError('Family does not support project: '+family_name+' / '+project)
+        unit_projects = {u['project'] for u in candidate['meta'].get('units', [])}
+        if project not in ids | unit_projects: raise ValueError('Family does not support project: '+family_name+' / '+project)
         family=candidate
     destination = Path(destination).expanduser().resolve()
     protected = [ROOT / name for name in ('curriculum', 'labs', 'assessor', 'tools', 'site', 'research', 'references', 'fixtures', 'cmastery')]
@@ -145,6 +153,11 @@ def instantiate(project, destination, family_name=None):
               "family": family["path"].name if family else None,
               "created_at": now(), "source_catalog": item,
               "assessment": "learner", "evidence_status": "not-run"}
+    if learning_unit:
+        record['unit'] = unit_id
+        record['unit_contract'] = learning.digest(learning_unit)
+        save(destination / '.cmastery/unit.json', learning_unit)
+        (destination / 'UNIT.md').write_text(unit_brief(learning_unit), encoding='utf-8')
     save(destination / ".cmastery/project.json", record)
     save(destination / ".cmastery/prediction.json", {
         "project": project, "predictions": [], "invariant": "",
@@ -154,16 +167,39 @@ def instantiate(project, destination, family_name=None):
             "next": "Implement the assigned boundary, then run cmastery check.",
             "limits": "Instantiation does not establish implementation or mastery."}
 
-def advance(workspace, project):
+def unit_brief(value):
+    """Human-readable selection; the canonical record remains machine-readable."""
+    lines = ['# '+value['id']+' — '+value['title'], '',
+             'Project: '+value['project']+'; planned hours: '+str(value['hours']), '',
+             '## Steps', ''] + ['- '+str(x) for x in value.get('steps', [])]
+    lines += ['', '## Checks', ''] + ['- '+str(x) for x in value.get('checks', [])]
+    if value.get('decision_required'):
+        lines += ['', 'Seal the architecture decision before implementation; compare alternatives using a discriminating experiment.']
+    if value.get('decision_before'):
+        lines += ['', 'Decision precedes '+value['decision_before']+'.']
+    lines += ['', 'Recall sets: '+', '.join(value.get('recall_sets', [])), '',
+              'Executable checks are evidence for this unit; acceptance and mastery remain separate.', '']
+    return '\n'.join(lines)
+
+
+def advance(workspace, project, unit_id=None):
     """Select another project in the same family without replacing learner code."""
     workspace=Path(workspace).expanduser().resolve()
     meta=read(workspace/'.cmastery/project.json')
     item,_=locate(project)
-    if project==meta['project']: raise ValueError('Project already selected: '+project)
-    local_family=read(workspace/'family.json')
+    learning_unit = None
+    if unit_id:
+        from . import learning
+        learning_unit = learning.unit(unit_id, project, meta.get('family'))
+    if project==meta['project'] and (not unit_id or unit_id == meta.get('unit')):
+        raise ValueError('Project already selected: '+project)
+    local_family=read(workspace/'family.json') if (workspace/'family.json').is_file() else {}
     entries=local_family.get('projects',[])
     ids=set(entries) if isinstance(entries,dict) else {p if isinstance(p,str) else p['id'] for p in entries}
-    if project not in ids or meta['family'] not in item.get('lab_families',[item.get('lab_family')]):
+    unit_projects = {u['project'] for u in local_family.get('units', [])}
+    unmapped_unit = learning_unit is not None and meta.get('family') is None and learning_unit.get('family') is None
+    if not unmapped_unit and (project not in ids | unit_projects or
+            (not learning_unit and meta['family'] not in item.get('lab_families',[item.get('lab_family')]))):
         raise ValueError('Advance requires a project supported by the same exported laboratory family')
     # Validate incoming assets before archiving or changing selection.
     brief=ROOT/'curriculum/projects'/(project+'.md')
@@ -181,6 +217,8 @@ def advance(workspace, project):
     for source,name in [(workspace/'.cmastery/project.json','project.json'),
                         (workspace/'.cmastery/prediction.json','prediction.json'),
                         (workspace/'PROJECT.md','PROJECT.md'),
+                        (workspace/'UNIT.md','UNIT.md'),
+                        (workspace/'.cmastery/unit.json','unit.json'),
                         (workspace/'evidence/latest.json','latest.json')]:
         if source.is_file(): shutil.copy2(source,history/name)
     for source,target in fixtures:
@@ -188,6 +226,14 @@ def advance(workspace, project):
             target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,target)
     (workspace/'PROJECT.md').write_text(text,encoding='utf-8')
     meta.update(project=project,source_catalog=item,selected_at=now(),evidence_status='not-run')
+    if learning_unit:
+        meta.update(unit=unit_id, unit_contract=learning.digest(learning_unit))
+        save(workspace/'.cmastery/unit.json',learning_unit)
+        (workspace/'UNIT.md').write_text(unit_brief(learning_unit),encoding='utf-8')
+    else:
+        meta.pop('unit',None); meta.pop('unit_contract',None)
+        (workspace/'.cmastery/unit.json').unlink(missing_ok=True)
+        (workspace/'UNIT.md').unlink(missing_ok=True)
     save(workspace/'.cmastery/project.json',meta)
     save(workspace/'.cmastery/prediction.json',{'project':project,'predictions':[],
          'invariant':'','competing_causes':[],'assistance':[],'sealed_at':None})
@@ -197,9 +243,14 @@ def advance(workspace, project):
             'limits':'Selection preserves learner sources and prior evidence; it does not accept prerequisites or mastery.'}
 
 def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_tests=False, dependencies=None,
-               target=None, cpus=None, external=None):
+               target=None, cpus=None, external=None, unit_id=None):
     workspace = Path(workspace).resolve()
     meta = read(workspace / ".cmastery/project.json")
+    unit_id = unit_id or meta.get('unit')
+    learning_unit = None
+    if unit_id:
+        from . import learning
+        learning_unit = learning.unit(unit_id, meta['project'], meta.get('family'))
     before = snapshot(workspace)
     dependencies = dependencies or {}
     family_meta = read(workspace / 'family.json') if (workspace / 'family.json').is_file() else {}
@@ -208,6 +259,15 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
         project_contract = entries.get(meta['project'], {})
     else:
         project_contract = next((p for p in entries if isinstance(p, dict) and p['id'] == meta['project']), {})
+    if learning_unit:
+        unit_adapter = next((u for u in family_meta.get('units', []) if u['id'] == unit_id), {})
+        project_contract = dict(project_contract)
+        project_contract.update(unit_adapter)
+        project_contract['tests'] = learning_unit.get('tests', [])
+        if 'target_tests' in learning_unit:
+            project_contract['target_tests'] = learning_unit['target_tests']
+        elif 'target_tests' not in unit_adapter:
+            project_contract.pop('target_tests', None)
     target = target or family_meta.get('default_target')
     targets = family_meta.get('targets', {})
     if target is not None and target not in targets:
@@ -223,6 +283,8 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
     selected = project_contract.get('target_tests', {}).get(target, project_contract.get('tests', []))
     if all_tests and target_contract.get('tests'):
         selected = target_contract['tests']
+    elif all_tests and family_meta.get('tests'):
+        selected = family_meta['tests']
     filter_tests = not all_tests or bool(target_contract.get('tests'))
     env = doctor()
     record = {"schema_version": 2, "project": meta["project"], "family": meta["family"],
@@ -232,6 +294,12 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
               "environment": env, "status": "not-run", "steps": [],
               "mastery": "requires separate explanation, transfer and applicable physical evidence"}
     record['project_contract'] = project_contract
+    if learning_unit:
+        record['unit'] = unit_id
+        record['unit_contract'] = learning.digest(learning_unit)
+    if (workspace/'.cmastery/artifacts.json').exists():
+        from . import learning
+        record['component_links'] = {key:value['sha256'] for key,value in learning.linked_state(workspace).items()}
     record['target'] = target
     record['cpu_count'] = cpus or target_contract.get('default_cpus')
     record['target_contract'] = target_contract
@@ -257,7 +325,7 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
             record['diagnostic_runtime_probe']=checks
             if len(checks)!=2 or any(c['exit_code']!=0 for c in checks):
                 record.update(status='unavailable',reason='ThreadSanitizer compiler/runtime probe did not execute successfully')
-                save(workspace/'evidence/latest.json',record)
+                save_check_receipt(workspace, record)
                 return record
         flags = "-Wall -Wextra -Wpedantic"
         flags += {"debug": " -O0 -g", "release": " -O2 -g",
@@ -266,6 +334,11 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
         configure = ["cmake", "-S", str(workspace), "-B", str(output), "-G", "Ninja",
                      "-DCMAKE_C_COMPILER=" + compiler, "-DCMAKE_C_STANDARD=17",
                      "-DCMAKE_C_FLAGS=" + flags]
+        if record.get('component_links'):
+            from . import learning
+            component_build = learning.prepare_component_build(workspace, output)
+            configure += component_build['arguments']
+            record['component_build'] = {k: v for k, v in component_build.items() if k != 'arguments'}
         if target is not None: configure.append('-DCMASTERY_TARGET='+target)
         if record['cpu_count'] is not None: configure.append('-DCMASTERY_CPUS='+str(record['cpu_count']))
         for name,folder in external.items():
@@ -295,11 +368,14 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
                 dependencies = dict(dependencies)
                 dependencies.setdefault('runtime', ROOT / 'labs/runtime')
                 if meta['family'] in {'kernel','kernel_smp'}: dependencies.setdefault('storage', ROOT / 'labs/storage')
-            for dep in project_contract.get('dependencies', family_meta.get('dependencies', [])):
+            for dep, declaration in dependency_contracts(family_meta, project_contract).items():
+                if declaration.get('required_for') and not all_tests and not set(selected) & set(declaration['required_for']):
+                    continue
                 dependencies = dict(dependencies)
                 dependencies.setdefault(dep, ROOT/'labs'/dep)
         for family, folder in dependencies.items():
-            declared = set(family_meta.get('dependencies', [])) | set(project_contract.get('dependencies', []))
+            contracts = dependency_contracts(family_meta, project_contract)
+            declared = set(contracts)
             if family not in {'runtime', 'storage'} | declared or not re.fullmatch(r'[a-z][a-z0-9_]*', family):
                 raise ValueError('Unsupported dependency: '+family)
             dependency = Path(folder).expanduser().resolve()
@@ -312,8 +388,18 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
                 raise ValueError('Dependency family identity differs: '+family)
             implementation = ROOT / 'assessor' / family if assessor else dependency / 'src'
             root_argument = implementation if meta['family'] in {'kernel','kernel_smp'} else dependency
-            configure.append('-DCMASTERY_'+family.upper()+'_ROOT='+str(root_argument))
-            if meta['family'] in {'kernel','kernel_smp'}:
+            declaration = contracts.get(family, {})
+            if declaration.get('implementation_variable'):
+                variable = declaration['implementation_variable']
+                include_variable = declaration.get('include_variable')
+                if not re.fullmatch(r'CMASTERY_[A-Z][A-Z0-9_]*', variable) or (include_variable and not re.fullmatch(r'CMASTERY_[A-Z][A-Z0-9_]*', include_variable)):
+                    raise ValueError('Invalid declared CMake dependency variable')
+                configure.append('-D'+variable+'='+str(implementation))
+                if include_variable:
+                    configure.append('-D'+include_variable+'='+str(dependency/'include'))
+            else:
+                configure.append('-DCMASTERY_'+family.upper()+'_ROOT='+str(root_argument))
+            if meta['family'] in {'kernel','kernel_smp'} and not declaration.get('include_variable'):
                 configure.append('-DCMASTERY_'+family.upper()+'_INCLUDE='+str(dependency/'include'))
                 if family=='runtime': configure.append('-DCMASTERY_RUNTIME_ADAPTERS='+str(dependency/'adapters'))
             record.setdefault('dependencies', {})[family] = snapshot(dependency)
@@ -339,7 +425,7 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
             cases = ET.parse(junit).getroot().findall('.//testcase')
             record['tests'] = [{'name': c.get('name'), 'status': c.get('status'), 'skipped': c.find('skipped') is not None, 'failed': c.find('failure') is not None} for c in cases]
             missing = set(selected) - {c.get('name') for c in cases}
-            if filter_tests and missing: record.update(status='unavailable', reason='Required tests not registered: '+', '.join(sorted(missing)))
+            if missing: record.update(status='unavailable', reason='Required tests not registered: '+', '.join(sorted(missing)))
             if any(c.find('skipped') is not None for c in cases): record.update(status='unavailable', reason='A selected test was skipped')
             if not cases: record.update(status='unavailable', reason='No executed test evidence')
         elif record['status']=='passed':
@@ -350,6 +436,10 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
         record['evidence_kind'] = 'host-and-emulator-execution' if any('guest' in c.get('name','') for c in record.get('tests',[])) else 'host-execution'
         if target_contract.get('evidence_kind'):
             record['evidence_kind'] = target_contract['evidence_kind']
+        if learning_unit and 'emulator' in record['evidence_kind']:
+            record['emulator_execution_tests'] = emulator_test_names(record)
+            if not record['emulator_execution_tests']:
+                record['evidence_kind'] = 'target-build-and-software-checks'
         if target_contract.get('physical') or record['evidence_kind'] == 'physical':
             record['evidence_kind'] = 'target-build-and-software-checks'
             record['physical_observations'] = 'not-run'
@@ -363,8 +453,51 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
         record.update(status="failed", reason="Source changed during the run")
     if any(not Path(p).is_dir() or snapshot(Path(p))['sha256'] != digest for p,digest in record.get('external_sources', {}).items()):
         record.update(status='failed', reason='Dependency or assessor source changed during the run')
-    save(workspace / "evidence/latest.json", record)
+    save_check_receipt(workspace, record)
     return record
+
+
+def save_check_receipt(workspace, record):
+    """Keep each target/CPU observation while preserving the legacy latest view."""
+    workspace = Path(workspace)
+    stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+    identity = hashlib.sha256(json.dumps(record, sort_keys=True).encode()).hexdigest()[:12]
+    path = workspace/'evidence/checks'/(stamp+'-'+identity+'.json')
+    record['receipt_path'] = path.relative_to(workspace).as_posix()
+    save(path, record)
+    save(workspace/'evidence/latest.json', record)
+
+
+def emulator_test_names(record):
+    """Target selection alone is not proof that an emulator test executed."""
+    observed = [test['name'] for test in record.get('tests', []) if not test.get('failed') and not test.get('skipped')]
+    declared = record.get('target_contract', {}).get('execution_tests')
+    if declared is not None:
+        return [name for name in observed if name in declared]
+    # These existing CTest adapters invoke the guest, as their CMake definitions
+    # specify. In particular, execution.image_* only builds/audits an image:
+    # even a target name containing "qemu" is not execution evidence.
+    runtime_tests = {'kernel_guest', 'kernel_boot_smoke', 'kernel_runtime',
+                     'kernel_integration', 'execution.cortex_m4',
+                     'execution.cortex_m4_boot', 'execution.cortex_m4_cooperative',
+                     'execution.cortex_m4_preemptive', 'execution.cortex_m4_fp'}
+    return [name for name in observed if name in runtime_tests or name.startswith('kernel_smp_guest_')]
+
+
+def dependency_contracts(family_meta, project_contract):
+    """Read legacy family names and v4 explicit implementation/include adapters."""
+    result = {}
+    for entry in family_meta.get('dependencies', []) + project_contract.get('dependencies', []):
+        if isinstance(entry, str):
+            name, declaration = entry, {}
+        elif isinstance(entry, dict):
+            name, declaration = entry.get('family', ''), entry
+        else:
+            raise ValueError('Invalid laboratory dependency declaration')
+        if not re.fullmatch(r'[a-z][a-z0-9_]*', name):
+            raise ValueError('Invalid dependency family name')
+        result[name] = declaration
+    return result
 
 def report(workspace):
     workspace = Path(workspace).resolve()
@@ -377,6 +510,18 @@ def report(workspace):
         record = dict(record, status="not-run", stale=True, reason="Workspace source changed after evidence")
     if any(not Path(p).is_dir() or snapshot(Path(p))['sha256'] != digest for p,digest in record.get('external_sources', {}).items()):
         record = dict(record, status='not-run', stale=True, reason='Dependency or assessor source changed after evidence')
+    if record.get('unit'):
+        from . import learning
+        if record.get('unit_contract') != learning.digest(learning.unit(record['unit'])):
+            record = dict(record, status='not-run', stale=True, reason='Learning unit contract changed after evidence')
+    if record.get('component_links') is not None:
+        from . import learning
+        try:
+            current={key:value['sha256'] for key,value in learning.linked_state(workspace).items()}
+        except (OSError,ValueError,KeyError):
+            current=None
+        if current != record['component_links']:
+            record=dict(record,status='not-run',stale=True,reason='Pinned component links changed after evidence')
     physical_records=[]
     for receipt in sorted((workspace/'evidence/physical').glob('*/receipt.json')):
         physical=read(receipt)
@@ -401,10 +546,25 @@ def record_physical(workspace, manifest_path):
               'instrumentation_overhead','trace_overruns','observations','source_sha256','images','captures']
     missing=[key for key in required if key not in manifest]
     if missing: raise ValueError('Physical manifest missing: '+', '.join(missing))
-    family=read(workspace/'family.json')
-    if manifest['target'] not in family.get('targets',{}): raise ValueError('Undeclared physical target')
-    if not family['targets'][manifest['target']].get('physical'):
+    family=read(workspace/'family.json') if (workspace/'family.json').is_file() else {}
+    targets = dict(family.get('targets', {}))
+    if meta.get('unit'):
+        from . import learning
+        current_unit = learning.unit(meta['unit'], meta['project'], meta.get('family'))
+        for name, declaration in current_unit.get('capture_targets', {}).items():
+            if not re.fullmatch(r'[a-z][a-z0-9_-]*', name) or declaration.get('physical') is not True or declaration.get('manual_only') is not True:
+                raise ValueError('Unit capture targets must be explicitly physical and manual_only')
+            if name in targets and targets[name] != declaration:
+                raise ValueError('Capture target must not override an existing build target')
+            targets[name] = declaration
+    if manifest['target'] not in targets: raise ValueError('Undeclared physical target')
+    target_contract = targets[manifest['target']]
+    if not target_contract.get('physical'):
         raise ValueError('Target is not declared as physical hardware')
+    if target_contract.get('interfaces') is not None:
+        interfaces = manifest.get('interfaces', [])
+        if not isinstance(interfaces, list) or not interfaces or any(not isinstance(name, str) for name in interfaces) or not set(interfaces) <= set(target_contract['interfaces']):
+            raise ValueError('Declare actually measured interfaces supported by this physical capture target')
     if manifest['source_sha256'] != snapshot(workspace)['sha256']: raise ValueError('Capture source identity differs')
     inputs=[]
     for kind in ['images','captures']:
@@ -421,7 +581,8 @@ def record_physical(workspace, manifest_path):
         shutil.copyfile(source,destination/name)
         artifacts[name]=hashlib.sha256((destination/name).read_bytes()).hexdigest()
     receipt=dict(manifest,project=meta['project'],status='recorded',recorded_at=now(),artifacts=artifacts,
-                 evidence_kind='submitted-physical-capture',acceptance='requires assessment of raw traces and project criteria')
+                 evidence_kind='submitted-physical-capture',acceptance='requires assessment of raw traces and project criteria',
+                 unit=meta.get('unit'),target_contract=target_contract)
     save(destination/'receipt.json',receipt)
     return receipt
 
@@ -436,9 +597,11 @@ def main(argv=None):
     initialize.add_argument("project")
     initialize.add_argument("destination")
     initialize.add_argument('--family', help='Select an additional family listed for this project')
+    initialize.add_argument('--unit', help='Select a v4 learning unit')
     advancing=sub.add_parser('advance',help='Select the next same-family project, preserving code and archiving evidence')
     advancing.add_argument('workspace')
     advancing.add_argument('project')
+    advancing.add_argument('--unit', help='Select a v4 unit while preserving learner implementation')
     checking = sub.add_parser("check")
     checking.add_argument("workspace")
     checking.add_argument("--compiler", choices=["gcc", "clang"], default="gcc")
@@ -450,11 +613,14 @@ def main(argv=None):
     checking.add_argument('--target', help='Target declared by the selected laboratory family')
     checking.add_argument('--cpus', type=int, choices=[1, 2, 4], help='Requested guest CPU count, recorded with evidence')
     checking.add_argument('--external', action='append', default=[], metavar='NAME=PATH', help='Explicit pinned external source declared by this family')
+    checking.add_argument('--unit', help='Check the tests of a v4 learning unit')
     physical = sub.add_parser('record-physical', help='Register physical capture files without automatically accepting their claims')
     physical.add_argument('workspace')
     physical.add_argument('manifest')
     reporting = sub.add_parser("report")
     reporting.add_argument("workspace")
+    from . import learning
+    learning.register(sub)
     args = parser.parse_args(argv)
     try:
         if args.command == "doctor":
@@ -464,17 +630,19 @@ def main(argv=None):
                        "lab_family": p.get("lab_family"), "lab_families":p.get('lab_families',[]), "requires": p.get("requires", [])}
                       for p in catalog() if not args.module or p["module"] == args.module]
         elif args.command == "init":
-            result = instantiate(args.project, args.destination, args.family)
+            result = instantiate(args.project, args.destination, args.family, args.unit)
         elif args.command == 'advance':
-            result = advance(args.workspace,args.project)
+            result = advance(args.workspace,args.project,args.unit)
         elif args.command == "check":
             deps = dict(item.split('=', 1) for item in args.dependency)
             result = run_checks(args.workspace, args.compiler, args.profile, args.assessor, args.timeout, args.all_tests, deps,
-                                args.target, args.cpus, dict(item.split('=',1) for item in args.external))
+                                args.target, args.cpus, dict(item.split('=',1) for item in args.external), args.unit)
         elif args.command == 'record-physical':
             result = record_physical(args.workspace, args.manifest)
-        else:
+        elif args.command == 'report':
             result = report(args.workspace)
+        else:
+            result = learning.dispatch(args)
         print(json.dumps(result, indent=2, ensure_ascii=False))
         return 1 if isinstance(result, dict) and result.get("status") in {"failed", "unavailable"} else 0
     except (OSError, ValueError, KeyError) as error:

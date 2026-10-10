@@ -42,7 +42,8 @@
     {
       "id": "PR-T38-11",
       "tests": [
-        "mcu_spi"
+        "mcu_spi",
+        "communications.v4_canfd"
       ],
       "capabilities": [
         "hosted-c17"
@@ -150,7 +151,8 @@
     {
       "id": "PR-T40-05",
       "tests": [
-        "edu7_transport"
+        "edu7_transport",
+        "communications.v4_reassembly"
       ],
       "capabilities": [
         "hosted-c17"
@@ -210,7 +212,8 @@
     {
       "id": "PR-T41-04",
       "tests": [
-        "net_arp"
+        "net_arp",
+        "communications.v4_arp"
       ],
       "capabilities": [
         "hosted-c17"
@@ -234,7 +237,8 @@
     {
       "id": "PR-T41-06",
       "tests": [
-        "net_sequence"
+        "net_sequence",
+        "communications.v4_tcp_fault"
       ],
       "capabilities": [
         "hosted-c17"
@@ -382,5 +386,203 @@
     "PR-T40-01": "Design/capacity dossier uses its existing finite fixture; cumulative pipeline belongs only to PR-T40-08.",
     "PR-T41-01": "Architecture/ownership dossier and existing fixture; no later TCP dependency imposed.",
     "PR-T41-02": "Actual PHY/MDIO boundary has no misleading software readiness pass."
-  }
+  },
+  "tests": [
+    "communications.v4_reassembly",
+    "communications.v4_arp",
+    "communications.v4_tcp_fault",
+    "communications.v4_canfd"
+  ],
+  "negative_controls": [
+    "communications.negative.reassembly",
+    "communications.negative.arp",
+    "communications.negative.tcp_fault",
+    "communications.negative.canfd"
+  ],
+  "units": [
+    {
+      "id": "LAB-EX-07",
+      "project": "PR-T40-05",
+      "title": "Granted reassembly with expiry",
+      "tests": [
+        "communications.v4_reassembly"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T40.05.a"
+      ],
+      "new_executable": true,
+      "scope": "Reuse EDU7 fragment acceptance; gate publication by link authority, expire incomplete state, preserve duplicate suppression and delivered data.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "communications.v4_reassembly",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "communications.reassembly",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-NET-RFC9293",
+          "locator": "TCP retransmission and state processing"
+        },
+        {
+          "resource": "R-NET-RFC826",
+          "locator": "ARP packet reception"
+        }
+      ],
+      "reused_functions": [
+        "edu_rx_accept"
+      ]
+    },
+    {
+      "id": "LAB-EX-08",
+      "project": "PR-T41-04",
+      "title": "Active ARP queue and bounded retries",
+      "tests": [
+        "communications.v4_arp"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T41.04.a"
+      ],
+      "new_executable": true,
+      "scope": "Retain one immutable payload, match the resolved peer, bound retry count, and separate address resolution from payload transfer.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "communications.v4_arp",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "communications.arp",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-NET-RFC9293",
+          "locator": "TCP retransmission and state processing"
+        },
+        {
+          "resource": "R-NET-RFC826",
+          "locator": "ARP packet reception"
+        }
+      ],
+      "reused_functions": []
+    },
+    {
+      "id": "LAB-EX-09",
+      "project": "PR-T41-06",
+      "title": "TCP retry through a dropping adapter",
+      "tests": [
+        "communications.v4_tcp_fault"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T41.06.a"
+      ],
+      "new_executable": true,
+      "scope": "Reuse net_tick and retained packets; inject sink losses, count them independently, and verify bounded retry exhaustion without duplicating TCP.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "communications.v4_tcp_fault",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "communications.tcp_fault",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-NET-RFC9293",
+          "locator": "TCP retransmission and state processing"
+        },
+        {
+          "resource": "R-NET-RFC826",
+          "locator": "ARP packet reception"
+        }
+      ],
+      "reused_functions": [
+        "net_tick"
+      ]
+    },
+    {
+      "id": "LAB-EX-10",
+      "project": "PR-T38-11",
+      "title": "CAN FD configuration and loopback",
+      "tests": [
+        "communications.v4_canfd"
+      ],
+      "hours": 2,
+      "objectives": [
+        "T38.12.a"
+      ],
+      "new_executable": true,
+      "scope": "Respect INIT/CCE configuration order, bounded acknowledgement and supported FD lengths; keep H745 clock/cache/message-RAM/cable obligations open.",
+      "remaining_evidence": "Independent changed-condition implementation, design defense and complete parent-project obligations. Hosted register models and cross-compilation do not establish actual MMIO addresses, cache/DMA ordering, electrical timing, target reset behavior or physical F439/H745 operation. Supply the parent project's required board captures separately.",
+      "steps": [
+        "Write the state, ownership and failure contract; predict normal, boundary and fault cases.",
+        "Implement the selected mechanism against the imported interfaces without reading assessor code.",
+        "Run the semantic gate and a deliberate negative control; minimize a disagreement.",
+        "Change one capacity, timing, ownership or failure assumption and record the design consequence."
+      ],
+      "checks": [
+        "communications.v4_canfd",
+        "The supplied learner scaffold builds and does not pass this semantic gate.",
+        "The explicit assessor passes and the corresponding mutation is rejected."
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [
+        {
+          "id": "communications.canfd",
+          "contract_version": 1
+        }
+      ],
+      "references": [
+        {
+          "resource": "R-NET-RFC9293",
+          "locator": "TCP retransmission and state processing"
+        },
+        {
+          "resource": "R-NET-RFC826",
+          "locator": "ARP packet reception"
+        },
+        {
+          "resource": "R-OS3-ST-RM0399-R4",
+          "locator": "FDCAN controller: configuration, message RAM and internal loopback"
+        }
+      ],
+      "reused_functions": []
+    }
+  ]
 }

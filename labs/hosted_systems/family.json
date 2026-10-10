@@ -1,0 +1,871 @@
+{
+  "version": 1,
+  "family": "hosted_systems",
+  "title": "Hosted Systems progressive implementation units",
+  "build_system": "cmake",
+  "default_target": "host",
+  "default": "Unsolved learner functions compile; all unit semantic gates reject.",
+  "assessor_root": "assessor/hosted_systems",
+  "targets": {
+    "host": {
+      "capabilities": [
+        "cmake",
+        "ninja"
+      ],
+      "evidence_kind": "actual-Linux-x86_64"
+    }
+  },
+  "projects": [
+    {
+      "id": "PR-T23-01",
+      "tests": [
+        "hosted_systems.descriptor",
+        "hosted_systems.process"
+      ],
+      "capabilities": [
+        "linux-x86_64"
+      ],
+      "scope": "Finite executable unit gates; see units for individual contracts.",
+      "remaining_evidence": "Full project brief, independent design, changed-condition and delayed-retrieval evidence remain required."
+    },
+    {
+      "id": "PR-T23-02",
+      "tests": [
+        "hosted_systems.copy"
+      ],
+      "capabilities": [
+        "linux-x86_64"
+      ],
+      "scope": "Finite executable unit gates; see units for individual contracts.",
+      "remaining_evidence": "Full project brief, independent design, changed-condition and delayed-retrieval evidence remain required."
+    },
+    {
+      "id": "PR-T24-05",
+      "tests": [
+        "hosted_systems.deadline"
+      ],
+      "capabilities": [
+        "linux-x86_64"
+      ],
+      "scope": "Finite executable unit gates; see units for individual contracts.",
+      "remaining_evidence": "Full project brief, independent design, changed-condition and delayed-retrieval evidence remain required."
+    },
+    {
+      "id": "PR-T23-03",
+      "tests": [
+        "hosted_systems.mapping"
+      ],
+      "capabilities": [
+        "linux-x86_64"
+      ],
+      "scope": "Finite executable unit gates; see units for individual contracts.",
+      "remaining_evidence": "Full project brief, independent design, changed-condition and delayed-retrieval evidence remain required."
+    },
+    {
+      "id": "PR-T23-04",
+      "tests": [
+        "hosted_systems.frame"
+      ],
+      "capabilities": [
+        "linux-x86_64"
+      ],
+      "scope": "Finite executable unit gates; see units for individual contracts.",
+      "remaining_evidence": "Full project brief, independent design, changed-condition and delayed-retrieval evidence remain required."
+    },
+    {
+      "id": "PR-T24-01",
+      "tests": [
+        "hosted_systems.signal"
+      ],
+      "capabilities": [
+        "linux-x86_64"
+      ],
+      "scope": "Finite executable unit gates; see units for individual contracts.",
+      "remaining_evidence": "Full project brief, independent design, changed-condition and delayed-retrieval evidence remain required."
+    },
+    {
+      "id": "PR-T24-02",
+      "tests": [
+        "hosted_systems.ipc"
+      ],
+      "capabilities": [
+        "linux-x86_64"
+      ],
+      "scope": "Finite executable unit gates; see units for individual contracts.",
+      "remaining_evidence": "Full project brief, independent design, changed-condition and delayed-retrieval evidence remain required."
+    },
+    {
+      "id": "PR-T24-04",
+      "tests": [
+        "hosted_systems.reactor"
+      ],
+      "capabilities": [
+        "linux-x86_64"
+      ],
+      "scope": "Finite executable unit gates; see units for individual contracts.",
+      "remaining_evidence": "Full project brief, independent design, changed-condition and delayed-retrieval evidence remain required."
+    },
+    {
+      "id": "PR-T25-01",
+      "tests": [
+        "hosted_systems.pool"
+      ],
+      "capabilities": [
+        "linux-x86_64"
+      ],
+      "scope": "Finite executable unit gates; see units for individual contracts.",
+      "remaining_evidence": "Full project brief, independent design, changed-condition and delayed-retrieval evidence remain required."
+    },
+    {
+      "id": "PR-T25-02",
+      "tests": [
+        "hosted_systems.queue"
+      ],
+      "capabilities": [
+        "linux-x86_64"
+      ],
+      "scope": "Finite executable unit gates; see units for individual contracts.",
+      "remaining_evidence": "Full project brief, independent design, changed-condition and delayed-retrieval evidence remain required."
+    },
+    {
+      "id": "PR-T23-06",
+      "tests": [
+        "hosted_systems.clocks"
+      ],
+      "capabilities": [
+        "linux-x86_64"
+      ],
+      "scope": "Finite executable unit gates; see units for individual contracts.",
+      "remaining_evidence": "Full project brief, independent design, changed-condition and delayed-retrieval evidence remain required."
+    }
+  ],
+  "units": [
+    {
+      "id": "LAB-HS-01",
+      "project": "PR-T23-01",
+      "title": "Owned descriptor from a borrowed handle",
+      "tests": [
+        "hosted_systems.descriptor"
+      ],
+      "new_executable": true,
+      "hours": 2,
+      "objectives": [
+        "T23.03.a",
+        "T23.03.b"
+      ],
+      "scope": "Duplicate a real file descriptor while preserving the borrowed handle and shared offset.",
+      "remaining_evidence": "Exec inheritance, descriptor census and failed-redirection rollback remain.",
+      "steps": [
+        "Define borrowed and owned descriptor roles",
+        "implement hs_dup_owned with atomic close-on-exec duplication",
+        "close the owned descriptor and observe the original offset"
+      ],
+      "checks": [
+        "FD_CLOEXEC set",
+        "different descriptor shares offset",
+        "invalid descriptor rejects"
+      ],
+      "artifact_outputs": [
+        "io.descriptor"
+      ],
+      "artifact_inputs": [],
+      "references": [
+        {
+          "resource_id": "R-SYS-LINUX-MAN-6-19",
+          "locator": "fcntl(2) — F_DUPFD_CLOEXEC; dup(2) — shared open file description and offsets",
+          "purpose": "Duplicate a real file descriptor while preserving the borrowed handle and shared offset."
+        }
+      ],
+      "capabilities": [
+        "linux-x86_64",
+        "cmake",
+        "ninja"
+      ],
+      "claims": [
+        {
+          "id": "CLAIM-HS-01",
+          "scope": "Duplicate a real file descriptor while preserving the borrowed handle and shared offset."
+        }
+      ],
+      "artifact_contracts": [
+        {
+          "id": "io.descriptor",
+          "version": 1,
+          "cmake_target": "hosted_descriptor",
+          "library": "libhosted_descriptor.a",
+          "public_header": "hosted.h",
+          "symbols": [
+            "hs_dup_owned"
+          ],
+          "dependency_profile": "hosted-POSIX-Linux",
+          "ownership_contract": "CONTRACTS.md",
+          "limitations": "Exec inheritance, descriptor census and failed-redirection rollback remain."
+        }
+      ]
+    },
+    {
+      "id": "LAB-HS-02",
+      "project": "PR-T23-02",
+      "title": "Bounded partial file transfer",
+      "tests": [
+        "hosted_systems.copy"
+      ],
+      "new_executable": true,
+      "hours": 2,
+      "objectives": [
+        "T23.04.a",
+        "T23.04.b",
+        "T23.07.a"
+      ],
+      "scope": "Copy an actual fragmented pipe stream to a real file with a caller-set byte ceiling.",
+      "remaining_evidence": "Forced EINTR/short output scheduling, pathname races, positioned offsets and durability remain.",
+      "steps": [
+        "Implement hs_copy using bounded storage",
+        "track bytes actually written when failure interrupts a chunk",
+        "reuse the transfer contract on EOF and /dev/full"
+      ],
+      "checks": [
+        "600 bytes from many writes",
+        "seven-byte bound",
+        "zero work",
+        "bad input and ENOSPC preserve accepted count"
+      ],
+      "artifact_outputs": [
+        "io.transfer"
+      ],
+      "artifact_inputs": [],
+      "references": [
+        {
+          "resource_id": "R-SYS-LINUX-MAN-6-19",
+          "locator": "read(2) and write(2) — short transfers, EINTR, EOF and error return contracts",
+          "purpose": "Copy an actual fragmented pipe stream to a real file with a caller-set byte ceiling."
+        }
+      ],
+      "capabilities": [
+        "linux-x86_64",
+        "cmake",
+        "ninja"
+      ],
+      "claims": [
+        {
+          "id": "CLAIM-HS-02",
+          "scope": "Copy an actual fragmented pipe stream to a real file with a caller-set byte ceiling."
+        }
+      ],
+      "artifact_contracts": [
+        {
+          "id": "io.transfer",
+          "version": 1,
+          "cmake_target": "hosted_copy",
+          "library": "libhosted_copy.a",
+          "public_header": "hosted.h",
+          "symbols": [
+            "hs_copy"
+          ],
+          "dependency_profile": "hosted-POSIX-Linux",
+          "ownership_contract": "CONTRACTS.md",
+          "limitations": "Forced EINTR/short output scheduling, pathname races, positioned offsets and durability remain."
+        }
+      ]
+    },
+    {
+      "id": "LAB-HS-03",
+      "project": "PR-T24-05",
+      "title": "Monotonic deadline and cancellation",
+      "tests": [
+        "hosted_systems.deadline"
+      ],
+      "new_executable": true,
+      "hours": 2,
+      "objectives": [
+        "T24.09.a",
+        "T24.09.b",
+        "T24.09.c"
+      ],
+      "scope": "Poll real input/cancellation descriptors against an absolute monotonic deadline.",
+      "remaining_evidence": "timerfd/eventfd accumulation, rescheduling, callback execution latency and independent races remain.",
+      "steps": [
+        "State the single-reader ownership rule",
+        "implement hs_read_until with cancellation winning simultaneous readiness",
+        "recompute remaining duration after interruptions"
+      ],
+      "checks": [
+        "Empty input times out",
+        "ready input reads",
+        "cancel leaves simultaneously ready data untouched",
+        "bad descriptor rejects"
+      ],
+      "artifact_outputs": [
+        "io.deadline"
+      ],
+      "artifact_inputs": [],
+      "references": [
+        {
+          "resource_id": "R-SYS-LINUX-MAN-6-19",
+          "locator": "poll(2) — readiness, return values and EINTR; clock_gettime(2) — CLOCK_MONOTONIC",
+          "purpose": "Poll real input/cancellation descriptors against an absolute monotonic deadline."
+        }
+      ],
+      "capabilities": [
+        "linux-x86_64",
+        "cmake",
+        "ninja"
+      ],
+      "claims": [
+        {
+          "id": "CLAIM-HS-03",
+          "scope": "Poll real input/cancellation descriptors against an absolute monotonic deadline."
+        }
+      ],
+      "artifact_contracts": [
+        {
+          "id": "io.deadline",
+          "version": 1,
+          "cmake_target": "hosted_deadline",
+          "library": "libhosted_deadline.a",
+          "public_header": "hosted.h",
+          "symbols": [
+            "hs_read_until"
+          ],
+          "dependency_profile": "hosted-POSIX-Linux",
+          "ownership_contract": "CONTRACTS.md",
+          "limitations": "timerfd/eventfd accumulation, rescheduling, callback execution latency and independent races remain."
+        }
+      ]
+    },
+    {
+      "id": "LAB-HS-04",
+      "project": "PR-T23-01",
+      "title": "Child exit and complete reap",
+      "tests": [
+        "hosted_systems.process"
+      ],
+      "new_executable": true,
+      "hours": 2,
+      "objectives": [
+        "T23.02.a",
+        "T23.02.c"
+      ],
+      "scope": "Create and reap real child processes, retaining full parent-side ownership of their status.",
+      "remaining_evidence": "exec error channels, multithreaded fork restrictions, abnormal termination and pipeline cleanup remain.",
+      "steps": [
+        "Implement hs_spawn_exit",
+        "distinguish raw wait status from decoded exit code",
+        "verify that no child remains waitable after success"
+      ],
+      "checks": [
+        "Exit codes 0 through 255",
+        "reject 256 before fork",
+        "leave output unchanged on rejected input"
+      ],
+      "artifact_outputs": [],
+      "artifact_inputs": [],
+      "references": [
+        {
+          "resource_id": "R-SYS-LINUX-MAN-6-19",
+          "locator": "fork(2) — descriptor inheritance; waitpid(2) — WIFEXITED and WEXITSTATUS; _exit(2) — status",
+          "purpose": "Create and reap real child processes, retaining full parent-side ownership of their status."
+        }
+      ],
+      "capabilities": [
+        "linux-x86_64",
+        "cmake",
+        "ninja"
+      ],
+      "claims": [
+        {
+          "id": "CLAIM-HS-04",
+          "scope": "Create and reap real child processes, retaining full parent-side ownership of their status."
+        }
+      ]
+    },
+    {
+      "id": "LAB-HS-05",
+      "project": "PR-T23-03",
+      "title": "Shared mapping with offset records",
+      "tests": [
+        "hosted_systems.mapping"
+      ],
+      "new_executable": true,
+      "hours": 2,
+      "objectives": [
+        "T23.09.a",
+        "T23.10.a",
+        "T23.10.b"
+      ],
+      "scope": "A real child publishes a record into MAP_SHARED storage using fixed-width offsets.",
+      "remaining_evidence": "Cross-endian format, unrelated process attachment, resizing, concurrent publication and crash ownership remain.",
+      "steps": [
+        "Validate offset plus length without overflow",
+        "write fixed-width metadata and payload in the child",
+        "use successful wait as completion before the parent reads"
+      ],
+      "checks": [
+        "Shared bytes visible after reap",
+        "adjacent canaries intact",
+        "header overlap and overrun reject",
+        "zero-length tail record allowed"
+      ],
+      "artifact_outputs": [],
+      "artifact_inputs": [],
+      "references": [
+        {
+          "resource_id": "R-SYS-TLPI-2010",
+          "locator": "§49.2 Creating a Mapping: mmap(), pp. 1020–1023",
+          "purpose": "A real child publishes a record into MAP_SHARED storage using fixed-width offsets."
+        },
+        {
+          "resource_id": "R-SYS-LINUX-MAN-6-19",
+          "locator": "mmap(2) — MAP_SHARED and anonymous mapping; waitpid(2) — child completion",
+          "purpose": "A real child publishes a record into MAP_SHARED storage using fixed-width offsets."
+        }
+      ],
+      "capabilities": [
+        "linux-x86_64",
+        "cmake",
+        "ninja"
+      ],
+      "claims": [
+        {
+          "id": "CLAIM-HS-05",
+          "scope": "A real child publishes a record into MAP_SHARED storage using fixed-width offsets."
+        }
+      ]
+    },
+    {
+      "id": "LAB-HS-06",
+      "project": "PR-T23-04",
+      "title": "Framed pipeline reader",
+      "tests": [
+        "hosted_systems.frame"
+      ],
+      "new_executable": true,
+      "hours": 2,
+      "objectives": [
+        "T23.11.a",
+        "T23.04.a"
+      ],
+      "scope": "Read a big-endian length-prefixed binary message from actual pipe writes and detect truncated EOF.",
+      "remaining_evidence": "Terminal restoration, writer backpressure, broken-pipe policy and full multi-process pipeline remain.",
+      "steps": [
+        "Implement hs_read_frame by reusing a short-read loop",
+        "keep output length unchanged on a rejected frame",
+        "declare close-on-protocol-error as the caller policy"
+      ],
+      "checks": [
+        "Binary zero bytes",
+        "one-byte writes",
+        "zero-length frame",
+        "oversized and truncated body/header reject"
+      ],
+      "artifact_outputs": [
+        "io.frame"
+      ],
+      "artifact_inputs": [],
+      "references": [
+        {
+          "resource_id": "R-SYS-LINUX-MAN-6-19",
+          "locator": "pipe(7) — byte stream, capacity and EOF; read(2) — short reads",
+          "purpose": "Read a big-endian length-prefixed binary message from actual pipe writes and detect truncated EOF."
+        }
+      ],
+      "capabilities": [
+        "linux-x86_64",
+        "cmake",
+        "ninja"
+      ],
+      "claims": [
+        {
+          "id": "CLAIM-HS-06",
+          "scope": "Read a big-endian length-prefixed binary message from actual pipe writes and detect truncated EOF."
+        }
+      ],
+      "artifact_contracts": [
+        {
+          "id": "io.frame",
+          "version": 1,
+          "cmake_target": "hosted_frame",
+          "library": "libhosted_frame.a",
+          "public_header": "hosted.h",
+          "symbols": [
+            "hs_read_frame"
+          ],
+          "dependency_profile": "hosted-POSIX-Linux",
+          "ownership_contract": "CONTRACTS.md",
+          "limitations": "Terminal restoration, writer backpressure, broken-pipe policy and full multi-process pipeline remain."
+        }
+      ]
+    },
+    {
+      "id": "LAB-HS-07",
+      "project": "PR-T24-01",
+      "title": "Masked signal handoff",
+      "tests": [
+        "hosted_systems.signal"
+      ],
+      "new_executable": true,
+      "hours": 2,
+      "objectives": [
+        "T24.01.a",
+        "T24.02.a"
+      ],
+      "scope": "Generate and synchronously consume real SIGUSR1/SIGUSR2 while restoring the original mask.",
+      "remaining_evidence": "Thread-wide mask coordination, handler safety and self-pipe/signalfd tradeoff defense remain.",
+      "steps": [
+        "State exclusive ownership of the chosen signal and absence of a preexisting pending instance",
+        "block before generating and waiting",
+        "restore the mask only after consuming the notification"
+      ],
+      "checks": [
+        "Both allowed signals arrive",
+        "SIGKILL rejects",
+        "mask unchanged",
+        "no notification remains pending"
+      ],
+      "artifact_outputs": [],
+      "artifact_inputs": [],
+      "references": [
+        {
+          "resource_id": "R-SYS-LINUX-MAN-6-19",
+          "locator": "signal(7) — pending signals and masks; pthread_sigmask(3) — mask preservation; sigwaitinfo(2)/sigtimedwait(2) — synchronous consumption",
+          "purpose": "Generate and synchronously consume real SIGUSR1/SIGUSR2 while restoring the original mask."
+        }
+      ],
+      "capabilities": [
+        "linux-x86_64",
+        "cmake",
+        "ninja"
+      ],
+      "claims": [
+        {
+          "id": "CLAIM-HS-07",
+          "scope": "Generate and synchronously consume real SIGUSR1/SIGUSR2 while restoring the original mask."
+        }
+      ]
+    },
+    {
+      "id": "LAB-HS-08",
+      "project": "PR-T24-02",
+      "title": "Local message ownership",
+      "tests": [
+        "hosted_systems.ipc"
+      ],
+      "new_executable": true,
+      "hours": 2,
+      "objectives": [
+        "T24.03.b",
+        "T24.04.b"
+      ],
+      "scope": "A real AF_UNIX SOCK_SEQPACKET child transforms a bounded binary request and replies.",
+      "remaining_evidence": "Addressed server lifecycle, peer credential policy, interrupted calls and unexpected peer failure remain.",
+      "steps": [
+        "Implement socketpair ownership across fork",
+        "reverse the payload without changing message boundaries",
+        "close unused endpoints and reap on every parent completion path"
+      ],
+      "checks": [
+        "64-byte binary request",
+        "zero message",
+        "capacity and oversize reject",
+        "exact response bytes"
+      ],
+      "artifact_outputs": [
+        "ipc.local"
+      ],
+      "artifact_inputs": [],
+      "references": [
+        {
+          "resource_id": "R-SYS-LINUX-MAN-6-19",
+          "locator": "unix(7) — SOCK_SEQPACKET message boundaries; socketpair(2), send(2) and recv(2) — return values",
+          "purpose": "A real AF_UNIX SOCK_SEQPACKET child transforms a bounded binary request and replies."
+        }
+      ],
+      "capabilities": [
+        "linux-x86_64",
+        "cmake",
+        "ninja"
+      ],
+      "claims": [
+        {
+          "id": "CLAIM-HS-08",
+          "scope": "A real AF_UNIX SOCK_SEQPACKET child transforms a bounded binary request and replies."
+        }
+      ],
+      "artifact_contracts": [
+        {
+          "id": "ipc.local",
+          "version": 1,
+          "cmake_target": "hosted_ipc",
+          "library": "libhosted_ipc.a",
+          "public_header": "hosted.h",
+          "symbols": [
+            "hs_local_exchange"
+          ],
+          "dependency_profile": "hosted-POSIX-Linux",
+          "ownership_contract": "CONTRACTS.md",
+          "limitations": "Addressed server lifecycle, peer credential policy, interrupted calls and unexpected peer failure remain."
+        }
+      ]
+    },
+    {
+      "id": "LAB-HS-09",
+      "project": "PR-T24-04",
+      "title": "Small readiness reactor",
+      "tests": [
+        "hosted_systems.reactor"
+      ],
+      "new_executable": true,
+      "hours": 2,
+      "objectives": [
+        "T24.07.a",
+        "T24.07.b",
+        "T24.08.c"
+      ],
+      "scope": "One bounded turn per borrowed pipe collects one byte from each source without closing it.",
+      "remaining_evidence": "Generation-tagged registrations, stale epoll events, fairness, partial requests and load shedding remain.",
+      "steps": [
+        "Track completion separately from descriptor identity",
+        "service readiness before EOF when both are reported",
+        "publish the sum only when every source has completed"
+      ],
+      "checks": [
+        "Different ready order",
+        "EOF without byte rejects",
+        "borrowed descriptors remain open",
+        "zero source count rejects"
+      ],
+      "artifact_outputs": [
+        "io.reactor"
+      ],
+      "artifact_inputs": [],
+      "references": [
+        {
+          "resource_id": "R-SYS-LINUX-MAN-6-19",
+          "locator": "poll(2) — POLLIN/POLLHUP and readiness handling; read(2) — EOF",
+          "purpose": "One bounded turn per borrowed pipe collects one byte from each source without closing it."
+        }
+      ],
+      "capabilities": [
+        "linux-x86_64",
+        "cmake",
+        "ninja"
+      ],
+      "claims": [
+        {
+          "id": "CLAIM-HS-09",
+          "scope": "One bounded turn per borrowed pipe collects one byte from each source without closing it."
+        }
+      ],
+      "artifact_contracts": [
+        {
+          "id": "io.reactor",
+          "version": 1,
+          "cmake_target": "hosted_reactor",
+          "library": "libhosted_reactor.a",
+          "public_header": "hosted.h",
+          "symbols": [
+            "hs_reactor_sum"
+          ],
+          "dependency_profile": "hosted-POSIX-Linux",
+          "ownership_contract": "CONTRACTS.md",
+          "limitations": "Generation-tagged registrations, stale epoll events, fairness, partial requests and load shedding remain."
+        }
+      ]
+    },
+    {
+      "id": "LAB-HS-10",
+      "project": "PR-T25-01",
+      "title": "Bounded worker ownership",
+      "tests": [
+        "hosted_systems.pool"
+      ],
+      "new_executable": true,
+      "hours": 2,
+      "objectives": [
+        "T25.01.a",
+        "T25.02.a",
+        "T25.02.c"
+      ],
+      "scope": "Join at most four real workers to reduce at most 256 immutable values into private partial sums.",
+      "remaining_evidence": "Creation-failure injection, speedup/locality measurement and portable C thread comparison remain.",
+      "steps": [
+        "Seal shared-index versus static-partition decision before implementation",
+        "implement hs_pool_sum with cleanup for a partial create failure",
+        "compare uneven input with one through four workers"
+      ],
+      "checks": [
+        "Every worker count",
+        "zero items",
+        "negative values",
+        "invalid capacities leave output unchanged"
+      ],
+      "artifact_outputs": [
+        "work.pool"
+      ],
+      "artifact_inputs": [],
+      "references": [
+        {
+          "resource_id": "R-SYS-POSIX-THREAD-LIFECYCLE-2024",
+          "locator": "pthread_create — DESCRIPTION and error returns; pthread_join — completion and resource lifetime",
+          "purpose": "Join at most four real workers to reduce at most 256 immutable values into private partial sums."
+        },
+        {
+          "resource_id": "R-SYS-POSIX-MEMORY-2024",
+          "locator": "§4.15.2 Memory Synchronization — thread creation, mutexes and joining",
+          "purpose": "Join at most four real workers to reduce at most 256 immutable values into private partial sums."
+        }
+      ],
+      "capabilities": [
+        "linux-x86_64",
+        "cmake",
+        "ninja"
+      ],
+      "claims": [
+        {
+          "id": "CLAIM-HS-10",
+          "scope": "Join at most four real workers to reduce at most 256 immutable values into private partial sums."
+        }
+      ],
+      "artifact_contracts": [
+        {
+          "id": "work.pool",
+          "version": 1,
+          "cmake_target": "hosted_pool",
+          "library": "libhosted_pool.a",
+          "public_header": "hosted.h",
+          "symbols": [
+            "hs_pool_sum"
+          ],
+          "dependency_profile": "hosted-POSIX-Linux",
+          "ownership_contract": "CONTRACTS.md",
+          "limitations": "Creation-failure injection, speedup/locality measurement and portable C thread comparison remain."
+        }
+      ]
+    },
+    {
+      "id": "LAB-HS-11",
+      "project": "PR-T25-02",
+      "title": "Condition queue drain and shutdown",
+      "tests": [
+        "hosted_systems.queue"
+      ],
+      "new_executable": true,
+      "hours": 2,
+      "objectives": [
+        "T25.03.a",
+        "T25.04.a",
+        "T25.04.b",
+        "T25.04.c"
+      ],
+      "scope": "A four-slot real pthread queue uses predicates and wakes blocked producers/consumers on close.",
+      "remaining_evidence": "Timeout semantics, multiple-producer fairness, race detector and independent ordering argument remain.",
+      "steps": [
+        "Implement queue operations under the shared invariant",
+        "define close as reject-new-work then drain-existing-work",
+        "broadcast shutdown and join users before destroy"
+      ],
+      "checks": [
+        "1000 item stream",
+        "spurious broadcast",
+        "close empty blocked reader",
+        "close full blocked writer",
+        "FIFO drain",
+        "repeated close"
+      ],
+      "artifact_outputs": [
+        "sync.condition_queue"
+      ],
+      "artifact_inputs": [],
+      "references": [
+        {
+          "resource_id": "R-SYS-POSIX-COND-2024",
+          "locator": "RATIONALE — Condition Wait Semantics: predicates, spurious wakeups and associated mutex",
+          "purpose": "A four-slot real pthread queue uses predicates and wakes blocked producers/consumers on close."
+        },
+        {
+          "resource_id": "R-SYS-TLPI-2010",
+          "locator": "§30.2.3 Testing a Condition Variable’s Predicate",
+          "purpose": "A four-slot real pthread queue uses predicates and wakes blocked producers/consumers on close."
+        }
+      ],
+      "capabilities": [
+        "linux-x86_64",
+        "cmake",
+        "ninja"
+      ],
+      "claims": [
+        {
+          "id": "CLAIM-HS-11",
+          "scope": "A four-slot real pthread queue uses predicates and wakes blocked producers/consumers on close."
+        }
+      ],
+      "artifact_contracts": [
+        {
+          "id": "sync.condition_queue",
+          "version": 1,
+          "cmake_target": "hosted_queue",
+          "library": "libhosted_queue.a",
+          "public_header": "hosted.h",
+          "symbols": [
+            "hs_queue_init",
+            "hs_queue_push",
+            "hs_queue_pop",
+            "hs_queue_close",
+            "hs_queue_destroy"
+          ],
+          "dependency_profile": "hosted-POSIX-Linux",
+          "ownership_contract": "CONTRACTS.md",
+          "limitations": "Timeout semantics, multiple-producer fairness, race detector and independent ordering argument remain."
+        }
+      ]
+    },
+    {
+      "id": "LAB-HS-12",
+      "project": "PR-T23-06",
+      "title": "Clock domains and child resource limit",
+      "tests": [
+        "hosted_systems.clocks"
+      ],
+      "new_executable": true,
+      "hours": 2,
+      "objectives": [
+        "T23.13.a",
+        "T23.13.b",
+        "T23.13.c"
+      ],
+      "scope": "Observe actual wall/process clocks and enforce RLIMIT_FSIZE only in a child.",
+      "remaining_evidence": "Affinity/scheduler privilege campaigns, cgroups and real-time guarantees remain separate evidence.",
+      "steps": [
+        "Measure nanosleep using both clock domains",
+        "inspect the real descriptor soft limit",
+        "install a child-only file-size ceiling and capture EFBIG without changing the parent"
+      ],
+      "checks": [
+        "Clock resolutions positive",
+        "wall delay observable",
+        "actual file stops at eight bytes",
+        "parent resource limits unchanged"
+      ],
+      "artifact_outputs": [],
+      "artifact_inputs": [],
+      "references": [
+        {
+          "resource_id": "R-SYS-LINUX-MAN-6-19",
+          "locator": "clock_gettime(2)/clock_getres(2) — CLOCK_MONOTONIC and CLOCK_PROCESS_CPUTIME_ID; nanosleep(2) — interruption; getrlimit(2) — RLIMIT_NOFILE, RLIMIT_FSIZE and SIGXFSZ",
+          "purpose": "Observe actual wall/process clocks and enforce RLIMIT_FSIZE only in a child."
+        }
+      ],
+      "capabilities": [
+        "linux-x86_64",
+        "cmake",
+        "ninja"
+      ],
+      "claims": [
+        {
+          "id": "CLAIM-HS-12",
+          "scope": "Observe actual wall/process clocks and enforce RLIMIT_FSIZE only in a child."
+        }
+      ]
+    }
+  ]
+}
