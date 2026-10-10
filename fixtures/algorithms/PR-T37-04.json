@@ -1,0 +1,106 @@
+{
+  "id": "PR-T37-04",
+  "kind": "pipeline_cert",
+  "description": "Declared five-stage model: forwarding, one load-use bubble, EX branch resolution, refetch target on the next cycle.",
+  "input": {
+    "schedule": {
+      "I1": {
+        "IF": 1,
+        "ID": 2,
+        "EX": 3,
+        "MEM": 4,
+        "WB": 5
+      },
+      "I2": {
+        "IF": 2,
+        "ID": 3,
+        "EX": 4,
+        "MEM": 5,
+        "WB": 6
+      },
+      "I3": {
+        "IF": 3,
+        "ID": 4,
+        "EX": 5,
+        "MEM": 6,
+        "WB": 7
+      },
+      "I4": {
+        "IF": 4,
+        "ID": [
+          5,
+          6
+        ],
+        "EX": 7,
+        "MEM": 8,
+        "WB": 9
+      },
+      "I5": {
+        "IF": [
+          5,
+          6
+        ],
+        "ID": 7,
+        "EX": 8,
+        "MEM": 9,
+        "WB": 10
+      },
+      "I6": {
+        "IF": 7,
+        "ID": 8,
+        "flushed": 8
+      },
+      "I7_wrong_fetch": {
+        "IF": 8,
+        "flushed": 8
+      },
+      "I7": {
+        "IF": 9,
+        "ID": 10,
+        "EX": 11,
+        "MEM": 12,
+        "WB": 13
+      }
+    },
+    "dependencies": [
+      [
+        "I1",
+        "I2",
+        "ALU"
+      ],
+      [
+        "I2",
+        "I3",
+        "ALU"
+      ],
+      [
+        "I3",
+        "I4",
+        "LOAD"
+      ]
+    ],
+    "branch": "I5",
+    "target": "I7",
+    "raw_counterexample": {
+      "producer_MEM": 6,
+      "consumer_EX": 6
+    }
+  },
+  "expected": {
+    "retired": [
+      "I1",
+      "I2",
+      "I3",
+      "I4",
+      "I5",
+      "I7"
+    ],
+    "cycles": 13,
+    "load_use_bubbles": 1,
+    "flushed_fetches": 2,
+    "no_forwarding_four_instruction_cycles": 14,
+    "forwarding_four_instruction_cycles": 9,
+    "invalid_same_cycle_load_use": true
+  },
+  "verification_method": "Check supplied stage order, structural uniqueness, forwarding availability, load latency and branch squash; derive the straight-line no-forwarding recurrence separately."
+}

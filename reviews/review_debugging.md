@@ -1,0 +1,7 @@
+# Independent T44 review
+
+Accepted after a fresh reread and independent recheck. The twelve topic explanations and ten bounded briefs support the novice-to-systems diagnosis progression, separate causal repair from symptom patches, and preserve UB, tool, snapshot and physical-evidence limits. Budget 114 hours includes 82 project hours once; assigned passages total 18 hours. Existing components/harnesses are reused.
+
+All four findings are resolved. DBG-01 now rejects invalid raw register/frame values and self/cyclic happens-before edges. DBG-02 binds the recursive canonical owned cards, module identity/traversal and exact topic/fixture correspondence, with stripped metadata. DBG-03's missing space is corrected. DBG-04 narrows whole-chip cacheless wording to the intended core SRAM/DMA distinction; actual RM0090 Flash cache text was independently inspected privately. See the JSON receipt for paths, closures, validation and current artifact hashes.
+
+All ten original fixtures pass 3,476 checks and all 37 public controls reject. All twelve independent reviewer cases now reject. Negative cases mutate temporary copies only. This review read all eleven teaching documents, ten fixtures, the verifier, profile guide and assigned resource/taxonomy scopes. It did not run learner C, a debugger, a sanitizer or hardware. The receipt pins the final current artifacts; later changes require a fresh review.

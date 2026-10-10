@@ -1,0 +1,45 @@
+{
+  "id": "FX-HTTP-contract",
+  "description": "Original shared bounded HTTP profile, used by hosted and custom-TCP adapters.",
+  "input": {
+    "domain": "T42",
+    "name": "Bounded hosted HTTP/1.1 origin server",
+    "ownership": "Own original C parser/router/serializer/socket lifecycle; OS owns TCP/IP/Ethernet/physical link. Plain HTTP loopback, no TLS claim.",
+    "endpoints": "127.0.0.1:8080, GET/HEAD /health => status200, representation ok\\n; POST /echo =>200 and identical octets; unknown route404; disallowed supported method405 with Allow; unknown method501. No filesystem, proxy, CONNECT, Upgrade or tunnel.",
+    "request_targets": "Origin-form /health or /echo; bounded absolute-form http://configured-authority/path accepted with target authority taking precedence over Host per RFC9112. No URI normalization into filesystem. Unsupported scheme/authority rejected; malformed/duplicate/missing HTTP1.1 Host400+close.",
+    "grammar": "Incremental octets, exact CRLF, single SP request-line separators, field-name token syntax, no whitespace before colon, no obs-fold, no NUL/control ambiguity. Field names case-insensitive; values retained as byte spans. Strict CRLF/single-SP is conservative policy; it is not a statement that RFC allows no recipient tolerance.",
+    "limits": {
+      "connections": 4,
+      "header_bytes": 8192,
+      "header_fields": 32,
+      "body_bytes": 1024,
+      "request_target_bytes": 1024,
+      "chunk_extension_bytes_per_chunk": 128,
+      "trailer_bytes": 1024,
+      "trailer_fields": 8,
+      "queued_complete_requests": 2,
+      "requests_per_connection": 4,
+      "idle_ms": 5000,
+      "request_total_ms": 15000,
+      "output_total_ms": 15000,
+      "close_drain_ms": 1000
+    },
+    "framing": "Choose NONE, exact decimal Content-Length, or a sole chunked Transfer-Encoding. Reject duplicate Content-Length, TE+CL, malformed/repeated coding tokens, chunked parameters, integer overflow and any request whose final transfer coding is not chunked with400+close. A valid bare-token coding list with an unsupported coding before one final chunked (for example gzip,chunked) receives501+close. Parameterized transfer codings are outside this declared strict syntax profile and rejected400+close. Consume bounded request content before reusing the connection; premature EOF never publishes a successful empty body.",
+    "chunks": "Decode chunk size/extensions/data CRLF incrementally; check integer and aggregate bounds before accepting. Parse then ignore bounded syntactically valid unrecognized extensions. Zero chunk ends data only after complete bounded trailer section and final CRLF. Trailers validated separately, discarded without changing routing/framing/Host or merging with headers.",
+    "expectations": "Valid admissible100-continue queues100 immediately after headers and before waiting for body; in a pipeline its bytes follow every earlier final response, or immediate final error determined from headers. Unknown expectation417+close. Unsupported CONNECT/Upgrade gets final error+close; following optimistic bytes are never interpreted as another HTTP request.",
+    "responses": "Content-Length is exact octet count; HEAD has GET-equivalent length and zero response body. Date uses injected clock for deterministic fixture output. Error bodies bounded. No user bytes enter format strings or response header syntax unchecked.",
+    "persistence": "HTTP1.1 persistence for at most4 requests, bounded FIFO response order including pipelined requests. Disable parsing when queue2 is full and apply read backpressure. Connection:close stops accepting/processing subsequent requests, drains queued current response, shutdown write then bounded receive-drain and close; never dispatch later bytes as requests after close/error.",
+    "socket_adapter": "Linux nonblocking listener and accepted sockets with explicit flags. Each connection owns receive/parser/output offsets. recv>0 can be any prefix; recv0 is EOF only after kernel buffered data drained; EINTR retry with deadlines, EAGAIN/EWOULDBLOCK wait. send advances by returned count only; preserve unsent bytes across EINTR/EAGAIN, MSG_NOSIGNAL and EPIPE abort. POLLHUP may accompany readable bytes. Writable readiness is interest-driven, never a busy loop or delivery proof.",
+    "acceptance": "All byte split positions and selected multi-request coalescings, CL/TE/chunk/trailer ambiguity, tiny partial sends, EOF at every incomplete phase, clocked limits, client half-close, pipelined FIFO, reject-and-close optimistic bytes, stable memory/descriptor bounds and independent curl/raw client response parsing. Root owns this family authorship."
+  },
+  "expected": {
+    "health_representation_hex": "6f6b0a",
+    "health_octets": 3,
+    "routes": [
+      "/health",
+      "/echo"
+    ],
+    "physical_layers_owned_by_server": false
+  },
+  "verification_method": "Check exact capacities and route/body/ownership declarations; these are project policies, not observed server results."
+}

@@ -1,0 +1,140 @@
+{
+  "id": "PR-T43-05",
+  "description": "Single-disk block counts with a two-block LRU, write allocation, dirty eviction and final flush.",
+  "kind": "blocks",
+  "input": {
+    "item_bytes": 4,
+    "block_items": 2,
+    "memory_items": 4,
+    "cases": [
+      [
+        {
+          "item": 0,
+          "mode": "read"
+        },
+        {
+          "item": 1,
+          "mode": "read"
+        },
+        {
+          "item": 2,
+          "mode": "read"
+        },
+        {
+          "item": 3,
+          "mode": "read"
+        },
+        {
+          "item": 4,
+          "mode": "read"
+        },
+        {
+          "item": 5,
+          "mode": "read"
+        },
+        {
+          "item": 6,
+          "mode": "read"
+        },
+        {
+          "item": 7,
+          "mode": "read"
+        }
+      ],
+      [
+        {
+          "item": 0,
+          "mode": "read"
+        },
+        {
+          "item": 1,
+          "mode": "write"
+        },
+        {
+          "item": 4,
+          "mode": "read"
+        },
+        {
+          "item": 0,
+          "mode": "write"
+        },
+        {
+          "item": 2,
+          "mode": "read"
+        },
+        {
+          "item": 4,
+          "mode": "write"
+        },
+        {
+          "item": 5,
+          "mode": "read"
+        }
+      ],
+      [],
+      [
+        {
+          "item": 0,
+          "mode": "read"
+        },
+        {
+          "item": 4,
+          "mode": "read"
+        },
+        {
+          "item": 2,
+          "mode": "read"
+        },
+        {
+          "item": 0,
+          "mode": "read"
+        },
+        {
+          "item": 4,
+          "mode": "read"
+        },
+        {
+          "item": 2,
+          "mode": "read"
+        }
+      ]
+    ]
+  },
+  "expected": {
+    "cases": [
+      {
+        "read_blocks": 4,
+        "write_blocks": 0,
+        "read_bytes": 32,
+        "write_bytes": 0,
+        "useful_bytes": 32,
+        "amplification": 1.0
+      },
+      {
+        "read_blocks": 4,
+        "write_blocks": 2,
+        "read_bytes": 32,
+        "write_bytes": 16,
+        "useful_bytes": 28,
+        "amplification": 1.7142857142857142
+      },
+      {
+        "read_blocks": 0,
+        "write_blocks": 0,
+        "read_bytes": 0,
+        "write_bytes": 0,
+        "useful_bytes": 0,
+        "amplification": null
+      },
+      {
+        "read_blocks": 6,
+        "write_blocks": 0,
+        "read_bytes": 48,
+        "write_bytes": 0,
+        "useful_bytes": 24,
+        "amplification": 2.0
+      }
+    ]
+  },
+  "verification_method": "Independent finite certificate in tools/verify_performance_fixtures.py; synthetic data, not measured learner runtime or a whole-program proof."
+}

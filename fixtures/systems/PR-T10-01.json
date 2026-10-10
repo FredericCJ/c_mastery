@@ -1,0 +1,53 @@
+{
+  "id": "PR-T10-01-reference",
+  "description": "Entry stack and startup ownership \u2014 declared synthetic reference case; actual tool/hardware observations are separate",
+  "oracle_type": "initial_stack",
+  "input": {
+    "word_bytes": 8,
+    "argc": 2,
+    "argv": [
+      8192,
+      8200
+    ],
+    "envp": [
+      12288
+    ],
+    "auxv": [
+      [
+        6,
+        4096
+      ],
+      [
+        9,
+        4198400
+      ],
+      [
+        0,
+        0
+      ]
+    ],
+    "stack_base": 65536
+  },
+  "expected": {
+    "words": [
+      2,
+      8192,
+      8200,
+      0,
+      12288,
+      0,
+      6,
+      4096,
+      9,
+      4198400,
+      0,
+      0
+    ],
+    "argv_offset": 8,
+    "envp_offset": 32,
+    "auxv_offset": 48,
+    "byte_extent": 96,
+    "stack_alignment_mod16": 0
+  },
+  "verification_method": "Independent Python mathematical/abstract model in tools/verify_systems_fixtures.py; compare every declared output field, then apply the stated contract to generated learner cases."
+}

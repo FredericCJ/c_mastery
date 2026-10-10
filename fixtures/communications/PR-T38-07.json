@@ -1,0 +1,116 @@
+{
+  "id": "PR-T38-07",
+  "description": "RS-422 one-driver two-receiver experiment — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "rs422",
+  "input": {
+    "bits": [
+      1,
+      0,
+      1,
+      1,
+      0
+    ],
+    "receivers": [
+      {
+        "name": "near",
+        "connected": true,
+        "swapped": false
+      },
+      {
+        "name": "far",
+        "connected": true,
+        "swapped": false
+      },
+      {
+        "name": "swapped",
+        "connected": true,
+        "swapped": true
+      },
+      {
+        "name": "disconnected",
+        "connected": false,
+        "swapped": false
+      }
+    ],
+    "topologies": [
+      {
+        "drivers": 1,
+        "receivers": 2
+      },
+      {
+        "drivers": 2,
+        "receivers": 2
+      },
+      {
+        "drivers": 1,
+        "receivers": 11
+      }
+    ],
+    "differential_mv": [
+      1000,
+      -1000,
+      0,
+      199,
+      200,
+      -200
+    ]
+  },
+  "expected": {
+    "receiver_results": [
+      {
+        "name": "near",
+        "observed_bits": [
+          1,
+          0,
+          1,
+          1,
+          0
+        ]
+      },
+      {
+        "name": "far",
+        "observed_bits": [
+          1,
+          0,
+          1,
+          1,
+          0
+        ]
+      },
+      {
+        "name": "swapped",
+        "observed_bits": [
+          0,
+          1,
+          0,
+          0,
+          1
+        ]
+      },
+      {
+        "name": "disconnected",
+        "observed_bits": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "topologies_valid": [
+      true,
+      false,
+      false
+    ],
+    "threshold_results": [
+      1,
+      0,
+      null,
+      null,
+      1,
+      0
+    ]
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

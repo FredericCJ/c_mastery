@@ -1,0 +1,134 @@
+{
+  "id": "PR-T36-01",
+  "kind": "ledger",
+  "description": "Original bounded queue and Euclid certificates; arrays and node slots have identical logical observations.",
+  "input": {
+    "capacity": 3,
+    "record_bytes": 8,
+    "operations": [
+      [
+        "put",
+        11
+      ],
+      [
+        "put",
+        22
+      ],
+      [
+        "take"
+      ],
+      [
+        "put",
+        33
+      ],
+      [
+        "put",
+        44
+      ],
+      [
+        "put",
+        55
+      ],
+      [
+        "take"
+      ]
+    ],
+    "gcd_input": [
+      1071,
+      462
+    ],
+    "gcd_states": [
+      [
+        1071,
+        462
+      ],
+      [
+        462,
+        147
+      ],
+      [
+        147,
+        21
+      ],
+      [
+        21,
+        0
+      ]
+    ],
+    "weakened_sort": {
+      "before": [
+        2,
+        1
+      ],
+      "after": [
+        1,
+        1
+      ]
+    }
+  },
+  "expected": {
+    "queue_states": [
+      [
+        11
+      ],
+      [
+        11,
+        22
+      ],
+      [
+        22
+      ],
+      [
+        22,
+        33
+      ],
+      [
+        22,
+        33,
+        44
+      ],
+      [
+        22,
+        33,
+        44
+      ],
+      [
+        33,
+        44
+      ]
+    ],
+    "status": [
+      "ok",
+      "ok",
+      "ok",
+      "ok",
+      "ok",
+      "full",
+      "ok"
+    ],
+    "removed": [
+      11,
+      22
+    ],
+    "persistent_payload_bytes": 24,
+    "slot_offsets": [
+      0,
+      8,
+      16
+    ],
+    "live_payload_bytes": [
+      8,
+      16,
+      8,
+      16,
+      24,
+      24,
+      16
+    ],
+    "gcd": 21,
+    "remainder_steps": 3,
+    "weak_sorted": true,
+    "weak_permutation": false
+  },
+  "verification_method": "Replay logical queue operations with an independent deque; check Euclid equations and decreasing second operand, and independently compare multisets."
+}

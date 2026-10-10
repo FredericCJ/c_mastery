@@ -1,0 +1,56 @@
+{
+  "id": "PR-T44-06",
+  "kind": "io_state",
+  "description": "Positive-progress I/O, captured errno, SIGPIPE visibility and explicitly Linux descriptor reuse.",
+  "input": {
+    "payload_hex": "41424344454647",
+    "write_results": [
+      2,
+      "EINTR",
+      2,
+      "EAGAIN",
+      3
+    ],
+    "read_results": [
+      3,
+      0
+    ],
+    "failed_errno": "ENOSPC",
+    "logging_errno": "EIO",
+    "sigpipe_dispositions": [
+      "default_unblocked",
+      "ignored"
+    ],
+    "fd": 9,
+    "old_generation": 1,
+    "new_generation": 2,
+    "close_error": "EIO",
+    "base_descriptors": 2,
+    "acquisitions": 7,
+    "descriptor_cap": 8
+  },
+  "expected": {
+    "offsets": [
+      2,
+      2,
+      4,
+      4,
+      7
+    ],
+    "emitted_hex": "41424344454647",
+    "read_bytes": 3,
+    "eof_seen": true,
+    "captured_errno": "ENOSPC",
+    "late_errno": "EIO",
+    "epipe_return_observable": [
+      false,
+      true
+    ],
+    "linux_closed_generation": 1,
+    "wrong_retry_closes_generation": 2,
+    "admitted_acquisitions": 6,
+    "exhaustion": "EMFILE",
+    "write_proves_durability": false
+  },
+  "verification_method": "Independent finite semantic certificate in tools/verify_debugging_fixtures.py. Model results do not establish actual learner C output, GDB/tool detection, a core or a physical target result. Runtime evidence is separately collected."
+}

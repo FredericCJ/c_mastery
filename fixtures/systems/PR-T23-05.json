@@ -1,0 +1,56 @@
+{
+  "id": "PR-T23-05-reference",
+  "description": "File locking and interrupted updates \u2014 declared synthetic reference case; actual tool/hardware observations are separate",
+  "oracle_type": "persistence_model",
+  "input": {
+    "assumptions": [
+      "Old named file initially durable",
+      "Successful synchronization honored by the declared filesystem/device",
+      "No concurrent namespace writer",
+      "Stops count successful completed stages; this is an abstract contract, not observed crash behavior"
+    ],
+    "stages": [
+      "write_temp",
+      "sync_temp",
+      "rename",
+      "sync_directory"
+    ],
+    "stops": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "expected": {
+    "states": [
+      {
+        "completed": 0,
+        "visible": "old",
+        "guaranteed_durable": "old"
+      },
+      {
+        "completed": 1,
+        "visible": "old",
+        "guaranteed_durable": "old"
+      },
+      {
+        "completed": 2,
+        "visible": "old",
+        "guaranteed_durable": "old"
+      },
+      {
+        "completed": 3,
+        "visible": "new",
+        "guaranteed_durable": "unspecified"
+      },
+      {
+        "completed": 4,
+        "visible": "new",
+        "guaranteed_durable": "new"
+      }
+    ]
+  },
+  "verification_method": "Independent Python mathematical/abstract model in tools/verify_systems_fixtures.py; compare every declared output field, then apply the stated contract to generated learner cases."
+}

@@ -1,0 +1,51 @@
+{
+  "id": "FX-HTTP-02_grammar",
+  "description": "Original header octets and grammar outcomes; every split has the same header boundary.",
+  "input": {
+    "cases": [
+      {
+        "wire": "GET /health HTTP/1.1\r\nHost: localhost:8080\r\n\r\n",
+        "accepted": true
+      },
+      {
+        "wire": "GET http://localhost:8080/health HTTP/1.1\r\nHost: other.example\r\n\r\n",
+        "accepted": true,
+        "authority": "localhost:8080"
+      },
+      {
+        "wire": "GET /health HTTP/1.1\nHost: localhost:8080\n\n",
+        "accepted": false
+      },
+      {
+        "wire": "GET /health HTTP/1.1\r\nHost : localhost\r\n\r\n",
+        "accepted": false
+      },
+      {
+        "wire": "GET /health HTTP/1.1\r\nHost: localhost\r\n folded\r\n\r\n",
+        "accepted": false
+      },
+      {
+        "wire": "GET /health HTTP/1.1\r\nHost: local\u0000host\r\n\r\n",
+        "accepted": false
+      }
+    ]
+  },
+  "expected": {
+    "accepted_case_indices": [
+      0,
+      1
+    ],
+    "rejected_case_indices": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "valid_header_end_octets": [
+      46,
+      66
+    ],
+    "absolute_target_authority": "localhost:8080"
+  },
+  "verification_method": "Independent octet/regular-language checks for these finite examples; no general HTTP parser is supplied."
+}

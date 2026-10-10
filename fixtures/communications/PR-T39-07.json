@@ -1,0 +1,89 @@
+{
+  "id": "PR-T39-07",
+  "description": "Ethernet transmit publication and bounded recovery — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "ethernet_tx",
+  "input": {
+    "cases": [
+      {
+        "events": [
+          "prepare_tail",
+          "prepare_head",
+          "own_tail",
+          "own_head",
+          "complete_ok",
+          "reuse"
+        ]
+      },
+      {
+        "events": [
+          "prepare_head",
+          "own_head"
+        ]
+      },
+      {
+        "events": [
+          "prepare_tail",
+          "prepare_head",
+          "own_tail",
+          "own_head",
+          "reuse"
+        ]
+      },
+      {
+        "events": [
+          "prepare_tail",
+          "prepare_head",
+          "own_tail",
+          "own_head",
+          "complete_error",
+          "reuse"
+        ]
+      },
+      {
+        "events": [
+          "prepare_tail",
+          "prepare_head",
+          "own_tail",
+          "own_head",
+          "reset_confirmed_stopped",
+          "reuse"
+        ]
+      }
+    ],
+    "payload_lengths": [
+      3,
+      46,
+      100
+    ]
+  },
+  "expected": {
+    "cases": [
+      {
+        "status": "complete",
+        "reuse_allowed": true
+      },
+      {
+        "status": "partial_publication",
+        "reuse_allowed": false
+      },
+      {
+        "status": "premature_reuse",
+        "reuse_allowed": false
+      },
+      {
+        "status": "failed",
+        "reuse_allowed": true
+      },
+      {
+        "status": "aborted",
+        "reuse_allowed": true
+      }
+    ],
+    "pad_bytes": [
+      43,
+      0,
+      0
+    ]
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

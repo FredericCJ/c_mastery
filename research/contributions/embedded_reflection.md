@@ -1,0 +1,13 @@
+# Embedded research reflection after broad discovery
+
+Date: 2026-10-04. Actor: `/root/safety`, acting as metadata_provenance with embedded-domain expertise. Scope: T17 and T27–T35. This is research, not curriculum acceptance.
+
+The pinned Knowledge catalog offers held second-edition White, Grenning, and second-edition Higham sources. Their actual front matter has now been inspected. SWE expands discovery to Yiu, Liu–Layland, Frama-C, CMSIS and numerical literature, but its shared Yiu node explicitly mixes 2013 and 2020 dates. That lead cannot establish an edition-specific assignment. Metadata search also did not retrieve CBMC, Frama-C or the desired C proof literature, because the library has limited descriptors and no full-text index. These failures are retrieval gaps, not absence findings.
+
+Primary searches establish that the selected STM32F439ZI uses the current DS9484 Rev 14 datasheet (February 2026), rather than DS8626. Board UM1974, device RM0090, silicon ES0206, Cortex-M4 DUI0553 and AAPCS32 answer different questions. QEMU mps2-an386 is an MPS2 Cortex-M4 FPGA-image model, so it cannot establish Nucleo peripheral behavior or real timing. Failed PDF web fetches and the reference-manual size limit require bounded local/private capture, not invented inspection.
+
+The focused pass must inspect reset/vector/stack and memory ordering in Arm documents, relevant register sequences and DMA memory restrictions in RM0090, board serial/LED/debug configuration in UM1974, and representative ES0206 limitations. It must independently resolve Yiu's third edition and inspect an actual publisher chapter/sample if local retrieval fails. Formal coverage needs current CBMC tutorial source and Frama-C WP/Eva manual passages with unwinding, environment-model and runtime-error limitations; old cached CPROVER search snippets are insufficient because live page opens currently return navigation without the tutorial content.
+
+Numeric/performance work needs actual compensated-summation and conditioning passages, compiler option contracts, and a foundational cost model rather than unmeasured optimization folklore. Security needs individually inspected CERT rules and a primary timing-attack passage, with an explicit boundary between toy investigations and production cryptography. Full-book, full-hardware, exact worst-case timing, formal-tool execution and empirical learner claims remain outside this research.
+
+Focused queries will therefore target official release-bound source documents and exact chapters; further broad marketing or generic tutorial lists will not close these evidence gaps.

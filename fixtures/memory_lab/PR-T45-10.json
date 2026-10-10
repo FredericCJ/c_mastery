@@ -1,0 +1,100 @@
+{
+  "id": "FX-MEM-T45-10",
+  "module": "T45",
+  "project": "PR-T45-10",
+  "description": "Earliest invalid state under explicit finite invariants, contrasted with later symptom events.",
+  "input": {
+    "kind": "diagnosis",
+    "histories": [
+      {
+        "label": "extent",
+        "checks": [
+          {
+            "event": 1,
+            "invariant": "less_than",
+            "left": 7,
+            "right": 8
+          },
+          {
+            "event": 2,
+            "invariant": "less_than",
+            "left": 8,
+            "right": 8
+          }
+        ],
+        "symptom_index": 5
+      },
+      {
+        "label": "lifetime",
+        "checks": [
+          {
+            "event": 1,
+            "invariant": "same_generation",
+            "left": 1,
+            "right": 2
+          }
+        ],
+        "symptom_index": 4
+      },
+      {
+        "label": "initialization",
+        "checks": [
+          {
+            "event": 3,
+            "invariant": "initialized",
+            "left": true,
+            "right": false
+          }
+        ],
+        "symptom_index": 5
+      },
+      {
+        "label": "stack-budget",
+        "checks": [
+          {
+            "event": 1,
+            "invariant": "budget",
+            "left": 296,
+            "right": 320
+          },
+          {
+            "event": 2,
+            "invariant": "budget",
+            "left": 368,
+            "right": 320
+          }
+        ],
+        "symptom_index": 3
+      }
+    ]
+  },
+  "expected": {
+    "histories": [
+      {
+        "label": "extent",
+        "first_invalid_event": 2,
+        "invariant": "less_than",
+        "symptom_delay": 3
+      },
+      {
+        "label": "lifetime",
+        "first_invalid_event": 1,
+        "invariant": "same_generation",
+        "symptom_delay": 3
+      },
+      {
+        "label": "initialization",
+        "first_invalid_event": 3,
+        "invariant": "initialized",
+        "symptom_delay": 2
+      },
+      {
+        "label": "stack-budget",
+        "first_invalid_event": 2,
+        "invariant": "budget",
+        "symptom_delay": 1
+      }
+    ]
+  },
+  "verification_method": "Independent finite arithmetic/identity/interval history recomputation; no learner C, detector or board execution."
+}

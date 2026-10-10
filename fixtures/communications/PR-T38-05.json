@@ -1,0 +1,294 @@
+{
+  "id": "PR-T38-05",
+  "description": "SPI four-mode transaction and ownership laboratory — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "spi",
+  "input": {
+    "modes": [
+      {
+        "cpol": 0,
+        "cpha": 0,
+        "tx": 166,
+        "rx": 60
+      },
+      {
+        "cpol": 0,
+        "cpha": 1,
+        "tx": 166,
+        "rx": 60
+      },
+      {
+        "cpol": 1,
+        "cpha": 0,
+        "tx": 166,
+        "rx": 60
+      },
+      {
+        "cpol": 1,
+        "cpha": 1,
+        "tx": 166,
+        "rx": 60
+      }
+    ],
+    "endings": [
+      {
+        "sent": 2,
+        "received": 2,
+        "txe": true,
+        "bsy": false,
+        "cancelled": false,
+        "dma_stopped": true
+      },
+      {
+        "sent": 2,
+        "received": 1,
+        "txe": true,
+        "bsy": false,
+        "cancelled": false,
+        "dma_stopped": true
+      },
+      {
+        "sent": 2,
+        "received": 2,
+        "txe": true,
+        "bsy": true,
+        "cancelled": false,
+        "dma_stopped": true
+      },
+      {
+        "sent": 2,
+        "received": 2,
+        "txe": true,
+        "bsy": false,
+        "cancelled": true,
+        "dma_stopped": false
+      }
+    ]
+  },
+  "expected": {
+    "modes": [
+      {
+        "capture_edges": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13,
+          15
+        ],
+        "clock_levels": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "mosi_bits": [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        "miso_bits": [
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0
+        ]
+      },
+      {
+        "capture_edges": [
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16
+        ],
+        "clock_levels": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "mosi_bits": [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        "miso_bits": [
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0
+        ]
+      },
+      {
+        "capture_edges": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11,
+          13,
+          15
+        ],
+        "clock_levels": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "mosi_bits": [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        "miso_bits": [
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0
+        ]
+      },
+      {
+        "capture_edges": [
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          16
+        ],
+        "clock_levels": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "mosi_bits": [
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          1,
+          0
+        ],
+        "miso_bits": [
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          0
+        ]
+      }
+    ],
+    "endings": [
+      {
+        "status": "ok",
+        "release_cs": true,
+        "reuse_buffer": true
+      },
+      {
+        "status": "undrained_receive",
+        "release_cs": false,
+        "reuse_buffer": false
+      },
+      {
+        "status": "in_flight",
+        "release_cs": false,
+        "reuse_buffer": false
+      },
+      {
+        "status": "cancel_pending",
+        "release_cs": false,
+        "reuse_buffer": false
+      }
+    ]
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

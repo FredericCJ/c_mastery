@@ -1,0 +1,131 @@
+{
+  "id": "PR-T39-05",
+  "description": "MAC/DMA reachability and initialization dependencies — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "dma_initialization",
+  "input": {
+    "dma_ranges": [
+      [
+        536870912,
+        537067520
+      ]
+    ],
+    "regions": [
+      {
+        "address": 536871168,
+        "bytes": 64
+      },
+      {
+        "address": 268435712,
+        "bytes": 64
+      },
+      {
+        "address": 537067504,
+        "bytes": 32
+      },
+      {
+        "address": 536871169,
+        "bytes": 64
+      }
+    ],
+    "dependencies": [
+      [
+        "reset_asserted",
+        "rmii_selected"
+      ],
+      [
+        "rmii_selected",
+        "clock"
+      ],
+      [
+        "clock",
+        "reset_complete"
+      ],
+      [
+        "rmii_selected",
+        "engines_start"
+      ],
+      [
+        "descriptors_ready",
+        "bases_set"
+      ],
+      [
+        "bases_set",
+        "engines_start"
+      ],
+      [
+        "phy_mode",
+        "engines_start"
+      ]
+    ],
+    "orders": [
+      [
+        "reset_asserted",
+        "rmii_selected",
+        "clock",
+        "reset_complete",
+        "descriptors_ready",
+        "bases_set",
+        "phy_mode",
+        "engines_start"
+      ],
+      [
+        "reset_asserted",
+        "clock",
+        "reset_complete",
+        "rmii_selected",
+        "engines_start",
+        "descriptors_ready",
+        "bases_set",
+        "phy_mode"
+      ]
+    ]
+  },
+  "expected": {
+    "buffers": [
+      {
+        "reachable": true,
+        "aligned": true,
+        "valid": true
+      },
+      {
+        "reachable": false,
+        "aligned": true,
+        "valid": false
+      },
+      {
+        "reachable": false,
+        "aligned": true,
+        "valid": false
+      },
+      {
+        "reachable": true,
+        "aligned": false,
+        "valid": false
+      }
+    ],
+    "orders": [
+      {
+        "valid": true,
+        "violations": []
+      },
+      {
+        "valid": false,
+        "violations": [
+          [
+            "rmii_selected",
+            "clock"
+          ],
+          [
+            "bases_set",
+            "engines_start"
+          ],
+          [
+            "phy_mode",
+            "engines_start"
+          ]
+        ]
+      }
+    ]
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

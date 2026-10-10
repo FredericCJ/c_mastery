@@ -1,0 +1,133 @@
+{
+  "id": "PR-T39-08",
+  "description": "Cross-layer frame handoff and failure evidence — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "cross_layer",
+  "input": {
+    "budgets": [
+      {
+        "application_bytes": 32,
+        "line_rate": 100000000
+      },
+      {
+        "application_bytes": 0,
+        "line_rate": 10000000
+      }
+    ],
+    "contract_order": [
+      "phy_link",
+      "descriptor_available",
+      "frame_valid",
+      "next_hop",
+      "transport",
+      "http"
+    ],
+    "fault_cases": [
+      {
+        "phy_link": false,
+        "descriptor_available": true,
+        "frame_valid": true,
+        "next_hop": true,
+        "transport": true,
+        "http": true
+      },
+      {
+        "phy_link": true,
+        "descriptor_available": true,
+        "frame_valid": false,
+        "next_hop": true,
+        "transport": false,
+        "http": true
+      },
+      {
+        "phy_link": true,
+        "descriptor_available": false,
+        "frame_valid": true,
+        "next_hop": true,
+        "transport": true,
+        "http": true
+      },
+      {
+        "phy_link": true,
+        "descriptor_available": true,
+        "frame_valid": true,
+        "next_hop": true,
+        "transport": true,
+        "http": false
+      },
+      {
+        "phy_link": true,
+        "descriptor_available": true,
+        "frame_valid": true,
+        "next_hop": true,
+        "transport": true,
+        "http": true
+      }
+    ],
+    "captures": [
+      {
+        "local_us": [
+          0,
+          5,
+          20
+        ],
+        "offset_us": 100
+      },
+      {
+        "local_us": [
+          0,
+          20,
+          5
+        ],
+        "offset_us": 100
+      }
+    ]
+  },
+  "expected": {
+    "budgets": [
+      {
+        "ip_bytes": 72,
+        "frame_bytes": 90,
+        "wire_slot_bytes": 110,
+        "serialization_ns": {
+          "numerator": 8800,
+          "denominator": 1
+        }
+      },
+      {
+        "ip_bytes": 40,
+        "frame_bytes": 64,
+        "wire_slot_bytes": 84,
+        "serialization_ns": {
+          "numerator": 67200,
+          "denominator": 1
+        }
+      }
+    ],
+    "first_failed_contract": [
+      "phy_link",
+      "frame_valid",
+      "descriptor_available",
+      "http",
+      null
+    ],
+    "captures": [
+      {
+        "common_us": [
+          100,
+          105,
+          120
+        ],
+        "monotonic": true
+      },
+      {
+        "common_us": [
+          100,
+          120,
+          105
+        ],
+        "monotonic": false
+      }
+    ]
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

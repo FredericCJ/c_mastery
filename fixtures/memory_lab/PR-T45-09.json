@@ -1,0 +1,162 @@
+{
+  "id": "FX-MEM-T45-09",
+  "module": "T45",
+  "project": "PR-T45-09",
+  "description": "Original asynchronous ownership protocol; timeout/request is not confirmed quiescence.",
+  "input": {
+    "kind": "async",
+    "events": [
+      {
+        "op": "submit",
+        "request": 7,
+        "generation": 1
+      },
+      {
+        "op": "timeout",
+        "request": 7,
+        "generation": 1
+      },
+      {
+        "op": "cancel_request",
+        "request": 7,
+        "generation": 1
+      },
+      {
+        "op": "reclaim",
+        "request": 7,
+        "generation": 1
+      },
+      {
+        "op": "complete",
+        "request": 7,
+        "generation": 1
+      },
+      {
+        "op": "reclaim",
+        "request": 7,
+        "generation": 1
+      },
+      {
+        "op": "complete",
+        "request": 7,
+        "generation": 1
+      },
+      {
+        "op": "submit",
+        "request": 8,
+        "generation": 2
+      },
+      {
+        "op": "cancel_request",
+        "request": 8,
+        "generation": 2
+      },
+      {
+        "op": "cancel_ack",
+        "request": 8,
+        "generation": 2
+      },
+      {
+        "op": "reclaim",
+        "request": 8,
+        "generation": 2
+      },
+      {
+        "op": "complete",
+        "request": 8,
+        "generation": 2
+      }
+    ],
+    "scratch_pairs": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        2
+      ]
+    ]
+  },
+  "expected": {
+    "events": [
+      {
+        "verdict": "submitted",
+        "generation": 1,
+        "reclaim_allowed": false,
+        "completed": 0
+      },
+      {
+        "verdict": "waiting_stopped",
+        "generation": 1,
+        "reclaim_allowed": false,
+        "completed": 0
+      },
+      {
+        "verdict": "cancel_requested",
+        "generation": 1,
+        "reclaim_allowed": false,
+        "completed": 0
+      },
+      {
+        "verdict": "busy",
+        "generation": 1,
+        "reclaim_allowed": false,
+        "completed": 0
+      },
+      {
+        "verdict": "completed",
+        "generation": 1,
+        "reclaim_allowed": true,
+        "completed": 1
+      },
+      {
+        "verdict": "reclaimed",
+        "generation": 2,
+        "reclaim_allowed": true,
+        "completed": 1
+      },
+      {
+        "verdict": "stale",
+        "generation": 2,
+        "reclaim_allowed": true,
+        "completed": 1
+      },
+      {
+        "verdict": "submitted",
+        "generation": 2,
+        "reclaim_allowed": false,
+        "completed": 1
+      },
+      {
+        "verdict": "cancel_requested",
+        "generation": 2,
+        "reclaim_allowed": false,
+        "completed": 1
+      },
+      {
+        "verdict": "cancel_confirmed",
+        "generation": 2,
+        "reclaim_allowed": true,
+        "completed": 2
+      },
+      {
+        "verdict": "reclaimed",
+        "generation": 3,
+        "reclaim_allowed": true,
+        "completed": 2
+      },
+      {
+        "verdict": "stale",
+        "generation": 3,
+        "reclaim_allowed": true,
+        "completed": 2
+      }
+    ],
+    "scratch_conflicts": [
+      true,
+      false
+    ]
+  },
+  "verification_method": "Independent finite arithmetic/identity/interval history recomputation; no learner C, detector or board execution."
+}

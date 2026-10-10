@@ -1,0 +1,49 @@
+{
+  "id": "PR-T35-04-fixture",
+  "description": "A declared PIE-marked DYN image with GNU_RELRO, BIND_NOW, RW GNU_STACK, guard/checked symbols and changed bases has all listed markers without a W+E LOAD segment.",
+  "input": {
+    "kind": "hardening",
+    "elf_type": "DYN",
+    "pie_flag": true,
+    "headers": [
+      {
+        "type": "GNU_STACK",
+        "flags": "RW"
+      },
+      {
+        "type": "LOAD",
+        "flags": "RE"
+      },
+      {
+        "type": "LOAD",
+        "flags": "RW"
+      },
+      {
+        "type": "GNU_RELRO",
+        "flags": "R"
+      }
+    ],
+    "bind_now": true,
+    "symbols": [
+      "__stack_chk_fail",
+      "__memcpy_chk"
+    ],
+    "aslr_policy": 2,
+    "bases": [
+      1431654400,
+      1442840576
+    ]
+  },
+  "expected": {
+    "pie_marked": true,
+    "relro_segment": true,
+    "eager_binding": true,
+    "nx_stack_marked": true,
+    "wx_load_segment": false,
+    "guard_site_dependency": true,
+    "checked_call_present": true,
+    "aslr_policy": 2,
+    "base_changed": true
+  },
+  "verification_method": "Independent saved Python arithmetic/declared synthetic-protocol oracle; learner implementation and actual target/tool observations are checked separately."
+}

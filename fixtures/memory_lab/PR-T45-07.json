@@ -1,0 +1,108 @@
+{
+  "id": "FX-MEM-T45-07",
+  "module": "T45",
+  "project": "PR-T45-07",
+  "description": "Nonzero resize and abstract release history; numeric address tokens do not authorize stale C pointer use.",
+  "input": {
+    "kind": "lifetime",
+    "old_generation": 1,
+    "old_address": 1000,
+    "old_hex": "0102030405060708",
+    "new_size": 12,
+    "resize_cases": [
+      {
+        "success": false,
+        "new_address": 0
+      },
+      {
+        "success": true,
+        "new_address": 1000
+      },
+      {
+        "success": true,
+        "new_address": 2000
+      }
+    ],
+    "release_cases": [
+      {
+        "request": "null",
+        "live": false,
+        "current_generation": 1,
+        "alias_generation": 1,
+        "offset": 0
+      },
+      {
+        "request": "owner",
+        "live": true,
+        "current_generation": 1,
+        "alias_generation": 1,
+        "offset": 0
+      },
+      {
+        "request": "owner",
+        "live": false,
+        "current_generation": 1,
+        "alias_generation": 1,
+        "offset": 0
+      },
+      {
+        "request": "owner",
+        "live": true,
+        "current_generation": 1,
+        "alias_generation": 1,
+        "offset": 1
+      },
+      {
+        "request": "foreign",
+        "live": true,
+        "current_generation": 1,
+        "alias_generation": 1,
+        "offset": 0
+      },
+      {
+        "request": "alias",
+        "live": true,
+        "current_generation": 2,
+        "alias_generation": 1,
+        "offset": 0
+      }
+    ]
+  },
+  "expected": {
+    "resize": [
+      {
+        "owner_generation": 1,
+        "owner_address": 1000,
+        "owner_size": 8,
+        "old_alias_valid": true,
+        "retained_hex": "0102030405060708",
+        "uninitialized_tail": 0
+      },
+      {
+        "owner_generation": 2,
+        "owner_address": 1000,
+        "owner_size": 12,
+        "old_alias_valid": false,
+        "retained_hex": "0102030405060708",
+        "uninitialized_tail": 4
+      },
+      {
+        "owner_generation": 2,
+        "owner_address": 2000,
+        "owner_size": 12,
+        "old_alias_valid": false,
+        "retained_hex": "0102030405060708",
+        "uninitialized_tail": 4
+      }
+    ],
+    "release_results": [
+      "no_effect",
+      "release",
+      "not_live",
+      "not_base",
+      "foreign",
+      "stale_generation"
+    ]
+  },
+  "verification_method": "Independent finite arithmetic/identity/interval history recomputation; no learner C, detector or board execution."
+}

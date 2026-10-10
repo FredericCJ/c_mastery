@@ -1,0 +1,37 @@
+{
+  "id": "integration-binary",
+  "description": "Synthetic symbol closure and partial-write trace, not observed machine ELF",
+  "input": {
+    "allowed": [
+      "write_adapter",
+      "exit_adapter",
+      "memcpy_local"
+    ],
+    "referenced": [
+      "write_adapter",
+      "exit_adapter",
+      "memcpy_local",
+      "malloc"
+    ],
+    "write_request_bytes": 9,
+    "write_outcomes": [
+      3,
+      "EINTR",
+      2,
+      4
+    ]
+  },
+  "expected": {
+    "forbidden": [
+      "malloc"
+    ],
+    "remaining_before_call": [
+      9,
+      6,
+      6,
+      4
+    ],
+    "transferred": 9
+  },
+  "verification_method": "Set difference and arithmetic trace; actual binary audited separately"
+}

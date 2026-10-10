@@ -1,0 +1,49 @@
+{
+  "id": "FX-NET-T41-04",
+  "description": "Exact peer ARP records, forged-sender mismatch and bounded expiry/retry.",
+  "input": {
+    "case_kind": "arp",
+    "local_mac": "020000000002",
+    "peer_mac": "020000000001",
+    "local_ip": [
+      192,
+      0,
+      2,
+      2
+    ],
+    "peer_ip": [
+      192,
+      0,
+      2,
+      1
+    ],
+    "ether_sa": "020000000001",
+    "arp_sha": "020000000099",
+    "cache_ms": 30000,
+    "query_ms": [
+      29999,
+      30000
+    ],
+    "retry_ms": 1000,
+    "requests": 3
+  },
+  "expected": {
+    "request_hex": "0001080006040001020000000001c0000201000000000000c0000202",
+    "reply_hex": "0001080006040002020000000002c0000202020000000001c0000201",
+    "arp_bytes": 28,
+    "learn_sender_match": false,
+    "cache_valid": [
+      true,
+      false
+    ],
+    "request_ms": [
+      0,
+      1000,
+      2000
+    ],
+    "failure_ms": 3000,
+    "pending_after_failure": 0,
+    "authenticated": false
+  },
+  "verification_method": "Independent struct field serialization, byte identity and timed expiry/retry arithmetic; not ARP authentication."
+}

@@ -1,0 +1,77 @@
+{
+  "id": "FX-MEM-T45-05",
+  "module": "T45",
+  "project": "PR-T45-05",
+  "description": "Synthetic fixed RAM with aligned sections, declared shared dynamic interval and distinct startup range validation.",
+  "input": {
+    "kind": "ram",
+    "origin": 536870912,
+    "length": 1024,
+    "alignment": 8,
+    "sections": [
+      96,
+      400,
+      64
+    ],
+    "heap_cases": [
+      160,
+      192
+    ],
+    "stack": 256,
+    "guard": 32,
+    "overflow_bss": 900,
+    "startup": {
+      "initial_hex": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "load_hex": "01020304",
+      "data_range": [
+        0,
+        4
+      ],
+      "bss_range": [
+        4,
+        12
+      ],
+      "retained_range": [
+        12,
+        16
+      ],
+      "wrong_bss_end": 13
+    }
+  },
+  "expected": {
+    "section_offsets": [
+      [
+        0,
+        96
+      ],
+      [
+        96,
+        496
+      ],
+      [
+        496,
+        560
+      ]
+    ],
+    "fixed_bytes": 560,
+    "stack_low": 768,
+    "heap_cases": [
+      {
+        "heap_end": 720,
+        "gap": 48,
+        "reservation_ok": true
+      },
+      {
+        "heap_end": 752,
+        "gap": 16,
+        "reservation_ok": false
+      }
+    ],
+    "overflow_end": 1064,
+    "region_overflow_bytes": 40,
+    "startup_hex": "010203040000000000000000aaaaaaaa",
+    "wrong_zero_first_retained_index": 12,
+    "wrong_zero_rejected": true
+  },
+  "verification_method": "Independent finite arithmetic/identity/interval history recomputation; no learner C, detector or board execution."
+}

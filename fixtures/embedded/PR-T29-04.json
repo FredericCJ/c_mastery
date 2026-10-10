@@ -1,0 +1,26 @@
+{
+  "id": "PR-T29-04-fixture",
+  "description": "Completion arriving after a cancellation request wins one terminal completion; a later stop notification is idempotent and reclaim returns ownership to the CPU.",
+  "input": {
+    "kind": "dma_history",
+    "events": [
+      "submit",
+      "cancel_request",
+      "complete",
+      "stop_confirm",
+      "reclaim"
+    ]
+  },
+  "expected": {
+    "owners": [
+      "device",
+      "device",
+      "service",
+      "service",
+      "cpu"
+    ],
+    "terminal": "complete",
+    "terminal_count": 1
+  },
+  "verification_method": "Independent saved Python arithmetic/declared synthetic-protocol oracle; learner implementation and actual target/tool observations are checked separately."
+}

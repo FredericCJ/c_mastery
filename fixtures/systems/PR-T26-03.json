@@ -1,0 +1,93 @@
+{
+  "id": "PR-T26-03-reference",
+  "description": "Kernel ordering and lifetime boundary \u2014 declared synthetic reference case; actual tool/hardware observations are separate",
+  "oracle_type": "kernel_lifetime",
+  "input": {
+    "scope": "Declared Linux 6.12 ordinary-work model; no IRQ, timer, RCU, delayed-work, other registration or hidden module references",
+    "initial": {
+      "producers_live": true,
+      "pending_work": 1,
+      "running_work": 1,
+      "object_live": true
+    },
+    "caller_sleepable": true,
+    "holds_worker_lock": false,
+    "reference_edges": [
+      [
+        "producer",
+        "module_text"
+      ],
+      [
+        "ordinary_work",
+        "module_text"
+      ],
+      [
+        "ordinary_work",
+        "device_object"
+      ]
+    ],
+    "events": [
+      "smp_mb",
+      "attempt_unload",
+      "cancel_work_sync_return",
+      "stop_and_join_producers",
+      "cancel_work_sync_return",
+      "release_object",
+      "attempt_unload"
+    ]
+  },
+  "expected": {
+    "unload_attempts": [
+      false,
+      true
+    ],
+    "rejected_events": [
+      2
+    ],
+    "states": [
+      {
+        "producers_live": true,
+        "pending_work": 1,
+        "running_work": 1,
+        "object_live": true
+      },
+      {
+        "producers_live": true,
+        "pending_work": 1,
+        "running_work": 1,
+        "object_live": true
+      },
+      {
+        "producers_live": true,
+        "pending_work": 1,
+        "running_work": 1,
+        "object_live": true
+      },
+      {
+        "producers_live": false,
+        "pending_work": 1,
+        "running_work": 1,
+        "object_live": true
+      },
+      {
+        "producers_live": false,
+        "pending_work": 0,
+        "running_work": 0,
+        "object_live": true
+      },
+      {
+        "producers_live": false,
+        "pending_work": 0,
+        "running_work": 0,
+        "object_live": false
+      },
+      {
+        "producers_live": false,
+        "pending_work": 0,
+        "running_work": 0,
+        "object_live": false
+      }
+    ]
+  },
+  "verification_method": "Independent Python mathematical/abstract model in tools/verify_systems_fixtures.py; compare every declared output field, then apply the stated contract to generated learner cases."
+}

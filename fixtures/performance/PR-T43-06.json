@@ -1,0 +1,119 @@
+{
+  "id": "PR-T43-06",
+  "description": "Same-clock microsecond event spans; async overlap and completion-before-return are intentional.",
+  "kind": "events",
+  "input": {
+    "cases": [
+      {
+        "mode": "blocking",
+        "submit": 0,
+        "returned": 10,
+        "completed": 10,
+        "observation_end": 10,
+        "thread_cpu": [
+          6
+        ],
+        "phases": [
+          [
+            0,
+            2
+          ],
+          [
+            2,
+            9
+          ],
+          [
+            9,
+            10
+          ]
+        ]
+      },
+      {
+        "mode": "async",
+        "submit": 0,
+        "returned": 2,
+        "completed": 12,
+        "observation_end": 12,
+        "thread_cpu": [
+          8,
+          7
+        ],
+        "phases": [
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            11
+          ],
+          [
+            10,
+            12
+          ]
+        ]
+      },
+      {
+        "mode": "async",
+        "submit": 0,
+        "returned": 2,
+        "completed": 1,
+        "observation_end": 2,
+        "thread_cpu": [
+          1
+        ],
+        "phases": [
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            1
+          ]
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "cases": [
+      {
+        "latency": 10,
+        "call_span": 10,
+        "observation_span": 10,
+        "process_cpu": 6,
+        "wall_minus_cpu": 4,
+        "inferred_wait": null,
+        "phase_sum": 10,
+        "phase_union": 10,
+        "borrow_release": 10,
+        "throughput_per_second": 100000.0
+      },
+      {
+        "latency": 12,
+        "call_span": 2,
+        "observation_span": 12,
+        "process_cpu": 15,
+        "wall_minus_cpu": -3,
+        "inferred_wait": null,
+        "phase_sum": 14,
+        "phase_union": 12,
+        "borrow_release": 12,
+        "throughput_per_second": 83333.33333333333
+      },
+      {
+        "latency": 1,
+        "call_span": 2,
+        "observation_span": 2,
+        "process_cpu": 1,
+        "wall_minus_cpu": 1,
+        "inferred_wait": null,
+        "phase_sum": 3,
+        "phase_union": 2,
+        "borrow_release": 2,
+        "throughput_per_second": 500000.0
+      }
+    ]
+  },
+  "verification_method": "Independent finite certificate in tools/verify_performance_fixtures.py; synthetic data, not measured learner runtime or a whole-program proof."
+}

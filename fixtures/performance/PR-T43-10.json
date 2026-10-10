@@ -1,0 +1,107 @@
+{
+  "id": "PR-T43-10",
+  "description": "Read-only keyed cgroupv2 accounting; memory.peak was not reset on the same descriptor.",
+  "kind": "cgroup",
+  "input": {
+    "window_us": 2000,
+    "controllers": [
+      "cpu",
+      "memory",
+      "io"
+    ],
+    "delegated": false,
+    "peak_reset_same_fd": false,
+    "writeback_supported": true,
+    "quota": {
+      "max": 500,
+      "period": 1000
+    },
+    "before": {
+      "cpu": {
+        "usage_usec": 1000,
+        "user_usec": 700,
+        "system_usec": 300,
+        "nr_periods": 10,
+        "nr_throttled": 2,
+        "throttled_usec": 200
+      },
+      "memory": {
+        "current": 4096,
+        "peak": 8192
+      },
+      "io": {
+        "8:0": {
+          "rbytes": 4096,
+          "wbytes": 0,
+          "rios": 1,
+          "wios": 0
+        }
+      },
+      "psi": {
+        "cpu": 100,
+        "memory": 200,
+        "io": 300
+      }
+    },
+    "after": {
+      "cpu": {
+        "usage_usec": 1800,
+        "user_usec": 1100,
+        "system_usec": 700,
+        "nr_periods": 12,
+        "nr_throttled": 3,
+        "throttled_usec": 500
+      },
+      "memory": {
+        "current": 3072,
+        "peak": 12288
+      },
+      "io": {
+        "8:0": {
+          "rbytes": 12288,
+          "wbytes": 8192,
+          "rios": 3,
+          "wios": 2
+        }
+      },
+      "psi": {
+        "cpu": 300,
+        "memory": 250,
+        "io": 700
+      }
+    }
+  },
+  "expected": {
+    "route": "read_only",
+    "cpu_delta": {
+      "usage_usec": 800,
+      "user_usec": 400,
+      "system_usec": 400,
+      "nr_periods": 2,
+      "nr_throttled": 1,
+      "throttled_usec": 300
+    },
+    "cpu_fraction": 0.4,
+    "configured_quota_fraction": 0.5,
+    "memory": {
+      "current_change": -1024,
+      "read_peak": 12288,
+      "fresh_window_peak": null
+    },
+    "io_delta": {
+      "8:0": {
+        "rbytes": 8192,
+        "wbytes": 8192,
+        "rios": 2,
+        "wios": 2
+      }
+    },
+    "psi_delta": {
+      "cpu": 200,
+      "memory": 50,
+      "io": 400
+    },
+    "writeback_attribution": "supported_filesystem_still_shared_inode_limit"
+  },
+  "verification_method": "Independent finite certificate in tools/verify_performance_fixtures.py; synthetic data, not measured learner runtime or a whole-program proof."
+}

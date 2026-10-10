@@ -1,0 +1,127 @@
+{
+  "id": "PR-T38-03",
+  "description": "I2C pull-up and wired-AND investigation — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "i2c_electrical",
+  "input": {
+    "pullups": [
+      {
+        "vdd_mv": 3300,
+        "vol_mv": 400,
+        "iol_ma": 3,
+        "rise_ns": 300,
+        "cap_pf": 100,
+        "selected_ohm": 2200
+      },
+      {
+        "vdd_mv": 3300,
+        "vol_mv": 400,
+        "iol_ma": 3,
+        "rise_ns": 300,
+        "cap_pf": 100,
+        "selected_ohm": 4700
+      },
+      {
+        "vdd_mv": 3300,
+        "vol_mv": 400,
+        "iol_ma": 3,
+        "rise_ns": 300,
+        "cap_pf": 400,
+        "selected_ohm": 1000
+      }
+    ],
+    "arbitration": [
+      {
+        "streams": [
+          "101100",
+          "101010"
+        ]
+      },
+      {
+        "streams": [
+          "101010",
+          "101010"
+        ]
+      }
+    ],
+    "low_ticks": [
+      4,
+      7
+    ],
+    "high_ticks": [
+      6,
+      3
+    ]
+  },
+  "expected": {
+    "pullups": [
+      {
+        "minimum_ohm": 967,
+        "maximum_ohm": 3540,
+        "feasible": true,
+        "selected_valid": true
+      },
+      {
+        "minimum_ohm": 967,
+        "maximum_ohm": 3540,
+        "feasible": true,
+        "selected_valid": false
+      },
+      {
+        "minimum_ohm": 967,
+        "maximum_ohm": 885,
+        "feasible": false,
+        "selected_valid": false
+      }
+    ],
+    "arbitration": [
+      {
+        "bus": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "lost_by_bit": [
+          [],
+          [],
+          [],
+          [
+            0
+          ],
+          [],
+          []
+        ],
+        "survivors": [
+          1
+        ]
+      },
+      {
+        "bus": [
+          1,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "lost_by_bit": [
+          [],
+          [],
+          [],
+          [],
+          [],
+          []
+        ],
+        "survivors": [
+          0,
+          1
+        ]
+      }
+    ],
+    "common_low_ticks": 7,
+    "common_high_ticks": 3
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

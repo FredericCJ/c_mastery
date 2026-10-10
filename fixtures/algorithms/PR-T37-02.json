@@ -1,0 +1,78 @@
+{
+  "id": "PR-T37-02",
+  "kind": "instruction_bytes",
+  "description": "Actual selected instruction encodings, plus a synthetic register/address ledger. Decoder scope is explicitly bounded.",
+  "input": {
+    "initial_rax": "1122334455667788",
+    "writes": [
+      [
+        "AL",
+        "AA"
+      ],
+      [
+        "AX",
+        "BBCC"
+      ],
+      [
+        "EAX",
+        "89ABCDEF"
+      ]
+    ],
+    "x86_cmp_bytes": [
+      72,
+      61,
+      255,
+      255,
+      255,
+      255
+    ],
+    "branch_address": 4102,
+    "x86_jcc_bytes": [
+      119,
+      254
+    ],
+    "thumb_cmp_bytes": [
+      5,
+      42
+    ],
+    "thumb_first_halfwords": [
+      10757,
+      61440
+    ],
+    "data_bytes": [
+      120,
+      86,
+      52,
+      18
+    ],
+    "address": {
+      "base": 4096,
+      "index": 3,
+      "scale": 4,
+      "displacement": 8,
+      "extent": 32
+    }
+  },
+  "expected": {
+    "rax_after": [
+      "11223344556677AA",
+      "112233445566BBCC",
+      "0000000089ABCDEF"
+    ],
+    "cmp_width": 64,
+    "cmp_signed_immediate": -1,
+    "cmp_length": 6,
+    "branch_predicate": "CF=0 and ZF=0",
+    "branch_target": 4102,
+    "thumb_rn": 2,
+    "thumb_immediate": 5,
+    "thumb_widths": [
+      16,
+      32
+    ],
+    "little_endian_word": 305419896,
+    "effective_address": 4116,
+    "access_end_exclusive": 4120
+  },
+  "verification_method": "Reconstruct integer fields and masks; use only pinned CMP/Jcc and Thumb CMP T1 definitions, not a general disassembler."
+}

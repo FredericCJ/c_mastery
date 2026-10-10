@@ -1,0 +1,63 @@
+{
+  "id": "PR-T44-07",
+  "kind": "concurrency",
+  "description": "Finite wait-for cycle, unordered non-atomic conflict and predicate/lost-wakeup histories.",
+  "input": {
+    "wait_edges": [
+      [
+        "A",
+        "B"
+      ],
+      [
+        "B",
+        "A"
+      ]
+    ],
+    "accesses": [
+      {
+        "id": "W",
+        "thread": "A",
+        "object": "x",
+        "op": "write"
+      },
+      {
+        "id": "R",
+        "thread": "B",
+        "object": "x",
+        "op": "read"
+      }
+    ],
+    "happens_before": [],
+    "bad_wait_events": [
+      "consumer_checks_false",
+      "producer_sets_true",
+      "producer_signals",
+      "consumer_waits"
+    ],
+    "repaired_wait_events": [
+      "consumer_locks",
+      "consumer_checks_false",
+      "consumer_wait_releases_mutex",
+      "producer_locks",
+      "producer_sets_true",
+      "producer_signals",
+      "producer_unlocks",
+      "consumer_reacquires_mutex",
+      "consumer_checks_true"
+    ]
+  },
+  "expected": {
+    "wait_cycle": true,
+    "unordered_conflicts": [
+      [
+        "W",
+        "R"
+      ]
+    ],
+    "lost_wakeup_in_bad_history": true,
+    "predicate_seen_after_reacquire": true,
+    "forced_history_proves_all_schedules": false,
+    "prescribed_race_value": false
+  },
+  "verification_method": "Independent finite semantic certificate in tools/verify_debugging_fixtures.py. Model results do not establish actual learner C output, GDB/tool detection, a core or a physical target result. Runtime evidence is separately collected."
+}

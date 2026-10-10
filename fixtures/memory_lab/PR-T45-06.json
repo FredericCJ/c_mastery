@@ -1,0 +1,117 @@
+{
+  "id": "FX-MEM-T45-06",
+  "module": "T45",
+  "project": "PR-T45-06",
+  "description": "Every acquisition prefix and a declared finite root/edge graph; graph classes are not native diagnostic promises.",
+  "input": {
+    "kind": "cleanup",
+    "resource_sizes": [
+      32,
+      48,
+      16
+    ],
+    "failure_indices": [
+      0,
+      1,
+      2,
+      null
+    ],
+    "graph": {
+      "nodes": [
+        {
+          "id": "A",
+          "bytes": 32
+        },
+        {
+          "id": "B",
+          "bytes": 16
+        },
+        {
+          "id": "C",
+          "bytes": 24
+        },
+        {
+          "id": "D",
+          "bytes": 8
+        }
+      ],
+      "start_roots": [
+        "C"
+      ],
+      "interior_roots": [
+        "D"
+      ],
+      "edges": [
+        [
+          "A",
+          "B"
+        ]
+      ]
+    },
+    "retention_budget": 16
+  },
+  "expected": {
+    "cleanup": [
+      {
+        "acquired": [],
+        "released": [],
+        "peak_bytes": 0,
+        "live_after_cleanup": 0,
+        "published": false
+      },
+      {
+        "acquired": [
+          0
+        ],
+        "released": [
+          0
+        ],
+        "peak_bytes": 32,
+        "live_after_cleanup": 0,
+        "published": false
+      },
+      {
+        "acquired": [
+          0,
+          1
+        ],
+        "released": [
+          1,
+          0
+        ],
+        "peak_bytes": 80,
+        "live_after_cleanup": 0,
+        "published": false
+      },
+      {
+        "acquired": [
+          0,
+          1,
+          2
+        ],
+        "released": [
+          2,
+          1,
+          0
+        ],
+        "peak_bytes": 96,
+        "live_after_cleanup": 0,
+        "published": true
+      }
+    ],
+    "graph_classes": {
+      "A": "definite",
+      "B": "indirect",
+      "C": "reachable",
+      "D": "possible"
+    },
+    "graph_bytes": {
+      "reachable": 24,
+      "possible": 8,
+      "indirect": 16,
+      "definite": 32
+    },
+    "reachable_retention_excess": 8
+  },
+  "verification_method": "Independent finite arithmetic/identity/interval history recomputation; no learner C, detector or board execution."
+}

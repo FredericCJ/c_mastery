@@ -1,0 +1,126 @@
+{
+  "id": "PR-T44-05",
+  "kind": "memory_state",
+  "description": "Bounds/lifetime/initialization/resize semantic histories; no promised UB symptom.",
+  "input": {
+    "cases": [
+      {
+        "class": "bounds",
+        "extent": 4,
+        "events": [
+          {
+            "op": "allocate",
+            "offset": null
+          },
+          {
+            "op": "write",
+            "offset": 3
+          },
+          {
+            "op": "write",
+            "offset": 4
+          }
+        ]
+      },
+      {
+        "class": "lifetime",
+        "extent": 4,
+        "events": [
+          {
+            "op": "allocate",
+            "offset": null
+          },
+          {
+            "op": "write",
+            "offset": 0
+          },
+          {
+            "op": "free",
+            "offset": null
+          },
+          {
+            "op": "read",
+            "offset": 0
+          }
+        ]
+      },
+      {
+        "class": "initialization",
+        "extent": 4,
+        "events": [
+          {
+            "op": "allocate",
+            "offset": null
+          },
+          {
+            "op": "use_value",
+            "offset": 0
+          }
+        ]
+      },
+      {
+        "class": "resize",
+        "extent": 4,
+        "events": [
+          {
+            "op": "allocate",
+            "offset": null
+          },
+          {
+            "op": "alias",
+            "offset": null
+          },
+          {
+            "op": "resize_success",
+            "offset": null
+          },
+          {
+            "op": "alias_read",
+            "offset": 0
+          }
+        ]
+      },
+      {
+        "class": "resize",
+        "extent": 4,
+        "events": [
+          {
+            "op": "allocate",
+            "offset": null
+          },
+          {
+            "op": "alias",
+            "offset": null
+          },
+          {
+            "op": "resize_failure",
+            "offset": null
+          },
+          {
+            "op": "alias_read",
+            "offset": 0
+          }
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "first_invalid_event": [
+      3,
+      4,
+      2,
+      4,
+      null
+    ],
+    "classification": [
+      "bounds",
+      "lifetime",
+      "initialization",
+      "resize",
+      "valid_under_model"
+    ],
+    "prescribed_ub_output": false,
+    "model_establishes_tool_detection": false
+  },
+  "verification_method": "Independent finite semantic certificate in tools/verify_debugging_fixtures.py. Model results do not establish actual learner C output, GDB/tool detection, a core or a physical target result. Runtime evidence is separately collected."
+}

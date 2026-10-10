@@ -1,0 +1,205 @@
+{
+  "id": "FX-HTTP-03_framing",
+  "description": "Finite header-policy table for body length selection.",
+  "input": {
+    "cases": [
+      {
+        "headers": [
+          [
+            "Host",
+            "localhost"
+          ]
+        ]
+      },
+      {
+        "headers": [
+          [
+            "Content-Length",
+            "5"
+          ]
+        ]
+      },
+      {
+        "headers": [
+          [
+            "Content-Length",
+            "5"
+          ],
+          [
+            "content-length",
+            "5"
+          ]
+        ]
+      },
+      {
+        "headers": [
+          [
+            "Transfer-Encoding",
+            "chunked"
+          ],
+          [
+            "Content-Length",
+            "5"
+          ]
+        ]
+      },
+      {
+        "headers": [
+          [
+            "Transfer-Encoding",
+            "chunked"
+          ]
+        ]
+      },
+      {
+        "headers": [
+          [
+            "Transfer-Encoding",
+            "gzip, chunked"
+          ]
+        ]
+      },
+      {
+        "headers": [
+          [
+            "Content-Length",
+            "+5"
+          ]
+        ]
+      },
+      {
+        "headers": [
+          [
+            "Content-Length",
+            "4294967296"
+          ]
+        ]
+      },
+      {
+        "headers": [
+          [
+            "Content-Length",
+            "1025"
+          ]
+        ]
+      },
+      {
+        "headers": [
+          [
+            "Transfer-Encoding",
+            "gzip"
+          ]
+        ]
+      },
+      {
+        "headers": [
+          [
+            "Transfer-Encoding",
+            "chunked, gzip"
+          ]
+        ]
+      },
+      {
+        "headers": [
+          [
+            "Transfer-Encoding",
+            "chunked, chunked"
+          ]
+        ]
+      },
+      {
+        "headers": [
+          [
+            "Transfer-Encoding",
+            "chunked;foo=bar"
+          ]
+        ]
+      },
+      {
+        "headers": [
+          [
+            "Transfer-Encoding",
+            "gzip,,chunked"
+          ]
+        ]
+      }
+    ],
+    "length_integer_max": 4294967295,
+    "body_limit": 1024
+  },
+  "expected": {
+    "outcomes": [
+      [
+        "NONE",
+        0,
+        false
+      ],
+      [
+        "LENGTH",
+        5,
+        false
+      ],
+      [
+        "ERROR",
+        400,
+        true
+      ],
+      [
+        "ERROR",
+        400,
+        true
+      ],
+      [
+        "CHUNKED",
+        0,
+        false
+      ],
+      [
+        "ERROR",
+        501,
+        true
+      ],
+      [
+        "ERROR",
+        400,
+        true
+      ],
+      [
+        "ERROR",
+        400,
+        true
+      ],
+      [
+        "ERROR",
+        413,
+        true
+      ],
+      [
+        "ERROR",
+        400,
+        true
+      ],
+      [
+        "ERROR",
+        400,
+        true
+      ],
+      [
+        "ERROR",
+        400,
+        true
+      ],
+      [
+        "ERROR",
+        400,
+        true
+      ],
+      [
+        "ERROR",
+        400,
+        true
+      ]
+    ]
+  },
+  "verification_method": "Separately normalize finite header pairs and derive duplicate/precedence/checked-decimal outcomes."
+}

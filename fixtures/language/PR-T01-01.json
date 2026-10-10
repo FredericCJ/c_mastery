@@ -1,0 +1,101 @@
+{
+  "id": "PR-T01-01",
+  "description": "Independent arithmetic, checked-prefix cancellation boundaries and finite flag truth table",
+  "oracle": "trace",
+  "input": {
+    "values": [
+      3,
+      -1,
+      4
+    ],
+    "decimal": 173,
+    "width": 8,
+    "mask": 12,
+    "boundary_cases": [
+      {
+        "values": [
+          32767,
+          1,
+          -1
+        ],
+        "minimum": -32768,
+        "maximum": 32767
+      },
+      {
+        "values": [
+          -32768,
+          -1,
+          1
+        ],
+        "minimum": -32768,
+        "maximum": 32767
+      },
+      {
+        "values": [
+          -32768,
+          32767,
+          1
+        ],
+        "minimum": -32768,
+        "maximum": 32767
+      }
+    ]
+  },
+  "expected": {
+    "prefix": [
+      3,
+      2,
+      6
+    ],
+    "sum": 6,
+    "binary": "10101101",
+    "hex": "ad",
+    "flag_table": [
+      [
+        0,
+        false,
+        false
+      ],
+      [
+        4,
+        true,
+        false
+      ],
+      [
+        8,
+        true,
+        false
+      ],
+      [
+        12,
+        true,
+        true
+      ]
+    ],
+    "boundary_results": [
+      {
+        "status": "range",
+        "failure_index": 1,
+        "published_prefix": [],
+        "mathematical_sum": 32767
+      },
+      {
+        "status": "range",
+        "failure_index": 1,
+        "published_prefix": [],
+        "mathematical_sum": -32768
+      },
+      {
+        "status": "ok",
+        "failure_index": null,
+        "published_prefix": [
+          -32768,
+          -1,
+          0
+        ],
+        "mathematical_sum": 0
+      }
+    ]
+  },
+  "verification_method": "Independent exact mathematical/declared-state recomputation by tools/verify_language_fixtures.py; actual C/tool observations are separate."
+}

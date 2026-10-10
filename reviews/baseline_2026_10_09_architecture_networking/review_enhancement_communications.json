@@ -1,0 +1,267 @@
+{
+  "reviewer": "/root/alg_sim",
+  "date": "2026-10-09",
+  "accepted": true,
+  "status": "accepted",
+  "scope": {
+    "modules": [
+      "T38",
+      "T39",
+      "T08",
+      "T14",
+      "T15",
+      "T18",
+      "T24",
+      "T27",
+      "T28",
+      "T29",
+      "T32"
+    ],
+    "projects": [
+      "PR-T38-01..10",
+      "PR-T39-01..08"
+    ],
+    "fixtures": "fixtures/communications recursive correspondence and finite oracle",
+    "shared": [
+      "common",
+      "merge_research",
+      "record_enhancement_gate",
+      "merge_enhancement_taxonomy",
+      "write_program",
+      "publish",
+      "validate",
+      "accept_curriculum",
+      "check_baseline_preservation",
+      "check_contract_guards",
+      "write_enhancement_handoffs"
+    ],
+    "guides": [
+      "profiles",
+      "laboratory",
+      "reading",
+      "roadmap",
+      "workload",
+      "enhancement",
+      "communication-stacks",
+      "audit",
+      "assessment",
+      "integrations"
+    ],
+    "readme": true
+  },
+  "findings": [
+    {
+      "id": "COMM-SHARED-01",
+      "severity": "medium",
+      "blocking": true,
+      "status": "resolved",
+      "paths": [
+        "tools/common.py",
+        "tools/validate.py",
+        "tools/write_program.py",
+        "tools/publish.py",
+        "tools/check_contract_guards.py"
+      ],
+      "finding": "Selected-prelude domains were omitted from validator cycle edges, and direct publication could consume stale order.",
+      "reproduction": "In-memory add T03.01.a to T02.prelude_objectives while T03 depends on T02. Before fix check_data emitted no additional error.",
+      "resolution": "Fresh code uses common.domain_dependencies in both validator and route generator, and check_program_order in validate/publication. The same mutation now emits Prerequisite cycle at T02; invalid first T02 traversal is rejected. All 12 full-batch negative contract controls pass, including selected-prelude cycle and stale order."
+    },
+    {
+      "id": "COMM-02",
+      "severity": "medium",
+      "blocking": true,
+      "status": "resolved",
+      "paths": [
+        "curriculum/modules/T38.md"
+      ],
+      "finding": "Full T28/T29/T31 prerequisites contradicted entry prose claiming selected T28 leaves avoid unrelated ADC/elective work; T29 also transitively requires full T28.",
+      "resolution": "Fresh metadata has empty selected-prelude list and entry prose truthfully requires completed core T04/T18/T27/T28/T29/T31, reusing passed evidence; optional T28 work remains optional."
+    },
+    {
+      "id": "COMM-03",
+      "severity": "medium",
+      "blocking": true,
+      "status": "resolved",
+      "paths": [
+        "curriculum/projects/PR-T38-10.md",
+        "fixtures/communications/PR-T38-10.json",
+        "tools/verify_communications_fixtures.py"
+      ],
+      "finding": "T38.12.a and the project required FDF/BRS/ESI validation, but supplied cases/oracle omitted all three. An fdf:false property added to a successful case was ignored and still produced ok.",
+      "resolution": "Fresh contract/fixture/oracle require FDF=true, typed raw flags, nominal-only versus switched data and active/passive ESI. Valid no-BRS/passive examples and invalid FDF/flags are explicit. Independent fdf=false mutation now yields not_fd; all 10 T38 fixtures pass fresh recomputation."
+    },
+    {
+      "id": "COMM-04",
+      "severity": "medium",
+      "blocking": true,
+      "status": "resolved",
+      "paths": [
+        "tools/verify_communications_fixtures.py",
+        "fixtures/communications/PR-T38-10.json"
+      ],
+      "finding": "Python structural equality accepted boolean expected values as integers. Replacing expected.dlc_lengths[1]=1 with True still equaled recompute output.",
+      "resolution": "Fresh strict recursive comparison checks exact types and input guards distinguish booleans from bounded numbers. Independent expected DLC 1\u2192True and input clock_hz\u2192True probes are rejected; all 10 valid fixtures still pass."
+    },
+    {
+      "id": "COMM-05",
+      "severity": "low",
+      "blocking": false,
+      "status": "resolved",
+      "paths": [
+        "curriculum/modules/T39.md",
+        "curriculum/projects/PR-T39-04.md",
+        "curriculum/projects/PR-T39-05.md",
+        "curriculum/projects/PR-T39-06.md",
+        "curriculum/projects/PR-T39-07.md",
+        "curriculum/projects/PR-T39-08.md"
+      ],
+      "finding": "Prose transformation split established IPv4/C13x spellings and two hexadecimal-address/fails boundaries.",
+      "resolution": "Fresh canonical text restores IPv4/C13x and separates each address from fails. Author rechecked frozen metadata/oracles; no mechanism, source or budget change."
+    }
+  ],
+  "validation": [
+    {
+      "check": "baseline preservation",
+      "result": "passed: 1,185 original objectives,207 original projects,194 original fixtures; no missing prior paths"
+    },
+    {
+      "check": "nine handoff-only module changes",
+      "result": "all nine strip back to exact prior accepted SHA after restoring original CRLF line endings; no earlier lesson change"
+    },
+    {
+      "check": "selected-prelude cycle regression",
+      "result": "fixed reproduction rejected with Prerequisite cycle at T02"
+    },
+    {
+      "check": "stale route order regression",
+      "result": "out-of-foundation order rejected"
+    },
+    {
+      "check": "T38 substantive audit",
+      "result": "all12 mechanism sections and10 briefs read; UART/divisor, I2C integer bounds, SPI direction/completion, RS232/422/485 topology/timing, classic CAN/FD/physical boundaries checked; findings above"
+    },
+    {
+      "check": "original primary CAN/RM passages",
+      "result": "private inspected ISO classic/control fields and DLC/format table plus RM FIFO policies cross-checked without republishing licensed extracts"
+    },
+    {
+      "check": "FD metadata and type controls",
+      "result": "fresh FDF=false returns not_fd; expected integer\u2192True and numeric clock\u2192True both rejected; all10 T38 fixtures pass strict recomputation"
+    },
+    {
+      "check": "T39 substantive audit",
+      "result": "All 10 mechanism sections and eight briefs read: service/peer layering, physical versus MAC/RMII, exact frame/type/pad/FCS, learning/expiry, PHY identity/latch/mode, MDIO divider/busy, initialization dependencies, normal RX/TX ownership, restricted Internet and dimensional/capture boundaries. T39 projects sum to 66 = 42 implementation + 24 verification; module total 96."
+    },
+    {
+      "check": "communications independent controls",
+      "result": "All 18 canonical fixtures recompute strictly. All 33 independent controls pass, including CRC golden, arbitration IDE, FDF/raw flags, integer-versus-boolean, type/length gap, minimum wire slot, RX DMA ownership, incomplete TX publication, premature reuse and nested orphan rejection."
+    },
+    {
+      "check": "canonical complete validation",
+      "result": "Passed: 42 modules, 461 subtopics, 1,383 objectives, 265 milestones, 139 sources; zero contract errors."
+    },
+    {
+      "check": "complete malformed-contract controls",
+      "result": "All 12 meaningful negative cases rejected; canonical files unchanged."
+    },
+    {
+      "check": "independent route and accounting",
+      "result": "All 42 domains appear once and every full/selected foundation precedes its dependent. 2,808 module hours + 160 new integration hours + 48 overhead = 3,016 catalog hours. Extension 668 hours preserves prior 2,348-hour catalog. T40/T41/T42 families are exact module milestone views with zero additional hours."
+    },
+    {
+      "check": "research scope gates",
+      "result": "Canonical frozen hashes pass. Isolated private controls accept unchanged scope and reject changed pinned input or an unreviewed additional resource file; no shared input was modified."
+    },
+    {
+      "check": "merged research inspection metadata",
+      "result": "Fresh merge code retains scope, limits, method, latest ISO date and evidence URLs. Read-only comparison confirms every contribution limits/method appears in current merged metadata and no merged date predates its source."
+    },
+    {
+      "check": "publication central contract links",
+      "result": "Fresh publisher copies networking_contracts.json under generated research/enhancement and transforms canonical relative links into real Sphinx downloads plus root-relative standalone links. Actual browser/build acceptance remains root responsibility."
+    },
+    {
+      "check": "latest common guides",
+      "result": "Fresh audit/assessment/integrations guides preserve 35-domain original map and add seven separately: 42/461/1,383. Separate evidence claims and zero-extra-family accounting are explicit; noncompensable mastery/physical limits remain."
+    }
+  ],
+  "pending": [],
+  "limitations": [
+    "Acceptance concerns curriculum content/contracts and finite supplied oracles, not completed learner C, physical hardware or full protocol compliance.",
+    "No other author or root owner files were edited by reviewer; private isolated controls and review receipts are reviewer outputs.",
+    "Sphinx, browser workflows and archive reproducibility remain separate root publication checks."
+  ],
+  "inspected_artifact_sha256": {
+    "curriculum/modules/T38.md": "6eec2388cae8b51e39fa7b16eea096a1fef8a1153ae01952636f3545b1e24208",
+    "curriculum/modules/T39.md": "4ec71aa53e090be837f42b1e821bfa08f911f61b9c6c94c32c893b62285c513b",
+    "curriculum/modules/T08.md": "3b23ed3a69278339dfb64295684382caf074abea7641272635982fb93b5a77d7",
+    "curriculum/modules/T14.md": "31ea13d51af812d41fad90e1936c1d7d5511c0f41291aa33d64c03f619c97027",
+    "curriculum/modules/T15.md": "d28777b575ea633c724e78e70a3117bd605e72390fe9b0ffd6f327d89f6fed01",
+    "curriculum/modules/T18.md": "0dade51f513d0036c7d63bdbeaf6fb0613bc71a64310e8259309ff05e675b00b",
+    "curriculum/modules/T24.md": "f0baf8fd3e5e758581375db21d948627757e9cf281e5f59b577f44b783b89d47",
+    "curriculum/modules/T27.md": "f9b48d54af404598dffc0392ed62395b9998cd6045f8092147cea1cdd2bcedfe",
+    "curriculum/modules/T28.md": "6244eec75399b53722ae84870a009fcbb075c2d817249c95131b48314f961a58",
+    "curriculum/modules/T29.md": "b67dcdb3ad33b15ee2264e69d3307943d053a1b2f369a4aa1255a26aa65df588",
+    "curriculum/modules/T32.md": "19f2b576661a331fce9232c6ec56214acfc393246b8ac56d5f857b9dbfb9adf1",
+    "curriculum/projects/PR-T38-01.md": "45292183af9c93b5d57c49a5d3cf279e3f0f204acf8dd0de81474700434dafcf",
+    "curriculum/projects/PR-T38-02.md": "784db4f5820aa8e82078affc7ce34f76080e76e576bb5422fe3cd5230893b819",
+    "curriculum/projects/PR-T38-03.md": "1d63c3fb8cc85e44f12de3e93ae13e9933980ab9f7f937115c5d311e66e4fc91",
+    "curriculum/projects/PR-T38-04.md": "64669cb6c2b65913b7e584d014a0365456ad65475666b929fad60852ae2f3d6c",
+    "curriculum/projects/PR-T38-05.md": "a8e0a7f439dbc4498f219e71d373d717c6058bfd0b8cb57b895d19702d865402",
+    "curriculum/projects/PR-T38-06.md": "a4d3a48e1ac2900bb0dc3116e9c0802ec5ec11239832143e49daaebf80bf70c0",
+    "curriculum/projects/PR-T38-07.md": "e51897e1431cdd13f13767ca37c97179772886c4b513b836dbd504239b6e98a4",
+    "curriculum/projects/PR-T38-08.md": "7e7b9c5670ae43a8ed6ba252a27738fcb3b87213fa82f58d16232306636f8edb",
+    "curriculum/projects/PR-T38-09.md": "97a7bd32ab05fcebcca9806f675401106519efdd7bbad57b50754ce26b87cae1",
+    "curriculum/projects/PR-T38-10.md": "1bdfddfd584419a5eb076f81cb1fafbd6c77e7e9904ce234b4a476eb90c8b858",
+    "curriculum/projects/PR-T39-01.md": "76edd813c80293d4819232af041cacb53e2dcfd4214326333784a736c5ec89f8",
+    "curriculum/projects/PR-T39-02.md": "1db62c95524d9f654b53a2ba6f306d8e8dd643608b38ca57d878ef10f2fb295c",
+    "curriculum/projects/PR-T39-03.md": "2e2b617f287c88a8e1ffd43fa40f51b34b0ee4ed9562861d09892c77ffb134af",
+    "curriculum/projects/PR-T39-04.md": "734742734a163145a3ee7e9d80f2eba43dedec15a5b98668b0c8e89976663b55",
+    "curriculum/projects/PR-T39-05.md": "12523153b133c70a167b6f349fa2feb007e274adf3c5cc0256bff9f6ef8f480f",
+    "curriculum/projects/PR-T39-06.md": "7d7fcc397073869179d30871ff6a025e78b38511e0503f673f51f2d5d3083965",
+    "curriculum/projects/PR-T39-07.md": "3fa835ac69160171ff6c0c4dd2edf0e18dfe7239db812ee1734cf33070dd12a0",
+    "curriculum/projects/PR-T39-08.md": "baeb359126fd986144cbcbf95444e375d986c200d2987fc1fd70d4837540ffdf",
+    "fixtures/communications/PR-T38-01.json": "0e81ea6d48281f75a3eacb3fe0f2121573806d5555d2fcd5950ee2b8ab4ffd74",
+    "fixtures/communications/PR-T38-02.json": "d9abe2193ea102b9ac35bcd4c2a1ec83170ac5a0ff5a2ffb4ddb896107e0a1a2",
+    "fixtures/communications/PR-T38-03.json": "07636362da08ec938ac7ac5e3094e9b4aa841dd0306cd27e8f412d78c914bbc3",
+    "fixtures/communications/PR-T38-04.json": "dde9a95d17e4ad744ee658f70e2db5386df5c2b3a0b543c9d92d693b1ffe828f",
+    "fixtures/communications/PR-T38-05.json": "0688469529e82a1e7bbb9e235560010f98f1a4a77c186baab3a2b3807d0f307c",
+    "fixtures/communications/PR-T38-06.json": "0ede6a35f987c6f773abf4004fec3e50e152a1590e1f0c88dd44c0555094690c",
+    "fixtures/communications/PR-T38-07.json": "137a2e403b3f6ca0c0798ec97cf2670ee5c36f2defc681b1909ae8f88b1816b6",
+    "fixtures/communications/PR-T38-08.json": "79280f16231303750850a9a595cde4ffd0874edd112b437c9ddc708efa2b5053",
+    "fixtures/communications/PR-T38-09.json": "be7c2f2567162965b56c30da0bb4bc43f13db3c4ecfc7d68a9d228b42aa30a80",
+    "fixtures/communications/PR-T38-10.json": "3ddd609aca28b7e15cda104f0a84fe50770f000bea46cebd92f37a15b361b158",
+    "fixtures/communications/PR-T39-01.json": "c739a763930c280bb23fdff37ec806f388d942a40bf02e94af961989645d411e",
+    "fixtures/communications/PR-T39-02.json": "8749b577e6973745fe881ea75d13a0c6af6bb07758754edec870e974dbc21dac",
+    "fixtures/communications/PR-T39-03.json": "a58e8af77d321750261a4fa3d4ff929444ec4d5db0e67b88d8290cfeb6cac3f5",
+    "fixtures/communications/PR-T39-04.json": "458c10cca31b67b6d339b2d7f330a04c702e32d7a56944a49c4a2305c66f465b",
+    "fixtures/communications/PR-T39-05.json": "7f3d6c43e2505498f53b30cd284b01df42cd7571beaf45e2a1c464a2f4147e16",
+    "fixtures/communications/PR-T39-06.json": "4abb6da8dde56548fd0aec9af57e11f83a1ccf71201b45b25d6c76959f5f03ef",
+    "fixtures/communications/PR-T39-07.json": "f20be68251b555621f51c6e125f937d4ed762c6ee1f486862a864cfc6b18737f",
+    "fixtures/communications/PR-T39-08.json": "44b1ae8cb82b866d3612e143ee3a8aa5c8c3ca9e54854b68dafb97038de27a10",
+    "tools/verify_communications_fixtures.py": "f2408ce3a6c75d6311174f8139988a5deeb888841f9cde2bdb956cae28bc70b4",
+    "tools/common.py": "507bb0cebd414bb74b2042f8b82ad615aa97f0ae28363c9201873507cf062126",
+    "tools/merge_research.py": "3bac1aeb6a265b8a99b18b96a6c469d3be1cc5442972a821bedf5e9ebab67e60",
+    "tools/record_enhancement_gate.py": "e645cb978b290dec02c7f0da4ead1fafd4a31946d5da2b9f74c94e284783567f",
+    "tools/merge_enhancement_taxonomy.py": "09cd5db3a3d9751a48c865bcf8105b02393657115df86ade3983220d96a3ca7f",
+    "tools/write_program.py": "a1f5b60fd74dc895b7d42d0376a1f7e6c0f69e1ebbd66f97dc84003270cd3508",
+    "tools/publish.py": "a54373a4e9c0a6c9702c94d6e302a4f548cf62441d09a39a7aecb72f1f2b091e",
+    "tools/validate.py": "ba0794136aa0a77e5fe1b14a87bf0731ff67816794f43b1d39025c505c249e89",
+    "tools/accept_curriculum.py": "2f558754a75b816f4865f7a286a3516397eff6d4109cc33a308a778d4c230737",
+    "tools/check_baseline_preservation.py": "449762dc802cbe9a4a01d7e27be4c65ab0974ea52ed911ebd5e9b3444397431d",
+    "tools/check_contract_guards.py": "f4c586e1c7d3e7d05a12607628bad0cc54bdc5ed1295200a4a30939f752b5f8c",
+    "tools/write_enhancement_handoffs.py": "d0fd1941c2d290bb1033294f4776ed733c23fe7f4e37face9974fda12575fe30",
+    "curriculum/guides/profiles.md": "6f54d1089d643e4f16c1f67ef211099a5cc7d470df2cb2c05f410fc28ab7e05c",
+    "curriculum/guides/laboratory.md": "300a0ed52f1547ef5d0a672b20b282d7a159116ba610f9304687fa08c0c98e34",
+    "curriculum/guides/reading.md": "ddf64ec0902183c791967d8756358feab3dca5298c5932da77afa45f92770995",
+    "curriculum/guides/roadmap.md": "1695413da8329538792ea23bbdd6c7d6ebced56df4484f15c1dff7f124ec8be0",
+    "curriculum/guides/workload.md": "65db57992a5c2a612adcba15d7d31be79c85dc4f2f4f448109af1f0f1fb53ccf",
+    "curriculum/guides/enhancement.md": "ec967590c8fd68f90db5b15f8189cb11a6d6e03bd85026e7296a7d0b6e962e77",
+    "curriculum/guides/communication-stacks.md": "ba1cbb40534cd49e85336abfe152657de7ffbed2c68be52cc6c3c570d5d224ec",
+    "curriculum/guides/audit.md": "cb1f2d4e584093097405de34855b1603941ccd1a8520675d5f69f4787902cae1",
+    "curriculum/guides/assessment.md": "67eb2573c78460437808c15d90587628aeff64d80f60a413e4fc46059091e058",
+    "curriculum/guides/integrations.md": "d07aa6cdfa3523f03ca8bb6e4f9b03152dc77d5765481002df8710268135286c",
+    "README.md": "f5563f6b79362ab9be312a4ffbae8590a8c0e38e6d2897ff41c09bd55ae71f35",
+    "curriculum/program.json": "da38adcc4a240484382270cb3e97989e582816942b7b6b1ff0c321d0244aff61"
+  }
+}

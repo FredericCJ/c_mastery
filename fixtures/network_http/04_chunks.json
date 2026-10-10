@@ -1,0 +1,24 @@
+{
+  "id": "FX-HTTP-04_chunks",
+  "description": "Chunk boundaries, extensions and trailer separation.",
+  "input": {
+    "valid_wire": "3;x=y\r\nabc\r\n2\r\nde\r\n0\r\nX-Debug: ignored\r\n\r\n",
+    "incomplete_wire": "3\r\nabc\r\n0\r\nX-Debug: ignored\r\n",
+    "invalid_wire": "3\r\nabcX\r\n0\r\n\r\n",
+    "terminal_only": "0\r\n\r\n"
+  },
+  "expected": {
+    "body_hex": "6162636465",
+    "body_octets": 5,
+    "trailers_discarded": [
+      [
+        "X-Debug",
+        "ignored"
+      ]
+    ],
+    "incomplete_publishes": 0,
+    "invalid_status": 400,
+    "terminal_body_hex": ""
+  },
+  "verification_method": "Reconstruct known chunk data by explicit sizes and delimiters; verify exact terminal trailer boundary and EOF predicates."
+}

@@ -1,0 +1,71 @@
+{
+  "id": "PR-T39-02",
+  "description": "Ethernet media and checked frame boundary — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "ethernet_frame",
+  "input": {
+    "check_hex": "313233343536373839",
+    "cases": [
+      {
+        "destination": "020000000001",
+        "source": "020000000002",
+        "type_or_length": 2048,
+        "payload_hex": "000102"
+      },
+      {
+        "destination": "ffffffffffff",
+        "source": "020000000002",
+        "type_or_length": 3,
+        "payload_hex": "000102"
+      },
+      {
+        "destination": "020000000001",
+        "source": "020000000002",
+        "type_or_length": 1520,
+        "payload_hex": "00"
+      },
+      {
+        "destination": "020000000001",
+        "source": "020000000002",
+        "type_or_length": 33024,
+        "payload_hex": "00"
+      },
+      {
+        "destination": "020000000001",
+        "source": "020000000002",
+        "type_or_length": 2,
+        "payload_hex": "000102"
+      }
+    ]
+  },
+  "expected": {
+    "cases": [
+      {
+        "status": "ok",
+        "pad_bytes": 43,
+        "frame_without_fcs_hex": "020000000001020000000002080000010200000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "fcs_hex": "6512756f",
+        "frame_with_fcs_bytes": 64,
+        "wire_slot_bytes": 84
+      },
+      {
+        "status": "ok",
+        "pad_bytes": 43,
+        "frame_without_fcs_hex": "ffffffffffff020000000002000300010200000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "fcs_hex": "33da07c8",
+        "frame_with_fcs_bytes": 64,
+        "wire_slot_bytes": 84
+      },
+      {
+        "status": "undefined_gap"
+      },
+      {
+        "status": "vlan_excluded"
+      },
+      {
+        "status": "length_mismatch"
+      }
+    ],
+    "check_string_crc32": 3421780262
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

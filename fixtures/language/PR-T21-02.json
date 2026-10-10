@@ -1,0 +1,37 @@
+{
+  "id": "PR-T21-02",
+  "description": "Transactional rejection and declared cancellation state oracle",
+  "oracle": "transaction_cancel",
+  "input": {
+    "initial": [
+      1,
+      2
+    ],
+    "proposed": [
+      3,
+      4,
+      5
+    ],
+    "capacity": 2,
+    "events": [
+      "start",
+      "timeout",
+      "cancel_ack",
+      "late_complete"
+    ]
+  },
+  "expected": {
+    "update_status": "capacity",
+    "state": [
+      1,
+      2
+    ],
+    "completions": [
+      "cancelled"
+    ],
+    "stale_events": [
+      "late_complete"
+    ]
+  },
+  "verification_method": "Independent exact mathematical/declared-state recomputation by tools/verify_language_fixtures.py; actual C/tool observations are separate."
+}

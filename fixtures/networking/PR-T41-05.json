@@ -1,0 +1,34 @@
+{
+  "id": "FX-NET-T41-05",
+  "description": "Odd Echo bytes, independent checksums, fixed header and exact padding.",
+  "input": {
+    "case_kind": "echo",
+    "payload_hex": "6162636465",
+    "id": 4660,
+    "sequence": 1,
+    "local_ip": [
+      192,
+      0,
+      2,
+      2
+    ],
+    "peer_ip": [
+      192,
+      0,
+      2,
+      1
+    ],
+    "odd_hex": "61"
+  },
+  "expected": {
+    "request_hex": "45000021000040004001b6d8c0000201c00002020800bc03123400016162636465",
+    "reply_hex": "45000021000040004001b6d8c0000202c00002010000c403123400016162636465",
+    "ip_total": 33,
+    "icmp_checksum_hex": "c403",
+    "ip_checksum_hex": "b6d8",
+    "pad_bytes": 13,
+    "frame_with_fcs": 64,
+    "odd_checksum_hex": "9eff"
+  },
+  "verification_method": "Independently serialize emitted Echo packets, calculate odd-span checksums and derive lengths/padding. Receiver rejection tests remain mandatory learner-created cases."
+}

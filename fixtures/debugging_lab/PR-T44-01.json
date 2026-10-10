@@ -1,0 +1,59 @@
+{
+  "id": "PR-T44-01",
+  "kind": "observation",
+  "description": "Replay identities, a defined assignment defect and first-cause versus overflowed log.",
+  "input": {
+    "payload": "abc",
+    "records": [
+      {
+        "image": "image-A",
+        "symbols_for": "image-A",
+        "input_sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+      },
+      {
+        "image": "image-B",
+        "symbols_for": "image-A",
+        "input_sha256": "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+      }
+    ],
+    "values": [
+      0,
+      1,
+      4,
+      5
+    ],
+    "capacity": 3,
+    "events": [
+      "E_INPUT",
+      "E_IO",
+      "E_CLEANUP",
+      "E_LOG"
+    ]
+  },
+  "expected": {
+    "replay_valid": [
+      true,
+      false
+    ],
+    "durable_validation": [
+      false,
+      true,
+      true,
+      false
+    ],
+    "faulty_assignment_accepts": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "retained_log": [
+      "E_IO",
+      "E_CLEANUP",
+      "E_LOG"
+    ],
+    "separate_first_cause": "E_INPUT",
+    "warnings_prove_correctness": false
+  },
+  "verification_method": "Independent finite semantic certificate in tools/verify_debugging_fixtures.py. Model results do not establish actual learner C output, GDB/tool detection, a core or a physical target result. Runtime evidence is separately collected."
+}

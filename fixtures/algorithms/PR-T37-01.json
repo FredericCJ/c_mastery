@@ -1,0 +1,130 @@
+{
+  "id": "PR-T37-01",
+  "kind": "alu",
+  "description": "Declared four-bit machine arithmetic, not C signed-overflow semantics. Arm subtraction C means no borrow; x86 CF means borrow.",
+  "input": {
+    "width": 4,
+    "cases": [
+      [
+        "add",
+        7,
+        1
+      ],
+      [
+        "add",
+        15,
+        1
+      ],
+      [
+        "sub",
+        8,
+        1
+      ],
+      [
+        "sub",
+        0,
+        1
+      ]
+    ]
+  },
+  "expected": {
+    "cases": [
+      {
+        "result": 8,
+        "Z": 0,
+        "N": 1,
+        "C_arm": 0,
+        "CF_x86": 0,
+        "V": 1
+      },
+      {
+        "result": 0,
+        "Z": 1,
+        "N": 0,
+        "C_arm": 1,
+        "CF_x86": 1,
+        "V": 0
+      },
+      {
+        "result": 7,
+        "Z": 0,
+        "N": 0,
+        "C_arm": 1,
+        "CF_x86": 0,
+        "V": 1
+      },
+      {
+        "result": 15,
+        "Z": 0,
+        "N": 1,
+        "C_arm": 0,
+        "CF_x86": 1,
+        "V": 0
+      }
+    ],
+    "add_carry_pairs": 120,
+    "add_overflow_pairs": 64,
+    "sub_borrow_pairs": 120,
+    "sub_overflow_pairs": 64,
+    "pairs_per_operation": 256,
+    "full_adder_rows": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        1,
+        0
+      ],
+      [
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        1,
+        1,
+        0,
+        1
+      ],
+      [
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      [
+        1,
+        0,
+        1,
+        0,
+        1
+      ],
+      [
+        1,
+        1,
+        0,
+        0,
+        1
+      ],
+      [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    ]
+  },
+  "verification_method": "Compute results by integer modular arithmetic and signed-range tests, independently of the learner bit-slice Boolean implementation."
+}

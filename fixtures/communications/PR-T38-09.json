@@ -1,0 +1,91 @@
+{
+  "id": "PR-T38-09",
+  "description": "Classic CAN codec and bounded bxCAN control — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "can_classic",
+  "input": {
+    "frames": [
+      {
+        "identifier": 291,
+        "extended": false,
+        "remote": true
+      },
+      {
+        "identifier": 76283922,
+        "extended": true,
+        "remote": false
+      },
+      {
+        "identifier": 291,
+        "extended": false,
+        "remote": false
+      }
+    ],
+    "timing": {
+      "clock_hz": 42000000,
+      "prescaler": 6,
+      "bs1": 11,
+      "bs2": 2,
+      "sjw": 1
+    },
+    "filter_id": 288,
+    "mask": 2032,
+    "filter_inputs": [
+      288,
+      291,
+      303,
+      304
+    ],
+    "fifo_capacity": 3,
+    "fifo_values": [
+      10,
+      20,
+      30,
+      40
+    ],
+    "crc_input_bits": "000100100011000000110100101"
+  },
+  "expected": {
+    "arbitration_bits": [
+      "0010010001110",
+      "00100100011110000000000000100100",
+      "0010010001100"
+    ],
+    "winner_indices": [
+      2
+    ],
+    "timing_legal": true,
+    "btr_fields": {
+      "brp": 5,
+      "ts1": 10,
+      "ts2": 1,
+      "sjw": 0
+    },
+    "bitrate": {
+      "numerator": 500000,
+      "denominator": 1
+    },
+    "sample_point": {
+      "numerator": 6,
+      "denominator": 7
+    },
+    "filter_matches": [
+      true,
+      true,
+      true,
+      false
+    ],
+    "locked_fifo": [
+      10,
+      20,
+      30
+    ],
+    "unlocked_fifo": [
+      10,
+      20,
+      40
+    ],
+    "overflow_count": 1,
+    "crc15": 1036
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

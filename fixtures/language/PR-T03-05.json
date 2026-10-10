@@ -1,0 +1,41 @@
+{
+  "id": "PR-T03-05",
+  "description": "Abstract ownership violation oracle",
+  "oracle": "resource_events",
+  "input": {
+    "events": [
+      [
+        "acquire",
+        "A"
+      ],
+      [
+        "release",
+        "A"
+      ],
+      [
+        "release",
+        "A"
+      ],
+      [
+        "access",
+        "A"
+      ]
+    ]
+  },
+  "expected": {
+    "violations": [
+      [
+        2,
+        "double-release",
+        "A"
+      ],
+      [
+        3,
+        "dead-access",
+        "A"
+      ]
+    ],
+    "live": []
+  },
+  "verification_method": "Independent exact mathematical/declared-state recomputation by tools/verify_language_fixtures.py; actual C/tool observations are separate."
+}

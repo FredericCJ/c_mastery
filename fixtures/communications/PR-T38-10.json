@@ -1,0 +1,219 @@
+{
+  "id": "PR-T38-10",
+  "description": "ISO CAN FD metadata and external-controller boundary — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "can_fd",
+  "input": {
+    "cases": [
+      {
+        "dlc": 9,
+        "length": 12,
+        "fdf": true,
+        "brs": false,
+        "esi": false,
+        "remote": false,
+        "controller_fd": true
+      },
+      {
+        "dlc": 10,
+        "length": 16,
+        "fdf": true,
+        "brs": true,
+        "esi": true,
+        "remote": false,
+        "controller_fd": true
+      },
+      {
+        "dlc": 11,
+        "length": 20,
+        "fdf": true,
+        "brs": true,
+        "esi": false,
+        "remote": false,
+        "controller_fd": true
+      },
+      {
+        "dlc": 15,
+        "length": 64,
+        "fdf": true,
+        "brs": false,
+        "esi": true,
+        "remote": false,
+        "controller_fd": true
+      },
+      {
+        "dlc": 9,
+        "length": 9,
+        "fdf": true,
+        "brs": false,
+        "esi": false,
+        "remote": false,
+        "controller_fd": true
+      },
+      {
+        "dlc": 0,
+        "length": 0,
+        "fdf": true,
+        "brs": false,
+        "esi": false,
+        "remote": true,
+        "controller_fd": true
+      },
+      {
+        "dlc": 9,
+        "length": 12,
+        "fdf": true,
+        "brs": false,
+        "esi": false,
+        "remote": false,
+        "controller_fd": false
+      },
+      {
+        "dlc": 9,
+        "length": 12,
+        "fdf": false,
+        "brs": false,
+        "esi": false,
+        "remote": false,
+        "controller_fd": true
+      },
+      {
+        "dlc": 9,
+        "length": 12,
+        "fdf": true,
+        "brs": 2,
+        "esi": false,
+        "remote": false,
+        "controller_fd": true
+      },
+      {
+        "dlc": 9,
+        "length": 12,
+        "fdf": true,
+        "brs": false,
+        "esi": 2,
+        "remote": false,
+        "controller_fd": true
+      }
+    ],
+    "power": [
+      {
+        "vsup_mv": 12000,
+        "vio_mv": 3300
+      },
+      {
+        "vsup_mv": 3300,
+        "vio_mv": 3300
+      },
+      {
+        "vsup_mv": 12000,
+        "vio_mv": 3000
+      }
+    ],
+    "spi": [
+      {
+        "data_words": 2,
+        "bytes_after_header": 8
+      },
+      {
+        "data_words": 2,
+        "bytes_after_header": 6
+      }
+    ]
+  },
+  "expected": {
+    "dlc_lengths": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      12,
+      16,
+      20,
+      24,
+      32,
+      48,
+      64
+    ],
+    "cases": [
+      {
+        "status": "ok",
+        "crc_width": 17,
+        "bitrate_policy": "nominal_only",
+        "transmitter_error_state": "active"
+      },
+      {
+        "status": "ok",
+        "crc_width": 17,
+        "bitrate_policy": "switched_data",
+        "transmitter_error_state": "passive"
+      },
+      {
+        "status": "ok",
+        "crc_width": 21,
+        "bitrate_policy": "switched_data",
+        "transmitter_error_state": "active"
+      },
+      {
+        "status": "ok",
+        "crc_width": 21,
+        "bitrate_policy": "nominal_only",
+        "transmitter_error_state": "passive"
+      },
+      {
+        "status": "length_mismatch",
+        "crc_width": null,
+        "bitrate_policy": null,
+        "transmitter_error_state": null
+      },
+      {
+        "status": "unsupported_remote",
+        "crc_width": null,
+        "bitrate_policy": null,
+        "transmitter_error_state": null
+      },
+      {
+        "status": "controller_lacks_fd",
+        "crc_width": null,
+        "bitrate_policy": null,
+        "transmitter_error_state": null
+      },
+      {
+        "status": "not_fd",
+        "crc_width": null,
+        "bitrate_policy": null,
+        "transmitter_error_state": null
+      },
+      {
+        "status": "invalid_flag",
+        "crc_width": null,
+        "bitrate_policy": null,
+        "transmitter_error_state": null
+      },
+      {
+        "status": "invalid_flag",
+        "crc_width": null,
+        "bitrate_policy": null,
+        "transmitter_error_state": null
+      }
+    ],
+    "power_valid": [
+      true,
+      false,
+      false
+    ],
+    "spi_transaction_bytes": [
+      12,
+      12
+    ],
+    "spi_word_valid": [
+      true,
+      false
+    ]
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

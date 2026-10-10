@@ -1,0 +1,50 @@
+{
+  "id": "PR-T27-05-fixture",
+  "description": "A magic/version/length and additive checksum validate accidental-corruption consistency for a synthetic retained payload.",
+  "input": {
+    "kind": "retained",
+    "required_magic": 439,
+    "required_version": 2,
+    "records": [
+      {
+        "magic": 439,
+        "version": 2,
+        "length": 3,
+        "payload": [
+          1,
+          2,
+          3
+        ],
+        "checksum": 6
+      },
+      {
+        "magic": 439,
+        "version": 1,
+        "length": 3,
+        "payload": [
+          1,
+          2,
+          3
+        ],
+        "checksum": 6
+      },
+      {
+        "magic": 439,
+        "version": 2,
+        "length": 3,
+        "payload": [
+          1,
+          2,
+          3
+        ],
+        "checksum": 0
+      }
+    ]
+  },
+  "expected": [
+    true,
+    false,
+    false
+  ],
+  "verification_method": "Independent saved Python arithmetic/declared synthetic-protocol oracle; learner implementation and actual target/tool observations are checked separately."
+}

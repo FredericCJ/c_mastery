@@ -1,0 +1,38 @@
+{
+  "id": "PR-T32-05-fixture",
+  "description": "The synthetic memory history uses an uninitialized element in a branch, writes outside a four-element allocation and reads after free. Expected labels describe semantic defects, not exact tool diagnostic strings.",
+  "input": {
+    "kind": "memory_events",
+    "events": [
+      [
+        "allocate",
+        4
+      ],
+      [
+        "branch_read",
+        1
+      ],
+      [
+        "write",
+        0
+      ],
+      [
+        "write",
+        4
+      ],
+      [
+        "free"
+      ],
+      [
+        "read",
+        0
+      ]
+    ]
+  },
+  "expected": [
+    "uninitialized-use",
+    "out-of-bounds",
+    "use-after-free"
+  ],
+  "verification_method": "Independent saved Python arithmetic/declared synthetic-protocol oracle; learner implementation and actual target/tool observations are checked separately."
+}

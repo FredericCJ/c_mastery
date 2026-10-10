@@ -1,0 +1,98 @@
+{
+  "id": "FX-NET-T41-07",
+  "description": "Independent RTT weighted means/backoff and one-flight usable windows.",
+  "input": {
+    "case_kind": "rto",
+    "samples": [
+      {
+        "ms": 80,
+        "retransmitted": false
+      },
+      {
+        "ms": 120,
+        "retransmitted": false
+      },
+      {
+        "ms": 999,
+        "retransmitted": true
+      }
+    ],
+    "granularity_ms": 1,
+    "initial_rto_ms": 1000,
+    "retry_limit": 3,
+    "cap_input_ms": 128000,
+    "mss": 256,
+    "flow": [
+      {
+        "una": 100,
+        "nxt": 100,
+        "window": 0,
+        "pending": 512
+      },
+      {
+        "una": 100,
+        "nxt": 132,
+        "window": 40,
+        "pending": 512
+      },
+      {
+        "una": 132,
+        "nxt": 132,
+        "window": 256,
+        "pending": 512
+      },
+      {
+        "una": 4294967280,
+        "nxt": 16,
+        "window": 40,
+        "pending": 512
+      }
+    ]
+  },
+  "expected": {
+    "estimates": [
+      {
+        "srtt_ms": 80,
+        "variance_ms": 40,
+        "rto_ms": 1000
+      },
+      {
+        "srtt_ms": 85,
+        "variance_ms": 40,
+        "rto_ms": 1000
+      },
+      {
+        "srtt_ms": 85,
+        "variance_ms": 40,
+        "rto_ms": 1000
+      }
+    ],
+    "retransmit_ms": [
+      1000,
+      3000,
+      7000
+    ],
+    "abort_ms": 15000,
+    "cap_ms": 60000,
+    "post_syn_loss_min_ms": 3000,
+    "usable_windows": [
+      0,
+      8,
+      256,
+      8
+    ],
+    "new_data_bytes": [
+      0,
+      0,
+      256,
+      0
+    ],
+    "probe_ms": [
+      1000,
+      3000,
+      7000
+    ],
+    "ambiguous_samples": 1
+  },
+  "verification_method": "Exact Fraction weighted means with old-SRTT variance update, geometric timeout sums, and independently calculated window/one-flight bounds."
+}

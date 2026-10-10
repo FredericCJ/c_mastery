@@ -1,0 +1,52 @@
+{
+  "id": "FX-NET-T40-05",
+  "description": "Finite duplicate-first/final trace, retry schedule and blocked resource deadline.",
+  "input": {
+    "case_kind": "message_trace",
+    "payload_hex": "000102030405060708090a0b0c0d0e0f101112131415161718",
+    "received_indices": [
+      0,
+      0,
+      1,
+      1
+    ],
+    "timeout_ms": 100,
+    "retry_limit": 3,
+    "probe_origin_ms": 0,
+    "blocked_origin_ms": 0,
+    "blocked_limit_ms": 500,
+    "failure_received_indices": [
+      0
+    ],
+    "failure_action": "abort"
+  },
+  "expected": {
+    "fragment_lengths": [
+      24,
+      1
+    ],
+    "ack_indices": [
+      0,
+      0,
+      1,
+      1
+    ],
+    "delivered_hex": "000102030405060708090a0b0c0d0e0f101112131415161718",
+    "deliveries": 1,
+    "retransmit_ms": [
+      100,
+      200,
+      300
+    ],
+    "failed_ms": 400,
+    "probe_ms": 100,
+    "blocked_ms": 500,
+    "failure_publishes_partial": false,
+    "retained_after_failure": 0,
+    "failure_storage_trace": [
+      24,
+      0
+    ]
+  },
+  "verification_method": "Fold only the supplied fragment-index trace and independently calculate timer deadlines; not a general reliable transport implementation."
+}

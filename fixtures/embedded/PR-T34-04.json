@@ -1,0 +1,70 @@
+{
+  "id": "PR-T34-04-fixture",
+  "description": "Nine pairs give [1,2,3,4,5,6,7,0,10], two full groups and one tail. Positive feature values select SSE2 only when declared OS support is true.",
+  "input": {
+    "kind": "simd",
+    "a": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      4294967295,
+      9
+    ],
+    "b": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "lanes": 4,
+    "dispatch_cases": [
+      [
+        0,
+        true
+      ],
+      [
+        1,
+        true
+      ],
+      [
+        8,
+        true
+      ],
+      [
+        1,
+        false
+      ]
+    ]
+  },
+  "expected": {
+    "values": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      0,
+      10
+    ],
+    "groups": 2,
+    "tail": 1,
+    "paths": [
+      "scalar",
+      "sse2",
+      "sse2",
+      "scalar"
+    ]
+  },
+  "verification_method": "Independent saved Python arithmetic/declared synthetic-protocol oracle; learner implementation and actual target/tool observations are checked separately."
+}

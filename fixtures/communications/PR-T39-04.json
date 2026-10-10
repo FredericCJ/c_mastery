@@ -1,0 +1,148 @@
+{
+  "id": "PR-T39-04",
+  "description": "RMII clock and bounded PHY management — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "phy",
+  "input": {
+    "mdio": [
+      {
+        "hclk_hz": 168000000,
+        "phy_address": 0,
+        "register": 2,
+        "busy": false
+      },
+      {
+        "hclk_hz": 168000000,
+        "phy_address": 0,
+        "register": 2,
+        "busy": true
+      },
+      {
+        "hclk_hz": 10000000,
+        "phy_address": 0,
+        "register": 2,
+        "busy": false
+      }
+    ],
+    "cases": [
+      {
+        "id1": 7,
+        "id2": 49457,
+        "bsr_first": 32,
+        "bsr_second": 36,
+        "special": 4120
+      },
+      {
+        "id1": 7,
+        "id2": 49457,
+        "bsr_first": 36,
+        "bsr_second": 32,
+        "special": 4120
+      },
+      {
+        "id1": 7,
+        "id2": 49457,
+        "bsr_first": 4,
+        "bsr_second": 4,
+        "special": 24
+      },
+      {
+        "id1": 7,
+        "id2": 49457,
+        "bsr_first": 36,
+        "bsr_second": 36,
+        "special": 4104
+      },
+      {
+        "id1": 7,
+        "id2": 49473,
+        "bsr_first": 36,
+        "bsr_second": 36,
+        "special": 4120
+      }
+    ]
+  },
+  "expected": {
+    "cases": [
+      {
+        "identity_ok": true,
+        "historical_link": false,
+        "current_link": true,
+        "mode": [
+          100,
+          "full"
+        ],
+        "status": "ready",
+        "mac_dm": true,
+        "mac_fes": true
+      },
+      {
+        "identity_ok": true,
+        "historical_link": true,
+        "current_link": false,
+        "mode": [
+          100,
+          "full"
+        ],
+        "status": "link_down",
+        "mac_dm": false,
+        "mac_fes": false
+      },
+      {
+        "identity_ok": true,
+        "historical_link": true,
+        "current_link": true,
+        "mode": [
+          100,
+          "full"
+        ],
+        "status": "negotiating",
+        "mac_dm": false,
+        "mac_fes": false
+      },
+      {
+        "identity_ok": true,
+        "historical_link": true,
+        "current_link": true,
+        "mode": [
+          100,
+          "half"
+        ],
+        "status": "half_duplex_excluded",
+        "mac_dm": false,
+        "mac_fes": false
+      },
+      {
+        "identity_ok": false,
+        "historical_link": true,
+        "current_link": true,
+        "mode": [
+          100,
+          "full"
+        ],
+        "status": "wrong_phy",
+        "mac_dm": false,
+        "mac_fes": false
+      }
+    ],
+    "mdio": [
+      {
+        "status": "ok",
+        "cr": 4,
+        "mdc_hz": {
+          "numerator": 28000000,
+          "denominator": 17
+        },
+        "read_start_word": 145
+      },
+      {
+        "status": "busy_no_write"
+      },
+      {
+        "status": "clock_range"
+      }
+    ],
+    "rmii_clock_hz": 50000000,
+    "reset_bit_mask": 32768
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

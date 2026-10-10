@@ -1,0 +1,69 @@
+{
+  "id": "integration-pressure",
+  "description": "Deterministic queue ownership trace with reject-newest policy",
+  "input": {
+    "capacity": 3,
+    "events": [
+      [
+        "offer",
+        1
+      ],
+      [
+        "offer",
+        2
+      ],
+      [
+        "offer",
+        3
+      ],
+      [
+        "offer",
+        4
+      ],
+      [
+        "take"
+      ],
+      [
+        "offer",
+        5
+      ],
+      [
+        "close"
+      ],
+      [
+        "offer",
+        6
+      ],
+      [
+        "take"
+      ],
+      [
+        "take"
+      ],
+      [
+        "take"
+      ]
+    ]
+  },
+  "expected": {
+    "accepted": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "rejected": [
+      4,
+      6
+    ],
+    "consumed": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "remaining": [],
+    "closed": true
+  },
+  "verification_method": "Sequential reference ownership ledger, not a concurrency proof"
+}

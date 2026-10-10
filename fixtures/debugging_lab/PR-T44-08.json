@@ -1,0 +1,79 @@
+{
+  "id": "PR-T44-08",
+  "kind": "bare_metal",
+  "description": "F439/core basic PSP frame and mask facts plus clock/DMA policy histories.",
+  "input": {
+    "vtor": 134217728,
+    "reset_vector": 134217985,
+    "irq": 3,
+    "pre_psp": 536875008,
+    "exc_return": 4294967293,
+    "basic_words": [
+      1,
+      2,
+      3,
+      4,
+      12,
+      134218017,
+      134218754,
+      16777216
+    ],
+    "faults": [
+      {
+        "cfsr": 33280,
+        "hfsr": 1073741824,
+        "bfar": 537067520
+      },
+      {
+        "cfsr": 1024,
+        "hfsr": 1073741824,
+        "bfar": 537067520
+      }
+    ],
+    "dma_events": [
+      "give",
+      "cancel_request",
+      "cpu_write",
+      "ack_stop",
+      "cpu_write"
+    ],
+    "clock_events": [
+      "configure",
+      "enable",
+      "configure"
+    ]
+  },
+  "expected": {
+    "reset_pc": 134217984,
+    "reset_thumb": true,
+    "exception_number": 19,
+    "vector_address": 134217804,
+    "frame_base": 536874976,
+    "stacked_pc": 134218754,
+    "fault_classification": [
+      {
+        "precise_bus": true,
+        "bfar_valid": true,
+        "forced_hardfault": true,
+        "usable_bfar": 537067520
+      },
+      {
+        "precise_bus": false,
+        "bfar_valid": false,
+        "forced_hardfault": true,
+        "usable_bfar": null
+      }
+    ],
+    "dma_owner_after": [
+      "DMA",
+      "DMA",
+      "DMA",
+      "CPU",
+      "CPU"
+    ],
+    "first_invalid_dma_event": 3,
+    "first_invalid_clock_stage": 1,
+    "model_establishes_physical_fault": false
+  },
+  "verification_method": "Independent finite semantic certificate in tools/verify_debugging_fixtures.py. Model results do not establish actual learner C output, GDB/tool detection, a core or a physical target result. Runtime evidence is separately collected."
+}

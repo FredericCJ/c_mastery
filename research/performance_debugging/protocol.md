@@ -1,0 +1,13 @@
+# Performance and debugging research protocol
+
+This revision adds T43–T45 after the accepted 42-domain edition. Begin with a coverage audit, graph/library discovery and an explicit reflection. Inspect exact passages, resolve competing authority and synthesize implementable mechanisms before writing teaching. The integrator records a separate scoped research gate with immutable input hashes. A prior acceptance supports reused material only within its inspected scope.
+
+The SWE and data-structure graphs supply bibliographic leads. The Knowledge database supplies catalog metadata and current locations, not complete book text. Observe the current library rules, pointers, manifests, scope exclusions and opaque-package boundaries before discovery. Read ordinary held documents or official primary sources; keep excerpts and private capture/provenance work under `research/private`. Rebuilding the public curriculum requires neither the library nor these private captures.
+
+Research must distinguish mathematical complexity from counted work, target-dependent cycles, elapsed latency, CPU service, memory footprint, traffic, storage and I/O. Pin tool/document versions and record clock, counter, permission and environment limits. Resource controls can influence an experiment; they do not by themselves measure an algorithm. A restricted or unavailable capability has an explicit alternative experiment and an open measurement claim.
+
+Debugging projects use intentionally faulty learner-owned programs and isolated fixtures. Each dossier predicts competing symptoms, reproduces the failure, identifies the earliest invalid state, minimizes a trigger, repairs the violated contract and tests regression and delayed transfer. Undefined behavior has no prescribed symptom. Static fixture calculations do not establish an actual C diagnostic, tool detection or hardware result.
+
+Memory research distinguishes object bounds and lifetime, stack exhaustion and corruption, linker-region capacity, startup zeroing, heap/stack layout and asynchronous ownership. `.bss` is a static section; a link-time overflow, a stray runtime write and a heap/stack collision have different causes. Repairs must identify the violated invariant and their remaining limits, rather than equating a mitigation or a clean tool run with correctness.
+
+Disjoint T43, T44 and T45 groups may enter teaching after their individual source gates. Publication requires all three source gates, coherent dependency/reuse accounting, independent content reviews, strict fixture/catalog/type checks, prior-edition preservation, rendered publication/browser checks and a fresh extracted-source rebuild. Necessary later source additions require targeted inspection and gate revalidation before assignment.

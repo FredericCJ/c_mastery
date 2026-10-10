@@ -1,0 +1,284 @@
+{
+  "id": "PR-T36-05",
+  "kind": "avl_cert",
+  "description": "Original LR rotation and deletion-rebalance snapshots, null height zero; duplicate keys rejected.",
+  "input": {
+    "rotation": [
+      {
+        "root": "a",
+        "balanced": false,
+        "nodes": {
+          "a": {
+            "key": 30,
+            "left": "b",
+            "right": null,
+            "parent": null,
+            "height": 3
+          },
+          "b": {
+            "key": 10,
+            "left": null,
+            "right": "c",
+            "parent": "a",
+            "height": 2
+          },
+          "c": {
+            "key": 20,
+            "left": null,
+            "right": null,
+            "parent": "b",
+            "height": 1
+          }
+        }
+      },
+      {
+        "root": "a",
+        "balanced": false,
+        "nodes": {
+          "a": {
+            "key": 30,
+            "left": "c",
+            "right": null,
+            "parent": null,
+            "height": 3
+          },
+          "b": {
+            "key": 10,
+            "left": null,
+            "right": null,
+            "parent": "c",
+            "height": 1
+          },
+          "c": {
+            "key": 20,
+            "left": "b",
+            "right": null,
+            "parent": "a",
+            "height": 2
+          }
+        }
+      },
+      {
+        "root": "c",
+        "balanced": true,
+        "nodes": {
+          "a": {
+            "key": 30,
+            "left": null,
+            "right": null,
+            "parent": "c",
+            "height": 1
+          },
+          "b": {
+            "key": 10,
+            "left": null,
+            "right": null,
+            "parent": "c",
+            "height": 1
+          },
+          "c": {
+            "key": 20,
+            "left": "b",
+            "right": "a",
+            "parent": null,
+            "height": 2
+          }
+        }
+      }
+    ],
+    "deletion": [
+      {
+        "root": "a",
+        "balanced": true,
+        "nodes": {
+          "a": {
+            "key": 2,
+            "left": "b",
+            "right": "c",
+            "parent": null,
+            "height": 3
+          },
+          "b": {
+            "key": 1,
+            "left": null,
+            "right": null,
+            "parent": "a",
+            "height": 1
+          },
+          "c": {
+            "key": 4,
+            "left": "d",
+            "right": "e",
+            "parent": "a",
+            "height": 2
+          },
+          "d": {
+            "key": 3,
+            "left": null,
+            "right": null,
+            "parent": "c",
+            "height": 1
+          },
+          "e": {
+            "key": 5,
+            "left": null,
+            "right": null,
+            "parent": "c",
+            "height": 1
+          }
+        }
+      },
+      {
+        "root": "a",
+        "balanced": false,
+        "nodes": {
+          "a": {
+            "key": 2,
+            "left": null,
+            "right": "c",
+            "parent": null,
+            "height": 3
+          },
+          "c": {
+            "key": 4,
+            "left": "d",
+            "right": "e",
+            "parent": "a",
+            "height": 2
+          },
+          "d": {
+            "key": 3,
+            "left": null,
+            "right": null,
+            "parent": "c",
+            "height": 1
+          },
+          "e": {
+            "key": 5,
+            "left": null,
+            "right": null,
+            "parent": "c",
+            "height": 1
+          }
+        }
+      },
+      {
+        "root": "c",
+        "balanced": true,
+        "nodes": {
+          "a": {
+            "key": 2,
+            "left": null,
+            "right": "d",
+            "parent": "c",
+            "height": 2
+          },
+          "c": {
+            "key": 4,
+            "left": "a",
+            "right": "e",
+            "parent": null,
+            "height": 3
+          },
+          "d": {
+            "key": 3,
+            "left": null,
+            "right": null,
+            "parent": "a",
+            "height": 1
+          },
+          "e": {
+            "key": 5,
+            "left": null,
+            "right": null,
+            "parent": "c",
+            "height": 1
+          }
+        }
+      }
+    ],
+    "balanced_search_tree": {
+      "root": "m",
+      "balanced": true,
+      "nodes": {
+        "m": {
+          "key": 2,
+          "left": "l",
+          "right": "r",
+          "parent": null,
+          "height": 2
+        },
+        "l": {
+          "key": 1,
+          "left": null,
+          "right": null,
+          "parent": "m",
+          "height": 1
+        },
+        "r": {
+          "key": 3,
+          "left": null,
+          "right": null,
+          "parent": "m",
+          "height": 1
+        }
+      }
+    },
+    "duplicate_key": 20,
+    "search_key": 3
+  },
+  "expected": {
+    "rotation_inorders": [
+      [
+        10,
+        20,
+        30
+      ],
+      [
+        10,
+        20,
+        30
+      ],
+      [
+        10,
+        20,
+        30
+      ]
+    ],
+    "rotation_heights": [
+      3,
+      3,
+      2
+    ],
+    "deletion_inorders": [
+      [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      [
+        2,
+        3,
+        4,
+        5
+      ],
+      [
+        2,
+        3,
+        4,
+        5
+      ]
+    ],
+    "deletion_heights": [
+      3,
+      3,
+      3
+    ],
+    "duplicate_result": "reject_unchanged",
+    "balanced_search_comparisons": 2,
+    "degenerate_search_comparisons": 3
+  },
+  "verification_method": "Recompute inorder, unique reachability, parent relationships, subtree heights and balance from snapshots; no rotation/deletion solver is supplied."
+}

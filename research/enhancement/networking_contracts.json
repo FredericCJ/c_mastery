@@ -1,0 +1,195 @@
+{
+  "version": "1.1-reviewed-design",
+  "date": "2026-10-09",
+  "status": "Research-gated original contracts; finite fixture checks and learner execution are separate evidence",
+  "families": [
+    {
+      "domain": "T40",
+      "name": "EDU7-v1 seven-layer RS-485 exchange",
+      "claim": "Original educational implementation of explicit layer responsibilities; no ISO OSI protocol-suite conformance claim",
+      "topology": {
+        "nodes": {
+          "A": 17,
+          "R": 34,
+          "B": 51
+        },
+        "segments": [
+          "A--R.left",
+          "R.right--B"
+        ],
+        "equipment": "Three declared MCU endpoints, router with two independent UARTs, four THVD1400 3.3-V transceiver adapters; two isolated bench segments each no more than 1 m of nominal 120-ohm twisted pair, terminated 120 ohm at both ends",
+        "link_addresses": {
+          "left": {
+            "A": 1,
+            "R.left": 2
+          },
+          "right": {
+            "R.right": 1,
+            "B": 2
+          }
+        },
+        "routes": {
+          "A:51": "left,next_link=2",
+          "R:17": "left,next_link=1",
+          "R:51": "right,next_link=2",
+          "B:17": "right,next_link=1"
+        },
+        "physical_gate": "Actual voltage/polarity/wiring, common reference, termination resistance with power off, UART bit timing, DE release after final stop bit, no overlapping drivers, disconnect/reconnect and end-to-end relay captures; host traces close no physical criterion"
+      },
+      "L1": {
+        "uart": "115200 baud, 8 data bits, no parity, 1 stop bit; no UART error is accepted as clean data",
+        "adapter": "THVD1400 at 3.3 V; D=UART TX, R=UART RX, RE held low, DE controlled separately. Receiver stays enabled; local echo is explicitly filtered by transmitter ownership.",
+        "turnaround": "DE asserted 200 us before transmission; retained until UART transmission-complete reports the final stop bit; release then a 200 us guard before a peer may drive. These are lab policies; captured waveforms and actual part timing must validate them.",
+        "service": "Owned transmit span accepted or BUSY; ordered receive octets plus UART fault events, never a guarantee of error-free delivery"
+      },
+      "L2": {
+        "delimiter": 126,
+        "escape": 125,
+        "escaping": "Within the body, 0x7e and 0x7d become 0x7d followed by byte XOR 0x20; delimiter at both ends. Empty delimiters are ignored; trailing escape or overlong body is dropped through the next delimiter.",
+        "body": [
+          "version:u8=1",
+          "kind:u8 DATA=0,POLL=1,EMPTY=2",
+          "link_src:u8",
+          "link_dst:u8",
+          "payload_length:u8 0..40",
+          "payload:payload_length octets",
+          "CRC:be16"
+        ],
+        "crc": "CRC-16/CCITT-FALSE: polynomial0x1021, init0xffff, refin=false, refout=false, xorout0; cover all body bytes before CRC; check123456789=>0x29b1",
+        "max_unescaped_body": 47,
+        "max_escaped_frame": 96,
+        "arbitration": "Link address1 is the master. Once per25ms turn it sends at most one queued DATA then a zero-payload POLL. Address2 begins one DATA or EMPTY reply within2ms after POLL and guards, then finishes within10ms of its first octet. Slave never transmits without grant. Invalid grant/foreign address/CRC drops produce no upper delivery. Master waits for the completed reply or these bounded deadlines before the next turn; a reply that has begun is not discarded by the start-of-reply deadline.",
+        "service": "One validated local-link SDU up to40 bytes, or explicit busy/drop/fault result; no link retransmission, upper L4 handles loss"
+      },
+      "L3": {
+        "header": [
+          "version:u8=1",
+          "network_src:u8",
+          "network_dst:u8",
+          "hop_limit:u8",
+          "next_protocol:u8=4",
+          "payload_length:u8 0..34"
+        ],
+        "forwarding": "Source starts hop_limit=4. Destination consumes with positive hop limit. Router drops hop_limit<=1, unknown route, own-origin loop or bad length/protocol; otherwise decrement hop limit, preserve network src/dst and payload, rebuild link addresses and CRC on the other segment. No broadcast, dynamic routing or L3 fragmentation.",
+        "service": "Unreliable bounded end-to-end datagram between node IDs; router owns a private copy before releasing input link span"
+      },
+      "L4": {
+        "header": [
+          "type:u8 DATA=1,ACK=2,PROBE=3",
+          "src_port:u8",
+          "dst_port:u8",
+          "transfer_id:be16",
+          "fragment_index:u8",
+          "fragment_count:u8 1..5",
+          "credit:u8 0|1"
+        ],
+        "payload": "DATA has1..24 octets. All non-final fragments are24 bytes; total SDU1..120 bytes. ACK/PROBE have no payload. Service ports7 and8 are fixed endpoint SAPs; routing never uses port.",
+        "state": "One outstanding fragment per direction; one reassembly per (src node,src port,dst port). ACK must match tuple, transfer ID and fragment index. Duplicate accepted fragment is re-ACKed without duplicate delivery; unexpected index/count is rejected. Completion publishes a whole SDU atomically then frees reassembly.",
+        "flow_and_failure": "Credit0 pauses new data; PROBE after100ms asks for current credit without consuming data. Credit1 permits one fragment. Timeout100ms with at most3 retransmissions of the same bytes/index; then fail and clear partial SDU. An independent500ms zero-credit resource deadline reports blocked transfer. Transfer IDs never reused within an active session; wrap forces session reopen.",
+        "service": "Complete bounded message or explicit failed/blocked result, not a byte-stream socket",
+        "completed_receipt": "Transfer IDs start1 and strictly increase per direction within session/epoch; no wrap/reuse. Remember highest completed ID and one last completed receipt (tuple,ID,count,last index,last fragment bytes). Repeated matching last fragment is ACKed without publication; older completed IDs are dropped without publication. Replace receipt only on next complete transfer, clear on session reopen. Pending upper consumption retains one complete SDU and advertises credit0 until released."
+      },
+      "L5": {
+        "header": [
+          "type:u8 OPEN=1,OPEN_ACK=2,DATA=3,RESUME=4,TOKEN=5,CLOSE=6,ERROR=7",
+          "session_id:be16 nonzero",
+          "epoch:be16 nonzero",
+          "checkpoint:be16"
+        ],
+        "negotiation": "OPEN/OPEN_ACK payload is schema_id:u8=1,unit_id:u8=1,initial_token_node:u8=17. One session A<->B, ports7<->8. Incompatible schema/units or unknown epoch returns ERROR and no application delivery. OPEN and OPEN_ACK use checkpoint0; TOKEN, CLOSE and ERROR also use checkpoint0. DATA uses the next per-direction positive checkpoint; RESUME identifies that direction's last committed checkpoint. All multioctet integers are big-endian.",
+        "dialogue": "Only token holder sends DATA. TOKEN payload is new_holder_node:u8 and transfers dialogue right after its successful transport delivery. Start with A; A sends request then transfers token to B, B responds then returns token to A. Sending TOKEN enters TOKEN_PENDING: sender may send no new DATA until matching transport completion; lost ACK may temporarily leave no endpoint allowed to start DATA, never both. Receiver recognizes duplicate token delivery without granting a second change. CLOSE/reopen is required before checkpoint wrap.",
+        "checkpoint_and_resume": "Each direction starts checkpoint1 and increments only after accepted DATA. Same checkpoint+same payload is a duplicate and never reapplies application effect; different payload at same checkpoint is ERROR. Transport reset permits RESUME with same session/epoch and last committed checkpoint; peer retained RAM state must match. Restarted peer with no state refuses resume. Checkpoints and last response remain in RAM only; no durable exactly-once or authenticated-session claim.",
+        "service": "READY/DATA/TOKEN/RESUME_FAILED/CLOSED events independent of transport transfer IDs"
+      },
+      "L6": {
+        "encoding": "schema_id:u8=1 followed by ascending unique TLVs: tag:u8,length:u8,value:length. Total presentation PDU<=80 bytes; reject unknown schema, duplicate/out-of-order tags, length mismatch, noncanonical UTF-8 or unrepresentable integer before publication.",
+        "tags": {
+          "1": "verb:u8 GET=1,SET=2,REPLY=3,ERROR=4",
+          "2": "request_id:be16",
+          "3": "value:be16 signed two's-complement centidegrees Celsius",
+          "4": "unit:u8=1 centidegrees Celsius; mandatory for SET and REPLY",
+          "5": "label:UTF-8 0..16 bytes"
+        },
+        "service": "Typed original application record independent of host struct padding and endianness; optional label is display data, never a C format string",
+        "required_fields": "All records require verb and request ID. SET requires value and unit1; REPLY requires value and unit1; GET requires neither value nor unit. ERROR may report the retained setpoint with unit1. Known tags have exactly the declared lengths; unknown tags rejected; optional label never changes operation."
+      },
+      "L7": {
+        "application": "GET reads the declared fixture plant value; SET changes the declared fixture setpoint only in[-4000,12500] centidegreesC. Request ID matches response, ERROR leaves old setpoint unchanged. Unit1 is mandatory for SET/REPLY. No implication that a physical sensor exists.",
+        "acceptance": "A routed SET and GET, corrupt frame, wrong route/hop, dropped ACK, duplicate fragment, credit pause, token violation, compatible/incompatible OPEN, retained-state resume and peer reboot refusal, malformed representation and out-of-range SET each have exact state/output oracles",
+        "fixture_state": "Initial plant value1800 centidegreesC is immutable fixture input. Initial setpoint2200 is mutable. GET returns plant value; successful SET REPLY reports new setpoint. Invalid SET ERROR reports retained setpoint with unit1. Unchanged setpoint is established by explicit state/error-value witness, not by pretending GET reads the setpoint."
+      }
+    },
+    {
+      "domain": "T41",
+      "name": "F439-LAN8742 minimal Ethernet-to-HTTP stack",
+      "claim": "Custom controlled same-link protocol subset; no general Internet-host/TCP/IEEE compliance or simulated physical-success claim",
+      "network": {
+        "board": "NUCLEO-F439ZI MB1137; record actual revision and fitted jumpers",
+        "ip": "192.0.2.2/24",
+        "peer_ip": "192.0.2.1/24",
+        "mac": "02:00:00:00:00:02",
+        "peer_mac": "02:00:00:00:00:01 for deterministic fixtures; actual observed peer MAC recorded for cable lab",
+        "port": 8080,
+        "isolation": "Dedicated short Ethernet link to declared host adapter; no default route, DHCP, DNS, Wi-Fi bridge or Internet connection"
+      },
+      "physical": "Actual LAN8742A PHY and magnetics/cable perform physical signaling; MCU ETH peripheral owns MAC/DMA. Configure RMII while reset/before ETH clocks, supply PHY-generated50MHz reference, inspect PHY ID, bounded reset completion, double-read latch-low link status and read negotiated speed/duplex; synchronize MAC mode. Unsupported half-duplex result prevents service readiness. Actual cable removal reports link down and terminates the transport incarnation. Original finite deadlines: MDIO transaction10ms, PHY/software reset500ms, negotiation5000ms. Record actual elapsed values and timeout events; failure prevents readiness. RMII reference and board routing are observed, not inferred from IDs.",
+      "dma": "Four RX and two TX normal descriptors, each single-frame2048-byte DMA-accessible SRAM buffer. No CCM placement. CPU writes complete descriptor/buffer then publishes OWN with required ordering; CPU reads payload/status only after DMA clears OWN. RX accepts FS+LS, no ES/DE, valid FL64..1518. Keep received CRC bytes and expose exactly FL-4 bytes beginning DA; do not subtract twice. Software checks upper-layer checksums with offload disabled. MAC supplies preamble/SFD/FCS and padding on TX; driver never represents these as handwritten physical encoding. Normal rings use EDFE=0, DSL=0, unchained single buffers, RBS1=2048/RBS2=0, RER on final RX, TER on final TX, TBS1 actual byte count/TBS2=0, timestamping disabled. Rebuild TDES0 control fields on each reuse because DMA writeback resets them. CSTF=APCS=IPCO=0, receive/transmit store-and-forward enabled, error/undersized forwarding disabled. Polling acknowledges only observed defined W1C flags and restarts a refilled suspended ring by poll demand; fatal bus error stops service rather than continuing corrupted state.",
+      "ethernet": "Untagged Ethernet II only: DA6,SA6,typebe16, payload/pad. Types0x0806 and0x0800. Local unicast plus ARP broadcast accepted; other destination/type and VLAN dropped/counted. Padding is excluded using the nested protocol length.",
+      "arp": "Ethernet/IPv4 fields htype1,ptype0x0800,hlen6,plen4,op1|2; validate28-byte ARP payload and sender MAC against Ethernet SA. One configured peer cache, expires30s; at most one queued datagram, requests1s apart up to3. Reply to request for local IP, learn only configured peer IP. No ARP authentication or general address-conflict defense.",
+      "ipv4": "Version4,IHL5, total20..1500 bounded by frame, TTL>0, valid header checksum, local destination, configured peer source, protocol1|6. Emit DF1,MF0,offset0,ID0,TTL64. Drop/counter options, any MF or nonzero offset, unsupported protocol, invalid source/length/checksum; no routing/reassembly/PMTU. Options and reassembly omissions are explicit violations of full-host coverage, not hidden standards exceptions.",
+      "icmp": "Unicast Echo Request type8,code0,payload0..64 valid checksum; Echo Reply type0 echoes id/seq/data and recomputes checksum. Other types are counted/dropped. Default56-byte ping is in subset.",
+      "tcp": {
+        "profile": "Passive open port8080, one connection. Advertise MSS256; effective send MSS=min(256,peer MSS or536). Parse EOL/NOP/MSS plus well-formed unknown length-coded options; do not negotiate scaling/SACK/timestamps/ECN. Malformed option lengths drop. Unsupported urgent-data or SYN payload is rejected/counted as subset behavior.",
+        "states": [
+          "LISTEN",
+          "SYN-RECEIVED",
+          "ESTABLISHED",
+          "FIN-WAIT-1",
+          "FIN-WAIT-2",
+          "CLOSE-WAIT",
+          "CLOSING",
+          "LAST-ACK",
+          "TIME-WAIT"
+        ],
+        "sequence": "Modulo2^32 unsigned sequence comparisons with all live spans<2^31. SYN and FIN consume1; ACK-only consumes0. Validate tuple/checksum/header/window/ACK<=SND.NXT before publishing data. Trim already-accepted prefix, accept in-order remaining bytes that fit512-byte RX capacity, ACK duplicates; out-of-order gap is dropped with duplicate ACK. Invalid ACK of unsent data never frees output. Apply the inspected receive-window acceptability table and trim to the admissible in-order span; advance FIN only after its sequence position is accepted. Guard advertised-window updates with SND.WL1/WL2 so stale ACKs cannot reopen or shrink the peer window. This profile uses exact-RCV.NXT reset acceptance; an in-window unequal reset produces a challenge ACK without application effects, outside-window reset is dropped. It is not authenticated reset protection.",
+        "flow": "One unacknowledged segment<=effectiveMSS and peer usable window; fixed conservative cwnd1MSS. RX window tracks actual free space; zero window permits only probe/ACK behavior. Zero-window probes begin at current RTO then back off; reopen update resumes pending bytes. No spurious second copy of an application byte.",
+        "timers": "Injected monotonic milliseconds in traces. RFC6298 SRTT/RTTVAR update order, initial/minimum1000ms, no sample of retransmitted data, retransmit earliest unacknowledged segment, double RTO, maximum cap60000ms. Abort after3 retransmissions as explicit finite resource policy; SYN timeout establishes post-handshake RTO>=3000ms. Physical TIME-WAIT uses MSL120s =>240s; host tests advance virtual time rather than silently shorten physical linger.",
+        "close": "FIN follows all acknowledged response data. Peer half-close does not end an incomplete HTTP body. FIN retransmission, simultaneous close/CLOSING and final ACK/TIME-WAIT traced. Acceptable RST reports abort, not graceful EOF. Deterministic ISN is fixture-only; physical isolated-lab ISN incarnation policy is recorded and is not a production security guarantee.",
+        "excluded": "Active/simultaneous open, general congestion growth/fast recovery, arbitrary out-of-order queueing, urgent processing, fragmentation/options and other full-host services. Device can interoperate with a cooperative declared client without meeting all RFC9293 requirements. No lwIP or OS TCP/IP stack may perform owned custom packet/state work. CMSIS register definitions are allowed, solved vendor Ethernet driver is not supplied."
+      },
+      "http": "Reuse T42's portable incremental parser/serializer under the same bounded protocol contract. Configure one connection, queue depth1, one request per connection, Connection:close; GET/HEAD /health and POST /echo. RootT42 parser milestones count only once. Adapter preserves every accepted byte across packet segmentation and acknowledges transport independently of successful HTTP processing.",
+      "acceptance": "Host packet/timer fixtures plus actual board/PHY/clock/descriptor evidence, ARP+ping+TCP+HTTP pcap from independent client, retransmission/zero-window/close traces, cable-loss/recovery and reset incarnation. A TAP adapter or canned pcap cannot close the physical milestones."
+    },
+    {
+      "domain": "T42",
+      "name": "Bounded hosted HTTP/1.1 origin server",
+      "ownership": "Own original C parser/router/serializer/socket lifecycle; OS owns TCP/IP/Ethernet/physical link. Plain HTTP loopback, no TLS claim.",
+      "endpoints": "127.0.0.1:8080, GET/HEAD /health => status200, representation ok\\n; POST /echo =>200 and identical octets; unknown route404; disallowed supported method405 with Allow; unknown method501. No filesystem, proxy, CONNECT, Upgrade or tunnel.",
+      "request_targets": "Origin-form /health or /echo; bounded absolute-form http://configured-authority/path accepted with target authority taking precedence over Host per RFC9112. No URI normalization into filesystem. Unsupported scheme/authority rejected; malformed/duplicate/missing HTTP1.1 Host400+close.",
+      "grammar": "Incremental octets, exact CRLF, single SP request-line separators, field-name token syntax, no whitespace before colon, no obs-fold, no NUL/control ambiguity. Field names case-insensitive; values retained as byte spans. Strict CRLF/single-SP is conservative policy; it is not a statement that RFC allows no recipient tolerance.",
+      "limits": {
+        "connections": 4,
+        "header_bytes": 8192,
+        "header_fields": 32,
+        "body_bytes": 1024,
+        "request_target_bytes": 1024,
+        "chunk_extension_bytes_per_chunk": 128,
+        "trailer_bytes": 1024,
+        "trailer_fields": 8,
+        "queued_complete_requests": 2,
+        "requests_per_connection": 4,
+        "idle_ms": 5000,
+        "request_total_ms": 15000,
+        "output_total_ms": 15000,
+        "close_drain_ms": 1000
+      },
+      "framing": "Choose NONE, exact decimal Content-Length, or a sole chunked Transfer-Encoding. Reject duplicate Content-Length, TE+CL, malformed/repeated coding tokens, chunked parameters, integer overflow and any request whose final transfer coding is not chunked with400+close. A valid bare-token coding list with an unsupported coding before one final chunked (for example gzip,chunked) receives501+close. Parameterized transfer codings are outside this declared strict syntax profile and rejected400+close. Consume bounded request content before reusing the connection; premature EOF never publishes a successful empty body.",
+      "chunks": "Decode chunk size/extensions/data CRLF incrementally; check integer and aggregate bounds before accepting. Parse then ignore bounded syntactically valid unrecognized extensions. Zero chunk ends data only after complete bounded trailer section and final CRLF. Trailers validated separately, discarded without changing routing/framing/Host or merging with headers.",
+      "expectations": "Valid admissible100-continue gets immediate100 response after headers and before waiting for body, or immediate final error determined from headers. Unknown expectation417+close. Unsupported CONNECT/Upgrade gets final error+close; following optimistic bytes are never interpreted as another HTTP request.",
+      "responses": "Content-Length is exact octet count; HEAD has GET-equivalent length and zero response body. Date uses injected clock for deterministic fixture output. Error bodies bounded. No user bytes enter format strings or response header syntax unchecked.",
+      "persistence": "HTTP1.1 persistence for at most4 requests, bounded FIFO response order including pipelined requests. Disable parsing when queue2 is full and apply read backpressure. Connection:close stops accepting/processing subsequent requests, drains queued current response, shutdown write then bounded receive-drain and close; never dispatch later bytes as requests after close/error.",
+      "socket_adapter": "Linux nonblocking listener and accepted sockets with explicit flags. Each connection owns receive/parser/output offsets. recv>0 can be any prefix; recv0 is EOF only after kernel buffered data drained; EINTR retry with deadlines, EAGAIN/EWOULDBLOCK wait. send advances by returned count only; preserve unsent bytes across EINTR/EAGAIN, MSG_NOSIGNAL and EPIPE abort. POLLHUP may accompany readable bytes. Writable readiness is interest-driven, never a busy loop or delivery proof.",
+      "acceptance": "All byte split positions and selected multi-request coalescings, CL/TE/chunk/trailer ambiguity, tiny partial sends, EOF at every incomplete phase, clocked limits, client half-close, pipelined FIFO, reject-and-close optimistic bytes, stable memory/descriptor bounds and independent curl/raw client response parsing. Root owns this family authorship."
+    }
+  ]
+}

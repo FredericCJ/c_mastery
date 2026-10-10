@@ -1,0 +1,154 @@
+{
+  "id": "FX-NET-T41-06",
+  "description": "Finite wrap/duplicate/overlap/gap/unsent-ACK/FIN trace and reset/window guards.",
+  "input": {
+    "case_kind": "tcp_trace",
+    "peer_isn": 4294967280,
+    "local_isn": 1000,
+    "events": [
+      {
+        "kind": "data",
+        "seq": 4294967281,
+        "payload_hex": "6162636465666768696a6b6c6d6e6f70"
+      },
+      {
+        "kind": "data",
+        "seq": 4294967281,
+        "payload_hex": "6162636465666768696a6b6c6d6e6f70"
+      },
+      {
+        "kind": "data",
+        "seq": 4294967289,
+        "payload_hex": "696a6b6c6d6e6f7071727374"
+      },
+      {
+        "kind": "data",
+        "seq": 7,
+        "payload_hex": "7a7a"
+      },
+      {
+        "kind": "ack_unsent",
+        "ack": 1002
+      },
+      {
+        "kind": "fin",
+        "seq": 5
+      }
+    ],
+    "msl_ms": 120000,
+    "rx_window": 512,
+    "reset_sequences": [
+      6,
+      7,
+      518,
+      5
+    ],
+    "wl1": 100,
+    "wl2": 1001,
+    "window_updates": [
+      {
+        "seq": 99,
+        "ack": 1002
+      },
+      {
+        "seq": 100,
+        "ack": 1000
+      },
+      {
+        "seq": 100,
+        "ack": 1001
+      },
+      {
+        "seq": 101,
+        "ack": 1001
+      }
+    ],
+    "local_close": [
+      {
+        "kind": "fin"
+      },
+      {
+        "kind": "ack",
+        "ack": 1002
+      }
+    ],
+    "close_cases": [
+      {
+        "state": "FIN-WAIT-1",
+        "peer_fin": true,
+        "our_fin_acked": false
+      },
+      {
+        "state": "FIN-WAIT-1",
+        "peer_fin": true,
+        "our_fin_acked": true
+      },
+      {
+        "state": "FIN-WAIT-2",
+        "peer_fin": true,
+        "our_fin_acked": true
+      },
+      {
+        "state": "CLOSING",
+        "peer_fin": false,
+        "our_fin_acked": true
+      }
+    ],
+    "repeated_fin_ms": 123,
+    "wrapped_window": {
+      "wl1": 4294967280,
+      "wl2": 4294967280,
+      "updates": [
+        {
+          "seq": 16,
+          "ack": 4294967280
+        },
+        {
+          "seq": 4294967280,
+          "ack": 16
+        }
+      ]
+    }
+  },
+  "expected": {
+    "accepted_hex": "6162636465666768696a6b6c6d6e6f7071727374",
+    "ack_numbers": [
+      4294967281,
+      1,
+      1,
+      5,
+      5,
+      6
+    ],
+    "rcv_nxt": 6,
+    "after_peer_fin": "CLOSE-WAIT",
+    "invalid_unsent_ack": 1,
+    "local_fin_end": 1002,
+    "passive_final_state": "CLOSED",
+    "time_wait_ms": 240000,
+    "reset_results": [
+      "abort",
+      "challenge",
+      "drop",
+      "drop"
+    ],
+    "window_updates": [
+      false,
+      false,
+      true,
+      true
+    ],
+    "close_states": [
+      "CLOSING",
+      "TIME-WAIT",
+      "TIME-WAIT",
+      "TIME-WAIT"
+    ],
+    "repeated_fin_deadline_ms": 240123,
+    "wrapped_window_updates": [
+      true,
+      true
+    ]
+  },
+  "verification_method": "Fold only the supplied in-order sequence trace using signed modular deltas; separately derive reset/window comparisons and 2MSL duration."
+}

@@ -1,0 +1,112 @@
+{
+  "id": "PR-T37-06",
+  "kind": "dma_map",
+  "description": "STM32F42/43-style bank sizes and reachability; declared base addresses are a synthetic placement ledger to compare with the exact reused target map.",
+  "input": {
+    "part_scope": "STM32F42/43; exact board identity required separately",
+    "regions": [
+      {
+        "name": "CCM",
+        "base": 268435456,
+        "bytes": 65536,
+        "cpu": true,
+        "dma": false
+      },
+      {
+        "name": "SRAM1",
+        "base": 536870912,
+        "bytes": 114688,
+        "cpu": true,
+        "dma": true
+      },
+      {
+        "name": "SRAM2",
+        "base": 536985600,
+        "bytes": 16384,
+        "cpu": true,
+        "dma": true
+      },
+      {
+        "name": "SRAM3",
+        "base": 537001984,
+        "bytes": 65536,
+        "cpu": true,
+        "dma": true
+      }
+    ],
+    "buffers": [
+      {
+        "region": "CCM",
+        "address": 268435472,
+        "bytes": 32
+      },
+      {
+        "region": "SRAM1",
+        "address": 536985584,
+        "bytes": 32
+      },
+      {
+        "region": "SRAM3",
+        "address": 537002000,
+        "bytes": 64
+      },
+      {
+        "region": "SRAM3",
+        "address": 537067504,
+        "bytes": 32
+      }
+    ],
+    "ownership_events": [
+      "cpu_fill",
+      "give_dma",
+      "cpu_write_attempt",
+      "dma_done",
+      "cpu_read"
+    ],
+    "request_order": [
+      "CPU",
+      "DMA2",
+      "DMA1"
+    ],
+    "bridge_writes": [
+      [
+        8,
+        18
+      ],
+      [
+        16,
+        4660
+      ]
+    ]
+  },
+  "expected": {
+    "placement_results": [
+      "not_dma_reachable",
+      "crosses_declared_region",
+      "ok",
+      "crosses_declared_region"
+    ],
+    "ordinary_sram_bytes": 196608,
+    "owner_after": [
+      "CPU",
+      "DMA",
+      "DMA",
+      "CPU",
+      "CPU"
+    ],
+    "write_attempt": "reject_unchanged",
+    "toy_round_robin_grants": [
+      "CPU",
+      "DMA2",
+      "DMA1",
+      "CPU",
+      "DMA2",
+      "DMA1"
+    ],
+    "expanded_bridge_words": [
+      303174162,
+      305402420
+    ]
+  },
+  "verification_method": "Validate only declared range/reachability and ownership ledger; recompute repeated-data bridge words and toy fair grants, with no device throughput assertion."
+}

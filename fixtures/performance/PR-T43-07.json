@@ -1,0 +1,152 @@
+{
+  "id": "PR-T43-07",
+  "description": "Scripted bounded partial read/write responses; synchronization and device bytes are distinct synthetic observations.",
+  "kind": "transfers",
+  "input": {
+    "cases": [
+      {
+        "operation": "write",
+        "requested": 8,
+        "responses": [
+          {
+            "result": 3,
+            "errno": null
+          },
+          {
+            "result": -1,
+            "errno": "EINTR"
+          },
+          {
+            "result": 2,
+            "errno": null
+          },
+          {
+            "result": -1,
+            "errno": "EAGAIN"
+          },
+          {
+            "result": 3,
+            "errno": null
+          }
+        ],
+        "write_end": 8,
+        "fsync_end": 13,
+        "device_bytes": 4096
+      },
+      {
+        "operation": "write",
+        "requested": 8,
+        "responses": [
+          {
+            "result": 3,
+            "errno": null
+          },
+          {
+            "result": -1,
+            "errno": "EIO"
+          }
+        ],
+        "write_end": 4,
+        "fsync_end": null,
+        "device_bytes": 0
+      },
+      {
+        "operation": "write",
+        "requested": 8,
+        "responses": [
+          {
+            "result": 0,
+            "errno": null
+          }
+        ],
+        "write_end": 1,
+        "fsync_end": null,
+        "device_bytes": 0
+      },
+      {
+        "operation": "read",
+        "requested": 8,
+        "responses": [
+          {
+            "result": 3,
+            "errno": null
+          },
+          {
+            "result": 0,
+            "errno": null
+          }
+        ],
+        "write_end": 2,
+        "fsync_end": null,
+        "device_bytes": 4096
+      },
+      {
+        "operation": "read",
+        "requested": 8,
+        "responses": [
+          {
+            "result": -1,
+            "errno": "EAGAIN"
+          },
+          {
+            "result": -1,
+            "errno": "EAGAIN"
+          }
+        ],
+        "write_end": 2,
+        "fsync_end": null,
+        "device_bytes": 0
+      }
+    ]
+  },
+  "expected": {
+    "cases": [
+      {
+        "accepted_bytes": 8,
+        "attempts": 5,
+        "status": "complete",
+        "requested_sync": true,
+        "sync_span": 5,
+        "end_to_end": 13,
+        "device_amplification": 512.0
+      },
+      {
+        "accepted_bytes": 3,
+        "attempts": 2,
+        "status": "failed",
+        "requested_sync": false,
+        "sync_span": null,
+        "end_to_end": 4,
+        "device_amplification": 0.0
+      },
+      {
+        "accepted_bytes": 0,
+        "attempts": 1,
+        "status": "zero_progress",
+        "requested_sync": false,
+        "sync_span": null,
+        "end_to_end": 1,
+        "device_amplification": null
+      },
+      {
+        "accepted_bytes": 3,
+        "attempts": 2,
+        "status": "eof",
+        "requested_sync": false,
+        "sync_span": null,
+        "end_to_end": 2,
+        "device_amplification": 1365.3333333333333
+      },
+      {
+        "accepted_bytes": 0,
+        "attempts": 2,
+        "status": "retry_budget_exhausted",
+        "requested_sync": false,
+        "sync_span": null,
+        "end_to_end": 2,
+        "device_amplification": null
+      }
+    ]
+  },
+  "verification_method": "Independent finite certificate in tools/verify_performance_fixtures.py; synthetic data, not measured learner runtime or a whole-program proof."
+}

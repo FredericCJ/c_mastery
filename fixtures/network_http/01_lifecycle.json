@@ -1,0 +1,45 @@
+{
+  "id": "FX-HTTP-01_lifecycle",
+  "description": "Bounded listener/connection ownership events.",
+  "input": {
+    "capacity": 4,
+    "accepted_fds": [
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "close_fd": 12,
+    "replacement_fd": 16,
+    "events": [
+      "listener_readable",
+      "accept_EAGAIN",
+      "accept_EINTR",
+      "accept_fd"
+    ]
+  },
+  "expected": {
+    "admitted": [
+      11,
+      12,
+      13,
+      14
+    ],
+    "rejected": [
+      15
+    ],
+    "after_release_and_replacement": [
+      11,
+      13,
+      14,
+      16
+    ],
+    "required_flags": [
+      "nonblocking",
+      "close_on_exec"
+    ],
+    "race_leaks": 0
+  },
+  "verification_method": "Independent set/capacity accounting; real accept flags and OS errors must be observed separately."
+}

@@ -1,0 +1,67 @@
+{
+  "id": "integration-queue",
+  "description": "Representation-independent bounded FIFO contract",
+  "input": {
+    "capacity": 4,
+    "operations": [
+      [
+        "put",
+        11
+      ],
+      [
+        "put",
+        22
+      ],
+      [
+        "put",
+        33
+      ],
+      [
+        "put",
+        44
+      ],
+      [
+        "put",
+        55
+      ],
+      [
+        "get"
+      ],
+      [
+        "get"
+      ],
+      [
+        "put",
+        66
+      ],
+      [
+        "put",
+        77
+      ]
+    ]
+  },
+  "expected": {
+    "statuses": [
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "FULL",
+      "OK",
+      "OK",
+      "OK",
+      "OK"
+    ],
+    "removed": [
+      11,
+      22
+    ],
+    "remaining": [
+      33,
+      44,
+      66,
+      77
+    ]
+  },
+  "verification_method": "Independent Python list model; rejected put preserves state"
+}

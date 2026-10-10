@@ -1,0 +1,182 @@
+{
+  "date": "2026-10-09T06:18:16.935582+00:00",
+  "reviewer": "/root/safety",
+  "scope": {
+    "modules": [
+      "T36",
+      "T37"
+    ],
+    "guides": [
+      "curriculum/guides/enhancement.md"
+    ]
+  },
+  "module_scope": [
+    "T36",
+    "T37"
+  ],
+  "guide_scope": [
+    "curriculum/guides/enhancement.md"
+  ],
+  "accepted": true,
+  "passed": true,
+  "findings": [
+    {
+      "id": "EA-01",
+      "severity": "medium",
+      "status": "resolved",
+      "title": "Scope-invalid architecture certificates were accepted",
+      "paths": [
+        "tools/verify_algorithms_fixtures.py",
+        "fixtures/algorithms/PR-T37-01.json",
+        "fixtures/algorithms/PR-T37-03.json",
+        "fixtures/algorithms/PR-T37-07.json"
+      ],
+      "evidence": "Before fixes, xPSR bit9 in the no-padding frame, LI destination -3 aliasing register1, and unsupported ALU opcode all passed unchanged expected outputs.",
+      "resolution": "Actual verifier now rejects padding before offsets, validates ALU operation/operand width, and validates toy register/address/program/immediate ranges. All three independent in-memory probes reject; originals pass."
+    },
+    {
+      "id": "EA-02",
+      "severity": "medium",
+      "status": "resolved",
+      "title": "JSON boolean and numeric type substitutions were accepted",
+      "paths": [
+        "tools/verify_algorithms_fixtures.py"
+      ],
+      "evidence": "Before fixes, DMA boolean true changed to numeric1 and expected integer exception21 changed to float21.0 both passed.",
+      "resolution": "Declared balanced/cpu/dma inputs now require exact bool. Integer/float expected types now match derived actual types; floating tolerance applies only to actual floating model values. Both independent corruptions reject; baseline model fixtures retain correctly typed floating outputs."
+    },
+    {
+      "id": "EA-03",
+      "severity": "low",
+      "status": "resolved",
+      "title": "Macro spelling and instruction-byte sentence boundaries were ambiguous",
+      "paths": [
+        "curriculum/projects/PR-T36-02.md",
+        "curriculum/projects/PR-T37-01.md",
+        "curriculum/projects/PR-T37-02.md",
+        "curriculum/projects/PR-T37-03.md",
+        "curriculum/projects/PR-T37-05.md"
+      ],
+      "evidence": "UINT 32_MAX and length6.77/ZF=0.05 joins altered the apparent macro or numerical statement; several count/word joins reduced readability.",
+      "resolution": "Reread actual corrected UINT32_MAX and separate quoted byte descriptions; count/program/reference joins are spaced."
+    },
+    {
+      "id": "EA-04",
+      "severity": "low",
+      "status": "resolved",
+      "title": "Module dependency profile cards were underspecified",
+      "paths": [
+        "curriculum/modules/T36.md",
+        "curriculum/modules/T37.md"
+      ],
+      "evidence": "The literal several did not identify profiles in the front cards.",
+      "resolution": "Actual cards now list A,C,E, consistent with portable component, hosted harness and reused firmware scope."
+    }
+  ],
+  "open_findings": [],
+  "topics": 20,
+  "objectives": 60,
+  "projects": 16,
+  "budgets": {
+    "T36": {
+      "project_hours": 60,
+      "module_hours": 84,
+      "reading_hours": 11.25
+    },
+    "T37": {
+      "project_hours": 58,
+      "module_hours": 84,
+      "reading_hours": 12.5
+    }
+  },
+  "oracle": {
+    "fixtures": 16,
+    "checks": 2167,
+    "failures": []
+  },
+  "independent_corruption_probes": [
+    {
+      "probe": "alignment-padding bit added to declared no-padding frame",
+      "accepted": false,
+      "padding_xpsr_hex": "0x1000200"
+    },
+    {
+      "probe": "numeric1 replacing declared JSON DMA boolean",
+      "accepted": false
+    },
+    {
+      "probe": "float21.0 replacing expected integer exception number",
+      "accepted": false
+    },
+    {
+      "probe": "negative register index alias replacing dst1",
+      "accepted": false
+    },
+    {
+      "probe": "unsupported ALU operation replacing sub",
+      "accepted": false
+    },
+    {
+      "base_exception_pass": true,
+      "base_dma_pass": true
+    }
+  ],
+  "independent_derivations": {
+    "alu_add_overflow_pairs": 64,
+    "alu_sub_overflow_pairs": 64,
+    "carry_and_borrow_pairs": 120,
+    "heap_child_predicate_checks": 8256,
+    "cpu_time_ns": 900000,
+    "amdahl_new_ns": 540000,
+    "amdahl_speedup": "5/3",
+    "cache": "Individually reviewed nine-access trace: six misses, four compulsory/two conflict; four-block LRU shadow and separate capacity trace.",
+    "pipeline": "Individually reviewed IF/ID/EX/MEM/WB certificate: load MEM6→consumerEX7; branchEX8→targetIF9; six retirement identities by cycle13; dependent no-forward recurrence gives14.",
+    "exception": "Reviewed no-padding eight-word frame, IRQ5→exception21, vector offset84, frame size32 and call-versus-exception/FP/boot limits."
+  },
+  "validation": {
+    "source_gate_checked": true,
+    "scoped_schema_errors": [],
+    "source_locators": "Every selected exact locator matched accepted registry through current check_data.",
+    "teaching": "All20 topic sections and all16 briefs substantively read. New kernels/certificates/adapters and prior full implementations have distinct evidence and hours.",
+    "guide": "Enhancement progression, three architecture levels, C object/ABI boundaries, interface/transceiver ownership, CAN FD boundary, reuse and separate real execution evidence inspected."
+  },
+  "sha256": {
+    "curriculum/modules/T36.md": "0990482cbf8f5286e3f19708babbc9757f9ab32685eca595a3b0efd3da236968",
+    "curriculum/projects/PR-T36-01.md": "68d6d6dcabfaaaed33c0f2da2db77f0bdac8b602a86fae38486f2b70eab78cb2",
+    "fixtures/algorithms/PR-T36-01.json": "9260789ac20343a448131209c884c46a190588314f244c79477f989ef1eac2fe",
+    "curriculum/projects/PR-T36-02.md": "65b44b5cecdd4e4ba82f628b6d87c963223b0568db96447cfd4f2ade85648378",
+    "fixtures/algorithms/PR-T36-02.json": "9b4c2fe13eda64bdfa2ac0403a825dcd8c1685cae3627cfe29ecccab72a236e9",
+    "curriculum/projects/PR-T36-03.md": "e69428c75411855e85f2131cc7990c7d60d150b1d14155eb3fe7041c4d468d53",
+    "fixtures/algorithms/PR-T36-03.json": "3637a51efbf0e7314b50f601aaa550257dbee6654c3b1d3301a2b2d66f6922a4",
+    "curriculum/projects/PR-T36-04.md": "8e43fbe51629455c7952003f413f2f2e717222004e04f5c94326842890b38160",
+    "fixtures/algorithms/PR-T36-04.json": "f845185cf4e6f71c801c35742a1e4224bbd0574727afa6c0f3aefd4ace177963",
+    "curriculum/projects/PR-T36-05.md": "bab0fd845a6c9a84ee3612b3f95f1d2a0de61c3e73a92acf4ef1f5800ed7858e",
+    "fixtures/algorithms/PR-T36-05.json": "741f631d85085d48bb2b08471737b837aa974e633b7f898889be001f92a2fcba",
+    "curriculum/projects/PR-T36-06.md": "8ddd4b880c461417ab100673f44d0c10e07288bd365f68ae1049fa00088042ab",
+    "fixtures/algorithms/PR-T36-06.json": "93a4f0c1385c3e0f1d9bc338678dc0467f1b2c7402ffaa1901d34b7a75b42b88",
+    "curriculum/projects/PR-T36-07.md": "f2fc4b4d0bdb1adee19e60300008ef215e448c57acd8cbcf48d2678dc2fc66a8",
+    "fixtures/algorithms/PR-T36-07.json": "11b7581f9db38daf852bda8780a0326a557b181d15f67acc70c09adbd1b3c774",
+    "curriculum/projects/PR-T36-08.md": "fc7ec62325f3c62af68ed9f06daf2f06dae6fd0337f0e34ea94f988dd06e71ad",
+    "fixtures/algorithms/PR-T36-08.json": "886246c07550da9bba21cd0635d96b844bf77e6535a804fe3f7c0381e4ce0824",
+    "curriculum/modules/T37.md": "8230fa238f8f71a91bee0a08a227cb70b3265356b811f5b2a7aa38fe0f6f62bf",
+    "curriculum/projects/PR-T37-01.md": "782e399936cee714801025eee99770be5db66aaa0d099c2b0b87e94123fa9b6e",
+    "fixtures/algorithms/PR-T37-01.json": "fc18e576e48e31f21f9104576b1f3f349c80094b6fb338480550a05ecbf856b7",
+    "curriculum/projects/PR-T37-02.md": "944d41cbcaf7934b7e858e802675a3e438d828cc5de6bdf270b1aea7fb8b4858",
+    "fixtures/algorithms/PR-T37-02.json": "5bc34e656569b6c539fe74653ff670eacb730d63947f42b8915b4c59a985aa60",
+    "curriculum/projects/PR-T37-03.md": "4798a6fbd1a14b16d78a2a9e1be6f1ab6941f5af6cb8194c9547e4a33d844e3e",
+    "fixtures/algorithms/PR-T37-03.json": "754105f3cbe39c28d878269340b7a041ce9ba7e518a5d03d3d79ce5c654eb2ec",
+    "curriculum/projects/PR-T37-04.md": "35b4604cdbbcd07011f2d227a592222659c78fb57a48d8ef5a6b3ff0f37f6bf3",
+    "fixtures/algorithms/PR-T37-04.json": "2e1ad755af60640be64cf79fad99fcf1700655e8e910606f72445694971b373b",
+    "curriculum/projects/PR-T37-05.md": "09388faa98c1ef26c62d105a52293434d7eeabaaeb4cd1970b96c33704e21196",
+    "fixtures/algorithms/PR-T37-05.json": "720a24538f7b5d5e60f36fa629d2c17325cfed2574fe3e20c968e35df920e270",
+    "curriculum/projects/PR-T37-06.md": "838ffd17c0f6dabfae8e0846ab08938ed53dfe6349b0d12b70e81fa0de097a47",
+    "fixtures/algorithms/PR-T37-06.json": "e921c000cf7fd28630d1f4fe1c5da34bdacfa6980d696dd4bc374b8b32003230",
+    "curriculum/projects/PR-T37-07.md": "669ce99838467290a4d153aa7cd164ce8677827073f23facf664b68425e0400f",
+    "fixtures/algorithms/PR-T37-07.json": "eec9732845f7255443cc99f8e1093a11bacea52a428313068d0eb3026f8612cf",
+    "curriculum/projects/PR-T37-08.md": "1d4af13fce1f6969b4414e7128b78bc3a6eb5793ca54240c8340db5150b9454c",
+    "fixtures/algorithms/PR-T37-08.json": "cf4954ced2101f178377c0219dedb0dbfb0a4bc32e5d04e1f857c0f5a3750661",
+    "tools/verify_algorithms_fixtures.py": "210a97cc2bbfbf2b8cbe87d6546e060d230edda7c909a15214078febed9934dc",
+    "curriculum/guides/enhancement.md": "ec967590c8fd68f90db5b15f8189cb11a6d6e03bd85026e7296a7d0b6e962e77"
+  },
+  "limits": "Acceptance is of curriculum artifacts and finite independent oracles. No learner C execution, ABI harness run, physical timing, power, WCET or board behavior was performed or certified."
+}

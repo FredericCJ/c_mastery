@@ -1,0 +1,61 @@
+{
+  "id": "PR-T44-09",
+  "kind": "tool_evidence",
+  "description": "Original saturating-u8 differential relation and invalid tool-silence inferences.",
+  "input": {
+    "u8_pairs": [
+      [
+        100,
+        50
+      ],
+      [
+        250,
+        10
+      ],
+      [
+        255,
+        1
+      ]
+    ],
+    "candidate_pair": [
+      255,
+      1
+    ],
+    "tool_claims": [
+      "clean_ASan_proves_all_memory",
+      "unavailable_Memcheck_is_pass",
+      "static_alarm_is_executed_failure"
+    ],
+    "evidence_categories": [
+      "model",
+      "unavailable",
+      "static_alarm",
+      "executed_scope"
+    ]
+  },
+  "expected": {
+    "reference": [
+      150,
+      255,
+      255
+    ],
+    "faulty_u8_results": [
+      150,
+      4,
+      0
+    ],
+    "differential_mismatches": [
+      1,
+      2
+    ],
+    "candidate_fails": true,
+    "global_smallest_failing_sum": 256,
+    "tool_claims_valid": [
+      false,
+      false,
+      false
+    ],
+    "model_is_actual_tool_detection": false
+  },
+  "verification_method": "Independent finite semantic certificate in tools/verify_debugging_fixtures.py. Model results do not establish actual learner C output, GDB/tool detection, a core or a physical target result. Runtime evidence is separately collected."
+}

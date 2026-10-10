@@ -1,0 +1,67 @@
+{
+  "id": "PR-T39-01",
+  "description": "OSI service and encapsulation ledger — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "layers",
+  "input": {
+    "application_bytes": 12,
+    "wrappers": [
+      {
+        "name": "transport",
+        "header_bytes": 8
+      },
+      {
+        "name": "network",
+        "header_bytes": 20
+      },
+      {
+        "name": "link",
+        "header_bytes": 14
+      }
+    ],
+    "peers": [
+      {
+        "left_protocol": "EDU-LINK-v1",
+        "right_protocol": "EDU-LINK-v1"
+      },
+      {
+        "left_protocol": "EDU-LINK-v1",
+        "right_protocol": "Ethernet"
+      }
+    ],
+    "services": [
+      {
+        "provided": "bounded_frame_v1",
+        "required": "bounded_frame_v1"
+      },
+      {
+        "provided": "byte_stream_v1",
+        "required": "bounded_frame_v1"
+      }
+    ]
+  },
+  "expected": {
+    "pdu_sizes": [
+      {
+        "name": "transport",
+        "pdu_bytes": 20
+      },
+      {
+        "name": "network",
+        "pdu_bytes": 40
+      },
+      {
+        "name": "link",
+        "pdu_bytes": 54
+      }
+    ],
+    "peer_equal": [
+      true,
+      false
+    ],
+    "service_compatible": [
+      true,
+      false
+    ]
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

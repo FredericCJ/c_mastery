@@ -1,0 +1,49 @@
+{
+  "id": "PR-T02-01",
+  "description": "Synthetic object declaration manifest independent of emitted symbols",
+  "oracle": "symbols",
+  "input": {
+    "entity": "object",
+    "symbols": [
+      {
+        "name": "internal_state",
+        "scope": "file",
+        "static": true,
+        "defined": true
+      },
+      {
+        "name": "external_state",
+        "scope": "file",
+        "static": false,
+        "defined": true
+      },
+      {
+        "name": "temp",
+        "scope": "block",
+        "static": false,
+        "defined": true
+      },
+      {
+        "name": "cache",
+        "scope": "block",
+        "static": true,
+        "defined": true
+      }
+    ]
+  },
+  "expected": {
+    "linkage": [
+      "internal",
+      "external",
+      "none",
+      "none"
+    ],
+    "duration": [
+      "static",
+      "static",
+      "automatic",
+      "static"
+    ]
+  },
+  "verification_method": "Independent exact mathematical/declared-state recomputation by tools/verify_language_fixtures.py; actual C/tool observations are separate."
+}

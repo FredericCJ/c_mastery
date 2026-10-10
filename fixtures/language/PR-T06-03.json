@@ -1,0 +1,48 @@
+{
+  "id": "PR-T06-03",
+  "description": "Protocol-field and configuration constraint oracle",
+  "oracle": "schema",
+  "input": {
+    "fields": [
+      {
+        "name": "tag",
+        "offset": 0,
+        "width": 3
+      },
+      {
+        "name": "length",
+        "offset": 3,
+        "width": 5
+      },
+      {
+        "name": "flags",
+        "offset": 8,
+        "width": 2
+      }
+    ],
+    "enabled": [
+      "framed",
+      "crc"
+    ],
+    "forbidden": [
+      [
+        "raw",
+        "framed"
+      ]
+    ]
+  },
+  "expected": {
+    "masks": [
+      7,
+      248,
+      768
+    ],
+    "overlap": false,
+    "configuration": [
+      "crc",
+      "framed"
+    ],
+    "valid": true
+  },
+  "verification_method": "Independent exact mathematical/declared-state recomputation by tools/verify_language_fixtures.py; actual C/tool observations are separate."
+}

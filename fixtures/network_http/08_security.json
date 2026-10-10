@@ -1,0 +1,53 @@
+{
+  "id": "FX-HTTP-08_security",
+  "description": "Close policy and independent-client evidence expectations.",
+  "input": {
+    "requests": [
+      {
+        "name": "CONNECT plus optimistic bytes",
+        "method": "CONNECT",
+        "following_request": true
+      },
+      {
+        "name": "Upgrade plus optimistic bytes",
+        "method": "GET",
+        "upgrade": true,
+        "following_request": true
+      },
+      {
+        "name": "TE+CL followed by apparent request",
+        "ambiguous_framing": true,
+        "following_request": true
+      },
+      {
+        "name": "Connection close followed by pipeline",
+        "method": "GET",
+        "connection_close": true,
+        "following_request": true
+      }
+    ]
+  },
+  "expected": {
+    "first_status": [
+      501,
+      501,
+      400,
+      200
+    ],
+    "close": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "following_requests_dispatched": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "tls_owned": false,
+    "lower_layers_owned": "OS"
+  },
+  "verification_method": "Finite policy oracle; independent curl/raw-client execution and application C inspection remain learner gates."
+}

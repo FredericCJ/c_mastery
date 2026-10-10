@@ -1,0 +1,140 @@
+{
+  "id": "PR-T36-08",
+  "kind": "adapters",
+  "description": "Original rank/id collection observations; typed value wrapper and borrowed-pointer wrapper have distinct lifetime contracts.",
+  "input": {
+    "capacity": 3,
+    "operations": [
+      [
+        "insert",
+        7,
+        2
+      ],
+      [
+        "insert",
+        4,
+        1
+      ],
+      [
+        "insert",
+        9,
+        2
+      ],
+      [
+        "insert",
+        10,
+        0
+      ],
+      [
+        "insert",
+        7,
+        2
+      ],
+      [
+        "remove",
+        4
+      ]
+    ],
+    "order": [
+      "rank",
+      "id"
+    ],
+    "caller_owns_ids": [
+      4,
+      7,
+      9,
+      10
+    ]
+  },
+  "expected": {
+    "visible_states": [
+      [
+        [
+          7,
+          2
+        ]
+      ],
+      [
+        [
+          4,
+          1
+        ],
+        [
+          7,
+          2
+        ]
+      ],
+      [
+        [
+          4,
+          1
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          9,
+          2
+        ]
+      ],
+      [
+        [
+          4,
+          1
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          9,
+          2
+        ]
+      ],
+      [
+        [
+          4,
+          1
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          9,
+          2
+        ]
+      ],
+      [
+        [
+          7,
+          2
+        ],
+        [
+          9,
+          2
+        ]
+      ]
+    ],
+    "status": [
+      "ok",
+      "ok",
+      "ok",
+      "full",
+      "duplicate",
+      "ok"
+    ],
+    "component_frees": 0,
+    "retained_after_destroy": 0,
+    "live_elements": [
+      1,
+      2,
+      3,
+      3,
+      3,
+      2
+    ]
+  },
+  "verification_method": "Replay only abstract observations with a dictionary and ordering key; independently account for caller ownership and require rejection before mutation."
+}

@@ -1,0 +1,64 @@
+{
+  "id": "PR-T44-10",
+  "kind": "regression",
+  "description": "Same final count can hide an invalid intermediate state; delayed and evidence-scope policy.",
+  "input": {
+    "capacity": 4,
+    "start": 4,
+    "attempts": 2,
+    "patches": [
+      "reject_before_commit",
+      "clamp_after_commit"
+    ],
+    "builds": [
+      "debug",
+      "release",
+      "instrumented"
+    ],
+    "day_initial": 0,
+    "day_transfer": 7,
+    "evidence_records": [
+      {
+        "category": "model",
+        "claim": "finite_history"
+      },
+      {
+        "category": "runtime",
+        "claim": "executed_scope"
+      },
+      {
+        "category": "emulator",
+        "claim": "electrical_timing"
+      },
+      {
+        "category": "physical",
+        "claim": "electrical_timing"
+      }
+    ]
+  },
+  "expected": {
+    "causal_patch_accepts": [
+      false,
+      false
+    ],
+    "causal_final": 4,
+    "clamp_transient_violations": [
+      1,
+      2
+    ],
+    "same_final_state_proves_same_history": false,
+    "required_builds": [
+      "debug",
+      "release",
+      "instrumented"
+    ],
+    "delayed_days": 7,
+    "claim_scope_valid": [
+      true,
+      true,
+      false,
+      true
+    ]
+  },
+  "verification_method": "Independent finite semantic certificate in tools/verify_debugging_fixtures.py. Model results do not establish actual learner C output, GDB/tool detection, a core or a physical target result. Runtime evidence is separately collected."
+}

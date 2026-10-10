@@ -1,0 +1,82 @@
+{
+  "id": "FX-MEM-T45-08",
+  "module": "T45",
+  "project": "PR-T45-08",
+  "description": "Field initialization versus addressability and two explicitly supplied byte representations with equal semantic fields.",
+  "input": {
+    "kind": "initialization",
+    "fields": [
+      "length",
+      "mode"
+    ],
+    "cases": [
+      {
+        "writes": [
+          "length"
+        ],
+        "consume": "mode",
+        "addressable": true
+      },
+      {
+        "writes": [
+          "length",
+          "mode"
+        ],
+        "consume": "mode",
+        "addressable": true
+      },
+      {
+        "writes": [
+          "length",
+          "mode"
+        ],
+        "consume": "mode",
+        "addressable": false
+      }
+    ],
+    "representation_a_hex": "0701aaaa",
+    "representation_b_hex": "0701bbbb",
+    "semantic_a": {
+      "length": 7,
+      "mode": 1
+    },
+    "semantic_b": {
+      "length": 7,
+      "mode": 1
+    }
+  },
+  "expected": {
+    "cases": [
+      {
+        "initialized": [
+          true,
+          false
+        ],
+        "consumption_status": "uninitialized_consumption",
+        "publication_allowed": false,
+        "address_contract_reports": false
+      },
+      {
+        "initialized": [
+          true,
+          true
+        ],
+        "consumption_status": "ok",
+        "publication_allowed": true,
+        "address_contract_reports": false
+      },
+      {
+        "initialized": [
+          true,
+          true
+        ],
+        "consumption_status": "unaddressable",
+        "publication_allowed": false,
+        "address_contract_reports": true
+      }
+    ],
+    "fieldwise_equal": true,
+    "provided_representations_equal": false
+  },
+  "verification_method": "Independent finite arithmetic/identity/interval history recomputation; no learner C, detector or board execution."
+}

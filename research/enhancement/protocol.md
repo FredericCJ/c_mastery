@@ -1,0 +1,9 @@
+# Enhancement research protocol
+
+This revision requires its own research gate. The prior gate authorizes only the prior edition. Each researcher records graph/library discovery, reflection on gaps and conflicting authority, focused document inspections, and a synthesis distinguishing inspected passages from bibliographic leads.
+
+The two seed graphs guide discovery, not technical authority. Pin current Knowledge rules/pointers/manifests; query read-only; resolve historical paths only after file-existence checks. Preserve opaque packages and excluded roots. Publication records contain original summaries and exact locator scopes. Private excerpts and personal provenance are excluded from deliverables.
+
+Current standards establish protocol obligations. Historic publications explain origins, invariants and architectural ideas. Textbooks bridge the mechanisms. An author may assign only substantively inspected locators. Narrow stack implementations state accepted inputs, limits, omitted features and physical versus simulated closure. No claim of complete Internet, HTTP, electrical or safety conformance follows from the laboratory projects.
+
+The integrator may accept a disjoint domain group for teaching after its own focused inspections and synthesis are complete. The receipt records those accepted domains and their exact research hashes; pending groups remain unauthorized. This allows parallel teaching without treating another group's incomplete research as accepted. The aggregate publication gate accepts only after all seven domains have adequate support, every requested interface has a source and implementation activity, architecture/ABI claims are bounded, the three stack families have distinct responsibility, and essential uncertainty has been resolved. Later reading additions require their own bounded inspections.

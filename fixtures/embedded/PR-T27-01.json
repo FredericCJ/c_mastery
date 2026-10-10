@@ -1,0 +1,35 @@
+{
+  "id": "PR-T27-01-fixture",
+  "description": "Declared F439-style banks distinguish CPU-only CCM from three DMA-reachable SRAM banks. BOOT0=0 selects the declared Flash boot case.",
+  "input": {
+    "kind": "target",
+    "boot0": 0,
+    "banks": [
+      {
+        "name": "CCM",
+        "dma": false
+      },
+      {
+        "name": "SRAM1",
+        "dma": true
+      },
+      {
+        "name": "SRAM2",
+        "dma": true
+      },
+      {
+        "name": "SRAM3",
+        "dma": true
+      }
+    ]
+  },
+  "expected": {
+    "boot": "FLASH",
+    "dma_banks": [
+      "SRAM1",
+      "SRAM2",
+      "SRAM3"
+    ]
+  },
+  "verification_method": "Independent saved Python arithmetic/declared synthetic-protocol oracle; learner implementation and actual target/tool observations are checked separately."
+}

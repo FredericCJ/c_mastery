@@ -1,0 +1,87 @@
+{
+  "id": "FX-NET-T40-08",
+  "description": "Separate fixture plant/setpoint, effect count and missing physical gate.",
+  "input": {
+    "case_kind": "application",
+    "plant": 1800,
+    "setpoint": 2200,
+    "requests": [
+      {
+        "verb": "SET",
+        "request_id": 42,
+        "value": -4000,
+        "checkpoint": 1
+      },
+      {
+        "verb": "SET",
+        "request_id": 42,
+        "value": -4000,
+        "checkpoint": 1
+      },
+      {
+        "verb": "SET",
+        "request_id": 43,
+        "value": 12501,
+        "checkpoint": 2
+      },
+      {
+        "verb": "GET",
+        "request_id": 44,
+        "checkpoint": 3
+      }
+    ],
+    "required_physical": [
+      "de_timing",
+      "relay",
+      "termination"
+    ],
+    "evidence": [
+      {
+        "name": "de_timing",
+        "scope": "host"
+      },
+      {
+        "name": "relay",
+        "scope": "host"
+      },
+      {
+        "name": "termination",
+        "scope": "host"
+      }
+    ]
+  },
+  "expected": {
+    "responses": [
+      {
+        "verb": "REPLY",
+        "request_id": 42,
+        "value": -4000
+      },
+      {
+        "verb": "REPLY",
+        "request_id": 42,
+        "value": -4000
+      },
+      {
+        "verb": "ERROR",
+        "request_id": 43,
+        "value": -4000
+      },
+      {
+        "verb": "REPLY",
+        "request_id": 44,
+        "value": 1800
+      }
+    ],
+    "setpoint": -4000,
+    "plant": 1800,
+    "effects": 1,
+    "missing_physical": [
+      "de_timing",
+      "relay",
+      "termination"
+    ],
+    "family_complete": false
+  },
+  "verification_method": "Finite application range/replay effects and evidence-set difference; synthetic entries cannot establish measured hardware closure."
+}

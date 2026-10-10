@@ -1,0 +1,35 @@
+{
+  "id": "PR-T32-04-fixture",
+  "description": "Failures before acquisitions 0,1,2 produce acquired counts 0,1,2 and zero live resources; successful acquisition retains three for the caller.",
+  "input": {
+    "kind": "rollback",
+    "resources": 3,
+    "fail_at": [
+      0,
+      1,
+      2,
+      null
+    ]
+  },
+  "expected": {
+    "acquired": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "released": [
+      0,
+      1,
+      2,
+      0
+    ],
+    "live_on_return": [
+      0,
+      0,
+      0,
+      3
+    ]
+  },
+  "verification_method": "Independent saved Python arithmetic/declared synthetic-protocol oracle; learner implementation and actual target/tool observations are checked separately."
+}

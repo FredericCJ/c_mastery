@@ -1,0 +1,240 @@
+{
+  "id": "PR-T38-01",
+  "description": "UART architecture, frame and baud laboratory — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "uart",
+  "input": {
+    "baud_cases": [
+      {
+        "clock_hz": 42000000,
+        "baud": 115200,
+        "over8": false
+      },
+      {
+        "clock_hz": 42000000,
+        "baud": 115200,
+        "over8": true
+      },
+      {
+        "clock_hz": 42000000,
+        "baud": 3000000,
+        "over8": false
+      },
+      {
+        "clock_hz": 42000000,
+        "baud": 3000000,
+        "over8": true
+      }
+    ],
+    "frames": [
+      {
+        "value": 165,
+        "data_bits": 8,
+        "parity": "none"
+      },
+      {
+        "value": 53,
+        "data_bits": 7,
+        "parity": "even"
+      },
+      {
+        "value": 165,
+        "data_bits": 8,
+        "parity": "even",
+        "flip_indices": [
+          9
+        ]
+      },
+      {
+        "value": 165,
+        "data_bits": 8,
+        "parity": "none",
+        "flip_indices": [
+          9
+        ]
+      }
+    ],
+    "completion_cases": [
+      {
+        "txe": true,
+        "tc": false,
+        "busy": true
+      },
+      {
+        "txe": true,
+        "tc": true,
+        "busy": false
+      }
+    ]
+  },
+  "expected": {
+    "baud_results": [
+      {
+        "status": "ok",
+        "divisor": 365,
+        "brr": 365,
+        "baud": {
+          "numerator": 8400000,
+          "denominator": 73
+        },
+        "error_ppm": {
+          "numerator": -250000,
+          "denominator": 219
+        }
+      },
+      {
+        "status": "ok",
+        "divisor": 365,
+        "brr": 725,
+        "baud": {
+          "numerator": 8400000,
+          "denominator": 73
+        },
+        "error_ppm": {
+          "numerator": -250000,
+          "denominator": 219
+        }
+      },
+      {
+        "status": "range"
+      },
+      {
+        "status": "ok",
+        "divisor": 14,
+        "brr": 22,
+        "baud": {
+          "numerator": 3000000,
+          "denominator": 1
+        },
+        "error_ppm": {
+          "numerator": 0,
+          "denominator": 1
+        }
+      }
+    ],
+    "frame_results": [
+      {
+        "bits": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "observed": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "decoded": 165,
+        "errors": []
+      },
+      {
+        "bits": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1
+        ],
+        "observed": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          1
+        ],
+        "decoded": 53,
+        "errors": []
+      },
+      {
+        "bits": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0,
+          1
+        ],
+        "observed": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1,
+          1
+        ],
+        "decoded": 165,
+        "errors": [
+          "parity"
+        ]
+      },
+      {
+        "bits": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          1
+        ],
+        "observed": [
+          0,
+          1,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0
+        ],
+        "decoded": 165,
+        "errors": [
+          "framing"
+        ]
+      }
+    ],
+    "release_safe": [
+      false,
+      true
+    ]
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

@@ -1,0 +1,40 @@
+{
+  "id": "PR-T28-04-fixture",
+  "description": "SPI received bytes are [0,239,64]. I2C address 0x52 produces wire address bytes 0xA4/0xA5 around register 0x10 and a final byte 0x5A followed by NACK/STOP.",
+  "input": {
+    "kind": "serial_bus",
+    "spi_tx": [
+      159,
+      0,
+      0
+    ],
+    "spi_rx": [
+      0,
+      239,
+      64
+    ],
+    "address": 82,
+    "register": 16,
+    "result": 90
+  },
+  "expected": {
+    "spi_received": [
+      0,
+      239,
+      64
+    ],
+    "i2c_address_write": 164,
+    "i2c_address_read": 165,
+    "bus_phases": [
+      "START",
+      "ADDR_W",
+      "REGISTER",
+      "RESTART",
+      "ADDR_R",
+      "BYTE",
+      "NACK",
+      "STOP"
+    ]
+  },
+  "verification_method": "Independent saved Python arithmetic/declared synthetic-protocol oracle; learner implementation and actual target/tool observations are checked separately."
+}

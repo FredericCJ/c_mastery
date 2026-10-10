@@ -1,0 +1,96 @@
+{
+  "id": "FX-HTTP-06_output",
+  "description": "Short-send ownership, bounded FIFO closure and a request2 interim100 retained behind a partially sent request1 final response.",
+  "input": {
+    "output_hex": "414243444546474849",
+    "send_results": [
+      4,
+      "EINTR",
+      2,
+      "EAGAIN",
+      3
+    ],
+    "request_ids": [
+      1,
+      2,
+      3
+    ],
+    "queue_capacity": 2,
+    "close_request_id": 2,
+    "continue_pipeline": {
+      "response_records": [
+        [
+          1,
+          "final"
+        ],
+        [
+          2,
+          "interim100"
+        ],
+        [
+          2,
+          "final"
+        ]
+      ],
+      "request2_headers_after_octets": 13,
+      "send_results": [
+        13,
+        "EAGAIN",
+        130,
+        25,
+        7,
+        "EINTR",
+        131
+      ]
+    }
+  },
+  "expected": {
+    "offsets_after_each_result": [
+      4,
+      4,
+      6,
+      6,
+      9
+    ],
+    "emitted_hex": "414243444546474849",
+    "initial_queue": [
+      1,
+      2
+    ],
+    "paused_request": 3,
+    "response_order": [
+      1,
+      2
+    ],
+    "cancelled_after_close": [
+      3
+    ],
+    "continue_pipeline": {
+      "offsets_after_each_result": [
+        13,
+        13,
+        143,
+        168,
+        175,
+        175,
+        306
+      ],
+      "message_end_octets": [
+        143,
+        168,
+        306
+      ],
+      "completed_messages_after_each_result": [
+        0,
+        0,
+        1,
+        2,
+        2,
+        2,
+        3
+      ],
+      "emitted_hex": "485454502f312e3120323030204f4b0d0a446174653a2053756e2c203031204a616e20323032332030303a30303a303020474d540d0a436f6e74656e742d547970653a20746578742f706c61696e3b20636861727365743d7574662d380d0a436f6e74656e742d4c656e6774683a20330d0a436f6e6e656374696f6e3a206b6565702d616c6976650d0a0d0a6f6b0a485454502f312e312031303020436f6e74696e75650d0a0d0a485454502f312e3120323030204f4b0d0a446174653a2053756e2c203031204a616e20323032332030303a30303a303020474d540d0a436f6e74656e742d547970653a206170706c69636174696f6e2f6f637465742d73747265616d0d0a436f6e74656e742d4c656e6774683a20340d0a436f6e6e656374696f6e3a20636c6f73650d0a0d0a00ff410a"
+    }
+  },
+  "verification_method": "Independent offsets and FIFO boundaries; pipeline bytes derive from the separately checked09_wire GET/POST serialization with first-response keep-alive. Local sends do not prove peer delivery."
+}

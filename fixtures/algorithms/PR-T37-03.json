@@ -1,0 +1,149 @@
+{
+  "id": "PR-T37-03",
+  "kind": "toy_commit",
+  "description": "Original four-register byte machine certificate; one instruction commits per clock. It is neither x86 nor Cortex-M4.",
+  "input": {
+    "registers": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "memory": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "events": [
+      {
+        "pc": 0,
+        "op": "LI",
+        "dst": 1,
+        "value": 3,
+        "next": 1
+      },
+      {
+        "pc": 1,
+        "op": "LI",
+        "dst": 2,
+        "value": 1,
+        "next": 2
+      },
+      {
+        "pc": 2,
+        "op": "SUB",
+        "dst": 1,
+        "left": 1,
+        "right": 2,
+        "next": 3
+      },
+      {
+        "pc": 3,
+        "op": "BNZ",
+        "src": 1,
+        "target": 2,
+        "next": 2
+      },
+      {
+        "pc": 2,
+        "op": "SUB",
+        "dst": 1,
+        "left": 1,
+        "right": 2,
+        "next": 3
+      },
+      {
+        "pc": 3,
+        "op": "BNZ",
+        "src": 1,
+        "target": 2,
+        "next": 2
+      },
+      {
+        "pc": 2,
+        "op": "SUB",
+        "dst": 1,
+        "left": 1,
+        "right": 2,
+        "next": 3
+      },
+      {
+        "pc": 3,
+        "op": "BNZ",
+        "src": 1,
+        "target": 2,
+        "next": 4
+      },
+      {
+        "pc": 4,
+        "op": "ST",
+        "src": 1,
+        "address": 5,
+        "next": 5
+      },
+      {
+        "pc": 5,
+        "op": "LD",
+        "dst": 3,
+        "address": 5,
+        "next": 6
+      },
+      {
+        "pc": 6,
+        "op": "HALT",
+        "next": 6
+      }
+    ]
+  },
+  "expected": {
+    "r1_after": [
+      3,
+      3,
+      2,
+      2,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "pc_after": [
+      1,
+      2,
+      3,
+      2,
+      3,
+      2,
+      3,
+      4,
+      5,
+      6,
+      6
+    ],
+    "final_registers": [
+      0,
+      0,
+      1,
+      0
+    ],
+    "memory_5": 0,
+    "commits": 11,
+    "halted": true
+  },
+  "verification_method": "Validate each saved event against arithmetic and simultaneous next-state rules; no binary parser or complete instruction interpreter is provided."
+}

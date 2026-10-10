@@ -1,0 +1,159 @@
+{
+  "id": "PR-T38-04",
+  "description": "I2C transaction and conditional bus recovery — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "i2c_transaction",
+  "input": {
+    "transactions": [
+      {
+        "address": 80,
+        "register": 7,
+        "address_write_ack": true,
+        "data_ack": true,
+        "arbitration_lost": false,
+        "stretch_ticks": 3,
+        "deadline_ticks": 5,
+        "address_read_ack": true,
+        "read_byte": 90
+      },
+      {
+        "address": 80,
+        "register": 7,
+        "address_write_ack": false,
+        "data_ack": true,
+        "arbitration_lost": false,
+        "stretch_ticks": 0,
+        "deadline_ticks": 5,
+        "address_read_ack": true,
+        "read_byte": 90
+      },
+      {
+        "address": 80,
+        "register": 7,
+        "address_write_ack": true,
+        "data_ack": false,
+        "arbitration_lost": false,
+        "stretch_ticks": 0,
+        "deadline_ticks": 5,
+        "address_read_ack": true,
+        "read_byte": 90
+      },
+      {
+        "address": 80,
+        "register": 7,
+        "address_write_ack": true,
+        "data_ack": true,
+        "arbitration_lost": true,
+        "stretch_ticks": 0,
+        "deadline_ticks": 5,
+        "address_read_ack": true,
+        "read_byte": 90
+      },
+      {
+        "address": 80,
+        "register": 7,
+        "address_write_ack": true,
+        "data_ack": true,
+        "arbitration_lost": false,
+        "stretch_ticks": 6,
+        "deadline_ticks": 5,
+        "address_read_ack": true,
+        "read_byte": 90
+      }
+    ],
+    "bus_clear": [
+      {
+        "scl_releasable": true,
+        "sda_stuck": false,
+        "release_after": null
+      },
+      {
+        "scl_releasable": true,
+        "sda_stuck": true,
+        "release_after": 3
+      },
+      {
+        "scl_releasable": true,
+        "sda_stuck": true,
+        "release_after": null
+      },
+      {
+        "scl_releasable": false,
+        "sda_stuck": true,
+        "release_after": 3
+      }
+    ]
+  },
+  "expected": {
+    "transactions": [
+      {
+        "address_and_register_bytes": [
+          160,
+          7,
+          161
+        ],
+        "status": "ok",
+        "closing_event": "terminal_read_nack",
+        "published_read": 90
+      },
+      {
+        "address_and_register_bytes": [
+          160,
+          7,
+          161
+        ],
+        "status": "address_nack",
+        "closing_event": "stop",
+        "published_read": null
+      },
+      {
+        "address_and_register_bytes": [
+          160,
+          7,
+          161
+        ],
+        "status": "data_nack",
+        "closing_event": "stop",
+        "published_read": null
+      },
+      {
+        "address_and_register_bytes": [
+          160,
+          7,
+          161
+        ],
+        "status": "arbitration_lost",
+        "closing_event": "release_without_stop",
+        "published_read": null
+      },
+      {
+        "address_and_register_bytes": [
+          160,
+          7,
+          161
+        ],
+        "status": "timeout",
+        "closing_event": "release_and_diagnose",
+        "published_read": null
+      }
+    ],
+    "bus_clear": [
+      {
+        "action": "idle",
+        "pulses": 0
+      },
+      {
+        "action": "stop_then_recheck",
+        "pulses": 3
+      },
+      {
+        "action": "reset_required",
+        "pulses": 9
+      },
+      {
+        "action": "reset_required",
+        "pulses": 0
+      }
+    ]
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

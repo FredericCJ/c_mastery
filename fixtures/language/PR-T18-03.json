@@ -1,0 +1,31 @@
+{
+  "id": "PR-T18-03",
+  "description": "Explicit lifecycle transition oracle",
+  "oracle": "machine",
+  "input": {
+    "initial": "new",
+    "events": [
+      "init",
+      "stop",
+      "stop",
+      "destroy"
+    ],
+    "transitions": {
+      "new:init": "active",
+      "active:stop": "stopped",
+      "stopped:stop": "stopped",
+      "stopped:destroy": "destroyed"
+    }
+  },
+  "expected": {
+    "states": [
+      "active",
+      "stopped",
+      "stopped",
+      "destroyed"
+    ],
+    "illegal": [],
+    "final": "destroyed"
+  },
+  "verification_method": "Independent exact mathematical/declared-state recomputation by tools/verify_language_fixtures.py; actual C/tool observations are separate."
+}

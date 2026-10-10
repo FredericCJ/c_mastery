@@ -1,0 +1,31 @@
+{
+  "id": "FX-HTTP-07_deadlines",
+  "description": "Independent idle and total deadlines resist slow-progress renewal.",
+  "input": {
+    "idle_ms": 5000,
+    "request_total_ms": 15000,
+    "output_total_ms": 15000,
+    "close_drain_ms": 1000,
+    "request_start": 0,
+    "progress": [
+      4000,
+      8000,
+      12000,
+      14900
+    ],
+    "now": 15000,
+    "output_start": 100,
+    "output_now": 15100,
+    "drain_start": 200,
+    "drain_now": 1200
+  },
+  "expected": {
+    "idle_expired": false,
+    "request_total_expired": true,
+    "output_expired": true,
+    "drain_expired": true,
+    "request_status": 408,
+    "output_success_claim": false
+  },
+  "verification_method": "Deadline comparisons at exact boundaries; UTC wall time never substitutes for elapsed-time scheduling."
+}

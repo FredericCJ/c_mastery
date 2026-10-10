@@ -1,0 +1,104 @@
+{
+  "id": "FX-NET-T40-04",
+  "description": "One exact forward and five independently classified route failures.",
+  "input": {
+    "case_kind": "route",
+    "router": 34,
+    "routes": {
+      "17": {
+        "segment": "left",
+        "src": 2,
+        "dst": 1
+      },
+      "51": {
+        "segment": "right",
+        "src": 1,
+        "dst": 2
+      }
+    },
+    "packets": [
+      {
+        "source": 17,
+        "destination": 51,
+        "hops": 4,
+        "protocol": 4,
+        "declared_length": 3,
+        "payload_hex": "aabbcc"
+      },
+      {
+        "source": 17,
+        "destination": 68,
+        "hops": 4,
+        "protocol": 4,
+        "declared_length": 3,
+        "payload_hex": "aabbcc"
+      },
+      {
+        "source": 17,
+        "destination": 51,
+        "hops": 1,
+        "protocol": 4,
+        "declared_length": 3,
+        "payload_hex": "aabbcc"
+      },
+      {
+        "source": 34,
+        "destination": 51,
+        "hops": 4,
+        "protocol": 4,
+        "declared_length": 3,
+        "payload_hex": "aabbcc"
+      },
+      {
+        "source": 17,
+        "destination": 51,
+        "hops": 4,
+        "protocol": 4,
+        "declared_length": 4,
+        "payload_hex": "aabbcc"
+      },
+      {
+        "source": 17,
+        "destination": 51,
+        "hops": 4,
+        "protocol": 5,
+        "declared_length": 3,
+        "payload_hex": "aabbcc"
+      }
+    ],
+    "payload_hex": "aabbcc",
+    "poison_hex": "dddddd"
+  },
+  "expected": {
+    "decisions": [
+      {
+        "result": "forward",
+        "source": 17,
+        "destination": 51,
+        "hops": 3,
+        "segment": "right",
+        "link_source": 1,
+        "link_destination": 2,
+        "payload_hex": "aabbcc"
+      },
+      {
+        "result": "route"
+      },
+      {
+        "result": "hop"
+      },
+      {
+        "result": "own_origin"
+      },
+      {
+        "result": "format"
+      },
+      {
+        "result": "format"
+      }
+    ],
+    "borrow_retained": false,
+    "copy_survives_poison": true
+  },
+  "verification_method": "Recompute fixed table lookup/hop/field decisions; compare copied versus poisoned bytes. Actual C lifetime behavior is a separate learner test."
+}

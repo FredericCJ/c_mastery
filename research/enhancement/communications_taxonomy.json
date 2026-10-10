@@ -1,0 +1,434 @@
+{
+  "domains": [
+    {
+      "id": "T38",
+      "title": "Serial, differential and CAN communication interfaces",
+      "subtopics": [
+        {
+          "id": "T38.01",
+          "title": "MCU architecture and the peripheral/transceiver boundary",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T38.01.a",
+              "text": "Draw a selected F439 communication path from C buffer through CPU/bus/MMIO, peripheral and transceiver to wire, and assign framing, arbitration and electrical responsibilities to the correct component."
+            },
+            {
+              "id": "T38.01.b",
+              "text": "Derive clock, pin alternate-function, voltage-domain and DMA-memory prerequisites for a selected peripheral without treating generic Cortex-M features as SoC guarantees."
+            },
+            {
+              "id": "T38.01.c",
+              "text": "Create separate host-fixture, target-register and physical-measurement evidence gates and state precisely which electrical claims an emulator cannot establish."
+            }
+          ]
+        },
+        {
+          "id": "T38.02",
+          "title": "UART asynchronous framing, baud and completion",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T38.02.a",
+              "text": "Encode and decode bounded 8N1 and parity-enabled UART traces with LSB-first data, start/stop boundaries and deliberate framing/parity failures."
+            },
+            {
+              "id": "T38.02.b",
+              "text": "Compute F439 BRR encodings and realized baud error from the selected peripheral clock and oversampling mode, then compare the result with a measured bit period."
+            },
+            {
+              "id": "T38.02.c",
+              "text": "Implement bounded transmit/receive status handling that distinguishes TXE from final TC and records overrun/framing failures without an unbounded wait."
+            }
+          ]
+        },
+        {
+          "id": "T38.03",
+          "title": "USART synchronous mode and clocked sampling",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T38.03.a",
+              "text": "Configure a bounded F439 USART synchronous-master transfer with declared CPOL, CPHA and last-clock-pulse policy, and predict CK/TX/RX traces."
+            },
+            {
+              "id": "T38.03.b",
+              "text": "Explain and demonstrate why synchronous USART reception needs transmitted clock-generating data and why start/stop handling differs from a generic SPI transaction."
+            },
+            {
+              "id": "T38.03.c",
+              "text": "Verify configuration changes occur with transmitter/receiver disabled and compare the captured synchronous trace with the asynchronous UART trace."
+            }
+          ]
+        },
+        {
+          "id": "T38.04",
+          "title": "I2C electrical signaling, pull-ups and arbitration",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T38.04.a",
+              "text": "Compute a feasible pull-up interval from selected supply, sink-current limit, rise-time target and bounded bus capacitance, and reject an empty interval."
+            },
+            {
+              "id": "T38.04.b",
+              "text": "Trace wired-AND SDA/SCL behavior, START/STOP/repeated START, clock stretching and two-controller arbitration including identical-prefix cases."
+            },
+            {
+              "id": "T38.04.c",
+              "text": "Measure rise time and low levels on a declared Standard/Fast-mode setup and explain why logic-analyzer decoding alone cannot establish electrical compliance."
+            }
+          ]
+        },
+        {
+          "id": "T38.05",
+          "title": "I2C transaction state, ACK/NACK and recovery",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T38.05.a",
+              "text": "Implement a bounded 7-bit write/read transaction model with explicit address direction, repeated START, per-byte ACK and terminal-read NACK."
+            },
+            {
+              "id": "T38.05.b",
+              "text": "Separate address/data NACK, lost arbitration, stretched-clock timeout and stuck SDA/SCL into distinct results while preserving ownership and bounded retry policy."
+            },
+            {
+              "id": "T38.05.c",
+              "text": "Exercise conditional nine-clock bus clear only for SDA-low/SCL-releasable cases and verify success/failure/post-reset states without inferring target register semantics from the bus specification."
+            }
+          ]
+        },
+        {
+          "id": "T38.06",
+          "title": "SPI sampling, chip-select framing and driver ownership",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T38.06.a",
+              "text": "Implement a checked bounded full-duplex SPI transaction that derives target width/clock/select timing, models all four CPOL/CPHA sampling modes and preserves MOSI/MISO direction."
+            },
+            {
+              "id": "T38.06.b",
+              "text": "Trace F439 polling/interrupt/DMA buffer ownership, drain receive data and wait for final completion before chip-select release, rejecting overrun, stale reuse and cancelled in-flight transfers."
+            },
+            {
+              "id": "T38.06.c",
+              "text": "Verify an original transaction scheduler with explicit lengths, dummy bytes, lifetimes and timeout/error results against four-mode, failed and cancelled traces plus a bounded physical capture."
+            }
+          ]
+        },
+        {
+          "id": "T38.07",
+          "title": "RS-232 voltage conversion, polarity and DTE/DCE",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T38.07.a",
+              "text": "Map logic-side UART idle/data through a selected MAX3232 driver/receiver and predict the inverted positive/negative RS-232 line voltage."
+            },
+            {
+              "id": "T38.07.b",
+              "text": "Produce an exact DTE/DCE signal-direction and connector-pin table for a selected point-to-point link, including reference ground and optional handshake exclusions."
+            },
+            {
+              "id": "T38.07.c",
+              "text": "Measure a bounded 3.3-V-logic RS-232 loopback at a declared safe rate/load and correlate logic/wire captures without connecting RS-232 voltage directly to MCU pins."
+            }
+          ]
+        },
+        {
+          "id": "T38.08",
+          "title": "RS-422 one-driver differential multidrop",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T38.08.a",
+              "text": "Design a one-driver, two-receiver RS-422 topology with declared differential polarity, end termination, reference path and device input limits."
+            },
+            {
+              "id": "T38.08.b",
+              "text": "Distinguish RS-422 one-driver multidrop from RS-485 multipoint and from full-duplex UART framing or application addressing."
+            },
+            {
+              "id": "T38.08.c",
+              "text": "Compare two receiver observations of the same transmitted pattern and diagnose swapped pair, absent termination and disconnected receiver cases with bounded electrical evidence."
+            }
+          ]
+        },
+        {
+          "id": "T38.09",
+          "title": "RS-485 multipoint direction, loading and byte-channel contract",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T38.09.a",
+              "text": "Design a short two-node half-duplex bus with explicit termination, bias/failsafe policy, unit-load budget, reference path and one-transmitter-at-a-time rule."
+            },
+            {
+              "id": "T38.09.b",
+              "text": "Implement an RS-485 byte-channel state machine that accounts for driver enable, conditional wake/enable delay, UART TC, disable delay and receiver turnaround."
+            },
+            {
+              "id": "T38.09.c",
+              "text": "Capture DE, logic TX and differential bus timing, prove no premature last-stop-bit truncation or overlapping drivers, and expose reusable bounded byte/error events for T40."
+            }
+          ]
+        },
+        {
+          "id": "T38.10",
+          "title": "Classic CAN framing, arbitration and error confinement",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T38.10.a",
+              "text": "Trace dominant0/recessive1 bitwise arbitration across bounded 11-bit and 29-bit classic frame examples, including data/remote and standard/extended comparisons."
+            },
+            {
+              "id": "T38.10.b",
+              "text": "Parse a declared classic CAN data-frame subset with DLC, payload, stuffing and CRC/ACK/EOF boundaries while separating link ACK from application delivery."
+            },
+            {
+              "id": "T38.10.c",
+              "text": "Classify bounded arbitration, retry, error-active/passive and bus-off traces using the inspected source scope and reject claims of complete fault-confinement conformance."
+            }
+          ]
+        },
+        {
+          "id": "T38.11",
+          "title": "F439 bxCAN timing, filters, mailboxes and receive ownership",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T38.11.a",
+              "text": "Derive legal BRP/BS1/BS2/SJW register encodings, realized bitrate and sample point from a selected APB clock and distinguish timing derivation from measured transceiver propagation."
+            },
+            {
+              "id": "T38.11.b",
+              "text": "Implement a bounded mailbox/filter/FIFO model that separates identifier-based content filtering from destination addresses and releases received entries exactly once."
+            },
+            {
+              "id": "T38.11.c",
+              "text": "Verify mailbox success/arbitration-loss/transmit-error and both FIFO-overrun policies, then document classic-only capability and bounded bus-off recovery assumptions."
+            }
+          ]
+        },
+        {
+          "id": "T38.12",
+          "title": "CAN FD ISO format, dual bitrate and external-controller boundary",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T38.12.a",
+              "text": "Encode and validate the ISO CAN FD DLC mapping, FDF/BRS/ESI metadata and 0–64-byte data-only subset, and distinguish FD from pre-ISO framing and classic remote frames."
+            },
+            {
+              "id": "T38.12.b",
+              "text": "Explain selected 17/21-bit CRC, protected stuff count, fixed stuffing and transmitter-delay-compensation responsibilities without claiming a complete conformant FD encoder."
+            },
+            {
+              "id": "T38.12.c",
+              "text": "Design an F439-to-external-FD-controller transaction/power boundary with checked SPI word framing and capability evidence; distinguish core software verification from optional measured physical FD closure."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T39",
+      "title": "Ethernet, OSI and MCU frame-channel foundations",
+      "subtopics": [
+        {
+          "id": "T39.01",
+          "title": "OSI services, peer protocols and Internet layer mapping",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T39.01.a",
+              "text": "Classify an original endpoint trace into service interface, peer protocol, SDU and PDU roles and identify where encapsulation/demultiplexing changes representation."
+            },
+            {
+              "id": "T39.01.b",
+              "text": "Map seven OSI layer purposes onto a finite Internet endpoint without inventing one protocol/library per layer or equating sockets with the whole stack."
+            },
+            {
+              "id": "T39.01.c",
+              "text": "Produce a layer responsibility table that distinguishes physical faults, link errors, network forwarding, transport reliability and application semantics, including L2 bridging."
+            }
+          ]
+        },
+        {
+          "id": "T39.02",
+          "title": "Ethernet physical media and PHY responsibilities",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T39.02.a",
+              "text": "Describe a selected 100BASE-TX copper path from MAC through RMII, PHY and magnetics to cable while locating signaling/coding/link negotiation outside the F439 MAC."
+            },
+            {
+              "id": "T39.02.b",
+              "text": "Distinguish line rate from application throughput and shared half-duplex collision behavior from switched full-duplex operation for the declared lab topology."
+            },
+            {
+              "id": "T39.02.c",
+              "text": "Record exact board/PHY/media/clock identities and measure link establishment or loss without treating a synthetic frame trace or QEMU run as physical evidence."
+            }
+          ]
+        },
+        {
+          "id": "T39.03",
+          "title": "Ethernet frame, padding, FCS and buffer boundaries",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T39.03.a",
+              "text": "Build and parse bounded untagged Ethernet frames with exact destination/source/type-or-length fields, declared 46–1500-byte payload/pad rules and malformed-length rejection."
+            },
+            {
+              "id": "T39.03.b",
+              "text": "Distinguish seven-byte preamble, SFD, frame bytes, minimum frame, FCS and interpacket timing from the byte buffer exposed by a selected MAC/driver API."
+            },
+            {
+              "id": "T39.03.c",
+              "text": "Verify FCS coverage and MAC padding/CRC configuration against an independent bounded oracle and record when received length includes FCS or hardware stripping changes the buffer contract."
+            }
+          ]
+        },
+        {
+          "id": "T39.04",
+          "title": "MAC addressing, filtering and switching boundaries",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T39.04.a",
+              "text": "Decode I/G and U/L address bits, broadcast and selected multicast/local-unicast addresses without confusing Ethernet MAC addresses with IPv4 addresses or CAN identifiers."
+            },
+            {
+              "id": "T39.04.b",
+              "text": "Trace a bounded learning-bridge table through learning, known-unicast forwarding, unknown-unicast flooding and expiry, distinguishing each from IP routing."
+            },
+            {
+              "id": "T39.04.c",
+              "text": "Configure or model selected endpoint receive filters and explain why a switched port or promiscuous receiver does not automatically observe every network frame."
+            }
+          ]
+        },
+        {
+          "id": "T39.05",
+          "title": "MII/RMII, MDIO and PHY link negotiation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T39.05.a",
+              "text": "Derive the selected RMII two-bit data and shared 50-MHz reference-clock contract and distinguish it from MII and the MDIO/MDC management interface."
+            },
+            {
+              "id": "T39.05.b",
+              "text": "Perform bounded PHY identity/status/negotiation queries using the exact inspected LAN8742A register scope and handle link-down or incomplete negotiation as explicit results."
+            },
+            {
+              "id": "T39.05.c",
+              "text": "Translate the actual negotiated speed/duplex into MAC configuration and compare register/capture evidence while preserving exact board revision, pin and solder-bridge assumptions."
+            }
+          ]
+        },
+        {
+          "id": "T39.06",
+          "title": "F439 MAC/DMA initialization and reachable memory",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T39.06.a",
+              "text": "Draw the MAC, FIFO, DMA, descriptor and buffer path and prove selected storage is reachable by Ethernet DMA rather than placed in CPU-only CCM."
+            },
+            {
+              "id": "T39.06.b",
+              "text": "Construct a bounded initialization dependency order for clocks, reset, RMII selection, PHY result, MAC filtering, descriptor bases and independent MAC/DMA start controls."
+            },
+            {
+              "id": "T39.06.c",
+              "text": "State compiler/hardware ordering and ownership publication conditions and verify failure returns for missing clock, invalid memory region or absent physical link without importing an M7 cache recipe."
+            }
+          ]
+        },
+        {
+          "id": "T39.07",
+          "title": "Ethernet receive descriptors, validation and recycling",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T39.07.a",
+              "text": "Implement a bounded normal-descriptor receive model that separates DMA OWN, FS/LS, FL-including-CRC and ES/DE error status before exposing frame bytes."
+            },
+            {
+              "id": "T39.07.b",
+              "text": "Reject partial, truncated, over-capacity and error-marked receive chains while preserving consumer buffer lifetime and exactly-once recycling."
+            },
+            {
+              "id": "T39.07.c",
+              "text": "Exercise receive-buffer-unavailable and consumer-backpressure traces, then expose a checked frame-channel interface for T41 with explicit FCS and length policy."
+            }
+          ]
+        },
+        {
+          "id": "T39.08",
+          "title": "Ethernet transmit descriptors, completion and recovery",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T39.08.a",
+              "text": "Implement bounded normal-descriptor transmit publication with complete frame/FS/LS metadata established before the first ownership handoff."
+            },
+            {
+              "id": "T39.08.b",
+              "text": "Separate queued, DMA-owned, completed and failed states; apply declared CRC/padding policy and reject premature buffer reuse or unbounded retry."
+            },
+            {
+              "id": "T39.08.c",
+              "text": "Verify ring-full, partial-publication, failed completion and reset-drain traces with bounded counters/timeouts and report what MAC/DMA tests do not prove about the wire."
+            }
+          ]
+        },
+        {
+          "id": "T39.09",
+          "title": "From Ethernet to IPv4, TCP and HTTP responsibility contracts",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T39.09.a",
+              "text": "Trace one bounded HTTP exchange through Ethernet, ARP/IPv4, TCP and HTTP responsibilities and identify each header, checksum, endpoint namespace and validation owner."
+            },
+            {
+              "id": "T39.09.b",
+              "text": "Specify reusable frame-channel handoff, time/event service and bounded buffer ownership for T41 without delegating L2–L4 to an operating-system socket."
+            },
+            {
+              "id": "T39.09.c",
+              "text": "Declare the finite educational endpoint exclusions and distinguish Ethernet, IPv4, TCP and HTTP subset evidence from claims of complete standard or Internet-host conformance."
+            }
+          ]
+        },
+        {
+          "id": "T39.10",
+          "title": "Cross-layer timing, fault localization and evidence",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T39.10.a",
+              "text": "Correlate a deterministic host frame trace, target descriptor events, PHY status and external packet capture using explicit clocks and capture points."
+            },
+            {
+              "id": "T39.10.b",
+              "text": "Localize bounded failures such as cable loss, receive CRC error, full descriptor ring, unreachable next hop, transport timeout and malformed HTTP to the first failed contract."
+            },
+            {
+              "id": "T39.10.c",
+              "text": "Compute layered payload/overhead and latency budgets for the declared exchange and maintain separate software, board and physical acceptance receipts."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

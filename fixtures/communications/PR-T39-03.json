@@ -1,0 +1,113 @@
+{
+  "id": "PR-T39-03",
+  "description": "MAC addressing and bounded learning bridge — original bounded synthetic inputs, separate from measured hardware",
+  "kind": "mac_bridge",
+  "input": {
+    "addresses": [
+      "020000000001",
+      "01005e000001",
+      "ffffffffffff",
+      "001122334455"
+    ],
+    "ports": [
+      1,
+      2,
+      3
+    ],
+    "ttl": 10,
+    "frames": [
+      {
+        "time": 0,
+        "source": "020000000001",
+        "destination": "020000000002",
+        "ingress": 1
+      },
+      {
+        "time": 1,
+        "source": "020000000002",
+        "destination": "020000000001",
+        "ingress": 2
+      },
+      {
+        "time": 2,
+        "source": "020000000001",
+        "destination": "020000000002",
+        "ingress": 1
+      },
+      {
+        "time": 3,
+        "source": "020000000001",
+        "destination": "020000000001",
+        "ingress": 1
+      },
+      {
+        "time": 12,
+        "source": "020000000003",
+        "destination": "020000000002",
+        "ingress": 3
+      }
+    ]
+  },
+  "expected": {
+    "address_classes": [
+      {
+        "broadcast": false,
+        "group": false,
+        "local": true
+      },
+      {
+        "broadcast": false,
+        "group": true,
+        "local": false
+      },
+      {
+        "broadcast": true,
+        "group": true,
+        "local": true
+      },
+      {
+        "broadcast": false,
+        "group": false,
+        "local": false
+      }
+    ],
+    "bridge_trace": [
+      {
+        "output_ports": [
+          2,
+          3
+        ],
+        "reason": "flood",
+        "entries": 1
+      },
+      {
+        "output_ports": [
+          1
+        ],
+        "reason": "known_unicast",
+        "entries": 2
+      },
+      {
+        "output_ports": [
+          2
+        ],
+        "reason": "known_unicast",
+        "entries": 2
+      },
+      {
+        "output_ports": [],
+        "reason": "filter_same_port",
+        "entries": 2
+      },
+      {
+        "output_ports": [
+          1,
+          2
+        ],
+        "reason": "flood",
+        "entries": 2
+      }
+    ]
+  },
+  "verification_method": "Independent exact arithmetic/bit/declared-state oracle in tools/verify_communications_fixtures.py; CRC32 recurrence cross-checked with zlib. Does not establish learner C, actual silicon, wire timing or conformance."
+}

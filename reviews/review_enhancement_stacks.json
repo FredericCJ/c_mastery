@@ -1,0 +1,209 @@
+{
+  "reviewer": "/root/automotive",
+  "date": "2026-10-09",
+  "accepted": true,
+  "status": "Accepted after fresh independent reread and verification of all author fixes",
+  "scope": {
+    "modules": [
+      "T40",
+      "T41",
+      "T42"
+    ],
+    "guides": [
+      "communication-stacks"
+    ],
+    "projects": 24,
+    "fixtures": 26
+  },
+  "additional_scope": [
+    "curriculum/guides/communication-stacks.md",
+    "research/enhancement/networking_contracts.json",
+    "fixtures/networking",
+    "fixtures/network_http",
+    "tools/verify_networking_fixtures.py",
+    "tools/verify_http_fixtures.py"
+  ],
+  "findings": [
+    {
+      "id": "STACK-01",
+      "severity": "medium",
+      "status": "resolved",
+      "paths": [
+        "tools/verify_networking_fixtures.py",
+        "tools/verify_http_fixtures.py"
+      ],
+      "finding": "Fixture identity, canonical project bindings and recursive exact file sets were not checked. All six isolated identity/binding/nested-orphan corruption probes passed.",
+      "required_resolution": "Check recursive file catalogs, exact file identities and module/project/fixture correspondence; independently reject each isolated control.",
+      "resolution": "Both current verifiers enforce recursive fixture catalogs, file identities, canonical module/project binding and shared wire reuse. Fresh isolated wrong-ID, wrong-binding and nested-orphan probes reject in both suites. HTTP also rejects recursively extra owned project files."
+    },
+    {
+      "id": "STACK-02",
+      "severity": "medium",
+      "status": "resolved",
+      "paths": [
+        "tools/verify_networking_fixtures.py",
+        "fixtures/networking/PR-T41-06.json",
+        "fixtures/networking/PR-T41-07.json"
+      ],
+      "finding": "Ordinary integer ordering/arithmetic in window-update guards and usable-window calculations contradicts the declared modulo-2^32 contract. WL1/WL2=0xfffffff0 with newer0x10 was rejected; UNA=0xfffffff0/NXT=0x10/window40 produced4294967304 instead of8.",
+      "required_resolution": "Use bounded modular comparisons/flight distance and include explicit wrap examples and independent controls.",
+      "resolution": "Read seq_delta-based SND.WL1/WL2 guards and modular flight subtraction; added wrap fixtures are present. Independent newer sequence/ACK probes return true,true,false and wrapped flight32 under window40 leaves8 usable octets."
+    },
+    {
+      "id": "STACK-03",
+      "severity": "medium",
+      "status": "resolved",
+      "paths": [
+        "curriculum/projects/PR-T40-03.md",
+        "curriculum/projects/PR-T41-04.md",
+        "curriculum/projects/PR-T41-05.md"
+      ],
+      "finding": "Inputs prose attributes resynchronization/delivery and ARP/IPv4 negative cases to supplied fixtures that only contain narrower finite status/serialization/arithmetic examples.",
+      "required_resolution": "Accurately separate supplied fixture checks from mandatory learner-created C cases, or add actually recomputed finite cases.",
+      "resolution": "Freshly reread PR-T40-03 and PR-T41-04/05. Supplied isolated candidate/serialization/checksum checks are accurately scoped; mandatory learner-created receive/resynchronization cases remain explicit with unchanged publication/cache/state requirements."
+    },
+    {
+      "id": "STACK-04",
+      "severity": "low",
+      "status": "resolved",
+      "paths": [
+        "curriculum/modules/T42.md",
+        "fixtures/network_http/06_output.json",
+        "tools/verify_http_fixtures.py"
+      ],
+      "finding": "The correctly taught pipelined interim100 association had no supplied finite ordered wire/event trace; current output fixture only checked generic short-output and final-response FIFO.",
+      "required_resolution": "Add a bounded partial-first-final/interim100/second-final sequence witness, keeping actual learner execution separate.",
+      "resolution": "Read the added06_output ordered pipeline and PR-T42-06 event contract. Independently derive first final143 octets, interim10025 and second final138; cumulative boundaries143,168,306 match offsets and completion counts."
+    }
+  ],
+  "initial_checks": {
+    "networking_fixtures": 16,
+    "networking_recomputed_fields": 243,
+    "networking_type_controls": 4,
+    "http_fixtures": 10,
+    "http_type_controls": 4,
+    "catalog_errors": [],
+    "topics": 24,
+    "objectives": 72,
+    "projects": 24,
+    "module_hours": {
+      "T40": 82,
+      "T41": 112,
+      "T42": 96
+    },
+    "project_hours": {
+      "T40": 58,
+      "T41": 72,
+      "T42": 64
+    },
+    "independent_crc_and_checksum": true
+  },
+  "private_probe_receipt": "research/private/communications/review_stack_probe_results.json",
+  "limitations": [
+    "Finite source/contract/fixture review, not execution of future learner C or target hardware.",
+    "Real wiring, RMII/PHY/cable/driver captures and independent client interoperability remain learner acceptance gates."
+  ],
+  "reviewed_at_utc": "2026-10-09T06:30:18.752090+00:00",
+  "final_checks": {
+    "networking": {
+      "fixtures": 16,
+      "fields_recomputed": 249,
+      "type_controls_rejected": 4,
+      "catalog_controls_rejected": 3,
+      "passed": true
+    },
+    "http": {
+      "fixtures": 10,
+      "type_controls_rejected": 4,
+      "integrity_controls_rejected": 7,
+      "passed": true
+    },
+    "independent_external_catalog_controls_rejected": 6,
+    "independent_modular_window_probes": {
+      "newer_sequence_and_ack": [
+        true,
+        true,
+        false
+      ],
+      "usable_octets": 8
+    },
+    "independent_arithmetic": "CRC via crc_hqx; bytewise carry-fold IP/ICMP checksum residues; actual PHY mode/latch/readiness fields; RX length/OWN/error withholding; normal TX control mask; HTTP ordered message boundaries.",
+    "schema_capacity_distinction": "Read and recompute service capacity80 versus largest schema1 record33, session40 and fragments24,16; conservative storage envelope87 remains explicit.",
+    "catalog_errors": [],
+    "topics": 24,
+    "objectives": 72,
+    "projects": 24,
+    "module_hours": {
+      "T40": 82,
+      "T41": 112,
+      "T42": 96
+    },
+    "project_hours": {
+      "T40": 58,
+      "T41": 72,
+      "T42": 64
+    }
+  },
+  "reviewed_sha256": {
+    "curriculum/modules/T40.md": "045ca74c0a0fbea9278261ecbbfc0090303c9189f696fe5d422e88a6d03e0522",
+    "curriculum/modules/T41.md": "fccebe05e9b41d66ffaa7ab4d3f2443389016f9228e16c6c26134a1d28aeceab",
+    "curriculum/modules/T42.md": "7acf63173552e9b60d1384e589947d8822aafd61fb8fb71c673d0abfae98883a",
+    "curriculum/projects/PR-T40-01.md": "1edb91411f7e1c655560258534e4ca29180bcb85c824f98c24e8b4b1c73078b1",
+    "curriculum/projects/PR-T40-02.md": "02506b686f148e7a041b72b9324171dec1e6d74015992b0c086c1caecb4eb7db",
+    "curriculum/projects/PR-T40-03.md": "abf17aa58ec01530b3aea9e729512437752643aa5efcee08c0aa6bb24c6c5a65",
+    "curriculum/projects/PR-T40-04.md": "1e64dbc06fed851e2f59d4667735334656e7ee27dfb0b49f4cda38b47de4253a",
+    "curriculum/projects/PR-T40-05.md": "a90d3333f703dc5200dc18f178e96a4bfafc1d5d13164e41722b1cfbd2700bfc",
+    "curriculum/projects/PR-T40-06.md": "d52d064f316468642f5e5195e4d8f91cb1da44293027da6f47fb304bfc2aa15b",
+    "curriculum/projects/PR-T40-07.md": "f3a4964a0a910aa4b03d414ebfc10cffcf915866161860ab6ab37e9abbb9577c",
+    "curriculum/projects/PR-T40-08.md": "810a8c9510f4ecbc29e63d9a7ae0f80de05fdfbee1eb7b278c56582d5b95b90b",
+    "curriculum/projects/PR-T41-01.md": "789970177ba2d878bf76f73ab9dafd7a70f45c5490e9137ed57de76533415ed3",
+    "curriculum/projects/PR-T41-02.md": "2706853b016bc0ba3c73f0413ebdf55a8d7b2db10a44ee179321592f7bd059a2",
+    "curriculum/projects/PR-T41-03.md": "d6d1ac568737b349f9e64b0f89415e740d97a6e23d7abe19b9cc8f85741c7a00",
+    "curriculum/projects/PR-T41-04.md": "a6ffb396d5cd4c580b7b2e5b872e07d2baeeba0d6139e3bac8488b6e7d76810c",
+    "curriculum/projects/PR-T41-05.md": "9ce9c163db59f3ca6fc92969815e973588a882d2b9adbb9f91168ac486b7142f",
+    "curriculum/projects/PR-T41-06.md": "0a15157dcd470ab8c8991c40dcfc6729688dac315ed209c8ceb51e961f33e93a",
+    "curriculum/projects/PR-T41-07.md": "62241c18a8e7be75a7e38bc35d638a9f24d6cff45ae650b4997cd514946c2d67",
+    "curriculum/projects/PR-T41-08.md": "acf54ad8920390e55e182eb254deb6a508f83a65f86d41791d35a028a94f7148",
+    "curriculum/projects/PR-T42-01.md": "05e5dd1a60bb9faf47c00e7cf9d72d8659cc5b0e08c1c6ed8a7f62e7320a146b",
+    "curriculum/projects/PR-T42-02.md": "39eeda0f3a507e1ff5f4787ac50bd907347d9162c2fee25c9463ccc3ea0db3fe",
+    "curriculum/projects/PR-T42-03.md": "a604cd12350eb29aa57baf621f8fab8f13aa8f110349137abad947ea92ff7cb8",
+    "curriculum/projects/PR-T42-04.md": "4c93b555cdab2059c54cba9396fff6fe86ae86b06a7cdd60b4cc772289327d17",
+    "curriculum/projects/PR-T42-05.md": "b3d0029be1e75699034305cbb395e357e931523bd9a337a3fc3e50d99a04c0d4",
+    "curriculum/projects/PR-T42-06.md": "1839433024b4de17665e6262b91661ee41db4354d952d50dc390f44e294f073a",
+    "curriculum/projects/PR-T42-07.md": "19d9885aac1717551c2c9b28edd8854eab98c44c72ea016a0524efbd972e0bf9",
+    "curriculum/projects/PR-T42-08.md": "7318d84b7142e45aff9b291de95fca28211895a796bdcdf799f5219ea3ebd8db",
+    "fixtures/networking/PR-T40-01.json": "44a2ffcaf55907b09147c5a940ac5534177c560ed03746c51112b15888247d17",
+    "fixtures/networking/PR-T40-02.json": "ddbe3493d4190fed67f272f645e57f4e9be2f79ed19f52c8eea2dc38571bebb7",
+    "fixtures/networking/PR-T40-03.json": "d38ad5753776363d6d0a92862b90a3bbe0a4fb203ceb2d3792a0b604cd46f838",
+    "fixtures/networking/PR-T40-04.json": "3af3e67628a650effd2f5c9bc211ea35e417d0cfb766d39c6a281bb6fed2f24f",
+    "fixtures/networking/PR-T40-05.json": "898b326b5c348f1922f4acf936cbda364f0a2468ea99eb442f883343f25ecb2c",
+    "fixtures/networking/PR-T40-06.json": "a3eaa51e53ecf6690a44a0428b02595449089ad50dcd8a24b5f903a8823426fd",
+    "fixtures/networking/PR-T40-07.json": "790ee5a4ccd6244d386c2c2d03b876db60873c7229fed3a07ff6cbb9abc30919",
+    "fixtures/networking/PR-T40-08.json": "0736b44a2a1b6504b157efc5054a2167511468f7b0343912ec249fcd2f2c2a03",
+    "fixtures/networking/PR-T41-01.json": "7124d19cf821e35385a685267b53fe09fa1e114836d5bcc748a3f5dbe061543b",
+    "fixtures/networking/PR-T41-02.json": "32e220a0e5b7b28d4cfa292b7d19a587c307452cce8461257c5e9bbcc44cc963",
+    "fixtures/networking/PR-T41-03.json": "a1d06dafbbf9564ff255326616d174f1d34ec30b8aef4e86e931fc3c6d6d7bc2",
+    "fixtures/networking/PR-T41-04.json": "44bdbee060ba48c2068651bacc375dd8000631c4f4e435b653e5715864d496b8",
+    "fixtures/networking/PR-T41-05.json": "436550709f6475225653e9618d6f1a85b5d72b7391339d8c6d6988e98959ddef",
+    "fixtures/networking/PR-T41-06.json": "d680962f52f03bbf129eb6f1f4e11dc8d554884313e8c22490f386c9f7ad8e33",
+    "fixtures/networking/PR-T41-07.json": "fa5821db14bf23a7c4eb8be5cfa63130e5231f09c1976c89a39dd69035060ac9",
+    "fixtures/networking/PR-T41-08.json": "c80c235c51026959a0d36d9bd6a627a899f6a83e484c86921d396498a0e022fb",
+    "fixtures/network_http/01_lifecycle.json": "932fee67f36cf8450e187e6d5d8190f1453d2c929ac655439a42b60f17820f58",
+    "fixtures/network_http/02_grammar.json": "222e595b7b786cbfcb19843cb1d149b9ba3bea9707860fd7f1491d87d54b6c51",
+    "fixtures/network_http/03_framing.json": "30e621ca6634513fb641b2d9bd86123ee05b3f7cd8a1b7cff0f5d31cccb66bde",
+    "fixtures/network_http/04_chunks.json": "d5797b47df584117a811915bb4de7212a98f2020be5b96537e6d2e72451c71a6",
+    "fixtures/network_http/05_semantics.json": "c3149f0d00bf38d3fd4545e9f557f91c2dad3e0ab22868751c60608352d4fe71",
+    "fixtures/network_http/06_output.json": "d2d331bd385735df33ce6642e2dc680be54158992376c6756e4bcb358e5d3381",
+    "fixtures/network_http/07_deadlines.json": "663090d791c3e5e840a64b3ff4b3b55374e7022ef9121da83f919502dde9d5c8",
+    "fixtures/network_http/08_security.json": "92762f50b046c4be2d8df044dfea6ff4eb0b266a35e4d095c7eca6350c053634",
+    "fixtures/network_http/09_wire.json": "44817fd47cefd0bb3833d0ec1e5fcbd4287c2a44d4ba5a0e48c33b216b49fe3e",
+    "fixtures/network_http/contract.json": "ec32a8356cc2df5ec45a614d32d1b75d7cb8ac60c99111566b604f59e69fdc96",
+    "tools/verify_networking_fixtures.py": "1debb52461d8963e5378170a766dd4f6c1a7146326a3dfd120e56aa2b270ef45",
+    "tools/verify_http_fixtures.py": "d78f5d9cb1f20574b14acd51ae86fa41b12b5a4d8c870be10fa6e59c79bea252",
+    "curriculum/guides/communication-stacks.md": "ba1cbb40534cd49e85336abfe152657de7ffbed2c68be52cc6c3c570d5d224ec",
+    "research/enhancement/networking_contracts.json": "aefb9680043db8790d986f61d11feb8d8d87694909f8364604b54bdb99acf8cf",
+    "curriculum/enhancement_taxonomy.json": "66acd04899170f8ea8cd6ad9876b3f89d506a3cd3e2bc937fcdba19ab2736f85",
+    "references/resources.json": "717c076b9b6095627fa02d333ddbac4f2840364443c2a071fef450e280378edf"
+  },
+  "fresh_reread": true
+}

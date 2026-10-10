@@ -1,0 +1,64 @@
+{
+  "id": "PR-T44-03",
+  "kind": "first_state",
+  "description": "Initialized unsigned counter defect, selected-frame names and constrained watchpoint request.",
+  "input": {
+    "capacity": 4,
+    "events": [
+      "acquire",
+      "acquire",
+      "acquire",
+      "acquire",
+      "acquire",
+      "release"
+    ],
+    "frames": [
+      {
+        "name": "probe",
+        "status": 7
+      },
+      {
+        "name": "caller",
+        "status": 2
+      }
+    ],
+    "hardware_width_bytes": 4,
+    "requested_width_bytes": 8,
+    "hardware_slots": 2,
+    "requested_watches": 3,
+    "threads": 2
+  },
+  "expected": {
+    "correct_states": [
+      1,
+      2,
+      3,
+      4,
+      4,
+      3
+    ],
+    "faulty_states": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      4
+    ],
+    "statuses": [
+      "accepted",
+      "accepted",
+      "accepted",
+      "accepted",
+      "full",
+      "released"
+    ],
+    "first_invalid_event": 5,
+    "selected_frame_status": 7,
+    "caller_status": 2,
+    "hardware_width_fits": false,
+    "hardware_slots_fit": false,
+    "software_watch_covers_all_threads": false
+  },
+  "verification_method": "Independent finite semantic certificate in tools/verify_debugging_fixtures.py. Model results do not establish actual learner C output, GDB/tool detection, a core or a physical target result. Runtime evidence is separately collected."
+}

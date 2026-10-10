@@ -1,0 +1,119 @@
+{
+  "id": "FX-MEM-T45-02",
+  "module": "T45",
+  "project": "PR-T45-02",
+  "description": "Extent validation before pointer arithmetic or mutation; NUL and legal-address logical counterexample.",
+  "input": {
+    "kind": "extents",
+    "capacity": 8,
+    "initial_hex": "aaaaaaaaaaaaaaaa",
+    "cases": [
+      {
+        "op": "fill",
+        "index": -1,
+        "count": 1,
+        "value": 51
+      },
+      {
+        "op": "fill",
+        "index": 8,
+        "count": 1,
+        "value": 51
+      },
+      {
+        "op": "fill",
+        "index": 0,
+        "count": 8,
+        "value": 51
+      },
+      {
+        "op": "fill",
+        "index": 8,
+        "count": 0,
+        "value": 51
+      },
+      {
+        "op": "fill",
+        "index": 9,
+        "count": 0,
+        "value": 51
+      },
+      {
+        "op": "string",
+        "data_hex": "61626364656667"
+      },
+      {
+        "op": "string",
+        "data_hex": "6162636465666768"
+      },
+      {
+        "op": "scan",
+        "data_hex": "6162636465666768"
+      },
+      {
+        "op": "logical",
+        "index": 6,
+        "logical_limit": 4
+      }
+    ]
+  },
+  "expected": {
+    "results": [
+      {
+        "status": "lower_bound",
+        "output_hex": "aaaaaaaaaaaaaaaa",
+        "first_invalid_index": -1,
+        "published": false
+      },
+      {
+        "status": "upper_bound",
+        "output_hex": "aaaaaaaaaaaaaaaa",
+        "first_invalid_index": 8,
+        "published": false
+      },
+      {
+        "status": "ok",
+        "output_hex": "3333333333333333",
+        "first_invalid_index": null,
+        "published": true
+      },
+      {
+        "status": "ok",
+        "output_hex": "aaaaaaaaaaaaaaaa",
+        "first_invalid_index": null,
+        "published": true
+      },
+      {
+        "status": "upper_bound",
+        "output_hex": "aaaaaaaaaaaaaaaa",
+        "first_invalid_index": 9,
+        "published": false
+      },
+      {
+        "status": "ok",
+        "output_hex": "6162636465666700",
+        "first_invalid_index": null,
+        "published": true
+      },
+      {
+        "status": "capacity",
+        "output_hex": "aaaaaaaaaaaaaaaa",
+        "first_invalid_index": 8,
+        "published": false
+      },
+      {
+        "status": "missing_nul",
+        "output_hex": "aaaaaaaaaaaaaaaa",
+        "first_invalid_index": 8,
+        "published": false
+      },
+      {
+        "status": "logical_contract",
+        "output_hex": "aaaaaaaaaaaaaaaa",
+        "first_invalid_index": 6,
+        "published": false
+      }
+    ]
+  },
+  "verification_method": "Independent finite arithmetic/identity/interval history recomputation; no learner C, detector or board execution."
+}

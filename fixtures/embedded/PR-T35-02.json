@@ -1,0 +1,39 @@
+{
+  "id": "PR-T35-02-fixture",
+  "description": "FDs 0 and 4 lack close-on-exec and are inherited; FD 3 is closed at successful exec. A declared read-log capability allows read-log but denies write-config.",
+  "input": {
+    "kind": "process_policy",
+    "descriptors": [
+      {
+        "fd": 0,
+        "cloexec": false
+      },
+      {
+        "fd": 3,
+        "cloexec": true
+      },
+      {
+        "fd": 4,
+        "cloexec": false
+      }
+    ],
+    "allowed": [
+      "read-log"
+    ],
+    "requests": [
+      "read-log",
+      "write-config"
+    ]
+  },
+  "expected": {
+    "inherited": [
+      0,
+      4
+    ],
+    "allowed_results": [
+      true,
+      false
+    ]
+  },
+  "verification_method": "Independent saved Python arithmetic/declared synthetic-protocol oracle; learner implementation and actual target/tool observations are checked separately."
+}
