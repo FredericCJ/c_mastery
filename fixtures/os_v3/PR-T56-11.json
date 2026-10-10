@@ -1,0 +1,33 @@
+{
+  "id": "PR-T56-11",
+  "description": "Service restart and reboot recovery finite independent example",
+  "oracle": "recovery",
+  "input": {
+    "records": [
+      [
+        "put",
+        1,
+        42
+      ],
+      [
+        "commit",
+        1
+      ],
+      [
+        "put",
+        2,
+        99
+      ]
+    ],
+    "key": 1
+  },
+  "expected": {
+    "committed_value": 42,
+    "discarded_transactions": [
+      2
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A service crash and a machine reboot have different surviving state. In-flight requests may have uncertain outcomes; a durable operation ID can permit safe deduplication only if stored transactionally with the effect. Restart must revoke stale endpoint generations.",
+  "required_observation": "Recover the committed value after actual reboot, distinguish uncommitted work, and account for every request as completed, rejected or uncertain. Retain disk/image identities and restart traces."
+}

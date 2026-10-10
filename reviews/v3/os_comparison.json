@@ -1,0 +1,60 @@
+{
+  "status": "passed",
+  "input_sha256": "d696eb647a91d89fec45006a04aef771c4a3e7ab9415bbb759b9bedfac91af3c",
+  "upstream_commit": "0adc196d4bd52a2d91102b525b0aafc1e14a2386",
+  "physical_timing": "not-run",
+  "scope": "Actual hosted Linux and FreeRTOS POSIX behavior for the same bounded channel workload.",
+  "external_sources": {
+    "tasks.c": "11f05459fd6bf793b1c143ddd31dd5715ba16a3d6ecd32e334bc04dca07bfce1",
+    "queue.c": "e1272abca8262bd3d845c3619c80d2d9f4fbeadf093305ad20b5fb8ff9acbf74",
+    "list.c": "cdb65571d63cc6d1900c2d7a305f0d0a1ca8c41e1e82bf967ff6ee61b9af50f4",
+    "portable/ThirdParty/GCC/Posix/port.c": "f9351a450e74f4b1250f1e9188850adbcaa196c902bd882528b4164427e6ab0b",
+    "portable/ThirdParty/GCC/Posix/portmacro.h": "f7c9cb4867f368e1c9e8da8a0fdcbf27ee5de58498769d1ce6e819e9fc5dd997",
+    "portable/ThirdParty/GCC/Posix/utils/wait_for_event.c": "51846ab442954322b0e689385702c7457ecab68018c98125e770c17ab85494d4"
+  },
+  "steps": [
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/os_observatory",
+        "-B",
+        "/mnt/f/Learning/Curricula/c_mastery/build/comparison/20261010T135341474485Z",
+        "-G",
+        "Ninja",
+        "-DCMASTERY_ASSESSOR_ROOT=/mnt/f/Learning/Curricula/c_mastery/assessor/os_observatory",
+        "-DCMASTERY_FREERTOS_ROOT=/mnt/f/Learning/Curricula/c_mastery/build/dependencies/freertos-11.2.0"
+      ],
+      "exit_code": 0,
+      "stdout": "-- The C compiler identification is GNU 15.2.0\n-- Detecting C compiler ABI info\n-- Detecting C compiler ABI info - done\n-- Check for working C compiler: /usr/bin/cc - skipped\n-- Detecting C compile features\n-- Detecting C compile features - done\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE\n-- Found Python3: /usr/bin/python3 (found version \"3.14.4\") found components: Interpreter\n-- Configuring done (4.9s)\n-- Generating done (0.3s)\n-- Build files have been written to: /mnt/f/Learning/Curricula/c_mastery/build/comparison/20261010T135341474485Z\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/comparison/20261010T135341474485Z"
+      ],
+      "exit_code": 0,
+      "stdout": "[1/15] Building C object CMakeFiles/os_tests.dir/tests/test_os.c.o\n[2/15] Building C object CMakeFiles/os_tests.dir/mnt/f/Learning/Curricula/c_mastery/assessor/os_observatory/oslab.c.o\n[3/15] Building C object CMakeFiles/os_linux_compare.dir/mnt/f/Learning/Curricula/c_mastery/assessor/os_observatory/linux_compare.c.o\n[4/15] Building C object CMakeFiles/os_policy_probe.dir/policy_probe.c.o\n[5/15] Building C object CMakeFiles/os_tests.dir/mnt/f/Learning/Curricula/c_mastery/assessor/os_observatory/platform.c.o\n[6/15] Building C object CMakeFiles/os_freertos_compare.dir/mnt/f/Learning/Curricula/c_mastery/assessor/os_observatory/freertos_compare.c.o\n[7/15] Building C object CMakeFiles/os_freertos_compare.dir/mnt/f/Learning/Curricula/c_mastery/build/dependencies/freertos-11.2.0/list.c.o\n[8/15] Building C object CMakeFiles/os_freertos_compare.dir/mnt/f/Learning/Curricula/c_mastery/build/dependencies/freertos-11.2.0/queue.c.o\n[9/15] Building C object CMakeFiles/os_freertos_compare.dir/mnt/f/Learning/Curricula/c_mastery/build/dependencies/freertos-11.2.0/tasks.c.o\n[10/15] Building C object CMakeFiles/os_freertos_compare.dir/mnt/f/Learning/Curricula/c_mastery/build/dependencies/freertos-11.2.0/portable/ThirdParty/GCC/Posix/utils/wait_for_event.c.o\n[11/15] Linking C executable os_policy_probe\n[12/15] Linking C executable os_linux_compare\n[13/15] Linking C executable os_tests\n[14/15] Building C object CMakeFiles/os_freertos_compare.dir/mnt/f/Learning/Curricula/c_mastery/build/dependencies/freertos-11.2.0/portable/ThirdParty/GCC/Posix/port.c.o\n[15/15] Linking C executable os_freertos_compare\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "/mnt/f/Learning/Curricula/c_mastery/build/comparison/20261010T135341474485Z",
+        "-R",
+        "comparison",
+        "--no-tests=error",
+        "--output-on-failure",
+        "-V"
+      ],
+      "exit_code": 0,
+      "stdout": "UpdateCTestConfiguration  from :/mnt/f/Learning/Curricula/c_mastery/build/comparison/20261010T135341474485Z/DartConfiguration.tcl\nTest project /mnt/f/Learning/Curricula/c_mastery/build/comparison/20261010T135341474485Z\nConstructing a list of tests\nDone constructing a list of tests\nUpdating test list for fixtures\nAdded 0 tests to meet fixture requirements\nChecking test dependency graph...\nChecking test dependency graph end\ntest 10\n    Start 10: os_linux_comparison\n\n10: Test command: /mnt/f/Learning/Curricula/c_mastery/build/comparison/20261010T135341474485Z/os_linux_compare\n10: Working Directory: /mnt/f/Learning/Curricula/c_mastery/build/comparison/20261010T135341474485Z\n10: Test timeout computed to be: 15\n10: platform=Linux-pthreads count=256 checksum=32640 capacity=8 wall_s=0.000957915 cpu_s=0.000787657\n1/2 Test #10: os_linux_comparison ..............   Passed    0.00 sec\ntest 12\n    Start 12: os_freertos_comparison\n\n12: Test command: /mnt/f/Learning/Curricula/c_mastery/build/comparison/20261010T135341474485Z/os_freertos_compare\n12: Working Directory: /mnt/f/Learning/Curricula/c_mastery/build/comparison/20261010T135341474485Z\n12: Test timeout computed to be: 15\n12: platform=FreeRTOS-11.2.0-POSIX count=256 checksum=32640 capacity=8 wall_s=0.002378602 cpu_s=0.001497111 physical_timing=unmeasured\n2/2 Test #12: os_freertos_comparison ...........   Passed    0.01 sec\n\nThe following tests passed:\n\tos_linux_comparison\n\tos_freertos_comparison\n\n100% tests passed, 0 tests failed out of 2\n\nTotal Test time (real) =   0.03 sec\n",
+      "stderr": ""
+    }
+  ],
+  "source_changed_during_run": false,
+  "passed": true
+}

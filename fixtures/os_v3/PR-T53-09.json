@@ -1,0 +1,39 @@
+{
+  "id": "PR-T53-09",
+  "description": "TLB shootdown and page reclamation finite independent example",
+  "oracle": "ack",
+  "input": {
+    "expected_epoch": 9,
+    "expected_cpus": [
+      0,
+      1,
+      2
+    ],
+    "acks": [
+      [
+        0,
+        9
+      ],
+      [
+        1,
+        8
+      ],
+      [
+        2,
+        9
+      ]
+    ]
+  },
+  "expected": {
+    "acknowledged": [
+      0,
+      2
+    ],
+    "missing": [
+      1
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Changing a shared address-space mapping does not immediately invalidate another CPU cached translation. Reclaiming the old frame before all relevant CPUs acknowledge invalidation can expose unrelated data through a stale TLB entry. Track active address-space CPUs and shootdown generations.",
+  "required_observation": "Demonstrate that an old mapping cannot access a recycled frame after the completion boundary. A deliberately early-reclaim variant must fail a targeted interleaving test."
+}

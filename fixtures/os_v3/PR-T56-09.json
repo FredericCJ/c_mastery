@@ -1,0 +1,23 @@
+{
+  "id": "PR-T56-09",
+  "description": "VM execution as a bounded service finite independent example",
+  "oracle": "fuel",
+  "input": {
+    "fuel": 7,
+    "instruction_costs": [
+      1,
+      2,
+      1,
+      3,
+      1
+    ]
+  },
+  "expected": {
+    "completed": 4,
+    "remaining": 0,
+    "terminal": "fuel_exhausted"
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The VM service receives a bounded program/request, verifies it and executes with explicit fuel and object limits. Request identity, caller lifetime and reply ownership are separate from VM internal handles. A service failure must not expose arbitrary kernel state.",
+  "required_observation": "Run valid and malformed programs from separate clients, preserve process isolation and return explicit resource errors while other clients progress."
+}

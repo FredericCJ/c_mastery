@@ -1,0 +1,28 @@
+{
+  "id": "PR-T53-03",
+  "description": "Per-CPU execution state and stacks finite independent example",
+  "oracle": "ranges",
+  "input": {
+    "ranges": [
+      [
+        4096,
+        8192
+      ],
+      [
+        8192,
+        12288
+      ],
+      [
+        12288,
+        16384
+      ]
+    ]
+  },
+  "expected": {
+    "overlap": false,
+    "total_bytes": 12288
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Each CPU owns its current-task pointer, interrupt nesting state, idle stack and fault context. Sharing a stack corrupts independent execution even when global counters are atomic. Per-CPU storage reduces contention only when ownership and cache-line placement are explicit.",
+  "required_observation": "Demonstrate nonoverlapping live stack ranges and CPU-local identities under parallel work. A fault record must identify its CPU and retain peer progress evidence."
+}

@@ -1,0 +1,45 @@
+{
+  "id": "PR-T53-10",
+  "description": "Parallel reduction with deterministic partitioning finite independent example",
+  "oracle": "partition",
+  "input": {
+    "values": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "workers": 3
+  },
+  "expected": {
+    "ranges": [
+      [
+        0,
+        4
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        7,
+        10
+      ]
+    ],
+    "partial_sums": [
+      10,
+      18,
+      27
+    ],
+    "sum": 55
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A reduction separates independent local work from a combining operation. Associative integer arithmetic still needs an overflow policy; floating-point sums depend on order. Speedup compares equivalent work and includes launch, synchronization and combination costs.",
+  "required_observation": "Match a wide independent sum oracle, show distinct CPU execution and report wall time, CPU time and overhead. Do not infer physical speedup from emulator virtual CPU counts."
+}

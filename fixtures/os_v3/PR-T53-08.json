@@ -1,0 +1,21 @@
+{
+  "id": "PR-T53-08",
+  "description": "Affinity, migration and load balance finite independent example",
+  "oracle": "migration",
+  "input": {
+    "owner": 0,
+    "source": 0,
+    "destination": 2,
+    "affinity": [
+      1,
+      2
+    ]
+  },
+  "expected": {
+    "allowed": true,
+    "owner_after": 2
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Migration transfers ownership; it does not copy a live task context. A running task must first stop at a safe handoff boundary. Acquire source/destination queue locks in a total order and preserve affinity constraints and pending wakeups.",
+  "required_observation": "Show every migration has one source release and one destination acquisition, with no lost service or simultaneous execution. Explain why balancing overhead can reduce throughput."
+}

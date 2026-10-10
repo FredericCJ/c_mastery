@@ -1,0 +1,18 @@
+{
+  "id": "PR-T56-04",
+  "description": "Restricted copy-on-write cloning finite independent example",
+  "oracle": "cow",
+  "input": {
+    "initial_refs": 2,
+    "free_frames": 1,
+    "write": "child"
+  },
+  "expected": {
+    "original_refs": 1,
+    "child_private": true,
+    "free_frames": 0
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Restrict COW cloning to a single-threaded process with supported anonymous private pages; reject unsupported shared/device mappings. Mark both mappings read-only, increment frame references and invalidate relevant TLB entries before resuming. A write fault copies only when sharing remains.",
+  "required_observation": "Demonstrate shared physical frames before writes and distinct contents afterward, including a sole-owner optimization and allocation-failure rollback."
+}

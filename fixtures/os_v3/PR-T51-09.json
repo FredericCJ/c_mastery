@@ -1,0 +1,22 @@
+{
+  "id": "PR-T51-09",
+  "description": "Counted task notifications finite independent example",
+  "oracle": "notification",
+  "input": {
+    "initial": 0,
+    "posts": [
+      3,
+      2
+    ],
+    "consumes": 4,
+    "maximum": 8
+  },
+  "expected": {
+    "accepted": 5,
+    "consumed": 4,
+    "remaining": 1
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A counted notification stores occurrence count for one recipient and therefore differs from event bits and a hardware doorbell. Choose decrement-one on consume and saturating-error behavior at a declared maximum; never infer message count from interrupt count.",
+  "required_observation": "Show that all accepted posts are eventually consumed or explicitly canceled, even when only one interrupt wakes the recipient. Retain the count ledger."
+}

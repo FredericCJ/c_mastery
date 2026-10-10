@@ -28,6 +28,7 @@ def main():
     unknown=set(selected)-set(all_families)
     if unknown: raise ValueError('Unknown families: '+str(sorted(unknown)))
     identity=source_identity(); results=[]; started=time.monotonic()
+    edition='v3' if (ROOT/'curriculum/baseline_v2.json').exists() else 'v2'
     for family in selected:
         manifest=all_families[family]['meta']; entries=manifest.get('projects',{})
         if isinstance(entries,dict): project=next(iter(entries))
@@ -37,10 +38,14 @@ def main():
         with tempfile.TemporaryDirectory(prefix='c mastery '+family+' ') as directory:
             workspace=Path(directory)/'learner'
             instantiate(project,workspace,family_name=family)
-            learner=run_checks(workspace,'gcc','debug',False,240,all_tests=True)
+            # A representative unsolved milestone must compile and reject.
+            # Running every later guest milestone against an empty kernel only
+            # accumulates deadlines and obscures this scaffold check.
+            learner=run_checks(workspace,'gcc','debug',False,240,all_tests=False)
             steps=learner['steps']
             rejects=(learner['status']=='failed' and len(steps)==3 and
-                     steps[0]['exit_code']==0 and steps[1]['exit_code']==0 and steps[2]['exit_code']!=0)
+                     steps[0]['exit_code']==0 and steps[1]['exit_code']==0 and
+                     steps[2]['exit_code'] not in (None,0) and not steps[2].get('timed_out'))
             checks=[]
             for compiler,profile in [('gcc','debug'),('gcc','release'),('clang','debug'),('clang','asan')]:
                 result=run_checks(workspace,compiler,profile,True,300,all_tests=True)
@@ -52,7 +57,7 @@ def main():
                 'passed':rejects and all(c['status']=='passed' for c in checks),
                 'scope':'Actual complete-family host suites; per-objective reasoning, target and physical evidence remain separate.'}
             results.append(result)
-            save(ROOT/'reviews/v2'/('lab_'+family+'.json'),result)
+            save(ROOT/'reviews'/edition/('lab_'+family+'.json'),result)
     current=source_identity()
     passed=all(r['passed'] for r in results) and current['sha256']==identity['sha256']
     record={'schema_version':2,'status':'passed' if passed else 'failed','passed':passed,
@@ -62,7 +67,7 @@ def main():
         'families':[{'family':r['family'],'passed':r['passed']} for r in results],
         'physical_observations':'not-run','learner_time_calibration':'not-run'}
     suffix='lab_matrix' if not args.family else 'lab_matrix_'+'_'.join(selected)
-    save(ROOT/'reviews/v2'/(suffix+'.json'),record)
+    save(ROOT/'reviews'/edition/(suffix+'.json'),record)
     print(json.dumps(record,indent=2))
     return 0 if passed else 1
 

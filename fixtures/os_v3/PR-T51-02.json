@@ -1,0 +1,26 @@
+{
+  "id": "PR-T51-02",
+  "description": "Counting and binary semaphores finite independent example",
+  "oracle": "semaphore",
+  "input": {
+    "initial": 1,
+    "maximum": 2,
+    "actions": [
+      "wait",
+      "wait",
+      "post",
+      "post",
+      "post",
+      "post"
+    ]
+  },
+  "expected": {
+    "count": 2,
+    "blocked": 0,
+    "overflow": 1,
+    "successful_waits": 2
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A semaphore accounts for permits and has no mutex ownership rule. Its invariant relates initial permits, successful posts and successful waits; a waiter cannot consume a permit twice after a timeout race. Binary saturation is an explicit policy, not an accidental integer wrap.",
+  "required_observation": "Reconcile the permit ledger through contention and cancellation. Demonstrate that a task different from the waiter may post and explain why this does not provide ownership protection."
+}

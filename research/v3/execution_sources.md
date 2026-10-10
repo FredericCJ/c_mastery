@@ -1,0 +1,23 @@
+# Execution source inspection receipt
+
+Inspected 2026-10-10. These are bounded architecture/ABI inspections supporting the original execution lab, not a complete manual, silicon-errata or board qualification review. Machine records and payload hashes are in `execution_resources.json`. External manuals were kept privately under ignored `build/execution-sources`; no book/manual payload is distributed with the curriculum.
+
+ST's main PDF endpoints repeatedly timed out. The actual **RM0399 revision 4, June 2023** was retrieved through ST's Japan document portal, whose page links the revision archive. Its title page, selected text and two rendered register pages were inspected. PM0214 revision 10 and PM0253 revision 5 were retrieved as copies of the ST-authored manuals from the listed mirrors and matched against ST's document identity; these inspected revisions must not be silently described as the latest editions.
+
+| Authority | Inspected locator | Decision supported |
+|---|---|---|
+| [RM0399 rev4](https://www.stmcu.jp/wp/wp-content/uploads/2019/06/RM0399_Rev4.pdf) | p.138 table7; pp.142-144 memory/boot; p.362 hold boot | RCC/HSEM bases, private DTCM and D2 SRAM3 map, CM4 held while CM7 initializes shared state |
+| Same manual | p.477 section9.7.36, rendered and read | RCC_GCR offset0xA0, BOOT_C2 bit3, reset/BCM4 relationship |
+| Same manual | p.490 SRAM1/2/3EN definitions; p.492 section9.7.42 | D2 SRAM allocation follows CPU1 operating state; HSEM clock enable bit25 and offset0xE0. SRAM allocation bits are more specific than a generic clock-enable description |
+| Same manual | pp.555-558 sections11.3.3-11.3.7; pp.561-564 sections11.4.1-11.4.6; p.563 rendered | One-step read take, matching owner/process release, release notifications, per-core mask/status/clear offsets and word accesses |
+| Same manual | p.795 interrupt table rows hsem1_it/hsem2_it | M7 IRQ125 and M4 IRQ126; these are NVIC numbers, not EXTI line numbers |
+| [ST H745 device header at pinned commit](https://raw.githubusercontent.com/STMicroelectronics/cmsis-device-h7/81db1ec63cdc191fae1565b772da3ea5aa29a683/Include/stm32h745xx.h) | IRQ enum; RCC/HSEM structs; HSEM_COMMON base macros; SRAM/HSEM enable bit macros; HSEM_CPU1/2_COREID | Independent cross-check of numeric offsets and core IDs M7=3, M4=1. Definitions informed original code; header/HAL/startup implementations are not linked |
+| [PM0214](https://www.st.com/resource/en/programming_manual/dm00046982-stm32-cortexm4-mcus-and-mpus-programming-manual-stmicroelectronics.pdf), inspected rev10 copy | pp.24-26 mask/CONTROL register definitions; pp.42-44 section2.3.7 including stack frame and EXC_RETURN | Thread PSP versus handler MSP, preemption masks, initial basic exception frame and extended FP-frame indication |
+| [PM0253](https://www.st.com/resource/en/programming_manual/DM00237416.pdf), inspected rev5 copy | pp.226-230 sections4.6.4-4.6.8; p.228 table91 rendered | Aligned32KiB MPU region, TEX=001/C=B=0 normal noncacheable mapping, S=1/AP=011/XN=1, required barriers |
+| [Arm AAPCS32 pinned source](https://raw.githubusercontent.com/ARM-software/abi-aa/bd017eeca341c06915b9a02ae111b480416d248f/aapcs32/aapcs32.rst) | VFP register usage; stack constraints at public interface | s16-s31 are callee-saved and public stack alignment is8bytes. The assembly FP test setter intentionally manipulates s16 as a probe with the C workload compiled general-registers-only; it is not a general-purpose ABI-preserving function |
+
+The HSEM read-take procedure assumes one serialized local owner per outgoing doorbell. Multiple same-core processes cannot distinguish ownership from COREID alone; the port's saved-mask critical section enforces that restriction. The ring remains authoritative when releases coalesce. The original implementation deliberately uses a cold global reset and noncacheable region rather than claiming it implements cache maintenance, DMA ownership or independent-core recovery.
+
+No ES0445 or ES0206 silicon-revision errata audit was completed here. A physical campaign must identify the exact chip revision and inspect applicable errata, boot configuration and board/probe behavior before reporting physical qualification. No board execution, latency bound, WCET, cross-core clock calibration or cache-coherence experiment is inferred from these readings or from a successful link.
+
+The failed download attempts and alternate retrieval do not justify assigning unread passages. Only the locators above are eligible in this source receipt; other foundational scheduling, synchronization and reclamation readings have separate T49-T56 research records.

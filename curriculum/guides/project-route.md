@@ -343,3 +343,95 @@ Each accepted artifact carries its source revision, interface, ownership contrac
 | 335 | {ref}`PR-T48-12` | One portable VM core inside a user process | {ref}`PR-T46-12`, {ref}`PR-T48-11` | kernel |
 | 336 | {ref}`PR-T48-13` | VM, durable store and kernel reboot integration | {ref}`PR-T47-12`, {ref}`PR-T48-12` | kernel |
 | 337 | {ref}`PR-T48-14` | Kernel diagnosis, negative controls and delayed transfer | {ref}`PR-T08-04`, {ref}`PR-T09-05`, {ref}`PR-T16-09`, {ref}`PR-T23-06`, {ref}`PR-T27-05`, {ref}`PR-T32-07`, {ref}`PR-T37-08`, {ref}`PR-T46-12`, {ref}`PR-T47-12`, {ref}`PR-T48-13` | kernel |
+| 338 | {ref}`PR-T49-01` | Privilege, traps and a syscall observatory | {ref}`PR-T23-01`, {ref}`PR-T25-01` | os_observatory |
+| 339 | {ref}`PR-T49-02` | Processes, threads and lifetime ownership | {ref}`PR-T49-01` | os_observatory |
+| 340 | {ref}`PR-T49-03` | FCFS, SJF, SRTF and round-robin scheduling | {ref}`PR-T49-02` | os_observatory |
+| 341 | {ref}`PR-T49-04` | Feedback and proportional-share scheduling | {ref}`PR-T49-03` | os_observatory |
+| 342 | {ref}`PR-T49-05` | Working sets and page-fault observation | {ref}`PR-T49-04` | os_observatory |
+| 343 | {ref}`PR-T49-06` | Page replacement from a reference string | {ref}`PR-T49-05` | os_observatory |
+| 344 | {ref}`PR-T49-07` | Descriptors and open-file-description lifetimes | {ref}`PR-T49-06` | os_observatory |
+| 345 | {ref}`PR-T49-08` | Namespaces, readiness and device completion | {ref}`PR-T49-07` | os_observatory |
+| 346 | {ref}`PR-T49-09` | CPU and memory budgets with cgroups | {ref}`PR-T49-08` | os_observatory |
+| 347 | {ref}`PR-T49-10` | I/O accounting and interference | {ref}`PR-T49-09` | os_observatory |
+| 348 | {ref}`PR-T50-01` | Freestanding image and runtime dependency audit | {ref}`PR-T29-01`, {ref}`PR-T37-07` | execution |
+| 349 | {ref}`PR-T50-02` | Static task pools, stacks and handles | {ref}`PR-T50-01` | execution |
+| 350 | {ref}`PR-T50-03` | Cooperative assembly context switching | {ref}`PR-T50-02` | execution |
+| 351 | {ref}`PR-T50-04` | Ready, blocked, sleeping and exited states | {ref}`PR-T50-03` | execution |
+| 352 | {ref}`PR-T50-05` | Timers and an absolute-deadline queue | {ref}`PR-T50-04` | execution |
+| 353 | {ref}`PR-T50-06` | PendSV, SVC and timer-driven preemption | {ref}`PR-T29-02`, {ref}`PR-T50-05` | execution |
+| 354 | {ref}`PR-T50-07` | Nested interrupt masks and ISR handoff | {ref}`PR-T50-06` | execution |
+| 355 | {ref}`PR-T50-08` | Floating-point task context and lazy stacking | {ref}`PR-T50-07` | execution |
+| 356 | {ref}`PR-T50-09` | Exit, join and deferred reclamation | {ref}`PR-T50-08` | execution |
+| 357 | {ref}`PR-T50-10` | Cancellation and task-fault containment | {ref}`PR-T50-09` | execution |
+| 358 | {ref}`PR-T50-11` | Tickless idle and wakeup accounting | {ref}`PR-T50-10` | execution |
+| 359 | {ref}`PR-T50-12` | Integrated original MCU runtime | {ref}`PR-T50-11` | execution |
+| 360 | {ref}`PR-T51-01` | Atomic wait enrollment and lost-wakeup prevention | {ref}`PR-T25-03`, {ref}`PR-T50-04` | execution |
+| 361 | {ref}`PR-T51-02` | Counting and binary semaphores | {ref}`PR-T51-01` | execution |
+| 362 | {ref}`PR-T51-03` | Owned mutexes and lock ordering | {ref}`PR-T51-02` | execution |
+| 363 | {ref}`PR-T51-04` | Transitive priority inheritance | {ref}`PR-T50-06`, {ref}`PR-T51-03` | execution |
+| 364 | {ref}`PR-T51-05` | Condition variables and Mesa-style predicates | {ref}`PR-T51-04` | execution |
+| 365 | {ref}`PR-T51-06` | Bounded message queues with copied payloads | {ref}`PR-T51-05` | execution |
+| 366 | {ref}`PR-T51-07` | Mailboxes and synchronous rendezvous | {ref}`PR-T51-06` | execution |
+| 367 | {ref}`PR-T51-08` | Event flags with any/all semantics | {ref}`PR-T51-07` | execution |
+| 368 | {ref}`PR-T51-09` | Counted task notifications | {ref}`PR-T51-08` | execution |
+| 369 | {ref}`PR-T51-10` | Reusable barriers and generations | {ref}`PR-T51-09` | execution |
+| 370 | {ref}`PR-T51-11` | Once initialization and failure policy | {ref}`PR-T51-10` | execution |
+| 371 | {ref}`PR-T51-12` | Reader-writer locks and admission fairness | {ref}`PR-T51-11` | execution |
+| 372 | {ref}`PR-T51-13` | Timeout, cancellation and wakeup arbitration | {ref}`PR-T50-05`, {ref}`PR-T51-12` | execution |
+| 373 | {ref}`PR-T51-14` | Object teardown and owner-death recovery | {ref}`PR-T51-13` | execution |
+| 374 | {ref}`PR-T52-01` | Rate-monotonic and deadline-monotonic scheduling | {ref}`PR-T30-04` | execution |
+| 375 | {ref}`PR-T52-02` | Earliest-deadline-first dispatch | {ref}`PR-T52-01` | execution |
+| 376 | {ref}`PR-T52-03` | Response-time analysis with blocking and jitter | {ref}`PR-T51-04`, {ref}`PR-T52-02` | execution |
+| 377 | {ref}`PR-T52-04` | Immediate priority ceilings | {ref}`PR-T51-03`, {ref}`PR-T52-03` | execution |
+| 378 | {ref}`PR-T52-05` | Aperiodic service within periodic workloads | {ref}`PR-T52-04` | execution |
+| 379 | {ref}`PR-T52-06` | Constant-bandwidth-server reservation | {ref}`PR-T52-05` | execution |
+| 380 | {ref}`PR-T52-07` | Admission, overload and deadline-miss policy | {ref}`PR-T52-06` | execution |
+| 381 | {ref}`PR-T52-08` | Tick rollover, phase and tickless timing | {ref}`PR-T52-07` | execution |
+| 382 | {ref}`PR-T52-09` | Partitioned multicore real-time scheduling | {ref}`PR-T52-08` | execution |
+| 383 | {ref}`PR-T52-10` | Global EDF and multiprocessor counterexamples | {ref}`PR-T52-09` | execution |
+| 384 | {ref}`PR-T52-11` | Compare the original runtime with FreeRTOS | {ref}`PR-T50-12`, {ref}`PR-T51-06`, {ref}`PR-T52-10` | os_observatory |
+| 385 | {ref}`PR-T52-12` | Linux fair and real-time scheduling comparison | {ref}`PR-T49-09`, {ref}`PR-T52-11` | os_observatory |
+| 386 | {ref}`PR-T53-01` | ACPI MADT and processor discovery | {ref}`PR-T25-03`, {ref}`PR-T48-03` | kernel_smp |
+| 387 | {ref}`PR-T53-02` | Secondary-CPU trampoline and startup | {ref}`PR-T53-01` | kernel_smp |
+| 388 | {ref}`PR-T53-03` | Per-CPU execution state and stacks | {ref}`PR-T53-02` | kernel_smp |
+| 389 | {ref}`PR-T53-04` | Local APIC timers and interprocessor interrupts | {ref}`PR-T53-03` | kernel_smp |
+| 390 | {ref}`PR-T53-05` | SMP spinlocks and interrupt context | {ref}`PR-T53-04` | kernel_smp |
+| 391 | {ref}`PR-T53-06` | Per-CPU ready queues | {ref}`PR-T50-04`, {ref}`PR-T51-03`, {ref}`PR-T53-05` | kernel_smp |
+| 392 | {ref}`PR-T53-07` | Remote wakeup and reschedule delivery | {ref}`PR-T51-01`, {ref}`PR-T53-06` | kernel_smp |
+| 393 | {ref}`PR-T54-01` | Dual images and static peripheral ownership | {ref}`PR-T37-06`, {ref}`PR-T50-01` | execution |
+| 394 | {ref}`PR-T54-02` | Dual boot and epoch handshake | {ref}`PR-T54-01` | execution |
+| 395 | {ref}`PR-T54-03` | Shared-SRAM SPSC channel | {ref}`PR-T25-03`, {ref}`PR-T54-02` | execution |
+| 396 | {ref}`PR-T54-04` | HSEM and coalesced doorbells | {ref}`PR-T54-03` | execution |
+| 397 | {ref}`PR-T54-05` | Cache visibility and cache-line ownership | {ref}`PR-T54-04` | execution |
+| 398 | {ref}`PR-T54-06` | DMA buffers and CPU ownership transitions | {ref}`PR-T29-04`, {ref}`PR-T54-05` | execution |
+| 399 | {ref}`PR-T54-07` | Cross-core clocks and latency measurement | {ref}`PR-T54-06` | execution |
+| 400 | {ref}`PR-T54-08` | Peer failure and protocol recovery | {ref}`PR-T51-13`, {ref}`PR-T54-07` | execution |
+| 401 | {ref}`PR-T54-09` | Interrupt-to-task pipelines on both cores | {ref}`PR-T50-12`, {ref}`PR-T54-08` | execution |
+| 402 | {ref}`PR-T54-10` | AMP end-to-end observatory | {ref}`PR-T54-09` | execution |
+| 403 | {ref}`PR-T55-01` | SPSC publication and acquire-release ordering | {ref}`PR-T25-03`, {ref}`PR-T53-05` | execution |
+| 404 | {ref}`PR-T55-02` | Compare-and-swap and progress classifications | {ref}`PR-T55-01` | execution |
+| 405 | {ref}`PR-T55-03` | ABA and identity reuse | {ref}`PR-T55-02` | execution |
+| 406 | {ref}`PR-T55-04` | A bounded pool for concurrent nodes | {ref}`PR-T55-03` | execution |
+| 407 | {ref}`PR-T55-05` | Hazard-pointer publication and reclamation | {ref}`PR-T55-04` | execution |
+| 408 | {ref}`PR-T55-06` | Michael-Scott queue with bounded reclamation | {ref}`PR-T51-06`, {ref}`PR-T55-05` | execution |
+| 409 | {ref}`PR-T55-07` | Epoch reclamation and quiescent states | {ref}`PR-T55-06` | execution |
+| 410 | {ref}`PR-T55-08` | Read-copy-update as an ownership protocol | {ref}`PR-T55-07` | execution |
+| 411 | {ref}`PR-T55-09` | Concurrent histories and linearizability checking | {ref}`PR-T55-08` | execution |
+| 412 | {ref}`PR-T55-10` | End-to-end progress and contention audit | {ref}`PR-T55-09` | execution |
+| 413 | {ref}`PR-T56-01` | Process and thread objects as distinct lifetimes | {ref}`PR-T48-08`, {ref}`PR-T53-06` | kernel_smp |
+| 414 | {ref}`PR-T53-08` | Affinity, migration and load balance | {ref}`PR-T53-07`, {ref}`PR-T56-01` | kernel_smp |
+| 415 | {ref}`PR-T53-09` | TLB shootdown and page reclamation | {ref}`PR-T48-04`, {ref}`PR-T53-08` | kernel_smp |
+| 416 | {ref}`PR-T53-10` | Parallel reduction with deterministic partitioning | {ref}`PR-T53-09` | kernel_smp |
+| 417 | {ref}`PR-T53-11` | Bounded parallel work pool | {ref}`PR-T51-06`, {ref}`PR-T53-10` | kernel_smp |
+| 418 | {ref}`PR-T53-12` | Dependency DAG execution and scaling limits | {ref}`PR-T53-11` | kernel_smp |
+| 419 | {ref}`PR-T56-02` | Spawn, exit, wait and process reaping | {ref}`PR-T56-01` | kernel_smp |
+| 420 | {ref}`PR-T56-03` | Demand-zero faults and frame ownership | {ref}`PR-T48-04`, {ref}`PR-T56-02` | kernel_smp |
+| 421 | {ref}`PR-T56-04` | Restricted copy-on-write cloning | {ref}`PR-T53-09`, {ref}`PR-T56-03` | kernel_smp |
+| 422 | {ref}`PR-T56-05` | Bounded process channels | {ref}`PR-T51-06`, {ref}`PR-T56-04` | kernel_smp |
+| 423 | {ref}`PR-T56-06` | Shared-memory objects and explicit synchronization | {ref}`PR-T56-05` | kernel_smp |
+| 424 | {ref}`PR-T56-07` | Asynchronous block requests and completion ownership | {ref}`PR-T48-10`, {ref}`PR-T56-06` | kernel_smp |
+| 425 | {ref}`PR-T56-08` | Read-only boot archive as a file service | {ref}`PR-T48-07`, {ref}`PR-T56-07` | kernel_smp |
+| 426 | {ref}`PR-T56-09` | VM execution as a bounded service | {ref}`PR-T48-12`, {ref}`PR-T56-08` | kernel_smp |
+| 427 | {ref}`PR-T56-10` | Single-owner persistent store service | {ref}`PR-T48-13`, {ref}`PR-T56-09` | kernel_smp |
+| 428 | {ref}`PR-T56-11` | Service restart and reboot recovery | {ref}`PR-T56-10` | kernel_smp |
+| 429 | {ref}`PR-T56-12` | Physical dual-core application and OS comparison | {ref}`PR-T52-11`, {ref}`PR-T52-12`, {ref}`PR-T54-10`, {ref}`PR-T56-11` | os_observatory |

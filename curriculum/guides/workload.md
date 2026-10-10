@@ -56,6 +56,14 @@ The five values are reading / implementation / verification / assessment / conso
 | {ref}`T46` | runtime specialization | T03, T04, T07, T14, T15, T18, T32 | 12 / 64 / 34 / 8 / 6 | 124 | 0 |
 | {ref}`T47` | systems | T03, T15, T21, T32, T36, T43, T45 | 18 / 64 / 38 / 10 / 8 | 138 | 0 |
 | {ref}`T48` | kernel | T08, T09, T16, T23, T27, T32, T37, T46, T47 | 26 / 90 / 48 / 10 / 12 | 186 | 0 |
+| {ref}`T49` | linux | T23, T24, T25, T37 | 12 / 56 / 30 / 8 / 8 | 114 | 0 |
+| {ref}`T50` | bare-metal | T29, T30, T33, T49 | 12 / 68 / 36 / 8 / 8 | 132 | 0 |
+| {ref}`T51` | cross-track | T25, T50 | 12 / 78 / 42 / 8 / 8 | 148 | 0 |
+| {ref}`T52` | cross-track | T30, T37, T51 | 17 / 68 / 36 / 8 / 8 | 137 | 0 |
+| {ref}`T53` | kernel | T48, T50, T51 | 12 / 68 / 36 / 8 / 8 | 132 | 0 |
+| {ref}`T54` | bare-metal | T50, T51, T52 | 12 / 56 / 30 / 8 / 8 | 114 | 0 |
+| {ref}`T55` | cross-track | T26, T51, T53 | 12 / 56 / 30 / 8 / 8 | 114 | 0 |
+| {ref}`T56` | kernel | T46, T47, T48, T53, T54, T55 | 12 / 68 / 36 / 8 / 8 | 132 | 0 |
 
 ## Integration additions
 
@@ -72,15 +80,17 @@ The five values are reading / implementation / verification / assessment / conso
 
 ## Planning totals
 
-The architecture and networking domains T36–T42 contribute **690 hours**. The performance and debugging domains T43–T45 contribute **370 hours**. The runtime, storage and kernel families contribute **448 hours**. All are already included below. The current allocation to the original 35-domain catalog is **2,348 hours**; the current allocation through T42 is **3,038 hours**. The archived first edition remains the source of historical estimates. Communication and runtime family directories add no second budget. Reuse previous implementations and charge only newly assigned work.
+The T49–T56 operating-system, concurrency and multicore route contributes **1,023 hours**, already included in the totals below. The remaining runtime/store/kernel allocation is **448 hours**. These are provisional project estimates, not measured learner completion times.
 
-The full catalog estimate is **3,856 hours**. The conservative core estimate including the complete T01 diagnostic/remediation allocation is **3,776 hours**. Elective implementation/verification slices total **80 hours**. T01's full allocation is **25 hours**; after passing the initial diagnostic, retain its evidence and remove only its unneeded remedial activities from your personal plan.
+The architecture and networking domains T36–T42 contribute **690 hours**. The performance and debugging domains T43–T45 contribute **370 hours**. The runtime, storage, kernel and OS/concurrency families contribute **1,471 hours**. All are already included below. The current allocation to the original 35-domain catalog is **2,348 hours**; the current allocation through T42 is **3,038 hours**. The archived first edition remains the source of historical estimates. Communication and runtime family directories add no second budget. Reuse previous implementations and charge only newly assigned work.
 
-With the 3-hour initial entry check passed and no T01 remediation required, the core estimate becomes **3,754 hours**, or 376 / 188 weeks at 10 / 20 hours per week. Other targeted mathematics or semantic remediation is additional when needed.
+The full catalog estimate is **4,879 hours**. The conservative core estimate including the complete T01 diagnostic/remediation allocation is **4,799 hours**. Elective implementation/verification slices total **80 hours**. T01's full allocation is **25 hours**; after passing the initial diagnostic, retain its evidence and remove only its unneeded remedial activities from your personal plan.
+
+With the 3-hour initial entry check passed and no T01 remediation required, the core estimate becomes **4,777 hours**, or 478 / 239 weeks at 10 / 20 hours per week. Other targeted mathematics or semantic remediation is additional when needed.
 
 New integration implementation/verification adds 160 hours, plus 48 hours of reading, assessment and delayed transfer. This 208-hour integration slice is already included in both the full-catalog and core totals above. The shared protocol, containers and their prior tests are charged in their original modules, not again in both capstones. Each capstone budget pays for its platform-specific assembly, campaigns and defense.
 
-At **10 hours/week**, the conservative core arithmetic is 3776/10, rounded up to **378 weeks**. At **20 hours/week**, it is 3776/20, rounded up to **189 weeks**. Breaks, equipment access, prior knowledge and retests change elapsed time. These are workload illustrations, not promises of mastery.
+At **10 hours/week**, the conservative core arithmetic is 4799/10, rounded up to **480 weeks**. At **20 hours/week**, it is 4799/20, rounded up to **240 weeks**. Breaks, equipment access, prior knowledge and retests change elapsed time. These are workload illustrations, not promises of mastery.
 
 ## Weekly rhythm
 

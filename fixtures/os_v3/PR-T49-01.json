@@ -1,0 +1,15 @@
+{
+  "id": "PR-T49-01",
+  "description": "Privilege, traps and a syscall observatory finite independent example",
+  "oracle": "syscall",
+  "input": {
+    "raw_result": -9
+  },
+  "expected": {
+    "result": -1,
+    "errno": 9
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Trace one write from a C call through the syscall ABI to kernel work and return. A library function, syscall, trap and device interrupt are different boundaries. An address meaningful in user mode is not automatically a valid kernel copy source; errno is a wrapper convention rather than the machine return ABI.",
+  "required_observation": "Retain a source-to-disassembly-to-trace correspondence, correct byte counts and a checked error conversion. Identify precisely which behavior belongs to ISO C, the chosen ABI and Linux."
+}

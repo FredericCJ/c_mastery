@@ -1,0 +1,119 @@
+{
+  "date": "2026-10-10",
+  "scope": "Original execution family independent validation; finite gates, not full learner completion or physical qualification",
+  "toolchain": {
+    "gcc": "15.2.0",
+    "clang": "21.1.8",
+    "arm-none-eabi-gcc": "14.2.1 20241119",
+    "qemu-system-arm": "10.2.1"
+  },
+  "campaigns": [
+    {
+      "build": "build/execution-v3",
+      "mode": "GCC Release",
+      "passed": 43,
+      "failed": 0,
+      "command": "cmake --build build/execution-v3 && ctest --test-dir build/execution-v3 --output-on-failure -j4",
+      "includes": "34 host gates, 1 five-defect control campaign, 3 image audits (H745 dual), 5 actual Cortex-M guests"
+    },
+    {
+      "build": "build/execution-clang-san",
+      "mode": "Clang Debug ASan+UBSan",
+      "passed": 34,
+      "failed": 0,
+      "command": "ctest --test-dir build/execution-clang-san --output-on-failure -E \"image_|cortex_m4|controls\" -j4"
+    },
+    {
+      "build": "build/execution-learner",
+      "mode": "GCC Debug learner scaffold",
+      "tests": {
+        "admission": "expected assertion failure",
+        "enrollment": "expected assertion failure",
+        "spsc": "expected assertion failure",
+        "priorities": "expected assertion failure"
+      },
+      "command": "cmake --build build/execution-learner && ctest --test-dir build/execution-learner --output-on-failure -R \"execution.admission|execution.enrollment|execution.spsc|execution.priorities\"",
+      "build_status": "passed"
+    }
+  ],
+  "controls": [
+    {
+      "control": "inheritance",
+      "rejected": true,
+      "returncode": 1,
+      "output": "FAIL /mnt/f/Learning/Curricula/c_mastery/labs/execution/tests/contracts.c:188: k.task[0].priority == 3 && k.task[1].priority == 3\n",
+      "evidence_kind": "host"
+    },
+    {
+      "control": "capacity",
+      "rejected": true,
+      "returncode": 1,
+      "output": "FAIL /mnt/f/Learning/Curricula/c_mastery/labs/execution/tests/contracts.c:385: cmx_spsc_push(&q, 8) == CMX_FULL\n",
+      "evidence_kind": "host"
+    },
+    {
+      "control": "condition",
+      "rejected": true,
+      "returncode": 1,
+      "output": "FAIL /mnt/f/Learning/Curricula/c_mastery/labs/execution/tests/contracts.c:219: k.task[0].state == CMX_WAITING && k.task[0].wait == CMX_W_MUTEX\n",
+      "evidence_kind": "host"
+    },
+    {
+      "control": "fp-context",
+      "rejected": true,
+      "returncode": 32,
+      "output": "FAIL CMX Cortex-M image\n",
+      "evidence_kind": "emulator"
+    },
+    {
+      "control": "bss-clear",
+      "rejected": true,
+      "returncode": 51,
+      "output": "FAIL CMX Cortex-M image\n",
+      "evidence_kind": "emulator"
+    }
+  ],
+  "physical": {
+    "stm32f439": "not-run",
+    "stm32h745": "not-run"
+  },
+  "limits": [
+    "No TSan or formal weak-memory proof",
+    "Timer model and WFI baseline do not implement hardware tickless scheduling",
+    "Noncacheable coldboot H745 baseline does not implement cached/DMA variants, clock calibration or independent peer recovery",
+    "ASan/UBSan apply to host; strict guest images have no sanitizer or system runtime",
+    "Final build.py metadata-only change adds header/driver hashes and tool versions; root target matrix will validate final file closure"
+  ],
+  "source_sha256": {
+    "labs/execution/CMakeLists.txt": "ede8ba4d6ae19ec8decddd5148b3032df8dccdff227c23c48442782ff2fbe3f2",
+    "labs/execution/family.json": "181f8127b870e0abf6aa3dfc4ce4f4d79e1b355ac2dc7ace81f2ce7f9962911c",
+    "labs/execution/HINTS.md": "c0b17440ff81cdad2be7790705ccd98cc27f1d2b0855912f324758cb625970fb",
+    "labs/execution/README.md": "74ceca4efe86cb51b9001e6131c427cc761b385b5f908f8a64f8e9b0405561ae",
+    "labs/execution/include/cmx.h": "a9b2271c47fb05b1c2d8382365ba61057c85e8c65376bb374eafa31545a83c1b",
+    "labs/execution/include/cmx_advanced.h": "8587013c58f866d5ed7eb12d8ed1f39fd4cebf6764b24db395741cd86de31021",
+    "labs/execution/include/cmx_port.h": "d5948a12b9d5915b191c75fae22cfb270b57d91440c238bc95cef1b75042eeac",
+    "labs/execution/src/advanced.c": "4da4d1a7999ce9b692fdfa2b5e85308ee84b315f6cafa4d644dd0195447654ac",
+    "labs/execution/src/board.c": "3a700dcfcfa822456a9cf3b38b3f2aba30285e7f3a404af674e60b1449f11931",
+    "labs/execution/src/cmx.c": "00e73c44f26ad967cf5902598544beeed4403dd0be909a82ebf6ff34a35a3602",
+    "labs/execution/src/concurrent.c": "7034fe08ab3eceb7749b8ba3b638b531479805936a2e5dcf8126eabc2ae38516",
+    "labs/execution/src/context.S": "a70d1ad54d07157792ea32ff57765d687d734e30e2a52d3d6a48f801c9a6053b",
+    "labs/execution/src/cortex_port.c": "3cb8363b1612e2ac4b2676b068483ca107f826973c1e6ff711fbb43a5004fe57",
+    "labs/execution/src/startup.S": "fc57d8b71bcd126aa6616ca3c6569a61b13e56967fe42a9116f8ab79a7ad7264",
+    "labs/execution/src/support.c": "fd359308340f663eb5c10fcb2f9b04a4f1f413531eaef21034bcad74c8cd3f9a",
+    "labs/execution/targets/build.py": "fcd3ddb566beeb06662e5cb932a4ef309927be103544380542a15e02e2a346bb",
+    "labs/execution/targets/README.md": "7f9e3a81e4bb7e0b1cab9abce714b87ee581c792d28d4b23ed87cd017be94fe7",
+    "labs/execution/targets/workload.c": "e88ac29039726fb055de1e58e24a74552dec9e11a0e7261c1a3a94947a8ed49b",
+    "labs/execution/tests/advanced.c": "e8a5bc7392d4e5218ec384d2e597a5882ce430f906e06334fe4ea5e8d1132b7c",
+    "labs/execution/tests/contracts.c": "5e5ba66ab91cccf4ea42d1e49e26509acdad77dfbafb358a840b9121ac41f8bb",
+    "labs/execution/tests/controls.py": "b8617075b1c29fb8b45d267487df12eae7351c84191bbd727b98cdcdc70c0933",
+    "labs/execution/tests/parallel.c": "11857e5c5d97eb83b4fa3198144f2167fcc78c991cf217caa02e14ce36d57730",
+    "assessor/execution/advanced.c": "bf4aa62bf8b17d5b34669c9b8ab71c21f8ce400732c2dc0e9d4360cddcd4ffd6",
+    "assessor/execution/board.c": "8d3f7425a79c4d1a6603073afb53d68bb03f9c361363fc693be297363d3e4fba",
+    "assessor/execution/cmx.c": "2be79d77bc007778d8c5936169ae6a2b481d51d85349cdca40453e5fce953455",
+    "assessor/execution/concurrent.c": "6a12e066e638176292f58021118e8fb7761c68c2645311d887f4c12648baf6ee",
+    "assessor/execution/context.S": "f6b9ff19f09109b0a6d0e6a7c755127303ccf053964c6f38637706a1424be005",
+    "assessor/execution/cortex_port.c": "a81f7024e2ddd2738f8daaf8bc6d3aa3348905b10c006a73abe439b10acd11f6",
+    "assessor/execution/startup.S": "1022cb635d68fff199578570b9ce82931a9d5786d298d440b5325c3af37bd02b",
+    "assessor/execution/support.c": "d3512b1642b204d45407155493e6d8fee93de296d2348883d55554ca2cc37447"
+  }
+}

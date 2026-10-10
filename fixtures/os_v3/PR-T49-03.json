@@ -1,0 +1,39 @@
+{
+  "id": "PR-T49-03",
+  "description": "FCFS, SJF, SRTF and round-robin scheduling finite independent example",
+  "oracle": "srtf",
+  "input": {
+    "jobs": [
+      [
+        "A",
+        0,
+        8
+      ],
+      [
+        "B",
+        1,
+        2
+      ],
+      [
+        "C",
+        2,
+        1
+      ]
+    ]
+  },
+  "expected": {
+    "finish": {
+      "A": 11,
+      "B": 3,
+      "C": 4
+    },
+    "first_start": {
+      "A": 0,
+      "B": 1,
+      "C": 3
+    }
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Implement a discrete-event policy model with integer arrival and service times. Tie-break by arrival then task ID; a completion at time t precedes an arrival at t, and dispatch has zero cost in the first model. Turnaround is completion minus arrival; response is first start minus arrival. Shortest remaining time is preemptive, unlike shortest job first.",
+  "required_observation": "Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service."
+}

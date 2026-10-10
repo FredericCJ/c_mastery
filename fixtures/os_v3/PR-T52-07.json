@@ -1,0 +1,42 @@
+{
+  "id": "PR-T52-07",
+  "description": "Admission, overload and deadline-miss policy finite independent example",
+  "oracle": "queue",
+  "input": {
+    "capacity": 2,
+    "actions": [
+      [
+        "put",
+        1
+      ],
+      [
+        "put",
+        2
+      ],
+      [
+        "put",
+        3
+      ],
+      [
+        "get"
+      ],
+      [
+        "put",
+        4
+      ]
+    ]
+  },
+  "expected": {
+    "received": [
+      1
+    ],
+    "rejected": 1,
+    "remaining": [
+      2,
+      4
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Admission evaluates the declared model before accepting work. A deadline miss is an explicit event, not permission to skip accounting. Choose per-stream drop-oldest or reject-new behavior, with bounded backlog and sequence IDs so loss remains visible.",
+  "required_observation": "Show bounded memory and an explicit miss/drop ledger while useful admitted work continues. Explain whether recovery restores the original timing assumptions."
+}

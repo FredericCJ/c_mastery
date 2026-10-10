@@ -1,0 +1,44 @@
+{
+  "id": "PR-T53-12",
+  "description": "Dependency DAG execution and scaling limits finite independent example",
+  "oracle": "dag",
+  "input": {
+    "costs": {
+      "A": 2,
+      "B": 3,
+      "C": 5,
+      "D": 1
+    },
+    "edges": [
+      [
+        "A",
+        "B"
+      ],
+      [
+        "A",
+        "C"
+      ],
+      [
+        "B",
+        "D"
+      ],
+      [
+        "C",
+        "D"
+      ]
+    ]
+  },
+  "expected": {
+    "work": 11,
+    "span": 8,
+    "topological": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A DAG task becomes ready when all predecessor results are published. Indegree is not a substitute for validating acyclicity. Total work and critical-path length bound available parallelism, but scheduling, cache and communication costs add implementation overhead.",
+  "required_observation": "Check topological precedence and one execution per node, compute work/span bounds independently, and explain observed scaling limits and failed-node propagation."
+}

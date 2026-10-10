@@ -1,0 +1,1809 @@
+{
+  "edition": 3,
+  "domains": [
+    {
+      "id": "T49",
+      "title": "Operating-system mechanisms and the Linux observatory",
+      "depth": "implementation and experimental mastery",
+      "subtopics": [
+        {
+          "id": "T49.01",
+          "title": "Privilege, traps and a syscall observatory",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T49.01.a",
+              "text": "Derive and defend the state, ownership and ordering contract for privilege, traps and a syscall observatory."
+            },
+            {
+              "id": "T49.01.b",
+              "text": "Build a bounded syscall tracer experiment and an original raw-syscall assembly wrapper for one write. Compare its return with the libc wrapper on success and an invalid descriptor; inspect arguments and clobbers in disassembly."
+            },
+            {
+              "id": "T49.01.c",
+              "text": "Retain a source-to-disassembly-to-trace correspondence, correct byte counts and a checked error conversion. Identify precisely which behavior belongs to ISO C, the chosen ABI and Linux."
+            }
+          ]
+        },
+        {
+          "id": "T49.02",
+          "title": "Processes, threads and lifetime ownership",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T49.02.a",
+              "text": "Derive and defend the state, ownership and ordering contract for processes, threads and lifetime ownership."
+            },
+            {
+              "id": "T49.02.b",
+              "text": "Build a process/thread tree that reports identities, shared and private counters, exit states and reaping. Use explicit synchronization and wait for every owned child or thread."
+            },
+            {
+              "id": "T49.02.c",
+              "text": "Observe thread-shared state and process-private state, account for all created entities, and explain termination when one worker fails before publishing its result."
+            }
+          ]
+        },
+        {
+          "id": "T49.03",
+          "title": "FCFS, SJF, SRTF and round-robin scheduling",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T49.03.a",
+              "text": "Derive and defend the state, ownership and ordering contract for fcfs, sjf, srtf and round-robin scheduling."
+            },
+            {
+              "id": "T49.03.b",
+              "text": "Implement FCFS, nonpreemptive SJF, SRTF and RR with a configurable positive quantum. Use jobs A=(0,8), B=(1,2), C=(2,1) and derive the complete timeline by hand before executing."
+            },
+            {
+              "id": "T49.03.c",
+              "text": "Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service."
+            }
+          ]
+        },
+        {
+          "id": "T49.04",
+          "title": "Feedback and proportional-share scheduling",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T49.04.a",
+              "text": "Derive and defend the state, ownership and ordering contract for feedback and proportional-share scheduling."
+            },
+            {
+              "id": "T49.04.b",
+              "text": "Add a three-level MLFQ with explicit allotments, periodic boost and yield accounting, then stride scheduling with weights1:2:4. Compare interactive bursts, a CPU hog and a yield-gaming worker."
+            },
+            {
+              "id": "T49.04.c",
+              "text": "Show the boost prevents the declared starvation case and service converges toward the selected weight ratios over a finite long run. Document transient error and distinguish this teaching policy from Linux EEVDF."
+            }
+          ]
+        },
+        {
+          "id": "T49.05",
+          "title": "Working sets and page-fault observation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T49.05.a",
+              "text": "Derive and defend the state, ownership and ordering contract for working sets and page-fault observation."
+            },
+            {
+              "id": "T49.05.b",
+              "text": "Build sequential, strided and randomized page-touch workloads with fixed seeds. Record minor/major faults, RSS, CPU time, elapsed time and the page-size/huge-page configuration before and after each phase."
+            },
+            {
+              "id": "T49.05.c",
+              "text": "Explain observed fault classes with a page-reference trace and separate requested bytes, touched pages and resident bytes. Report conditions that prevent a controlled cold-cache experiment."
+            }
+          ]
+        },
+        {
+          "id": "T49.06",
+          "title": "Page replacement from a reference string",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T49.06.a",
+              "text": "Derive and defend the state, ownership and ordering contract for page replacement from a reference string."
+            },
+            {
+              "id": "T49.06.b",
+              "text": "Implement the four policies and print each eviction. Use reference string1,2,3,4,1,2,5,1,2,3,4,5 with three and four frames to examine FIFO anomaly."
+            },
+            {
+              "id": "T49.06.c",
+              "text": "Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO."
+            }
+          ]
+        },
+        {
+          "id": "T49.07",
+          "title": "Descriptors and open-file-description lifetimes",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T49.07.a",
+              "text": "Derive and defend the state, ownership and ordering contract for descriptors and open-file-description lifetimes."
+            },
+            {
+              "id": "T49.07.b",
+              "text": "Build a descriptor ledger across open, dup, fork, read and close using a temporary file. Demonstrate shared offset updates and independent opens, then enforce close-on-exec for private descriptors."
+            },
+            {
+              "id": "T49.07.c",
+              "text": "Reconcile every descriptor reference and observed file offset. Show pipe EOF only after all writer references close, including inherited copies."
+            }
+          ]
+        },
+        {
+          "id": "T49.08",
+          "title": "Namespaces, readiness and device completion",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T49.08.a",
+              "text": "Derive and defend the state, ownership and ordering contract for namespaces, readiness and device completion."
+            },
+            {
+              "id": "T49.08.b",
+              "text": "Observe available PID/mount namespace views in a disposable permitted environment and build a poll-driven pipe reader that survives short transfers. Model device submission/completion with generation-checked request IDs."
+            },
+            {
+              "id": "T49.08.c",
+              "text": "Show a readiness race safely handled by retry/error state and reject a stale synthetic completion. Record unavailable namespace operations honestly rather than weakening the isolation claim."
+            }
+          ]
+        },
+        {
+          "id": "T49.09",
+          "title": "CPU and memory budgets with cgroups",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T49.09.a",
+              "text": "Derive and defend the state, ownership and ordering contract for cpu and memory budgets with cgroups."
+            },
+            {
+              "id": "T49.09.b",
+              "text": "Run the same bounded compute/allocation workload without a group, with CPU quota, and with a memory limit in a delegated subtree. Capture cpu.stat, memory.events, pressure observations and workload exits."
+            },
+            {
+              "id": "T49.09.c",
+              "text": "Attribute throughput changes to throttled time where supported, detect allocation/kill outcomes, and preserve exit/status evidence. If delegation is unavailable, close only the model gate."
+            }
+          ]
+        },
+        {
+          "id": "T49.10",
+          "title": "I/O accounting and interference",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T49.10.a",
+              "text": "Derive and defend the state, ownership and ordering contract for i/o accounting and interference."
+            },
+            {
+              "id": "T49.10.b",
+              "text": "Build bounded read/write/fsync phases on a disposable file and compare warm-cache, explicit durable completion and controller-supported throttling. Record device identity, io.stat, CPU time and wall time."
+            },
+            {
+              "id": "T49.10.c",
+              "text": "Publish a component budget separating data generation, system calls, waiting and completion, with byte ledgers and uncertainty. Explain every difference between application and device accounting."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T50",
+      "title": "An original freestanding preemptive task runtime",
+      "depth": "implementation and experimental mastery",
+      "subtopics": [
+        {
+          "id": "T50.01",
+          "title": "Freestanding image and runtime dependency audit",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T50.01.a",
+              "text": "Derive and defend the state, ownership and ordering contract for freestanding image and runtime dependency audit."
+            },
+            {
+              "id": "T50.01.b",
+              "text": "Build an original reset entry, vector table, linker layout and C entry. Initialize data/BSS, audit map/undefined symbols, and deliberately compile operations likely to request a helper."
+            },
+            {
+              "id": "T50.01.c",
+              "text": "Boot to an original C marker and account for every linked symbol and section. A deliberately introduced hosted dependency must fail the audit, and the repaired helper must pass independent edge cases."
+            }
+          ]
+        },
+        {
+          "id": "T50.02",
+          "title": "Static task pools, stacks and handles",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T50.02.a",
+              "text": "Derive and defend the state, ownership and ordering contract for static task pools, stacks and handles."
+            },
+            {
+              "id": "T50.02.b",
+              "text": "Implement task allocation, initial stack-frame construction, stack bounds and generation validation using caller-owned fixed arrays. Reserve one of the sixteen slots for a permanent idle task, outside application exhaustion accounting."
+            },
+            {
+              "id": "T50.02.c",
+              "text": "Exhaust and refill the pool while rejecting old handles. Inspect the exact initial register frame and reconcile static RAM, stack reservation and observed high-water usage."
+            }
+          ]
+        },
+        {
+          "id": "T50.03",
+          "title": "Cooperative assembly context switching",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T50.03.a",
+              "text": "Derive and defend the state, ownership and ordering contract for cooperative assembly context switching."
+            },
+            {
+              "id": "T50.03.b",
+              "text": "Write the original Thumb switch routine and a two-task yield loop. Fill preserved registers with distinct sentinels, call nested C functions and retain disassembly of the save/restore path."
+            },
+            {
+              "id": "T50.03.c",
+              "text": "Execute repeated switches with intact register and local-variable sentinels, plus a deliberate omitted-register fault. Show that two contexts exist even though only one runs at an instant."
+            }
+          ]
+        },
+        {
+          "id": "T50.04",
+          "title": "Ready, blocked, sleeping and exited states",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T50.04.a",
+              "text": "Derive and defend the state, ownership and ordering contract for ready, blocked, sleeping and exited states."
+            },
+            {
+              "id": "T50.04.b",
+              "text": "Implement cooperative ready/block/sleep/exit transitions and deterministic selection. Attach an invariant checker to every transition in the hosted model before exercising target code."
+            },
+            {
+              "id": "T50.04.c",
+              "text": "Produce a transition ledger showing single membership and service conservation. Reject illegal transitions without corrupting later scheduling."
+            }
+          ]
+        },
+        {
+          "id": "T50.05",
+          "title": "Timers and an absolute-deadline queue",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T50.05.a",
+              "text": "Derive and defend the state, ownership and ordering contract for timers and an absolute-deadline queue."
+            },
+            {
+              "id": "T50.05.b",
+              "text": "Implement a bounded deadline queue with stable equal-deadline ordering and generation-checked cancellation. Compare phase-preserving periodic release with delay-after-work using a fake clock."
+            },
+            {
+              "id": "T50.05.c",
+              "text": "Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces."
+            }
+          ]
+        },
+        {
+          "id": "T50.06",
+          "title": "PendSV, SVC and timer-driven preemption",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T50.06.a",
+              "text": "Derive and defend the state, ownership and ordering contract for pendsv, svc and timer-driven preemption."
+            },
+            {
+              "id": "T50.06.b",
+              "text": "Implement original SVC startup, SysTick accounting and PendSV save/restore with PSP task stacks and an MSP handler stack. Draw both basic frame and software frame before declaring C structures."
+            },
+            {
+              "id": "T50.06.c",
+              "text": "Run two CPU loops that never yield and show timer-caused progress for both with intact contexts. Retain register-frame and exception-priority evidence."
+            }
+          ]
+        },
+        {
+          "id": "T50.07",
+          "title": "Nested interrupt masks and ISR handoff",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T50.07.a",
+              "text": "Derive and defend the state, ownership and ordering contract for nested interrupt masks and isr handoff."
+            },
+            {
+              "id": "T50.07.b",
+              "text": "Implement nest-safe critical sections and a nonblocking ISR-to-task handoff. Inject an interrupt at each transition around publication and pending-reschedule state."
+            },
+            {
+              "id": "T50.07.c",
+              "text": "Show nested mask restoration and bounded ISR execution, with all forbidden contexts rejected. Record the longest observed mask interval separately from any analytical bound."
+            }
+          ]
+        },
+        {
+          "id": "T50.08",
+          "title": "Floating-point task context and lazy stacking",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T50.08.a",
+              "text": "Derive and defend the state, ownership and ordering contract for floating-point task context and lazy stacking."
+            },
+            {
+              "id": "T50.08.b",
+              "text": "Run two FP tasks with distinct register sentinels and an integer-only task. Implement the required high-register preservation and explicitly choose/document eager or lazy FP stacking."
+            },
+            {
+              "id": "T50.08.c",
+              "text": "Preserve each task FP state through preemption and diagnose a faulty variant that drops one FP register. Retain compiler options, frame diagrams and stack measurements."
+            }
+          ]
+        },
+        {
+          "id": "T50.09",
+          "title": "Exit, join and deferred reclamation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T50.09.a",
+              "text": "Derive and defend the state, ownership and ordering contract for exit, join and deferred reclamation."
+            },
+            {
+              "id": "T50.09.b",
+              "text": "Implement exit trampolines, one permitted joiner and deferred reaping. Allow joining an already-exited task and reject joining self or a stale generation."
+            },
+            {
+              "id": "T50.09.c",
+              "text": "Account for every stack before and after completion, including exit-before-join. Show that a stale handle cannot observe a new task result."
+            }
+          ]
+        },
+        {
+          "id": "T50.10",
+          "title": "Cancellation and task-fault containment",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T50.10.a",
+              "text": "Derive and defend the state, ownership and ordering contract for cancellation and task-fault containment."
+            },
+            {
+              "id": "T50.10.b",
+              "text": "Implement cooperative cancellation points and an explicit faulted state with a retained fault record. Test a stack-bound violation and a cancellation while blocked."
+            },
+            {
+              "id": "T50.10.c",
+              "text": "Show one terminal state and one reclamation path per task. Preserve the first fault evidence and identify resources left poisoned for higher-level recovery."
+            }
+          ]
+        },
+        {
+          "id": "T50.11",
+          "title": "Tickless idle and wakeup accounting",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T50.11.a",
+              "text": "Derive and defend the state, ownership and ordering contract for tickless idle and wakeup accounting."
+            },
+            {
+              "id": "T50.11.b",
+              "text": "Implement next-deadline selection, bounded timer programming and elapsed-time compensation. Use a deterministic wake-before-sleep injection before a target low-power experiment."
+            },
+            {
+              "id": "T50.11.c",
+              "text": "Reconcile logical elapsed time with timer events across idle intervals and show the injected wake cannot strand a runnable task. Separate energy measurements from logical correctness."
+            }
+          ]
+        },
+        {
+          "id": "T50.12",
+          "title": "Integrated original MCU runtime",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T50.12.a",
+              "text": "Derive and defend the state, ownership and ordering contract for integrated original mcu runtime."
+            },
+            {
+              "id": "T50.12.b",
+              "text": "Integrate the task pool, original switch/preemption path, timers, lifecycle and diagnostic records. Use one overload burst and one task failure while other tasks continue."
+            },
+            {
+              "id": "T50.12.c",
+              "text": "Supply a complete map/symbol audit, target execution traces and a per-component RAM/CPU budget. Mark physical timing as not-run until the actual board trace exists."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T51",
+      "title": "Synchronization and bounded inter-task communication",
+      "depth": "implementation and experimental mastery",
+      "subtopics": [
+        {
+          "id": "T51.01",
+          "title": "Atomic wait enrollment and lost-wakeup prevention",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.01.a",
+              "text": "Derive and defend the state, ownership and ordering contract for atomic wait enrollment and lost-wakeup prevention."
+            },
+            {
+              "id": "T51.01.b",
+              "text": "Implement a shared wait-queue primitive with predicate recheck, enrollment and scheduler block under one protection domain. Enumerate producer actions before check, during enrollment and after block."
+            },
+            {
+              "id": "T51.01.c",
+              "text": "Reduce a broken implementation to a two-task lost-wakeup trace and show the repair completes every enumerated schedule without duplicating runnable entries."
+            }
+          ]
+        },
+        {
+          "id": "T51.02",
+          "title": "Counting and binary semaphores",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.02.a",
+              "text": "Derive and defend the state, ownership and ordering contract for counting and binary semaphores."
+            },
+            {
+              "id": "T51.02.b",
+              "text": "Implement bounded counting semaphores with nonblocking try, blocking wait and ISR-safe post. Specify maximum count and choose an error on overflow rather than silently discarding a counted event."
+            },
+            {
+              "id": "T51.02.c",
+              "text": "Reconcile the permit ledger through contention and cancellation. Demonstrate that a task different from the waiter may post and explain why this does not provide ownership protection."
+            }
+          ]
+        },
+        {
+          "id": "T51.03",
+          "title": "Owned mutexes and lock ordering",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.03.a",
+              "text": "Derive and defend the state, ownership and ordering contract for owned mutexes and lock ordering."
+            },
+            {
+              "id": "T51.03.b",
+              "text": "Implement owner tracking, try-lock, blocking lock and unlock using the wait protocol. Protect a two-field invariant and publish a lock-order graph for a two-object operation."
+            },
+            {
+              "id": "T51.03.c",
+              "text": "Show mutual exclusion and correct handoff, reject nonowner operations and produce a minimal lock-order-cycle deadlock that the declared ordering prevents."
+            }
+          ]
+        },
+        {
+          "id": "T51.04",
+          "title": "Transitive priority inheritance",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.04.a",
+              "text": "Derive and defend the state, ownership and ordering contract for transitive priority inheritance."
+            },
+            {
+              "id": "T51.04.b",
+              "text": "Implement bounded donation-chain traversal and recomputation on unlock, timeout and cancellation. Use low L owning A, medium M consuming CPU and high H waiting on A, then extend to a second owner through B."
+            },
+            {
+              "id": "T51.04.c",
+              "text": "Show that H blocking no longer includes unrelated M execution under the stated single-core policy, and validate transitive donation plus correct partial disinheritance."
+            }
+          ]
+        },
+        {
+          "id": "T51.05",
+          "title": "Condition variables and Mesa-style predicates",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.05.a",
+              "text": "Derive and defend the state, ownership and ordering contract for condition variables and mesa-style predicates."
+            },
+            {
+              "id": "T51.05.b",
+              "text": "Implement condition wait/signal/broadcast on the common wait protocol. Build a bounded producer-consumer object whose predicate is protected by the same mutex."
+            },
+            {
+              "id": "T51.05.c",
+              "text": "Force a signaled waiter to lose the race for the item, observe the necessary second wait, and preserve queue capacity under broadcast and spurious wake injection."
+            }
+          ]
+        },
+        {
+          "id": "T51.06",
+          "title": "Bounded message queues with copied payloads",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.06.a",
+              "text": "Derive and defend the state, ownership and ordering contract for bounded message queues with copied payloads."
+            },
+            {
+              "id": "T51.06.b",
+              "text": "Implement a fixed-capacity queue with try/block/timed send and receive. Record message sequence IDs and lengths, then run multiple producers and consumers with explicit shutdown."
+            },
+            {
+              "id": "T51.06.c",
+              "text": "Account for every accepted message exactly once and preserve per-producer order. Rejected sends preserve occupancy; normal close rejects new sends and drains queued messages, while explicit abort discards queued messages with a recorded cancellation count."
+            }
+          ]
+        },
+        {
+          "id": "T51.07",
+          "title": "Mailboxes and synchronous rendezvous",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.07.a",
+              "text": "Derive and defend the state, ownership and ordering contract for mailboxes and synchronous rendezvous."
+            },
+            {
+              "id": "T51.07.b",
+              "text": "Build both mechanisms over common wait queues and compare the same request/reply workload. Attach request generations so a late reply cannot satisfy a new call."
+            },
+            {
+              "id": "T51.07.c",
+              "text": "Draw the match/commit boundary and show exactly one terminal outcome for each operation under sender and receiver cancellation races."
+            }
+          ]
+        },
+        {
+          "id": "T51.08",
+          "title": "Event flags with any/all semantics",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.08.a",
+              "text": "Derive and defend the state, ownership and ordering contract for event flags with any/all semantics."
+            },
+            {
+              "id": "T51.08.b",
+              "text": "Implement a fixed-width event group with set, clear and timed wait. Use bits for data-ready, stop-requested and calibration-done, with both any and all waiters."
+            },
+            {
+              "id": "T51.08.c",
+              "text": "Demonstrate the selected any/all and clearing truth tables, including two waiters racing for overlapping masks. Explain why three identical sets need not produce three wakes."
+            }
+          ]
+        },
+        {
+          "id": "T51.09",
+          "title": "Counted task notifications",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.09.a",
+              "text": "Derive and defend the state, ownership and ordering contract for counted task notifications."
+            },
+            {
+              "id": "T51.09.b",
+              "text": "Implement post-count and wait-one with an ISR-safe path. Burst several posts while the recipient is descheduled, then compare with a Boolean event implementation."
+            },
+            {
+              "id": "T51.09.c",
+              "text": "Show that all accepted posts are eventually consumed or explicitly canceled, even when only one interrupt wakes the recipient. Retain the count ledger."
+            }
+          ]
+        },
+        {
+          "id": "T51.10",
+          "title": "Reusable barriers and generations",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.10.a",
+              "text": "Derive and defend the state, ownership and ordering contract for reusable barriers and generations."
+            },
+            {
+              "id": "T51.10.b",
+              "text": "Implement an arrival counter, generation and broken state. Run three tasks for repeated rounds, delaying a different participant in each round."
+            },
+            {
+              "id": "T51.10.c",
+              "text": "Assert no task crosses round k before every participant arrives at k, and show the broken-generation policy releases all affected waiters."
+            }
+          ]
+        },
+        {
+          "id": "T51.11",
+          "title": "Once initialization and failure policy",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.11.a",
+              "text": "Derive and defend the state, ownership and ordering contract for once initialization and failure policy."
+            },
+            {
+              "id": "T51.11.b",
+              "text": "Implement once with permanent failure for this milestone, release/acquire publication and waiter wakeup. Initialize a table with a checksum and make every reader validate it."
+            },
+            {
+              "id": "T51.11.c",
+              "text": "Show one initializer, consistent data for all readers and a stable error after injected failure. Distinguish exactly-once attempt from exactly-once successful effect."
+            }
+          ]
+        },
+        {
+          "id": "T51.12",
+          "title": "Reader-writer locks and admission fairness",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.12.a",
+              "text": "Derive and defend the state, ownership and ordering contract for reader-writer locks and admission fairness."
+            },
+            {
+              "id": "T51.12.b",
+              "text": "Implement reader counts, writer owner and writer-pending admission. Compare bounded read-heavy workloads with an explicitly reader-preferred faulty variant."
+            },
+            {
+              "id": "T51.12.c",
+              "text": "Preserve exclusion and show the queued writer progresses after existing readers leave despite new arrivals. Reject unsupported upgrade/downgrade operations explicitly."
+            }
+          ]
+        },
+        {
+          "id": "T51.13",
+          "title": "Timeout, cancellation and wakeup arbitration",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.13.a",
+              "text": "Derive and defend the state, ownership and ordering contract for timeout, cancellation and wakeup arbitration."
+            },
+            {
+              "id": "T51.13.b",
+              "text": "Centralize terminal-state arbitration using operation generations. Enumerate resource-ready, timer-fire and cancellation orders, including all pairwise ties at one logical instant."
+            },
+            {
+              "id": "T51.13.c",
+              "text": "For every finite ordering, record one result and reconcile all queue memberships, timers and permits. Reproduce at least one double-completion defect and its repair."
+            }
+          ]
+        },
+        {
+          "id": "T51.14",
+          "title": "Object teardown and owner-death recovery",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T51.14.a",
+              "text": "Derive and defend the state, ownership and ordering contract for object teardown and owner-death recovery."
+            },
+            {
+              "id": "T51.14.b",
+              "text": "Implement close/drain/destroy states for one queue and an owner-death result for one mutex. Use generation handles and a supervisor that repairs a deliberately half-updated record."
+            },
+            {
+              "id": "T51.14.c",
+              "text": "Show no use-after-free through teardown, reject stale handles and demonstrate both successful repair and permanently unrecoverable state."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T52",
+      "title": "Real-time scheduling, interference and admission",
+      "depth": "implementation and experimental mastery",
+      "subtopics": [
+        {
+          "id": "T52.01",
+          "title": "Rate-monotonic and deadline-monotonic scheduling",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T52.01.a",
+              "text": "Derive and defend the state, ownership and ordering contract for rate-monotonic and deadline-monotonic scheduling."
+            },
+            {
+              "id": "T52.01.b",
+              "text": "Implement fixed-priority job release and completion traces with separate period, deadline and cost fields. Compare RM and DM on constrained-deadline task sets and evaluate the classic sufficient bound."
+            },
+            {
+              "id": "T52.01.c",
+              "text": "Produce a schedulable set rejected by the sufficient bound and verify it by exact response-time analysis. State all assumptions alongside each conclusion."
+            }
+          ]
+        },
+        {
+          "id": "T52.02",
+          "title": "Earliest-deadline-first dispatch",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T52.02.a",
+              "text": "Derive and defend the state, ownership and ordering contract for earliest-deadline-first dispatch."
+            },
+            {
+              "id": "T52.02.b",
+              "text": "Implement a deadline-ordered ready structure and explicit tie rule. Compare EDF with fixed priorities, recording preemptions, deadline misses and remaining service."
+            },
+            {
+              "id": "T52.02.c",
+              "text": "Check service conservation and deadline outcomes against an independent event model, including an overloaded set and a constrained-deadline counterexample to naive utilization testing."
+            }
+          ]
+        },
+        {
+          "id": "T52.03",
+          "title": "Response-time analysis with blocking and jitter",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T52.03.a",
+              "text": "Derive and defend the state, ownership and ordering contract for response-time analysis with blocking and jitter."
+            },
+            {
+              "id": "T52.03.b",
+              "text": "Implement checked integer response-time iteration including release jitter and declared kernel overhead. For C=2, B=1 and one interferer Cj=1,Tj=4,Jj=0, start R=3 and iterate to R=4."
+            },
+            {
+              "id": "T52.03.c",
+              "text": "Recompute every recurrence term independently, distinguish sufficient rejection from demonstrated execution failure, and compare predicted interference with a trace under the same model."
+            }
+          ]
+        },
+        {
+          "id": "T52.04",
+          "title": "Immediate priority ceilings",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T52.04.a",
+              "text": "Derive and defend the state, ownership and ordering contract for immediate priority ceilings."
+            },
+            {
+              "id": "T52.04.b",
+              "text": "Implement immediate-ceiling admission and restoration with a static resource-use table. Compare the same inversion workload with no protocol, inheritance and immediate ceiling."
+            },
+            {
+              "id": "T52.04.c",
+              "text": "Show bounded blocking for the declared task/resource graph and reject invalid ceiling configurations before tasks start. Record the latency effect of elevated execution."
+            }
+          ]
+        },
+        {
+          "id": "T52.05",
+          "title": "Aperiodic service within periodic workloads",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T52.05.a",
+              "text": "Derive and defend the state, ownership and ordering contract for aperiodic service within periodic workloads."
+            },
+            {
+              "id": "T52.05.b",
+              "text": "Model background service and a bounded polling server first, then implement a sporadic-server replenishment ledger with a fixed maximum number of records."
+            },
+            {
+              "id": "T52.05.c",
+              "text": "Reconcile consumed and replenished service over sliding intervals and show the bad early-replenishment variant violating its declared budget."
+            }
+          ]
+        },
+        {
+          "id": "T52.06",
+          "title": "Constant-bandwidth-server reservation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T52.06.a",
+              "text": "Derive and defend the state, ownership and ordering contract for constant-bandwidth-server reservation."
+            },
+            {
+              "id": "T52.06.b",
+              "text": "Implement runtime, period, scheduling deadline and remaining-budget state. Trace a well-behaved client and an overrunning client under competing EDF reservations. Compare immediate refill/deadline postponement with fixed-window throttling and explain idle-capacity use."
+            },
+            {
+              "id": "T52.06.c",
+              "text": "Under an explicitly feasible single-core EDF reservation set, trace budget/deadline updates and competing service. Explain the stated isolation assumptions, scheduling versus application deadlines, and why the periodic fixture does not establish a soft-CBS per-window cap."
+            }
+          ]
+        },
+        {
+          "id": "T52.07",
+          "title": "Admission, overload and deadline-miss policy",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T52.07.a",
+              "text": "Derive and defend the state, ownership and ordering contract for admission, overload and deadline-miss policy."
+            },
+            {
+              "id": "T52.07.b",
+              "text": "Build an admission checker and overload controller for periodic jobs plus queued messages. Inject a cost overrun and sustained arrival overload; preserve supervisor progress."
+            },
+            {
+              "id": "T52.07.c",
+              "text": "Show bounded memory and an explicit miss/drop ledger while useful admitted work continues. Explain whether recovery restores the original timing assumptions."
+            }
+          ]
+        },
+        {
+          "id": "T52.08",
+          "title": "Tick rollover, phase and tickless timing",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T52.08.a",
+              "text": "Derive and defend the state, ownership and ordering contract for tick rollover, phase and tickless timing."
+            },
+            {
+              "id": "T52.08.b",
+              "text": "Reuse the original timer queue with rollover fixtures near UINT32_MAX. Implement deadline conversion without overflow and compare periodic tick with tickless release traces."
+            },
+            {
+              "id": "T52.08.c",
+              "text": "Predict and verify wrap-crossing releases and reject ambiguous horizons. Report timer quantization, wakeup delay and measurement resolution separately."
+            }
+          ]
+        },
+        {
+          "id": "T52.09",
+          "title": "Partitioned multicore real-time scheduling",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T52.09.a",
+              "text": "Derive and defend the state, ownership and ordering contract for partitioned multicore real-time scheduling."
+            },
+            {
+              "id": "T52.09.b",
+              "text": "Implement first-fit decreasing placement by utilization and per-core analysis. Use tasks with utilizations0.6,0.6,0.6 on two cores to expose a packing failure despite total1.8."
+            },
+            {
+              "id": "T52.09.c",
+              "text": "Show the packing counterexample, record each task affinity and prove per-partition assumptions before comparing actual parallel traces."
+            }
+          ]
+        },
+        {
+          "id": "T52.10",
+          "title": "Global EDF and multiprocessor counterexamples",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T52.10.a",
+              "text": "Derive and defend the state, ownership and ordering contract for global edf and multiprocessor counterexamples."
+            },
+            {
+              "id": "T52.10.b",
+              "text": "Implement a two-core global-EDF model with migration accounting. Use one job requiring its full period and two tiny earlier-deadline jobs that delay its first dispatch."
+            },
+            {
+              "id": "T52.10.c",
+              "text": "Derive a concrete miss from the timeline and distinguish partitioned, global and clustered policy assumptions. Include CPU-ownership and service-conservation checks."
+            }
+          ]
+        },
+        {
+          "id": "T52.11",
+          "title": "Compare the original runtime with FreeRTOS",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T52.11.a",
+              "text": "Derive and defend the state, ownership and ordering contract for compare the original runtime with freertos."
+            },
+            {
+              "id": "T52.11.b",
+              "text": "Port one bounded producer-consumer and inversion workload to FreeRTOS with static allocation. Record kernel version, priorities, tick rate, interrupt settings and all configuration choices."
+            },
+            {
+              "id": "T52.11.c",
+              "text": "Explain semantic and timing differences with traces and source locators. Preserve separate linker audits proving that the original implementation remains independent."
+            }
+          ]
+        },
+        {
+          "id": "T52.12",
+          "title": "Linux fair and real-time scheduling comparison",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T52.12.a",
+              "text": "Derive and defend the state, ownership and ordering contract for linux fair and real-time scheduling comparison."
+            },
+            {
+              "id": "T52.12.b",
+              "text": "Run a bounded CPU/periodic workload under available normal, FIFO/RR and SCHED_DEADLINE modes with a supervisor and explicit termination bound. Capture scheduling parameters, affinity and throttling."
+            },
+            {
+              "id": "T52.12.c",
+              "text": "Separate unavailable modes from measured results, compare response distributions and identify scheduler versus application deadlines. Do not claim hard physical guarantees from the hosted comparison."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T53",
+      "title": "Symmetric multiprocessing and parallel execution on x86-64",
+      "depth": "implementation and experimental mastery",
+      "subtopics": [
+        {
+          "id": "T53.01",
+          "title": "ACPI MADT and processor discovery",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T53.01.a",
+              "text": "Derive and defend the state, ownership and ordering contract for acpi madt and processor discovery."
+            },
+            {
+              "id": "T53.01.b",
+              "text": "Parse the boot-provided ACPI root and MADT using checked byte spans. Build a finite CPU inventory and retain the table bytes and decoded topology from actual QEMU boot."
+            },
+            {
+              "id": "T53.01.c",
+              "text": "Match the accepted CPU inventory with QEMU configurations1,2,4 and reject malformed synthetic tables without reading outside their spans."
+            }
+          ]
+        },
+        {
+          "id": "T53.02",
+          "title": "Secondary-CPU trampoline and startup",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T53.02.a",
+              "text": "Derive and defend the state, ownership and ordering contract for secondary-cpu trampoline and startup."
+            },
+            {
+              "id": "T53.02.b",
+              "text": "Implement original AP startup using the selected local-APIC INIT/SIPI sequence and a bounded acknowledgment timeout. Keep trampoline storage reserved until no AP can still execute it."
+            },
+            {
+              "id": "T53.02.c",
+              "text": "Boot1,2,4 CPUs and retain distinct per-CPU entry markers and stack addresses. An intentionally missing acknowledgment must fail within the declared bound."
+            }
+          ]
+        },
+        {
+          "id": "T53.03",
+          "title": "Per-CPU execution state and stacks",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T53.03.a",
+              "text": "Derive and defend the state, ownership and ordering contract for per-cpu execution state and stacks."
+            },
+            {
+              "id": "T53.03.b",
+              "text": "Allocate distinct CPU-local records, GDT/TSS state and kernel/idle stacks. Exercise simultaneous nested calls and a controlled fault on one CPU while peers report progress."
+            },
+            {
+              "id": "T53.03.c",
+              "text": "Demonstrate nonoverlapping live stack ranges and CPU-local identities under parallel work. A fault record must identify its CPU and retain peer progress evidence."
+            }
+          ]
+        },
+        {
+          "id": "T53.04",
+          "title": "Local APIC timers and interprocessor interrupts",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T53.04.a",
+              "text": "Derive and defend the state, ownership and ordering contract for local apic timers and interprocessor interrupts."
+            },
+            {
+              "id": "T53.04.b",
+              "text": "Implement per-CPU timer interrupts and an IPI request/acknowledgment mailbox. Separate vector dispatch, end-of-interrupt and higher-level completion state."
+            },
+            {
+              "id": "T53.04.c",
+              "text": "Show each CPU receiving its own timer events and complete a directed IPI round trip with a bounded timeout and matching sequence."
+            }
+          ]
+        },
+        {
+          "id": "T53.05",
+          "title": "SMP spinlocks and interrupt context",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T53.05.a",
+              "text": "Derive and defend the state, ownership and ordering contract for smp spinlocks and interrupt context."
+            },
+            {
+              "id": "T53.05.b",
+              "text": "Implement test-and-set and ticket locks, then compare with an MCS queue-lock model. Add IRQ-save wrappers that restore the previous local mask and audit lock ordering."
+            },
+            {
+              "id": "T53.05.c",
+              "text": "Run multiple CPUs updating a protected invariant and reject the local-mask-only faulty variant. Measure contention and wait distributions separately from correctness."
+            }
+          ]
+        },
+        {
+          "id": "T53.06",
+          "title": "Per-CPU ready queues",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T53.06.a",
+              "text": "Derive and defend the state, ownership and ordering contract for per-cpu ready queues."
+            },
+            {
+              "id": "T53.06.b",
+              "text": "Implement per-CPU ready queues and fixed-affinity dispatch. Record transitions with CPU, task generation, old state and new state; validate the combined trace independently."
+            },
+            {
+              "id": "T53.06.c",
+              "text": "Show actual task execution on all admitted CPUs with one-owner invariants and service accounting, then inject a duplicate enqueue that the checker rejects."
+            }
+          ]
+        },
+        {
+          "id": "T53.07",
+          "title": "Remote wakeup and reschedule delivery",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T53.07.a",
+              "text": "Derive and defend the state, ownership and ordering contract for remote wakeup and reschedule delivery."
+            },
+            {
+              "id": "T53.07.b",
+              "text": "Implement remote wakeup with a generation-checked task handle and destination notification. Inject wakeups before idle check, between check and sleep, and during existing execution."
+            },
+            {
+              "id": "T53.07.c",
+              "text": "Every accepted wake either makes the task runnable once or observes it already runnable. Retain a target trace showing remote progress after the receiving CPU was idle."
+            }
+          ]
+        },
+        {
+          "id": "T53.08",
+          "title": "Affinity, migration and load balance",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T53.08.a",
+              "text": "Derive and defend the state, ownership and ordering contract for affinity, migration and load balance."
+            },
+            {
+              "id": "T53.08.b",
+              "text": "Add explicit affinity masks and migration of ready tasks, followed by a bounded work-balancing policy. Measure migration count, queue imbalance and cache-warmup cost."
+            },
+            {
+              "id": "T53.08.c",
+              "text": "Show every migration has one source release and one destination acquisition, with no lost service or simultaneous execution. Explain why balancing overhead can reduce throughput."
+            }
+          ]
+        },
+        {
+          "id": "T53.09",
+          "title": "TLB shootdown and page reclamation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T53.09.a",
+              "text": "Derive and defend the state, ownership and ordering contract for tlb shootdown and page reclamation."
+            },
+            {
+              "id": "T53.09.b",
+              "text": "Implement bounded shootdown requests, local invalidation and acknowledgments before reclaim. Begin with one page and two CPUs using the same address space."
+            },
+            {
+              "id": "T53.09.c",
+              "text": "Demonstrate that an old mapping cannot access a recycled frame after the completion boundary. A deliberately early-reclaim variant must fail a targeted interleaving test."
+            }
+          ]
+        },
+        {
+          "id": "T53.10",
+          "title": "Parallel reduction with deterministic partitioning",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T53.10.a",
+              "text": "Derive and defend the state, ownership and ordering contract for parallel reduction with deterministic partitioning."
+            },
+            {
+              "id": "T53.10.b",
+              "text": "Split an input range across1,2,4 CPUs with disjoint ownership, compute checked local sums and combine in fixed order. Include nondivisible lengths and empty partitions."
+            },
+            {
+              "id": "T53.10.c",
+              "text": "Match a wide independent sum oracle, show distinct CPU execution and report wall time, CPU time and overhead. Do not infer physical speedup from emulator virtual CPU counts."
+            }
+          ]
+        },
+        {
+          "id": "T53.11",
+          "title": "Bounded parallel work pool",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T53.11.a",
+              "text": "Derive and defend the state, ownership and ordering contract for bounded parallel work pool."
+            },
+            {
+              "id": "T53.11.b",
+              "text": "Build a bounded shared work queue with original worker tasks, per-job IDs and a completion ledger. Compare static partitioning and dynamic dispatch for uneven job costs."
+            },
+            {
+              "id": "T53.11.c",
+              "text": "Account for every submitted, rejected, completed and canceled job and show real execution on multiple CPUs. Diagnose one nested-submission deadlock."
+            }
+          ]
+        },
+        {
+          "id": "T53.12",
+          "title": "Dependency DAG execution and scaling limits",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T53.12.a",
+              "text": "Derive and defend the state, ownership and ordering contract for dependency dag execution and scaling limits."
+            },
+            {
+              "id": "T53.12.b",
+              "text": "Implement bounded DAG validation, dependency counters and ready dispatch. Use a fork/join graph with unequal branch costs and compare1,2,4 CPU traces."
+            },
+            {
+              "id": "T53.12.c",
+              "text": "Check topological precedence and one execution per node, compute work/span bounds independently, and explain observed scaling limits and failed-node propagation."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T54",
+      "title": "Dual-core microcontroller AMP and shared-memory ownership",
+      "depth": "implementation and experimental mastery",
+      "subtopics": [
+        {
+          "id": "T54.01",
+          "title": "Dual images and static peripheral ownership",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T54.01.a",
+              "text": "Derive and defend the state, ownership and ordering contract for dual images and static peripheral ownership."
+            },
+            {
+              "id": "T54.01.b",
+              "text": "Build two original vector/startup/linker paths and an ownership table. Reserve nonoverlapping flash/RAM images plus an explicitly shared SRAM region and audit both map files."
+            },
+            {
+              "id": "T54.01.c",
+              "text": "Cross-build both images with no forbidden dependencies and validate every declared range and owner. Physical boot remains a separate gate with exact board revision recorded."
+            }
+          ]
+        },
+        {
+          "id": "T54.02",
+          "title": "Dual boot and epoch handshake",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T54.02.a",
+              "text": "Derive and defend the state, ownership and ordering contract for dual boot and epoch handshake."
+            },
+            {
+              "id": "T54.02.b",
+              "text": "Implement explicit M7/M4 boot sequencing and a bounded shared-memory handshake using original register code. Clear only owned state and publish readiness after initialization."
+            },
+            {
+              "id": "T54.02.c",
+              "text": "Capture distinct core start markers and matching epoch agreement. Inject a stale epoch in the model and demonstrate rejection; retain physical boot traces separately."
+            }
+          ]
+        },
+        {
+          "id": "T54.03",
+          "title": "Shared-SRAM SPSC channel",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T54.03.a",
+              "text": "Derive and defend the state, ownership and ordering contract for shared-sram spsc channel."
+            },
+            {
+              "id": "T54.03.b",
+              "text": "Implement two unidirectional SPSC channels with sequence and epoch fields. Use a fixed power-of-two capacity and explicit full/empty policy, then inspect emitted barriers."
+            },
+            {
+              "id": "T54.03.c",
+              "text": "Transfer numbered payloads with no gaps except declared rejection, preserve slot ownership and compare payload checksums across cores. Require a real dual-core run for the physical gate."
+            }
+          ]
+        },
+        {
+          "id": "T54.04",
+          "title": "HSEM and coalesced doorbells",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T54.04.a",
+              "text": "Derive and defend the state, ownership and ordering contract for hsem and coalesced doorbells."
+            },
+            {
+              "id": "T54.04.b",
+              "text": "Implement original HSEM take/release and notification handling with bounded ISR work. After waking, drain the SPSC channel and recheck the sleep boundary."
+            },
+            {
+              "id": "T54.04.c",
+              "text": "Demonstrate a burst of several messages serviced after one coalesced wake and preserve every accepted sequence ID. Record ISR and task responsibilities separately."
+            }
+          ]
+        },
+        {
+          "id": "T54.05",
+          "title": "Cache visibility and cache-line ownership",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T54.05.a",
+              "text": "Derive and defend the state, ownership and ordering contract for cache visibility and cache-line ownership."
+            },
+            {
+              "id": "T54.05.b",
+              "text": "Create a cached transfer variant with aligned dedicated cache lines, clean before remote reads and invalidate before consuming remote writes as required. Include barriers and retain a cache-operation ledger."
+            },
+            {
+              "id": "T54.05.c",
+              "text": "Compute rounded cache-line ranges independently, reproduce stale-data behavior under controlled conditions when observable, and demonstrate corrected payload checksums on hardware."
+            }
+          ]
+        },
+        {
+          "id": "T54.06",
+          "title": "DMA buffers and CPU ownership transitions",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T54.06.a",
+              "text": "Derive and defend the state, ownership and ordering contract for dma buffers and cpu ownership transitions."
+            },
+            {
+              "id": "T54.06.b",
+              "text": "Implement one bounded DMA transfer path using statically assigned channels and buffers. Publish completion with request generation and perform the chosen cache protocol before CPU consumption."
+            },
+            {
+              "id": "T54.06.c",
+              "text": "Reconcile every buffer transition and verify payload bytes after actual DMA completion. Inject cancellation and stale-completion cases in the host model without claiming it simulates the bus."
+            }
+          ]
+        },
+        {
+          "id": "T54.07",
+          "title": "Cross-core clocks and latency measurement",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T54.07.a",
+              "text": "Derive and defend the state, ownership and ordering contract for cross-core clocks and latency measurement."
+            },
+            {
+              "id": "T54.07.b",
+              "text": "Measure request/response latency using same-core round trips and a shared logic-analyzer timebase. Record M7/M4 frequencies, timer widths, calibration and instrumentation overhead."
+            },
+            {
+              "id": "T54.07.c",
+              "text": "Report distributions and upper observed values with sample count, clock conversion and uncertainty. Distinguish physical measurement from model timing and from an analytical WCET bound."
+            }
+          ]
+        },
+        {
+          "id": "T54.08",
+          "title": "Peer failure and protocol recovery",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T54.08.a",
+              "text": "Derive and defend the state, ownership and ordering contract for peer failure and protocol recovery."
+            },
+            {
+              "id": "T54.08.b",
+              "text": "Implement heartbeat/timeout observation and supervisor-driven epoch recovery. Stop a peer after publication and before acknowledgment, then reconcile retained or discarded work."
+            },
+            {
+              "id": "T54.08.c",
+              "text": "Show stale epochs rejected, buffers returned through a defined recovery path and explicit uncertain-result reporting for a request interrupted across reset."
+            }
+          ]
+        },
+        {
+          "id": "T54.09",
+          "title": "Interrupt-to-task pipelines on both cores",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T54.09.a",
+              "text": "Derive and defend the state, ownership and ordering contract for interrupt-to-task pipelines on both cores."
+            },
+            {
+              "id": "T54.09.b",
+              "text": "Build acquisition ISR to M4 task to shared queue to M7 worker to response pipeline. Give every hop a bounded queue and overload policy, then trace sequence IDs end to end."
+            },
+            {
+              "id": "T54.09.c",
+              "text": "Reconcile accepted, completed and dropped items at every hop and derive an end-to-end latency budget from component observations with stated interference."
+            }
+          ]
+        },
+        {
+          "id": "T54.10",
+          "title": "AMP end-to-end observatory",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T54.10.a",
+              "text": "Derive and defend the state, ownership and ordering contract for amp end-to-end observatory."
+            },
+            {
+              "id": "T54.10.b",
+              "text": "Package both ELF images, maps, protocol version and board configuration. Run periodic acquisition plus parallel compute, a queue-overload burst and a peer restart with external timing capture."
+            },
+            {
+              "id": "T54.10.c",
+              "text": "Provide actual dual-core progress, queue and recovery traces with source/image hashes and a full RAM/CPU/I/O ledger. If hardware is unavailable, leave physical completion explicitly not-run."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T55",
+      "title": "Lock-free algorithms, reclamation and progress arguments",
+      "depth": "implementation and experimental mastery",
+      "subtopics": [
+        {
+          "id": "T55.01",
+          "title": "SPSC publication and acquire-release ordering",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T55.01.a",
+              "text": "Derive and defend the state, ownership and ordering contract for spsc publication and acquire-release ordering."
+            },
+            {
+              "id": "T55.01.b",
+              "text": "Implement a fixed-capacity C atomic SPSC queue and a deliberately relaxed-publication model. State the happens-before chain and inspect the selected target instruction sequence."
+            },
+            {
+              "id": "T55.01.c",
+              "text": "Validate sequence preservation and slot ownership under wrap and contention. Explain why failure to observe a relaxed-ordering defect on x86 does not prove portability."
+            }
+          ]
+        },
+        {
+          "id": "T55.02",
+          "title": "Compare-and-swap and progress classifications",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T55.02.a",
+              "text": "Derive and defend the state, ownership and ordering contract for compare-and-swap and progress classifications."
+            },
+            {
+              "id": "T55.02.b",
+              "text": "Implement an x86 CAS counter and a bounded model of interfering updates. Audit compiler atomic width and emitted instructions; keep allocation, logging and error paths in the progress analysis."
+            },
+            {
+              "id": "T55.02.c",
+              "text": "Classify each operation progress property with explicit assumptions and show a schedule that starves one caller while others progress. Do not label that schedule wait-free."
+            }
+          ]
+        },
+        {
+          "id": "T55.03",
+          "title": "ABA and identity reuse",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T55.03.a",
+              "text": "Derive and defend the state, ownership and ordering contract for aba and identity reuse."
+            },
+            {
+              "id": "T55.03.b",
+              "text": "Build a deterministic three-step stack model that pauses a reader, removes/reuses nodes and resumes its stale CAS. Compare raw pointers, tagged generations and deferred reuse."
+            },
+            {
+              "id": "T55.03.c",
+              "text": "Show the exact corrupted history for raw-pointer CAS and state which assumption each mitigation adds. Distinguish ABA prevention from general use-after-free prevention."
+            }
+          ]
+        },
+        {
+          "id": "T55.04",
+          "title": "A bounded pool for concurrent nodes",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T55.04.a",
+              "text": "Derive and defend the state, ownership and ordering contract for a bounded pool for concurrent nodes."
+            },
+            {
+              "id": "T55.04.b",
+              "text": "Implement a fixed node arena with explicit free, live and retired states and generation IDs. Integrate a try-allocation result before linking a node into a queue."
+            },
+            {
+              "id": "T55.04.c",
+              "text": "Reconcile all node states under exhaustion and contention, and include the free-list algorithm in the progress argument rather than treating it as magic infrastructure."
+            }
+          ]
+        },
+        {
+          "id": "T55.05",
+          "title": "Hazard-pointer publication and reclamation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T55.05.a",
+              "text": "Derive and defend the state, ownership and ordering contract for hazard-pointer publication and reclamation."
+            },
+            {
+              "id": "T55.05.b",
+              "text": "Implement a bounded hazard domain with fixed participants and retired lists. Enumerate protect-publish-recheck against remove-retire-scan, using conservative ordering before optimization."
+            },
+            {
+              "id": "T55.05.c",
+              "text": "Demonstrate safe reuse only after the final hazard clears and report bounded-pool exhaustion when a reader stalls. Separate memory safety from progress and memory-usage guarantees."
+            }
+          ]
+        },
+        {
+          "id": "T55.06",
+          "title": "Michael-Scott queue with bounded reclamation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T55.06.a",
+              "text": "Derive and defend the state, ownership and ordering contract for michael-scott queue with bounded reclamation."
+            },
+            {
+              "id": "T55.06.b",
+              "text": "Implement the queue on x86 with supported CAS widths, explicit memory orders and protected node reads. Integrate empty, full-pool and help-tail paths and record operation histories."
+            },
+            {
+              "id": "T55.06.c",
+              "text": "Check finite histories against FIFO semantics and demonstrate delayed-tail helping plus safe reclamation. Audit the entire call path before making a lock-free claim."
+            }
+          ]
+        },
+        {
+          "id": "T55.07",
+          "title": "Epoch reclamation and quiescent states",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T55.07.a",
+              "text": "Derive and defend the state, ownership and ordering contract for epoch reclamation and quiescent states."
+            },
+            {
+              "id": "T55.07.b",
+              "text": "Implement a fixed-participant epoch domain for an append/read/remove structure and compare retire-list growth with hazard pointers under a paused reader."
+            },
+            {
+              "id": "T55.07.c",
+              "text": "Identify the earliest safe reuse point for each retired node and show memory retention under a nonquiescent reader. State that bounded storage can force explicit exhaustion despite algorithmic progress."
+            }
+          ]
+        },
+        {
+          "id": "T55.08",
+          "title": "Read-copy-update as an ownership protocol",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T55.08.a",
+              "text": "Derive and defend the state, ownership and ordering contract for read-copy-update as an ownership protocol."
+            },
+            {
+              "id": "T55.08.b",
+              "text": "Implement immutable configuration replacement with fixed version slots and a bounded quiescent-state protocol. Keep writer serialization explicit and prevent mutation of published versions."
+            },
+            {
+              "id": "T55.08.c",
+              "text": "Show each reader sees a self-consistent version and old storage remains valid through its final reader. Explain the selected grace-period model and its limits."
+            }
+          ]
+        },
+        {
+          "id": "T55.09",
+          "title": "Concurrent histories and linearizability checking",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T55.09.a",
+              "text": "Derive and defend the state, ownership and ordering contract for concurrent histories and linearizability checking."
+            },
+            {
+              "id": "T55.09.b",
+              "text": "Write a bounded backtracking checker for queue histories with distinct operation IDs. Feed generated legal histories and hand-designed lost-item, duplicate-item and ordering violations."
+            },
+            {
+              "id": "T55.09.c",
+              "text": "Reject the supplied impossible histories and show a witness sequential order for accepted ones. State the history length/state-space limit and retain the smallest counterexample."
+            }
+          ]
+        },
+        {
+          "id": "T55.10",
+          "title": "End-to-end progress and contention audit",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T55.10.a",
+              "text": "Derive and defend the state, ownership and ordering contract for end-to-end progress and contention audit."
+            },
+            {
+              "id": "T55.10.b",
+              "text": "Compare SPSC, a mutex queue and the reclaimed MPMC queue under uncontended, contended, oversubscribed and paused-participant workloads. Audit all success, failure and reclamation paths."
+            },
+            {
+              "id": "T55.10.c",
+              "text": "Publish correctness evidence separately from performance data, record uncertainty and classify progress for each complete operation. Explain an observed case where locking performs better."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T56",
+      "title": "Concurrent OS services and integrated systems",
+      "depth": "implementation and experimental mastery",
+      "subtopics": [
+        {
+          "id": "T56.01",
+          "title": "Process and thread objects as distinct lifetimes",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T56.01.a",
+              "text": "Derive and defend the state, ownership and ordering contract for process and thread objects as distinct lifetimes."
+            },
+            {
+              "id": "T56.01.b",
+              "text": "Refactor the existing one-thread process representation into bounded process and thread pools. Preserve old isolation tests and add two threads sharing one process mapping."
+            },
+            {
+              "id": "T56.01.c",
+              "text": "Demonstrate shared user state within one process and isolation across two processes, with complete pool/refcount accounting after all threads exit."
+            }
+          ]
+        },
+        {
+          "id": "T56.02",
+          "title": "Spawn, exit, wait and process reaping",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T56.02.a",
+              "text": "Derive and defend the state, ownership and ordering contract for spawn, exit, wait and process reaping."
+            },
+            {
+              "id": "T56.02.b",
+              "text": "Implement bounded spawn/exit/wait using the existing static ELF profile and boot archive. Test parent wait before and after child exit and define orphan handling."
+            },
+            {
+              "id": "T56.02.c",
+              "text": "Run real child programs with distinct exit values and reject foreign/stale waits. Reconcile all resources on load failure and orphan cleanup."
+            }
+          ]
+        },
+        {
+          "id": "T56.03",
+          "title": "Demand-zero faults and frame ownership",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T56.03.a",
+              "text": "Derive and defend the state, ownership and ordering contract for demand-zero faults and frame ownership."
+            },
+            {
+              "id": "T56.03.b",
+              "text": "Implement demand-zero for one bounded heap region using the existing frame allocator. Decode fault cause and retain per-process page ledgers."
+            },
+            {
+              "id": "T56.03.c",
+              "text": "Observe real first-touch faults and zero-filled bytes, show invalid accesses terminate the offending process, and verify no frame leaks across exhaustion and exit."
+            }
+          ]
+        },
+        {
+          "id": "T56.04",
+          "title": "Restricted copy-on-write cloning",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T56.04.a",
+              "text": "Derive and defend the state, ownership and ordering contract for restricted copy-on-write cloning."
+            },
+            {
+              "id": "T56.04.b",
+              "text": "Implement the restricted clone and write-fault path with checked frame refcounts and rollback. Test parent and child writing separate values to the same virtual address."
+            },
+            {
+              "id": "T56.04.c",
+              "text": "Demonstrate shared physical frames before writes and distinct contents afterward, including a sole-owner optimization and allocation-failure rollback."
+            }
+          ]
+        },
+        {
+          "id": "T56.05",
+          "title": "Bounded process channels",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T56.05.a",
+              "text": "Derive and defend the state, ownership and ordering contract for bounded process channels."
+            },
+            {
+              "id": "T56.05.b",
+              "text": "Expose bounded send/receive/close syscalls using generation-checked endpoints. Start with fixed maximum message size and explicit directional rights."
+            },
+            {
+              "id": "T56.05.c",
+              "text": "Run isolated client/server processes, reject invalid spans without kernel corruption and preserve queued-message accounting through peer exit."
+            }
+          ]
+        },
+        {
+          "id": "T56.06",
+          "title": "Shared-memory objects and explicit synchronization",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T56.06.a",
+              "text": "Derive and defend the state, ownership and ordering contract for shared-memory objects and explicit synchronization."
+            },
+            {
+              "id": "T56.06.b",
+              "text": "Implement bounded shared-memory create/map/unmap handles and one synchronized producer-consumer protocol. Keep executable mappings out of this teaching profile."
+            },
+            {
+              "id": "T56.06.c",
+              "text": "Show one physical object visible through two virtual mappings with controlled publication, correct rights and final-reference reclamation."
+            }
+          ]
+        },
+        {
+          "id": "T56.07",
+          "title": "Asynchronous block requests and completion ownership",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T56.07.a",
+              "text": "Derive and defend the state, ownership and ordering contract for asynchronous block requests and completion ownership."
+            },
+            {
+              "id": "T56.07.b",
+              "text": "Extend the original virtio block path with a bounded outstanding-request pool, generation IDs and wait queues. Preserve descriptor/buffer ownership through success, error and timeout observation."
+            },
+            {
+              "id": "T56.07.c",
+              "text": "Run user work while actual block I/O is outstanding and account for all requests/descriptors. Demonstrate that timeout reports uncertainty without unsafe reuse."
+            }
+          ]
+        },
+        {
+          "id": "T56.08",
+          "title": "Read-only boot archive as a file service",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T56.08.a",
+              "text": "Derive and defend the state, ownership and ordering contract for read-only boot archive as a file service."
+            },
+            {
+              "id": "T56.08.b",
+              "text": "Implement a minimal read-only namespace and file operations over validated archive entries. Reuse the existing archive parser and reject writes or unsupported path syntax."
+            },
+            {
+              "id": "T56.08.c",
+              "text": "Read known file hashes through the actual user syscall path and preserve independent offsets. Reject malformed archives before exposing any entries."
+            }
+          ]
+        },
+        {
+          "id": "T56.09",
+          "title": "VM execution as a bounded service",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T56.09.a",
+              "text": "Derive and defend the state, ownership and ordering contract for vm execution as a bounded service."
+            },
+            {
+              "id": "T56.09.b",
+              "text": "Wrap the existing VM in an isolated process service over channels. Add request IDs, bounded program/result messages and a clear cancellation/result-too-large policy."
+            },
+            {
+              "id": "T56.09.c",
+              "text": "Run valid and malformed programs from separate clients, preserve process isolation and return explicit resource errors while other clients progress."
+            }
+          ]
+        },
+        {
+          "id": "T56.10",
+          "title": "Single-owner persistent store service",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T56.10.a",
+              "text": "Derive and defend the state, ownership and ordering contract for single-owner persistent store service."
+            },
+            {
+              "id": "T56.10.b",
+              "text": "Build a channel-based store service with bounded get/put requests, request IDs and one owner of the block handle. Reuse the existing WAL/checkpoint implementation unchanged behind the adapter."
+            },
+            {
+              "id": "T56.10.c",
+              "text": "Preserve the store regression suite, show concurrent clients serialized through one owner and correlate durable replies with committed log records."
+            }
+          ]
+        },
+        {
+          "id": "T56.11",
+          "title": "Service restart and reboot recovery",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T56.11.a",
+              "text": "Derive and defend the state, ownership and ordering contract for service restart and reboot recovery."
+            },
+            {
+              "id": "T56.11.b",
+              "text": "Integrate VM and store clients with supervised restart and the existing disk-recovery path. Persist a known value, terminate/restart the service, then reboot the guest and verify recovery."
+            },
+            {
+              "id": "T56.11.c",
+              "text": "Recover the committed value after actual reboot, distinguish uncommitted work, and account for every request as completed, rejected or uncertain. Retain disk/image identities and restart traces."
+            }
+          ]
+        },
+        {
+          "id": "T56.12",
+          "title": "Physical dual-core application and OS comparison",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T56.12.a",
+              "text": "Derive and defend the state, ownership and ordering contract for physical dual-core application and os comparison."
+            },
+            {
+              "id": "T56.12.b",
+              "text": "Integrate the accepted dual-core runtime, queues, notifications, cache/DMA rules and peer recovery. Record an end-to-end message ledger, deadline-miss policy and external timing captures."
+            },
+            {
+              "id": "T56.12.c",
+              "text": "Deliver two audited images and actual physical evidence for parallel progress, synchronization, overload and restart. Keep any missing board gate explicitly open while retaining completed build/model evidence."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

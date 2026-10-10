@@ -32,7 +32,7 @@ def sha(path):
 
 def load_taxonomy():
     taxonomy = read_json(ROOT / 'curriculum/taxonomy.json')['domains']
-    for name in ['enhancement_taxonomy.json','performance_debugging_taxonomy.json','v2_taxonomy.json']:
+    for name in ['enhancement_taxonomy.json','performance_debugging_taxonomy.json','v2_taxonomy.json','v3_taxonomy.json']:
         extension = ROOT / 'curriculum' / name
         if extension.exists(): taxonomy += read_json(extension)['domains']
     return taxonomy
@@ -70,7 +70,21 @@ def require_research_gates():
         gate=ROOT/'reviews/v2/research_gate.json'
         if not gate.exists() or read_json(gate).get('accepted') is not True:
             raise ValueError('Second-edition source research gate not accepted')
-        verify_research_hashes(read_json(gate),'research/v2','*_resources.json')
+        prior=read_json(gate)
+        if (ROOT/'curriculum/v3_taxonomy.json').exists():
+            # The accepted v2 receipt remains immutable. Its two aggregate
+            # registries are preserved byte-for-byte before adding v3 sources.
+            prior=dict(prior)
+            prior['research_input_sha256']={
+                ('references/baseline_v2/'+Path(path).name if path in
+                 {'references/resources.json','references/registry_v2.json'} else path):digest
+                for path,digest in prior['research_input_sha256'].items()}
+        verify_research_hashes(prior,'research/v2','*_resources.json')
+    if (ROOT/'curriculum/v3_taxonomy.json').exists():
+        gate=ROOT/'reviews/v3/research_gate.json'
+        if not gate.exists() or read_json(gate).get('accepted') is not True:
+            raise ValueError('Third-edition source research gate not accepted')
+        verify_research_hashes(read_json(gate),'research/v3','*resources.json')
 
 def check_taxonomy_preservation(taxonomy):
     if (ROOT/'curriculum/edition.json').exists():

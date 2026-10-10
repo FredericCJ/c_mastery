@@ -1,0 +1,29 @@
+{
+  "id": "PR-T56-02",
+  "description": "Spawn, exit, wait and process reaping finite independent example",
+  "oracle": "reap",
+  "input": {
+    "children": {
+      "A": 7,
+      "B": 3
+    },
+    "waits": [
+      "A",
+      "A",
+      "C",
+      "B"
+    ]
+  },
+  "expected": {
+    "results": [
+      7,
+      "already_reaped",
+      "not_child",
+      3
+    ],
+    "remaining": []
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Spawn loads a checked image into a new process; it is distinct from copying the caller address space. Exit publishes status and closes owned resources; wait consumes a child completion according to a single-parent policy. Partial load failure must roll back frames and handles.",
+  "required_observation": "Run real child programs with distinct exit values and reject foreign/stale waits. Reconcile all resources on load failure and orphan cleanup."
+}

@@ -1,0 +1,34 @@
+{
+  "id": "PR-T51-03",
+  "description": "Owned mutexes and lock ordering finite independent example",
+  "oracle": "mutex",
+  "input": {
+    "actions": [
+      [
+        "lock",
+        "A"
+      ],
+      [
+        "unlock",
+        "B"
+      ],
+      [
+        "unlock",
+        "A"
+      ],
+      [
+        "lock",
+        "B"
+      ]
+    ]
+  },
+  "expected": {
+    "owner": "B",
+    "errors": [
+      "nonowner_unlock"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A mutex grants exclusive ownership to a task, so only that owner may unlock. This first mutex is nonrecursive: self-lock reports an error instead of deadlocking invisibly. Ownership transfer and wakeup must appear atomic to contenders, with a documented queue discipline.",
+  "required_observation": "Show mutual exclusion and correct handoff, reject nonowner operations and produce a minimal lock-order-cycle deadlock that the declared ordering prevents."
+}

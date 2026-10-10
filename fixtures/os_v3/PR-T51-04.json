@@ -1,0 +1,33 @@
+{
+  "id": "PR-T51-04",
+  "description": "Transitive priority inheritance finite independent example",
+  "oracle": "inheritance",
+  "input": {
+    "base": {
+      "A": 1,
+      "B": 2,
+      "C": 5
+    },
+    "waits": [
+      [
+        "C",
+        "B"
+      ],
+      [
+        "B",
+        "A"
+      ]
+    ],
+    "priority_convention": "larger-is-more-urgent"
+  },
+  "expected": {
+    "effective": {
+      "A": 5,
+      "B": 5,
+      "C": 5
+    }
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Priority inheritance changes an owner effective priority while a higher-priority task waits. Donation follows ownership chains; a single saved old priority is insufficient when an owner holds multiple mutexes or a donor times out. Base and effective priority remain distinct fields.",
+  "required_observation": "Show that H blocking no longer includes unrelated M execution under the stated single-core policy, and validate transitive donation plus correct partial disinheritance."
+}

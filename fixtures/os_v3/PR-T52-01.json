@@ -1,0 +1,39 @@
+{
+  "id": "PR-T52-01",
+  "description": "Rate-monotonic and deadline-monotonic scheduling finite independent example",
+  "oracle": "priority_order",
+  "input": {
+    "tasks": [
+      [
+        "A",
+        10,
+        4
+      ],
+      [
+        "B",
+        6,
+        6
+      ],
+      [
+        "C",
+        20,
+        3
+      ]
+    ]
+  },
+  "expected": {
+    "rm": [
+      "B",
+      "A",
+      "C"
+    ],
+    "dm": [
+      "C",
+      "A",
+      "B"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "RM orders by period; DM orders by relative deadline. Their textbook optimality claims require the stated independent, preemptive single-processor task model. For implicit deadlines RM utilization bounds are sufficient, not necessary. A task with a shorter deadline than period changes which ordering is appropriate.",
+  "required_observation": "Produce a schedulable set rejected by the sufficient bound and verify it by exact response-time analysis. State all assumptions alongside each conclusion."
+}

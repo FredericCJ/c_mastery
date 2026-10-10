@@ -1,0 +1,28 @@
+{
+  "id": "PR-T49-02",
+  "description": "Processes, threads and lifetime ownership finite independent example",
+  "oracle": "references",
+  "input": {
+    "initial": 1,
+    "deltas": [
+      1,
+      1,
+      -1,
+      -1,
+      -1
+    ]
+  },
+  "expected": {
+    "counts": [
+      2,
+      3,
+      2,
+      1,
+      0
+    ],
+    "first_zero_step": 5
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A process owns an address-space and descriptor context; multiple threads can execute within it. A child process initially sharing physical pages is not permission to share later ordinary writes. Exiting a thread, exiting a process, waiting for a child and joining a thread have distinct reclamation obligations.",
+  "required_observation": "Observe thread-shared state and process-private state, account for all created entities, and explain termination when one worker fails before publishing its result."
+}

@@ -1,0 +1,610 @@
+{
+  "version": 1,
+  "family": "execution",
+  "module": "T50",
+  "title": "Original freestanding task execution, synchronization, real time and MCU AMP",
+  "build_system": "cmake",
+  "default_target": "host",
+  "targets": {
+    "host": {
+      "capabilities": [
+        "cmake",
+        "ninja"
+      ],
+      "evidence_kind": "host",
+      "tests": [
+        "execution.admission",
+        "execution.enrollment",
+        "execution.lifecycle",
+        "execution.scheduler",
+        "execution.timers",
+        "execution.semaphore",
+        "execution.mutex",
+        "execution.inheritance",
+        "execution.ceiling",
+        "execution.condition",
+        "execution.queue",
+        "execution.events",
+        "execution.notification",
+        "execution.barrier",
+        "execution.once",
+        "execution.rwlock",
+        "execution.teardown",
+        "execution.faults",
+        "execution.response",
+        "execution.edf",
+        "execution.cbs",
+        "execution.spsc",
+        "execution.hazard",
+        "execution.collector_aba",
+        "execution.epoch",
+        "execution.priorities",
+        "execution.partition",
+        "execution.server",
+        "execution.identity",
+        "execution.progress",
+        "execution.history",
+        "execution.rcu",
+        "execution.comparison",
+        "execution.parallel"
+      ]
+    },
+    "cortex-m4-qemu": {
+      "capabilities": [
+        "arm_compiler",
+        "qemu_arm",
+        "cmake",
+        "ninja"
+      ],
+      "evidence_kind": "emulator",
+      "tests": [
+        "execution.image_cortex-m4-qemu",
+        "execution.cortex_m4_boot",
+        "execution.cortex_m4_cooperative",
+        "execution.cortex_m4_preemptive",
+        "execution.cortex_m4_fp",
+        "execution.cortex_m4"
+      ]
+    },
+    "stm32f439": {
+      "capabilities": [
+        "arm_compiler",
+        "cmake",
+        "ninja"
+      ],
+      "evidence_kind": "physical",
+      "tests": [
+        "execution.image_stm32f439"
+      ],
+      "physical": true
+    },
+    "stm32h745": {
+      "capabilities": [
+        "arm_compiler",
+        "cmake",
+        "ninja"
+      ],
+      "evidence_kind": "physical",
+      "tests": [
+        "execution.image_stm32h745"
+      ],
+      "physical": true
+    }
+  },
+  "default": "unsolved learner functions compile; mechanism gates fail",
+  "assessor_root": "assessor/execution",
+  "projects": [
+    {
+      "id": "PR-T50-01",
+      "tests": [
+        "execution.admission"
+      ],
+      "scope": "Original image/initialization gate; stack/handler disassembly and strict no-runtime audit required.",
+      "target_tests": {
+        "cortex-m4-qemu": [
+          "execution.cortex_m4_boot"
+        ],
+        "stm32f439": [
+          "execution.image_stm32f439"
+        ],
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T50-02",
+      "tests": [
+        "execution.admission"
+      ],
+      "scope": "Static nonoverlap/alignment/exhaustion contract. Private stack ownership remains target evidence."
+    },
+    {
+      "id": "PR-T50-03",
+      "tests": [
+        "execution.scheduler"
+      ],
+      "scope": "Actual Cortex-M PSP context switching without timer preemption.",
+      "target_tests": {
+        "cortex-m4-qemu": [
+          "execution.cortex_m4_cooperative"
+        ],
+        "stm32f439": [
+          "execution.image_stm32f439"
+        ],
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T50-04",
+      "tests": [
+        "execution.scheduler"
+      ],
+      "scope": "Serialized ready/wait lifecycle; Cortex stage adds real dispatch."
+    },
+    {
+      "id": "PR-T50-05",
+      "tests": [
+        "execution.timers"
+      ],
+      "scope": "Modular deadline and exact-boundary race tests; timer data-structure cost measurements remain required."
+    },
+    {
+      "id": "PR-T50-06",
+      "tests": [
+        "execution.scheduler"
+      ],
+      "scope": "Actual SysTick/PendSV/SVC preemption of nonyielding tasks.",
+      "target_tests": {
+        "cortex-m4-qemu": [
+          "execution.cortex_m4_preemptive"
+        ],
+        "stm32f439": [
+          "execution.image_stm32f439"
+        ],
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T50-07",
+      "tests": [
+        "execution.scheduler"
+      ],
+      "scope": "Saved interrupt-mask nesting and ISR/nested-critical blocking rejection execute in the guest.",
+      "target_tests": {
+        "cortex-m4-qemu": [
+          "execution.cortex_m4_preemptive"
+        ],
+        "stm32f439": [
+          "execution.image_stm32f439"
+        ],
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T50-08",
+      "tests": [
+        "execution.scheduler"
+      ],
+      "scope": "Actual s16 context preservation plus a rejected corrupt-restore mutant.",
+      "target_tests": {
+        "cortex-m4-qemu": [
+          "execution.cortex_m4_fp"
+        ],
+        "stm32f439": [
+          "execution.image_stm32f439"
+        ],
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T50-09",
+      "tests": [
+        "execution.lifecycle"
+      ],
+      "scope": "Exit/join/reap slot lifecycle; stack must remain live through switch-out and reap."
+    },
+    {
+      "id": "PR-T50-10",
+      "tests": [
+        "execution.faults"
+      ],
+      "scope": "Cooperative cancellation, owner-exit refusal and lifecycle checks; stack guards are also in target port."
+    },
+    {
+      "id": "PR-T50-11",
+      "tests": [
+        "execution.timers"
+      ],
+      "scope": "Rollover anchor only; implement next-deadline programming and physically measure tickless sleep/wakeup separately."
+    },
+    {
+      "id": "PR-T50-12",
+      "tests": [
+        "execution.comparison"
+      ],
+      "scope": "Hosted logical integration; target integrated stage runs actual preemptive tasks and queue close/drain.",
+      "target_tests": {
+        "cortex-m4-qemu": [
+          "execution.cortex_m4"
+        ],
+        "stm32f439": [
+          "execution.image_stm32f439"
+        ],
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T51-01",
+      "tests": [
+        "execution.enrollment"
+      ],
+      "scope": "Latched signal-before/enrollment-after atomicity; one port serialization domain."
+    },
+    {
+      "id": "PR-T51-02",
+      "tests": [
+        "execution.semaphore"
+      ],
+      "scope": "Direct permit handoff, timeout and close."
+    },
+    {
+      "id": "PR-T51-03",
+      "tests": [
+        "execution.mutex"
+      ],
+      "scope": "Owned nonrecursive mutex and wrong-owner/deadlock rejection."
+    },
+    {
+      "id": "PR-T51-04",
+      "tests": [
+        "execution.inheritance"
+      ],
+      "scope": "Transitive donation and withdrawal when a donor times out."
+    },
+    {
+      "id": "PR-T51-05",
+      "tests": [
+        "execution.condition"
+      ],
+      "scope": "Atomic release/enrollment; timeout and cancellation return only after mutex reacquisition."
+    },
+    {
+      "id": "PR-T51-06",
+      "tests": [
+        "execution.queue"
+      ],
+      "scope": "Bounded queue, full/empty wait, drain-close versus discard-abort."
+    },
+    {
+      "id": "PR-T51-07",
+      "tests": [
+        "execution.queue"
+      ],
+      "scope": "Capacity-zero rendezvous and capacity-one mailbox; endpoint ownership remains learner design."
+    },
+    {
+      "id": "PR-T51-08",
+      "tests": [
+        "execution.events"
+      ],
+      "scope": "Any/all masks and FIFO clear-on-consume."
+    },
+    {
+      "id": "PR-T51-09",
+      "tests": [
+        "execution.notification"
+      ],
+      "scope": "Counted delivery and overflow rejection."
+    },
+    {
+      "id": "PR-T51-10",
+      "tests": [
+        "execution.barrier"
+      ],
+      "scope": "Reusable generation and collective break on cancellation/timeout."
+    },
+    {
+      "id": "PR-T51-11",
+      "tests": [
+        "execution.once"
+      ],
+      "scope": "Single owner and retry after failed initialization; RETRY waiters must re-enter."
+    },
+    {
+      "id": "PR-T51-12",
+      "tests": [
+        "execution.rwlock"
+      ],
+      "scope": "Writer preference, upgrade rejection and reader admission after last writer withdraws."
+    },
+    {
+      "id": "PR-T51-13",
+      "tests": [
+        "execution.faults"
+      ],
+      "scope": "Deadline/cancel/close races, blocked reentry and condition reacquisition."
+    },
+    {
+      "id": "PR-T51-14",
+      "tests": [
+        "execution.teardown",
+        "execution.faults"
+      ],
+      "scope": "Close and join lifetime; owner death refused until cooperative cleanup. Forced recovery remains additional work."
+    },
+    {
+      "id": "PR-T52-01",
+      "tests": [
+        "execution.priorities"
+      ],
+      "scope": "Stable RM/DM ordering; measured WCET and response-time assumptions required."
+    },
+    {
+      "id": "PR-T52-02",
+      "tests": [
+        "execution.edf"
+      ],
+      "scope": "Finite exact demand-bound gate, constrained assumptions and explicit horizon."
+    },
+    {
+      "id": "PR-T52-03",
+      "tests": [
+        "execution.response"
+      ],
+      "scope": "Fixed-priority response time with jitter and blocking; measure/add dispatch and interrupt overhead to cost."
+    },
+    {
+      "id": "PR-T52-04",
+      "tests": [
+        "execution.ceiling"
+      ],
+      "scope": "Immediate priority ceiling, not original priority-ceiling protocol/system-ceiling admission."
+    },
+    {
+      "id": "PR-T52-05",
+      "tests": [
+        "execution.server"
+      ],
+      "scope": "Bounded sporadic-server replenishments; deferrable/polling alternatives remain comparative learner traces."
+    },
+    {
+      "id": "PR-T52-06",
+      "tests": [
+        "execution.cbs"
+      ],
+      "scope": "CBS budget/deadline replenishment model."
+    },
+    {
+      "id": "PR-T52-07",
+      "tests": [
+        "execution.edf"
+      ],
+      "scope": "Admission failures under explicit finite horizon; overload policy dossier remains required."
+    },
+    {
+      "id": "PR-T52-08",
+      "tests": [
+        "execution.timers"
+      ],
+      "scope": "Modular rollover anchor; physical tickless programming remains separate."
+    },
+    {
+      "id": "PR-T52-09",
+      "tests": [
+        "execution.partition"
+      ],
+      "scope": "Finite hyperperiod first-fit partitioning and partitioned EDF simulation."
+    },
+    {
+      "id": "PR-T52-10",
+      "tests": [
+        "execution.partition"
+      ],
+      "scope": "Global-EDF miss counterexample against feasible partition; finite model, no optimality claim."
+    },
+    {
+      "id": "PR-T54-01",
+      "tests": [
+        "execution.spsc"
+      ],
+      "scope": "Two private strict images and reserved shared SRAM map; physical boot evidence required.",
+      "target_tests": {
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T54-02",
+      "tests": [
+        "execution.spsc"
+      ],
+      "scope": "Cold-global-reset epoch-one release/ack baseline; warm/reset recovery remains separate.",
+      "target_tests": {
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T54-03",
+      "tests": [
+        "execution.spsc"
+      ],
+      "scope": "Original shared noncacheable SRAM SPSC packet ownership; board execution required.",
+      "target_tests": {
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T54-04",
+      "tests": [
+        "execution.spsc"
+      ],
+      "scope": "Original HSEM release notification/IRQ with coalesced ring-authoritative data path.",
+      "target_tests": {
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T54-05",
+      "tests": [
+        "execution.spsc"
+      ],
+      "scope": "Noncacheable MPU baseline only; cached clean/invalidate variant and failure experiment required.",
+      "target_tests": {
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T54-06",
+      "tests": [
+        "execution.spsc"
+      ],
+      "scope": "Static CPU ownership baseline only; implement and physically observe DMA ownership and cache transitions.",
+      "target_tests": {
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T54-07",
+      "tests": [
+        "execution.spsc"
+      ],
+      "scope": "Per-core logical progress only; implement clock calibration and bound skew physically.",
+      "target_tests": {
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T54-08",
+      "tests": [
+        "execution.spsc"
+      ],
+      "scope": "Epoch mismatch fail-stop baseline only; implement independent-peer-reset recovery and stale-message rejection.",
+      "target_tests": {
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T54-09",
+      "tests": [
+        "execution.spsc"
+      ],
+      "scope": "Short HSEM ISR records notification and task context drains rings; physical ISR timing required.",
+      "target_tests": {
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T54-10",
+      "tests": [
+        "execution.spsc"
+      ],
+      "scope": "Coldboot 1000-packet AMP endpoint plus two local runtimes; physical load/fault dossier required.",
+      "target_tests": {
+        "stm32h745": [
+          "execution.image_stm32h745"
+        ]
+      }
+    },
+    {
+      "id": "PR-T55-01",
+      "tests": [
+        "execution.spsc"
+      ],
+      "scope": "Native unsigned acquire/release SPSC, capacity and wrap."
+    },
+    {
+      "id": "PR-T55-02",
+      "tests": [
+        "execution.progress"
+      ],
+      "scope": "Ticket reservation stall counterexample; distinguish reservation from publication."
+    },
+    {
+      "id": "PR-T55-03",
+      "tests": [
+        "execution.identity"
+      ],
+      "scope": "Generation identity ABA/reuse/exhaustion experiment."
+    },
+    {
+      "id": "PR-T55-04",
+      "tests": [
+        "execution.identity"
+      ],
+      "scope": "Bounded slot ownership and nonwrapping generation handles."
+    },
+    {
+      "id": "PR-T55-05",
+      "tests": [
+        "execution.hazard",
+        "execution.collector_aba"
+      ],
+      "scope": "Hazard publication/revalidation and retirement; tagged concurrent-collector regression."
+    },
+    {
+      "id": "PR-T55-06",
+      "tests": [
+        "execution.hazard",
+        "execution.parallel"
+      ],
+      "scope": "Original Michael-Scott queue with bounded pool and four exclusive participant slots."
+    },
+    {
+      "id": "PR-T55-07",
+      "tests": [
+        "execution.epoch"
+      ],
+      "scope": "Externally serialized epoch/grace tracker; stalls prevent reclamation."
+    },
+    {
+      "id": "PR-T55-08",
+      "tests": [
+        "execution.rcu"
+      ],
+      "scope": "Coarse immutable-root RCU with active-reader slots and one serialized writer."
+    },
+    {
+      "id": "PR-T55-09",
+      "tests": [
+        "execution.history"
+      ],
+      "scope": "Finite complete-history checker with per-participant and real-time order constraints."
+    },
+    {
+      "id": "PR-T55-10",
+      "tests": [
+        "execution.parallel",
+        "execution.history"
+      ],
+      "scope": "Four real pthread participants, 40000 unique items; finite stress, no standalone proof."
+    }
+  ]
+}

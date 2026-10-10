@@ -1,17 +1,23 @@
-# C Mastery 2
+# C Mastery 3
 
 Learn C by building small components, from representation and assembly to firmware,
 communication stacks, a bytecode runtime, a persistent store and an educational OS.
+The third edition adds original task runtimes, synchronization, real-time
+scheduling, x86 SMP, physical M7/M4 AMP and concurrent OS services.
 
-Start with [the second-edition guide](curriculum/guides/second-edition.md), then
+Start with [the third-edition guide](curriculum/guides/third-edition.md), then
 [the project route](curriculum/guides/project-route.md). The
 [complete Markdown curriculum](c_programming_mastery_curriculum.md) and generated
 HTML handbook combine teaching, readings, project contracts and objective maps.
 
-The v1 Git tag `curriculum-v1-2026-10-10` preserves the earlier edition.
-`curriculum/migration.json` maps all 1,491 previous objectives and 297 projects.
-T46–T48 add the runtime, store and kernel. Their final integration persists a
-VM-generated value in a guest process, reboots the kernel and recovers it.
+The curriculum now contains 56 domains, 429 projects and 1,881 objectives.
+T49–T56 add 92 projects and 276 objectives, with 204 reference records across the
+complete curriculum. Each project is budgeted at 4–12 hours; the new route includes
+1,023 provisional hours with reading, assessment and consolidation.
+
+The v1 Git tag `curriculum-v1-2026-10-10` and v2 commit `40bf1b2` preserve prior
+editions. `curriculum/migration_v3.json` retains all 1,605 v2 objectives and 337
+project identities. The earlier VM/store/kernel implementation remains available.
 
 ## Use the laboratories
 
@@ -39,16 +45,25 @@ A passed anchor test does not establish every linked objective.
 brief, predictions and latest receipt under `evidence/history/`, and starts fresh
 evidence for the new project. It preserves learner code and existing fixtures.
 
+New families are `os_observatory`, `execution` and `kernel_smp`. Select declared
+targets with `--target`; x86 SMP supports `--cpus 1`, `2` and `4`. The original
+freestanding images link no libc, libgcc, compiler-rt, libatomic or existing OS.
+Linux and pinned FreeRTOS comparisons use separate builds. See
+[concurrent-system contracts](curriculum/guides/concurrent-system-contracts.md)
+for wait/wake, lifetime, memory-order and hardware responsibilities.
+
 Full completion includes [physical evidence](curriculum/guides/physical-evidence.md)
 for all ten named interfaces. Hardware observations, target timing, formal claims,
 independent transfer and learner-time calibration remain separate from host tests.
+F439 and H745 image builds do not claim board execution. `record-physical` imports
+raw captures with source/image hashes and instrument metadata for later assessment.
 
 ## Build and verify the handbook
 
-These publishing commands require the source checkout or `c_mastery_v2_sources.zip`.
+These publishing commands require the source checkout or `c_mastery_v3_sources.zip`.
 The learner bundle supports the laboratory runner above, but excludes author review
 records and assessor implementations, so it cannot rebuild or accept the handbook.
-Use `c_mastery_v2_html.zip` for a ready-to-open handbook alongside learner work.
+Use `c_mastery_v3_html.zip` for a ready-to-open handbook alongside learner work.
 
 ```powershell
 python -m venv .venv
@@ -58,13 +73,15 @@ python -m venv .venv
 ```
 
 On Linux, install the same locked publishing dependencies in a virtual environment
-and run `python tools/build_v2.py`. Open the local handbook with
+and run `python tools/build_v3.py`. Open the local handbook with
 `python -m http.server 8766 --bind 127.0.0.1 --directory build/html`.
 
 `tools/run_lab_matrix.py` runs actual assessor and unsolved-scaffold checks; on
-Windows it dispatches to WSL. `reviews/v2/` contains current source-bound reports.
-The older `reviews/final_acceptance.json` is historical and does not accept v2.
-`tools/accept_v2.py` checks current receipts before `tools/package_v2.py` exports
+Windows it dispatches to WSL. `reviews/v3/` contains current source-bound reports.
+`tools/run_target_matrix.py` checks the Cortex-M target builds and 1/2/4-CPU guests;
+`tools/run_os_comparison.py` checks the pinned Linux/FreeRTOS workload.
+Earlier acceptance receipts are historical and do not accept this edition.
+`tools/accept_v3.py` checks current receipts before `tools/package_v3.py` exports
 source, learner, assessor and HTML archives and rebuilds extracted sources.
 
 Canonical teaching lives in `curriculum/`, executable work in `labs/`, solutions in

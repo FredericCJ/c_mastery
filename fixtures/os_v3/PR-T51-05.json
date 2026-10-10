@@ -1,0 +1,20 @@
+{
+  "id": "PR-T51-05",
+  "description": "Condition variables and Mesa-style predicates finite independent example",
+  "oracle": "predicate",
+  "input": {
+    "initial_items": 1,
+    "actions": [
+      "signal",
+      "other_consume",
+      "waiter_recheck"
+    ]
+  },
+  "expected": {
+    "items": 0,
+    "waiter_blocks": true
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The condition wait atomically releases its associated mutex and enrolls the task; returning reacquires the mutex before the caller rechecks its predicate. A signal merely makes a waiter eligible. Another task may invalidate the condition before the waiter runs, so the loop is essential.",
+  "required_observation": "Force a signaled waiter to lose the race for the item, observe the necessary second wait, and preserve queue capacity under broadcast and spurious wake injection."
+}

@@ -196,7 +196,8 @@ def advance(workspace, project):
             'status':'not-run','archived_evidence':str(history),
             'limits':'Selection preserves learner sources and prior evidence; it does not accept prerequisites or mastery.'}
 
-def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_tests=False, dependencies=None):
+def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_tests=False, dependencies=None,
+               target=None, cpus=None, external=None):
     workspace = Path(workspace).resolve()
     meta = read(workspace / ".cmastery/project.json")
     before = snapshot(workspace)
@@ -207,7 +208,22 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
         project_contract = entries.get(meta['project'], {})
     else:
         project_contract = next((p for p in entries if isinstance(p, dict) and p['id'] == meta['project']), {})
-    selected = project_contract.get('tests', [])
+    target = target or family_meta.get('default_target')
+    targets = family_meta.get('targets', {})
+    if target is not None and target not in targets:
+        raise ValueError('Unsupported target for this family: '+target)
+    target_contract = targets.get(target, {})
+    if target_contract.get('projects') is not None and meta['project'] not in target_contract['projects']:
+        raise ValueError('Selected target does not support project: '+meta['project'])
+    external = external or {}
+    external_contracts = family_meta.get('external_dependencies', {})
+    if set(external)-set(external_contracts): raise ValueError('Undeclared external source dependency')
+    if cpus is not None and cpus not in target_contract.get('cpu_counts', []):
+        raise ValueError('Unsupported CPU count for selected target')
+    selected = project_contract.get('target_tests', {}).get(target, project_contract.get('tests', []))
+    if all_tests and target_contract.get('tests'):
+        selected = target_contract['tests']
+    filter_tests = not all_tests or bool(target_contract.get('tests'))
     env = doctor()
     record = {"schema_version": 2, "project": meta["project"], "family": meta["family"],
               "recorded_at": now(), "evidence_kind": "host-execution",
@@ -216,9 +232,15 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
               "environment": env, "status": "not-run", "steps": [],
               "mastery": "requires separate explanation, transfer and applicable physical evidence"}
     record['project_contract'] = project_contract
+    record['target'] = target
+    record['cpu_count'] = cpus or target_contract.get('default_cpus')
+    record['target_contract'] = target_contract
+    record['physical_observations'] = 'not-run'
     record['required_tests'] = selected
-    unavailable = [tool for tool in (compiler, "cmake", "ninja")
-                   if not env["capabilities"][tool]["available"]]
+    required_tools = set((compiler, 'cmake', 'ninja')) | set(target_contract.get('capabilities', []))
+    unavailable = [tool for tool in sorted(required_tools)
+                   if not env['capabilities'].get(tool, {}).get('available')]
+    unavailable += ['external source '+name for name in target_contract.get('external_dependencies',[]) if name not in external]
     if unavailable or not (workspace / "CMakeLists.txt").is_file() or (not selected and not all_tests):
         record.update(status="unavailable", reason="Missing: " + ", ".join(unavailable or ["executable project adapter"]))
     else:
@@ -226,12 +248,42 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
         # retaining implementations that the new evidence record does not pin.
         run_id=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
         output = workspace / "build" / (compiler + "-" + profile + ("-assessor" if assessor else "-learner")) / run_id
+        if profile == 'tsan':
+            output.mkdir(parents=True, exist_ok=False)
+            probe=output/'tsan_probe.c'; probe.write_text('int main(void) { return 0; }\n', encoding='utf-8')
+            binary=output/('tsan_probe.exe' if os.name=='nt' else 'tsan_probe')
+            checks=[invoke([compiler,'-fsanitize=thread',str(probe),'-o',str(binary)],timeout=timeout)]
+            if checks[0]['exit_code']==0: checks.append(invoke([str(binary)],timeout=15))
+            record['diagnostic_runtime_probe']=checks
+            if len(checks)!=2 or any(c['exit_code']!=0 for c in checks):
+                record.update(status='unavailable',reason='ThreadSanitizer compiler/runtime probe did not execute successfully')
+                save(workspace/'evidence/latest.json',record)
+                return record
         flags = "-Wall -Wextra -Wpedantic"
         flags += {"debug": " -O0 -g", "release": " -O2 -g",
-                  "asan": " -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer"}[profile]
+                  "asan": " -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer",
+                  "tsan": " -O1 -g -fsanitize=thread -fno-omit-frame-pointer"}[profile]
         configure = ["cmake", "-S", str(workspace), "-B", str(output), "-G", "Ninja",
                      "-DCMAKE_C_COMPILER=" + compiler, "-DCMAKE_C_STANDARD=17",
                      "-DCMAKE_C_FLAGS=" + flags]
+        if target is not None: configure.append('-DCMASTERY_TARGET='+target)
+        if record['cpu_count'] is not None: configure.append('-DCMASTERY_CPUS='+str(record['cpu_count']))
+        for name,folder in external.items():
+            if not re.fullmatch(r'[a-z][a-z0-9_]*',name): raise ValueError('Invalid external dependency name')
+            dependency=Path(folder).expanduser().resolve(); contract=external_contracts[name]
+            if not dependency.is_dir(): raise ValueError('External dependency directory missing: '+name)
+            if any(not (dependency/p).is_file() or not (dependency/p).resolve().is_relative_to(dependency)
+                   for p in contract.get('required_files',[])):
+                raise ValueError('External dependency required files missing/escaping: '+name)
+            if contract.get('commit'):
+                revision=invoke(['git','-C',str(dependency),'rev-parse','HEAD'])
+                dirty=invoke(['git','-C',str(dependency),'status','--porcelain'])
+                if revision['exit_code'] or revision.get('stdout','').strip()!=contract['commit'] or dirty['exit_code'] or dirty.get('stdout','').strip():
+                    raise ValueError('External dependency is not a clean pinned commit: '+name)
+            configure.append('-DCMASTERY_'+name.upper()+'_ROOT='+str(dependency))
+            digest=snapshot(dependency)
+            record.setdefault('external_dependencies',{})[name]=digest
+            record.setdefault('external_sources',{})[str(dependency)]=digest['sha256']
         if assessor:
             reference = ROOT / "assessor" / meta["family"]
             if not reference.is_dir():
@@ -239,18 +291,29 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
             configure.append("-DCMASTERY_ASSESSOR_ROOT=" + str(reference))
             record["assessor_source"] = snapshot(reference)
             record.setdefault('external_sources', {})[str(reference)] = record['assessor_source']['sha256']
-            if meta['family'] in {'storage', 'kernel'}:
+            if meta['family'] in {'storage', 'kernel', 'kernel_smp'}:
                 dependencies = dict(dependencies)
                 dependencies.setdefault('runtime', ROOT / 'labs/runtime')
-                if meta['family'] == 'kernel': dependencies.setdefault('storage', ROOT / 'labs/storage')
+                if meta['family'] in {'kernel','kernel_smp'}: dependencies.setdefault('storage', ROOT / 'labs/storage')
+            for dep in project_contract.get('dependencies', family_meta.get('dependencies', [])):
+                dependencies = dict(dependencies)
+                dependencies.setdefault(dep, ROOT/'labs'/dep)
         for family, folder in dependencies.items():
-            if family not in {'runtime', 'storage'}: raise ValueError('Unsupported dependency: '+family)
+            declared = set(family_meta.get('dependencies', [])) | set(project_contract.get('dependencies', []))
+            if family not in {'runtime', 'storage'} | declared or not re.fullmatch(r'[a-z][a-z0-9_]*', family):
+                raise ValueError('Unsupported dependency: '+family)
             dependency = Path(folder).expanduser().resolve()
             if not (dependency / 'family.json').is_file(): raise ValueError('Missing dependency family: '+str(dependency))
+            dependency_meta = read(dependency/'family.json')
+            if ('family' in dependency_meta and 'id' in dependency_meta and
+                    dependency_meta['family'] != dependency_meta['id']):
+                raise ValueError('Conflicting dependency family identity: '+family)
+            if dependency_meta.get('family', dependency_meta.get('id')) != family:
+                raise ValueError('Dependency family identity differs: '+family)
             implementation = ROOT / 'assessor' / family if assessor else dependency / 'src'
-            root_argument = implementation if meta['family']=='kernel' else dependency
+            root_argument = implementation if meta['family'] in {'kernel','kernel_smp'} else dependency
             configure.append('-DCMASTERY_'+family.upper()+'_ROOT='+str(root_argument))
-            if meta['family']=='kernel':
+            if meta['family'] in {'kernel','kernel_smp'}:
                 configure.append('-DCMASTERY_'+family.upper()+'_INCLUDE='+str(dependency/'include'))
                 if family=='runtime': configure.append('-DCMASTERY_RUNTIME_ADAPTERS='+str(dependency/'adapters'))
             record.setdefault('dependencies', {})[family] = snapshot(dependency)
@@ -261,7 +324,7 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
                 record.setdefault('dependency_assessors', {})[family] = snapshot(ref)
                 record.setdefault('external_sources', {})[str(ref)] = record['dependency_assessors'][family]['sha256']
         test_command = ["ctest", "--test-dir", str(output), "--output-on-failure", "--no-tests=error", '--output-junit', str(output/'results.xml')]
-        if not all_tests: test_command += ['-R', '^('+'|'.join(re.escape(t) for t in selected)+')$']
+        if filter_tests: test_command += ['-R', '^('+'|'.join(re.escape(t) for t in selected)+')$']
         commands = [configure, ["cmake", "--build", str(output)], test_command]
         for command in commands:
             result = invoke(command, cwd=workspace, timeout=timeout)
@@ -276,16 +339,25 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
             cases = ET.parse(junit).getroot().findall('.//testcase')
             record['tests'] = [{'name': c.get('name'), 'status': c.get('status'), 'skipped': c.find('skipped') is not None, 'failed': c.find('failure') is not None} for c in cases]
             missing = set(selected) - {c.get('name') for c in cases}
-            if not all_tests and missing: record.update(status='unavailable', reason='Required tests not registered: '+', '.join(sorted(missing)))
+            if filter_tests and missing: record.update(status='unavailable', reason='Required tests not registered: '+', '.join(sorted(missing)))
             if any(c.find('skipped') is not None for c in cases): record.update(status='unavailable', reason='A selected test was skipped')
             if not cases: record.update(status='unavailable', reason='No executed test evidence')
         elif record['status']=='passed':
             record.update(status='failed', reason='CTest returned success without its required test report')
-        record["test_scope"] = "Complete family suite" if all_tests else "Project-selected executable anchors; see project_contract for limits"
+        record["test_scope"] = ("Selected target suite" if all_tests and target_contract.get('tests') else
+                                "Complete family suite" if all_tests else
+                                "Project-selected executable anchors; see project_contract for limits")
         record['evidence_kind'] = 'host-and-emulator-execution' if any('guest' in c.get('name','') for c in record.get('tests',[])) else 'host-execution'
-        target_files = [p for p in (output/'guest').glob('*') if p.is_file() and p.suffix in {'.json','.log'}]
+        if target_contract.get('evidence_kind'):
+            record['evidence_kind'] = target_contract['evidence_kind']
+        if target_contract.get('physical') or record['evidence_kind'] == 'physical':
+            record['evidence_kind'] = 'target-build-and-software-checks'
+            record['physical_observations'] = 'not-run'
+        patterns=family_meta.get('evidence_globs', ['guest/*.json','guest/*.log','targets/**/*.json','targets/**/*.log'])
+        target_files=sorted({p for pattern in patterns for p in output.glob(pattern)
+                            if p.is_file() and p.resolve().is_relative_to(output.resolve()) and p.suffix in {'.json','.log'}})
         if target_files:
-            record['target_evidence'] = {p.name:p.read_text(encoding='utf-8',errors='replace') for p in target_files}
+            record['target_evidence'] = {p.relative_to(output).as_posix():p.read_text(encoding='utf-8',errors='replace') for p in target_files}
             record['target_limits'] = 'Host compiler/profile flags do not instrument the freestanding guest. Guest compiler, flags, images and machine are recorded in build.json.'
     if snapshot(workspace)["sha256"] != before["sha256"]:
         record.update(status="failed", reason="Source changed during the run")
@@ -305,8 +377,54 @@ def report(workspace):
         record = dict(record, status="not-run", stale=True, reason="Workspace source changed after evidence")
     if any(not Path(p).is_dir() or snapshot(Path(p))['sha256'] != digest for p,digest in record.get('external_sources', {}).items()):
         record = dict(record, status='not-run', stale=True, reason='Dependency or assessor source changed after evidence')
+    physical_records=[]
+    for receipt in sorted((workspace/'evidence/physical').glob('*/receipt.json')):
+        physical=read(receipt)
+        if physical.get('project') != meta['project']: continue
+        if physical.get('source_sha256') != snapshot(workspace)['sha256']:
+            physical=dict(physical,status='not-run',stale=True,reason='Source changed after submitted capture')
+        elif any(not (receipt.parent/p).resolve().is_relative_to(receipt.parent.resolve())
+                 or not (receipt.parent/p).is_file() or hashlib.sha256((receipt.parent/p).read_bytes()).hexdigest()!=h
+                 for p,h in physical.get('artifacts',{}).items()):
+            physical=dict(physical,status='not-run',stale=True,reason='Submitted capture artifact changed')
+        physical_records.append(physical)
     return {"project": meta["project"], "family": meta["family"], "evidence": record,
+            "physical_records": physical_records,
             "unresolved_claims": meta["source_catalog"].get("manual_evidence", [])}
+
+def record_physical(workspace, manifest_path):
+    """Preserve supplied captures; structural checks cannot certify observation."""
+    workspace=Path(workspace).resolve()
+    meta=read(workspace/'.cmastery/project.json')
+    path=Path(manifest_path).resolve(); manifest=read(path)
+    required=['target','board_revision','silicon_revision','clocks','cache_mpu','instrument',
+              'instrumentation_overhead','trace_overruns','observations','source_sha256','images','captures']
+    missing=[key for key in required if key not in manifest]
+    if missing: raise ValueError('Physical manifest missing: '+', '.join(missing))
+    family=read(workspace/'family.json')
+    if manifest['target'] not in family.get('targets',{}): raise ValueError('Undeclared physical target')
+    if not family['targets'][manifest['target']].get('physical'):
+        raise ValueError('Target is not declared as physical hardware')
+    if manifest['source_sha256'] != snapshot(workspace)['sha256']: raise ValueError('Capture source identity differs')
+    inputs=[]
+    for kind in ['images','captures']:
+        if not isinstance(manifest[kind],list) or not manifest[kind]: raise ValueError('Nonempty '+kind+' list required')
+        for item in manifest[kind]:
+            source=(path.parent/item).resolve()
+            if not source.is_file(): raise ValueError('Missing physical artifact: '+str(source))
+            inputs.append((kind,source))
+    destination=workspace/'evidence/physical'/datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+    destination.mkdir(parents=True,exist_ok=False)
+    artifacts={}
+    for index,(kind,source) in enumerate(inputs):
+        name=f'{index:03d}_{kind}_{source.name}'
+        shutil.copyfile(source,destination/name)
+        artifacts[name]=hashlib.sha256((destination/name).read_bytes()).hexdigest()
+    receipt=dict(manifest,project=meta['project'],status='recorded',recorded_at=now(),artifacts=artifacts,
+                 evidence_kind='submitted-physical-capture',acceptance='requires assessment of raw traces and project criteria')
+    save(destination/'receipt.json',receipt)
+    return receipt
+
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
@@ -324,11 +442,17 @@ def main(argv=None):
     checking = sub.add_parser("check")
     checking.add_argument("workspace")
     checking.add_argument("--compiler", choices=["gcc", "clang"], default="gcc")
-    checking.add_argument("--profile", choices=["debug", "release", "asan"], default="debug")
+    checking.add_argument("--profile", choices=["debug", "release", "asan", "tsan"], default="debug")
     checking.add_argument("--assessor", action="store_true")
     checking.add_argument("--timeout", type=int, default=180)
     checking.add_argument('--all-tests', action='store_true', help='Run all family tests for integration/assessor review')
     checking.add_argument('--dependency', action='append', default=[], metavar='FAMILY=PATH', help='Explicit completed runtime or storage workspace')
+    checking.add_argument('--target', help='Target declared by the selected laboratory family')
+    checking.add_argument('--cpus', type=int, choices=[1, 2, 4], help='Requested guest CPU count, recorded with evidence')
+    checking.add_argument('--external', action='append', default=[], metavar='NAME=PATH', help='Explicit pinned external source declared by this family')
+    physical = sub.add_parser('record-physical', help='Register physical capture files without automatically accepting their claims')
+    physical.add_argument('workspace')
+    physical.add_argument('manifest')
     reporting = sub.add_parser("report")
     reporting.add_argument("workspace")
     args = parser.parse_args(argv)
@@ -345,7 +469,10 @@ def main(argv=None):
             result = advance(args.workspace,args.project)
         elif args.command == "check":
             deps = dict(item.split('=', 1) for item in args.dependency)
-            result = run_checks(args.workspace, args.compiler, args.profile, args.assessor, args.timeout, args.all_tests, deps)
+            result = run_checks(args.workspace, args.compiler, args.profile, args.assessor, args.timeout, args.all_tests, deps,
+                                args.target, args.cpus, dict(item.split('=',1) for item in args.external))
+        elif args.command == 'record-physical':
+            result = record_physical(args.workspace, args.manifest)
         else:
             result = report(args.workspace)
         print(json.dumps(result, indent=2, ensure_ascii=False))

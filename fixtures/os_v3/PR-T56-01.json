@@ -1,0 +1,28 @@
+{
+  "id": "PR-T56-01",
+  "description": "Process and thread objects as distinct lifetimes finite independent example",
+  "oracle": "references",
+  "input": {
+    "initial": 1,
+    "deltas": [
+      1,
+      1,
+      -1,
+      -1,
+      -1
+    ]
+  },
+  "expected": {
+    "counts": [
+      2,
+      3,
+      2,
+      1,
+      0
+    ],
+    "first_zero_step": 5
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A process owns an address space and handle table; its threads own execution contexts and stacks. Removing the last thread triggers process cleanup only after outstanding kernel references drain. Per-process and per-thread IDs need independent generation checks.",
+  "required_observation": "Demonstrate shared user state within one process and isolation across two processes, with complete pool/refcount accounting after all threads exit."
+}

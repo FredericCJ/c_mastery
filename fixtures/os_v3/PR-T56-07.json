@@ -1,0 +1,31 @@
+{
+  "id": "PR-T56-07",
+  "description": "Asynchronous block requests and completion ownership finite independent example",
+  "oracle": "completion",
+  "input": {
+    "active_generation": 10,
+    "events": [
+      [
+        9,
+        30
+      ],
+      [
+        10,
+        31
+      ],
+      [
+        10,
+        32
+      ]
+    ]
+  },
+  "expected": {
+    "accepted": [
+      31
+    ],
+    "rejected": 2
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Submission transfers a request buffer to the driver until terminal completion. The kernel may schedule other work while the device owns descriptors. Interrupt arrival is a prompt to consume used-ring state; it is not one completion per interrupt.",
+  "required_observation": "Run user work while actual block I/O is outstanding and account for all requests/descriptors. Demonstrate that timeout reports uncertainty without unsafe reuse."
+}

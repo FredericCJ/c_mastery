@@ -1,0 +1,29 @@
+{
+  "id": "PR-T52-03",
+  "description": "Response-time analysis with blocking and jitter finite independent example",
+  "oracle": "response",
+  "input": {
+    "cost": 2,
+    "blocking": 1,
+    "higher": [
+      [
+        1,
+        4,
+        0
+      ]
+    ],
+    "deadline": 10
+  },
+  "expected": {
+    "iterations": [
+      3,
+      4,
+      4
+    ],
+    "response": 4,
+    "schedulable": true
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The response-time recurrence includes own execution, lower-priority blocking and higher-priority interference. For a chosen fixed-priority model, iterate until a fixed point or a deadline violation. Measure-derived execution maxima are observations; using them as WCET assumptions must remain explicit.",
+  "required_observation": "Recompute every recurrence term independently, distinguish sufficient rejection from demonstrated execution failure, and compare predicted interference with a trace under the same model."
+}

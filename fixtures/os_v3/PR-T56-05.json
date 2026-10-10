@@ -1,0 +1,18 @@
+{
+  "id": "PR-T56-05",
+  "description": "Bounded process channels finite independent example",
+  "oracle": "span",
+  "input": {
+    "address": 4090,
+    "length": 16,
+    "allowed_start": 0,
+    "allowed_end": 4096
+  },
+  "expected": {
+    "valid": false,
+    "end": 4106
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A channel crosses a process boundary and therefore validates user spans and owns queued copies. Handles name endpoints, not arbitrary shared pointers. Close semantics distinguish peer shutdown, queued data still available and cancellation of blocked operations.",
+  "required_observation": "Run isolated client/server processes, reject invalid spans without kernel corruption and preserve queued-message accounting through peer exit."
+}

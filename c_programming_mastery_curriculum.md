@@ -5,9 +5,105 @@
 
 Language, algorithms, architecture, systems, firmware, communication, measurement and debugging.
 
-48 domains · 535 subtopics · 1,605 objectives. The original 35 domains and 1,185 objectives are preserved.
+56 domains · 627 subtopics · 1,881 objectives. The original 35 domains and 1,185 objectives are preserved.
 
 Start at [Entry](#guide-entry), follow the [Roadmap](#guide-roadmap), and use [Performance and debugging](#guide-performance-debugging), [Communication stack families](#guide-communication-stacks), [Assessment](#guide-assessment) and [Workload](#guide-workload). The complete source bibliography follows the project catalog.
+
+
+---
+
+<a id="guide-third-edition"></a>
+
+# C Mastery 3: operating systems and concurrent execution
+
+This edition extends the accepted second edition through T49–T56. Follow the
+[project route](#guide-project-route) and retain the earlier implementations. The
+second-edition Git commit is `40bf1b2`; the immutable baseline and explicit third-
+edition migration preserve its 1,605 objective and 337 project identities.
+
+## What grows across the projects
+
+Begin by observing a process, thread, mapping and descriptor on Linux. Write a
+small scheduler model with a hand-derived trace. Next construct task contexts,
+stacks, timers and wait queues, then the synchronization objects built upon them.
+First make a blocked task wake correctly; only then add priorities, deadlines and
+another CPU. A correct queue on one CPU is reusable evidence only after checking
+the new ordering, ownership and reclamation assumptions.
+
+The MCU and x86 branches can proceed independently after the common task and
+synchronization mechanisms. The H745 uses an original runtime per core and
+explicit messages between them. The x86 branch develops coherent SMP, process
+address spaces and shared-kernel services. T56 brings completed components into
+applications; VM/store completion does not gate an early context-switch exercise.
+
+| Stage | Build on | New implementation |
+|---|---|---|
+| T49 | Earlier hosted C and architecture work | OS observations and finite scheduling models |
+| T50 | Task/context observations | Original stacks, context switching and preemption |
+| T51 | Original task runtime | Wait/wake, synchronization and IPC |
+| T52 | Task and synchronization mechanisms | Real-time policies and analysis |
+| T53 | Shared task and synchronization foundation | x86 SMP |
+| T54 | Shared foundation, on a separate branch | Physical M7/M4 AMP |
+| T55 | Atomics and shared-memory execution | Lock-free structures and reclamation |
+| T56 | Completed mechanisms required by each project | Concurrent services and applications |
+
+This table shows the conceptual route. Exact prerequisite project IDs in the
+project route govern entry and allow the MCU and x86 branches to proceed separately.
+
+## Required targets and boundaries
+
+| Target | Actual responsibility | Completion evidence |
+|---|---|---|
+| Linux x86-64 | Observe hosted processes, scheduling, IPC, virtual memory and resource control | Commands, source, actual observations and controlled changes |
+| STM32F439 | Original single-core preemptive tasks and peripheral/interrupt handoff | Strict image audit plus independent board timing and fault observations |
+| x86-64 QEMU, 1/2/4 CPUs | AP startup, per-CPU state, IPIs, shared-kernel scheduling and OS services | Real guest traces and fault campaigns at each supported CPU count |
+| NUCLEO-H745ZI-Q | Original M7/M4 runtimes, static ownership, shared SRAM, HSEM notification and cache/DMA visibility | Both image hashes, standalone boot and two-core physical trace |
+| Pinned FreeRTOS | A separate comparison workload | Configuration, API/port inspection and actual run; does not replace the original runtime |
+
+The H745 branch does not promise general cross-core task migration or cross-core
+priority inheritance. The strict profile does not assume undocumented global
+exclusive-monitor support; CAS-based MPMC/reclamation work executes on x86 SMP.
+No observed overlap on a host or emulator replaces physical MCU observations.
+
+## Work with target-specific evidence
+
+```sh
+python3 -m cmastery init PR-T49-03 ../my-os-observatory
+python3 -m cmastery check ../my-os-observatory --target host
+python3 -m cmastery report ../my-os-observatory
+# Select a target and supported CPU count declared by a family:
+python3 -m cmastery check ../my-smp-lab --target x86-smp --cpus 4
+```
+
+Use a family's manifest and executable-evidence directory to find exact tests.
+Default tests are stage anchors. An assessor suite does not accept a learner's
+explanation, independent implementation or physical claims. `--profile tsan`
+selects a separate hosted diagnostic build; its runtime support must actually be
+available. It neither instruments firmware nor proves all possible schedules.
+
+`record-physical WORKSPACE MANIFEST` registers image/capture files with source
+hashes, board/silicon revisions, clocks, cache/MPU state, instrument settings,
+overhead and trace-overrun records. It preserves submitted evidence with status
+`recorded`, requiring assessment of the raw observations. It never manufactures
+an automatic physical pass from filenames or a successful firmware build.
+
+## Deep diagnosis and performance
+
+For every synchronization mechanism, deliberately construct a counterexample:
+signal before wait, timeout racing grant, owner exit, event coalescing, queue full,
+stale identity, premature reclaim, false sharing, interrupt arrival or peer stall.
+Find the first incorrect state transition, repair its invariant and replay a
+changed schedule. Reuse the T43–T45 reduction, disassembly and measurement methods.
+
+Record ready-selection work versus task count, timer/wait-queue work, critical-
+section duration, context-switch and wakeup latency, CPU time, wall time, cycles,
+contention, throughput, stack/storage peaks and logical/device I/O separately.
+For parallel speedup, retain the serial baseline, workload size, CPU placement and
+instrumentation cost. An observed maximum is not a universal worst-case bound.
+
+Complete the [concurrent-system contracts](#guide-concurrent-system-contracts), exact
+project dossier and delayed transfer before accepting each capability. Hardware
+waiting time and uncalibrated learner estimates remain visible in the workload.
 
 
 ---
@@ -500,6 +596,98 @@ Each accepted artifact carries its source revision, interface, ownership contrac
 | 335 | [PR-T48-12](#pr-t48-12) | One portable VM core inside a user process | [PR-T46-12](#pr-t46-12), [PR-T48-11](#pr-t48-11) | kernel |
 | 336 | [PR-T48-13](#pr-t48-13) | VM, durable store and kernel reboot integration | [PR-T47-12](#pr-t47-12), [PR-T48-12](#pr-t48-12) | kernel |
 | 337 | [PR-T48-14](#pr-t48-14) | Kernel diagnosis, negative controls and delayed transfer | [PR-T08-04](#pr-t08-04), [PR-T09-05](#pr-t09-05), [PR-T16-09](#pr-t16-09), [PR-T23-06](#pr-t23-06), [PR-T27-05](#pr-t27-05), [PR-T32-07](#pr-t32-07), [PR-T37-08](#pr-t37-08), [PR-T46-12](#pr-t46-12), [PR-T47-12](#pr-t47-12), [PR-T48-13](#pr-t48-13) | kernel |
+| 338 | [PR-T49-01](#pr-t49-01) | Privilege, traps and a syscall observatory | [PR-T23-01](#pr-t23-01), [PR-T25-01](#pr-t25-01) | os_observatory |
+| 339 | [PR-T49-02](#pr-t49-02) | Processes, threads and lifetime ownership | [PR-T49-01](#pr-t49-01) | os_observatory |
+| 340 | [PR-T49-03](#pr-t49-03) | FCFS, SJF, SRTF and round-robin scheduling | [PR-T49-02](#pr-t49-02) | os_observatory |
+| 341 | [PR-T49-04](#pr-t49-04) | Feedback and proportional-share scheduling | [PR-T49-03](#pr-t49-03) | os_observatory |
+| 342 | [PR-T49-05](#pr-t49-05) | Working sets and page-fault observation | [PR-T49-04](#pr-t49-04) | os_observatory |
+| 343 | [PR-T49-06](#pr-t49-06) | Page replacement from a reference string | [PR-T49-05](#pr-t49-05) | os_observatory |
+| 344 | [PR-T49-07](#pr-t49-07) | Descriptors and open-file-description lifetimes | [PR-T49-06](#pr-t49-06) | os_observatory |
+| 345 | [PR-T49-08](#pr-t49-08) | Namespaces, readiness and device completion | [PR-T49-07](#pr-t49-07) | os_observatory |
+| 346 | [PR-T49-09](#pr-t49-09) | CPU and memory budgets with cgroups | [PR-T49-08](#pr-t49-08) | os_observatory |
+| 347 | [PR-T49-10](#pr-t49-10) | I/O accounting and interference | [PR-T49-09](#pr-t49-09) | os_observatory |
+| 348 | [PR-T50-01](#pr-t50-01) | Freestanding image and runtime dependency audit | [PR-T29-01](#pr-t29-01), [PR-T37-07](#pr-t37-07) | execution |
+| 349 | [PR-T50-02](#pr-t50-02) | Static task pools, stacks and handles | [PR-T50-01](#pr-t50-01) | execution |
+| 350 | [PR-T50-03](#pr-t50-03) | Cooperative assembly context switching | [PR-T50-02](#pr-t50-02) | execution |
+| 351 | [PR-T50-04](#pr-t50-04) | Ready, blocked, sleeping and exited states | [PR-T50-03](#pr-t50-03) | execution |
+| 352 | [PR-T50-05](#pr-t50-05) | Timers and an absolute-deadline queue | [PR-T50-04](#pr-t50-04) | execution |
+| 353 | [PR-T50-06](#pr-t50-06) | PendSV, SVC and timer-driven preemption | [PR-T29-02](#pr-t29-02), [PR-T50-05](#pr-t50-05) | execution |
+| 354 | [PR-T50-07](#pr-t50-07) | Nested interrupt masks and ISR handoff | [PR-T50-06](#pr-t50-06) | execution |
+| 355 | [PR-T50-08](#pr-t50-08) | Floating-point task context and lazy stacking | [PR-T50-07](#pr-t50-07) | execution |
+| 356 | [PR-T50-09](#pr-t50-09) | Exit, join and deferred reclamation | [PR-T50-08](#pr-t50-08) | execution |
+| 357 | [PR-T50-10](#pr-t50-10) | Cancellation and task-fault containment | [PR-T50-09](#pr-t50-09) | execution |
+| 358 | [PR-T50-11](#pr-t50-11) | Tickless idle and wakeup accounting | [PR-T50-10](#pr-t50-10) | execution |
+| 359 | [PR-T50-12](#pr-t50-12) | Integrated original MCU runtime | [PR-T50-11](#pr-t50-11) | execution |
+| 360 | [PR-T51-01](#pr-t51-01) | Atomic wait enrollment and lost-wakeup prevention | [PR-T25-03](#pr-t25-03), [PR-T50-04](#pr-t50-04) | execution |
+| 361 | [PR-T51-02](#pr-t51-02) | Counting and binary semaphores | [PR-T51-01](#pr-t51-01) | execution |
+| 362 | [PR-T51-03](#pr-t51-03) | Owned mutexes and lock ordering | [PR-T51-02](#pr-t51-02) | execution |
+| 363 | [PR-T51-04](#pr-t51-04) | Transitive priority inheritance | [PR-T50-06](#pr-t50-06), [PR-T51-03](#pr-t51-03) | execution |
+| 364 | [PR-T51-05](#pr-t51-05) | Condition variables and Mesa-style predicates | [PR-T51-04](#pr-t51-04) | execution |
+| 365 | [PR-T51-06](#pr-t51-06) | Bounded message queues with copied payloads | [PR-T51-05](#pr-t51-05) | execution |
+| 366 | [PR-T51-07](#pr-t51-07) | Mailboxes and synchronous rendezvous | [PR-T51-06](#pr-t51-06) | execution |
+| 367 | [PR-T51-08](#pr-t51-08) | Event flags with any/all semantics | [PR-T51-07](#pr-t51-07) | execution |
+| 368 | [PR-T51-09](#pr-t51-09) | Counted task notifications | [PR-T51-08](#pr-t51-08) | execution |
+| 369 | [PR-T51-10](#pr-t51-10) | Reusable barriers and generations | [PR-T51-09](#pr-t51-09) | execution |
+| 370 | [PR-T51-11](#pr-t51-11) | Once initialization and failure policy | [PR-T51-10](#pr-t51-10) | execution |
+| 371 | [PR-T51-12](#pr-t51-12) | Reader-writer locks and admission fairness | [PR-T51-11](#pr-t51-11) | execution |
+| 372 | [PR-T51-13](#pr-t51-13) | Timeout, cancellation and wakeup arbitration | [PR-T50-05](#pr-t50-05), [PR-T51-12](#pr-t51-12) | execution |
+| 373 | [PR-T51-14](#pr-t51-14) | Object teardown and owner-death recovery | [PR-T51-13](#pr-t51-13) | execution |
+| 374 | [PR-T52-01](#pr-t52-01) | Rate-monotonic and deadline-monotonic scheduling | [PR-T30-04](#pr-t30-04) | execution |
+| 375 | [PR-T52-02](#pr-t52-02) | Earliest-deadline-first dispatch | [PR-T52-01](#pr-t52-01) | execution |
+| 376 | [PR-T52-03](#pr-t52-03) | Response-time analysis with blocking and jitter | [PR-T51-04](#pr-t51-04), [PR-T52-02](#pr-t52-02) | execution |
+| 377 | [PR-T52-04](#pr-t52-04) | Immediate priority ceilings | [PR-T51-03](#pr-t51-03), [PR-T52-03](#pr-t52-03) | execution |
+| 378 | [PR-T52-05](#pr-t52-05) | Aperiodic service within periodic workloads | [PR-T52-04](#pr-t52-04) | execution |
+| 379 | [PR-T52-06](#pr-t52-06) | Constant-bandwidth-server reservation | [PR-T52-05](#pr-t52-05) | execution |
+| 380 | [PR-T52-07](#pr-t52-07) | Admission, overload and deadline-miss policy | [PR-T52-06](#pr-t52-06) | execution |
+| 381 | [PR-T52-08](#pr-t52-08) | Tick rollover, phase and tickless timing | [PR-T52-07](#pr-t52-07) | execution |
+| 382 | [PR-T52-09](#pr-t52-09) | Partitioned multicore real-time scheduling | [PR-T52-08](#pr-t52-08) | execution |
+| 383 | [PR-T52-10](#pr-t52-10) | Global EDF and multiprocessor counterexamples | [PR-T52-09](#pr-t52-09) | execution |
+| 384 | [PR-T52-11](#pr-t52-11) | Compare the original runtime with FreeRTOS | [PR-T50-12](#pr-t50-12), [PR-T51-06](#pr-t51-06), [PR-T52-10](#pr-t52-10) | os_observatory |
+| 385 | [PR-T52-12](#pr-t52-12) | Linux fair and real-time scheduling comparison | [PR-T49-09](#pr-t49-09), [PR-T52-11](#pr-t52-11) | os_observatory |
+| 386 | [PR-T53-01](#pr-t53-01) | ACPI MADT and processor discovery | [PR-T25-03](#pr-t25-03), [PR-T48-03](#pr-t48-03) | kernel_smp |
+| 387 | [PR-T53-02](#pr-t53-02) | Secondary-CPU trampoline and startup | [PR-T53-01](#pr-t53-01) | kernel_smp |
+| 388 | [PR-T53-03](#pr-t53-03) | Per-CPU execution state and stacks | [PR-T53-02](#pr-t53-02) | kernel_smp |
+| 389 | [PR-T53-04](#pr-t53-04) | Local APIC timers and interprocessor interrupts | [PR-T53-03](#pr-t53-03) | kernel_smp |
+| 390 | [PR-T53-05](#pr-t53-05) | SMP spinlocks and interrupt context | [PR-T53-04](#pr-t53-04) | kernel_smp |
+| 391 | [PR-T53-06](#pr-t53-06) | Per-CPU ready queues | [PR-T50-04](#pr-t50-04), [PR-T51-03](#pr-t51-03), [PR-T53-05](#pr-t53-05) | kernel_smp |
+| 392 | [PR-T53-07](#pr-t53-07) | Remote wakeup and reschedule delivery | [PR-T51-01](#pr-t51-01), [PR-T53-06](#pr-t53-06) | kernel_smp |
+| 393 | [PR-T54-01](#pr-t54-01) | Dual images and static peripheral ownership | [PR-T37-06](#pr-t37-06), [PR-T50-01](#pr-t50-01) | execution |
+| 394 | [PR-T54-02](#pr-t54-02) | Dual boot and epoch handshake | [PR-T54-01](#pr-t54-01) | execution |
+| 395 | [PR-T54-03](#pr-t54-03) | Shared-SRAM SPSC channel | [PR-T25-03](#pr-t25-03), [PR-T54-02](#pr-t54-02) | execution |
+| 396 | [PR-T54-04](#pr-t54-04) | HSEM and coalesced doorbells | [PR-T54-03](#pr-t54-03) | execution |
+| 397 | [PR-T54-05](#pr-t54-05) | Cache visibility and cache-line ownership | [PR-T54-04](#pr-t54-04) | execution |
+| 398 | [PR-T54-06](#pr-t54-06) | DMA buffers and CPU ownership transitions | [PR-T29-04](#pr-t29-04), [PR-T54-05](#pr-t54-05) | execution |
+| 399 | [PR-T54-07](#pr-t54-07) | Cross-core clocks and latency measurement | [PR-T54-06](#pr-t54-06) | execution |
+| 400 | [PR-T54-08](#pr-t54-08) | Peer failure and protocol recovery | [PR-T51-13](#pr-t51-13), [PR-T54-07](#pr-t54-07) | execution |
+| 401 | [PR-T54-09](#pr-t54-09) | Interrupt-to-task pipelines on both cores | [PR-T50-12](#pr-t50-12), [PR-T54-08](#pr-t54-08) | execution |
+| 402 | [PR-T54-10](#pr-t54-10) | AMP end-to-end observatory | [PR-T54-09](#pr-t54-09) | execution |
+| 403 | [PR-T55-01](#pr-t55-01) | SPSC publication and acquire-release ordering | [PR-T25-03](#pr-t25-03), [PR-T53-05](#pr-t53-05) | execution |
+| 404 | [PR-T55-02](#pr-t55-02) | Compare-and-swap and progress classifications | [PR-T55-01](#pr-t55-01) | execution |
+| 405 | [PR-T55-03](#pr-t55-03) | ABA and identity reuse | [PR-T55-02](#pr-t55-02) | execution |
+| 406 | [PR-T55-04](#pr-t55-04) | A bounded pool for concurrent nodes | [PR-T55-03](#pr-t55-03) | execution |
+| 407 | [PR-T55-05](#pr-t55-05) | Hazard-pointer publication and reclamation | [PR-T55-04](#pr-t55-04) | execution |
+| 408 | [PR-T55-06](#pr-t55-06) | Michael-Scott queue with bounded reclamation | [PR-T51-06](#pr-t51-06), [PR-T55-05](#pr-t55-05) | execution |
+| 409 | [PR-T55-07](#pr-t55-07) | Epoch reclamation and quiescent states | [PR-T55-06](#pr-t55-06) | execution |
+| 410 | [PR-T55-08](#pr-t55-08) | Read-copy-update as an ownership protocol | [PR-T55-07](#pr-t55-07) | execution |
+| 411 | [PR-T55-09](#pr-t55-09) | Concurrent histories and linearizability checking | [PR-T55-08](#pr-t55-08) | execution |
+| 412 | [PR-T55-10](#pr-t55-10) | End-to-end progress and contention audit | [PR-T55-09](#pr-t55-09) | execution |
+| 413 | [PR-T56-01](#pr-t56-01) | Process and thread objects as distinct lifetimes | [PR-T48-08](#pr-t48-08), [PR-T53-06](#pr-t53-06) | kernel_smp |
+| 414 | [PR-T53-08](#pr-t53-08) | Affinity, migration and load balance | [PR-T53-07](#pr-t53-07), [PR-T56-01](#pr-t56-01) | kernel_smp |
+| 415 | [PR-T53-09](#pr-t53-09) | TLB shootdown and page reclamation | [PR-T48-04](#pr-t48-04), [PR-T53-08](#pr-t53-08) | kernel_smp |
+| 416 | [PR-T53-10](#pr-t53-10) | Parallel reduction with deterministic partitioning | [PR-T53-09](#pr-t53-09) | kernel_smp |
+| 417 | [PR-T53-11](#pr-t53-11) | Bounded parallel work pool | [PR-T51-06](#pr-t51-06), [PR-T53-10](#pr-t53-10) | kernel_smp |
+| 418 | [PR-T53-12](#pr-t53-12) | Dependency DAG execution and scaling limits | [PR-T53-11](#pr-t53-11) | kernel_smp |
+| 419 | [PR-T56-02](#pr-t56-02) | Spawn, exit, wait and process reaping | [PR-T56-01](#pr-t56-01) | kernel_smp |
+| 420 | [PR-T56-03](#pr-t56-03) | Demand-zero faults and frame ownership | [PR-T48-04](#pr-t48-04), [PR-T56-02](#pr-t56-02) | kernel_smp |
+| 421 | [PR-T56-04](#pr-t56-04) | Restricted copy-on-write cloning | [PR-T53-09](#pr-t53-09), [PR-T56-03](#pr-t56-03) | kernel_smp |
+| 422 | [PR-T56-05](#pr-t56-05) | Bounded process channels | [PR-T51-06](#pr-t51-06), [PR-T56-04](#pr-t56-04) | kernel_smp |
+| 423 | [PR-T56-06](#pr-t56-06) | Shared-memory objects and explicit synchronization | [PR-T56-05](#pr-t56-05) | kernel_smp |
+| 424 | [PR-T56-07](#pr-t56-07) | Asynchronous block requests and completion ownership | [PR-T48-10](#pr-t48-10), [PR-T56-06](#pr-t56-06) | kernel_smp |
+| 425 | [PR-T56-08](#pr-t56-08) | Read-only boot archive as a file service | [PR-T48-07](#pr-t48-07), [PR-T56-07](#pr-t56-07) | kernel_smp |
+| 426 | [PR-T56-09](#pr-t56-09) | VM execution as a bounded service | [PR-T48-12](#pr-t48-12), [PR-T56-08](#pr-t56-08) | kernel_smp |
+| 427 | [PR-T56-10](#pr-t56-10) | Single-owner persistent store service | [PR-T48-13](#pr-t48-13), [PR-T56-09](#pr-t56-09) | kernel_smp |
+| 428 | [PR-T56-11](#pr-t56-11) | Service restart and reboot recovery | [PR-T56-10](#pr-t56-10) | kernel_smp |
+| 429 | [PR-T56-12](#pr-t56-12) | Physical dual-core application and OS comparison | [PR-T52-11](#pr-t52-11), [PR-T52-12](#pr-t52-12), [PR-T54-10](#pr-t54-10), [PR-T56-11](#pr-t56-11) | os_observatory |
 
 
 ---
@@ -529,14 +717,15 @@ For the recommended working sequence use the [project route](#guide-project-rout
 | Measurement and diagnosis | T43–T45 after their named foundations; use introductory habits from the first component | Multi-axis cost evidence, causal diagnosis, repaired fault experiments and delayed transfer |
 | Capstones | Shared core plus completed relevant branches | Independently defended Linux and firmware applications |
 | Runtime, storage and kernel | T46–T48 after their explicit prerequisites | Portable VM, recoverable store, isolated kernel processes and an integrated persistent guest |
+| OS, real-time and multicore | T49–T56 through stage-specific prerequisites | Original task runtime, synchronization, x86 SMP, physical MCU AMP and concurrent services |
 
-T18 ownership and API foundations precede T14 container design. T29 requires selected race/atomic/ordering leaves from T25, rather than finishing all POSIX threading projects. Module front cards enumerate the precise preludes. Complete an explicitly named prelude before its dependent project even if the full domain is scheduled later. T26 contributes core awareness; advanced implementation work is elective.
+T18 ownership and API foundations precede T14 container design. T29 requires selected race/atomic/ordering leaves from T25, rather than finishing all POSIX threading projects. Module front cards enumerate the precise preludes. Complete an explicitly named prelude before its dependent project even if the full domain is scheduled later. T26 preserves its awareness/elective route; T55 adds required advanced concurrency implementation.
 
 ## A valid full-domain order
 
 The following order is computed from full prerequisites and the owning domains of selected module and project objective preludes. It supports full-domain completion. Early projects may begin after their own named entry/prelude gates; this serial traversal does not require postponing them until all later milestone foundations are complete:
 
-[T01](#t01) → [T02](#t02) → [T03](#t03) → [T04](#t04) → [T05](#t05) → [T06](#t06) → [T07](#t07) → [T08](#t08) → [T09](#t09) → [T12](#t12) → [T18](#t18) → [T32](#t32) → [T14](#t14) → [T15](#t15) → [T16](#t16) → [T19](#t19) → [T20](#t20) → [T21](#t21) → [T22](#t22) → [T13](#t13) → [T11](#t11) → [T10](#t10) → [T17](#t17) → [T23](#t23) → [T24](#t24) → [T25](#t25) → [T26](#t26) → [T27](#t27) → [T28](#t28) → [T29](#t29) → [T30](#t30) → [T31](#t31) → [T33](#t33) → [T34](#t34) → [T35](#t35) → [T36](#t36) → [T37](#t37) → [T38](#t38) → [T39](#t39) → [T40](#t40) → [T42](#t42) → [T41](#t41) → [T43](#t43) → [T44](#t44) → [T45](#t45) → [T46](#t46) → [T47](#t47) → [T48](#t48)
+[T01](#t01) → [T02](#t02) → [T03](#t03) → [T04](#t04) → [T05](#t05) → [T06](#t06) → [T07](#t07) → [T08](#t08) → [T09](#t09) → [T12](#t12) → [T18](#t18) → [T32](#t32) → [T14](#t14) → [T15](#t15) → [T16](#t16) → [T19](#t19) → [T20](#t20) → [T21](#t21) → [T22](#t22) → [T13](#t13) → [T11](#t11) → [T10](#t10) → [T17](#t17) → [T23](#t23) → [T24](#t24) → [T25](#t25) → [T26](#t26) → [T27](#t27) → [T28](#t28) → [T29](#t29) → [T30](#t30) → [T31](#t31) → [T33](#t33) → [T34](#t34) → [T35](#t35) → [T36](#t36) → [T37](#t37) → [T38](#t38) → [T39](#t39) → [T40](#t40) → [T42](#t42) → [T41](#t41) → [T43](#t43) → [T44](#t44) → [T45](#t45) → [T46](#t46) → [T47](#t47) → [T48](#t48) → [T49](#t49) → [T50](#t50) → [T51](#t51) → [T52](#t52) → [T53](#t53) → [T54](#t54) → [T55](#t55) → [T56](#t56)
 
 ## Domain dependencies and selected preludes
 
@@ -590,6 +779,14 @@ The following order is computed from full prerequisites and the owning domains o
 | [T46](#t46) | [T03](#t03), [T04](#t04), [T07](#t07), [T14](#t14), [T15](#t15), [T18](#t18), [T32](#t32) | [T16.01.a](#t16-01-a) |
 | [T47](#t47) | [T03](#t03), [T15](#t15), [T21](#t21), [T32](#t32), [T36](#t36), [T43](#t43), [T45](#t45) | None additional |
 | [T48](#t48) | [T08](#t08), [T09](#t09), [T16](#t16), [T23](#t23), [T27](#t27), [T32](#t32), [T37](#t37), [T46](#t46), [T47](#t47) | None additional |
+| [T49](#t49) | [T23](#t23), [T24](#t24), [T25](#t25), [T37](#t37) | None additional |
+| [T50](#t50) | [T29](#t29), [T30](#t30), [T33](#t33), [T49](#t49) | None additional |
+| [T51](#t51) | [T25](#t25), [T50](#t50) | None additional |
+| [T52](#t52) | [T30](#t30), [T37](#t37), [T51](#t51) | None additional |
+| [T53](#t53) | [T48](#t48), [T50](#t50), [T51](#t51) | None additional |
+| [T54](#t54) | [T50](#t50), [T51](#t51), [T52](#t52) | None additional |
+| [T55](#t55) | [T26](#t26), [T51](#t51), [T53](#t53) | None additional |
+| [T56](#t56) | [T46](#t46), [T47](#t47), [T48](#t48), [T53](#t53), [T54](#t54), [T55](#t55) | None additional |
 
 ## Parallel progress
 
@@ -693,6 +890,132 @@ and observed maximum latency are not universal worst-case bounds.
 A failed delayed gate reopens the affected claims. A stronger performance score
 does not compensate for incorrect lifetime, arithmetic, authority or failure
 semantics. See [assessment](#guide-assessment) for the common rubric.
+
+
+---
+
+<a id="guide-concurrent-system-contracts"></a>
+
+# Concurrent-system implementation and evidence contracts
+
+These contracts extend the shared component cards. Each project names the stage
+and supported target; a later feature is not an unstated early prerequisite.
+
+Declare the numerical priority convention in every trace. The finite inheritance
+and ceiling fixtures use larger numbers for higher urgency; the original
+`execution` runtime uses smaller numbers for higher urgency. Translate urgency
+when moving an example between them. Numerical order alone is not a portable
+scheduling contract.
+
+## State, lifetime and authority
+
+Keep process address spaces/handles separate from thread context, stack, wait and
+join state; keep CPU-local current-task and interrupt state separate from both.
+Every ready/wait/timer-list membership has one owner. Task states have explicit
+transitions among NEW, READY, RUNNING, BLOCKED and EXITED. Reaping requires that
+no CPU, wait object or callback can still use the task's state or stack.
+
+The advanced OS uses bounded admission: eight process slots, thirty-two total
+thread slots and four threads per process. Treat these as tested limits and reject
+one beyond each. Retain the original six-slot T48 compatibility workload. Static
+ELF spawn selects a validated boot-archive image; it is not a general exec/dynamic-
+linking API. COW clone admits exactly one thread and no outstanding operation,
+gives the child only explicitly permitted handles, and rolls back partial failure.
+
+Use generation identities for revocable handles. Shared-memory messages carry
+validated offsets/lengths, not pointers meaningful only in another address space.
+Pin a mapping/frame while copying or using it across a blocking operation; a
+successful earlier range check does not protect against a concurrent unmap.
+TLB invalidation acknowledgments precede frame reuse. A failed acknowledgment
+quarantines affected state; it must not be treated as a successful remote flush.
+
+## Waiting and synchronization
+
+Wait registration, protected-state release and blocking form one serialized
+transition. Grant and timeout race for one result. A timeout cannot consume a
+permit or message that the caller was not told it acquired. Absolute monotonic
+deadlines avoid extending waits after every notification. State rollover bounds
+explicitly and use a half-range argument only within its valid interval.
+
+| Primitive | Required contract and failure experiment |
+|---|---|
+| Semaphore | Checked maximum/count; permits have no mutex ownership; reject overflow |
+| Mutex | Nonrecursive, owner checked; ISR acquisition forbidden; test inversion and nested donation withdrawal |
+| Condition | Predicate loop under the matching mutex; atomic release/wait; reacquire before returning |
+| Message channel | Fixed capacity and explicit copy/borrow ownership; normal close drains accepted messages; abort discards and wakes waiters |
+| Events | Wait-any/all and clear-on-consume defined; bits coalesce rather than count occurrences |
+| Notifications | Count accumulated occurrences with explicit overflow policy |
+| Barrier/once | Generation and initialization failure/lifetime defined; no early reuse while old participants remain |
+| Reader/writer lock | Declared fairness policy; exercise writer starvation and interrupted acquisition |
+
+Cancellation is cooperative. Owner failure poisons affected mutexes and wakes
+waiters with failure; protected state is not silently declared consistent. A
+recursive lock attempt, stale handle and wrong-owner unlock must produce an
+explicit result. In fixed-priority variants, donation follows dependency chains
+and is removed on timeout, cancellation and unlock. A ceiling protocol states its
+task/resource assumptions; it is not interchangeable with ordinary inheritance.
+
+ISR-safe APIs are separate bounded entry points: no blocking, allocation, remote-
+core waiting or arbitrary callbacks. They report whether deferred scheduling is
+needed. Interrupt masking only excludes the relevant local contexts. A spinlock
+must account for local interrupts and cannot be held across blocking operations.
+
+## Machine and compiler boundary
+
+Use the strict E/F variant: original reset/entry/vector/trap/context code and
+required runtime helpers; no linked libc, libgcc, compiler-rt, libatomic, HAL,
+OpenAMP or existing scheduler. Compiler headers and inspected inline intrinsics
+are permitted. Audit final link inputs and instructions as well as undefined
+symbols: static linkage can hide a dependency from `nm -u`.
+
+Save the context required by the ABI and architecture, including alignment,
+exception-return metadata and any enabled FP state. Begin with integer-only
+contexts, then test FP preservation and the selected lazy-stacking policy.
+Distinguish compiler ordering, C synchronization, hardware barriers, MMIO and
+cache/DMA ownership. `volatile` does not establish a happens-before relation.
+
+## SMP, AMP and progress
+
+The x86 SMP route starts with a coarse kernel-entry lock and deferred rescheduling,
+then separates locks after correctness. Timer preemption, concurrent kernel entry
+and a fully preemptible kernel are different claims. Per-CPU ownership, remote
+wakeup, migration and shootdown protocols each need independent adversarial tests.
+
+The H745 route has separately linked M7/M4 images and static peripheral/task
+ownership. Both linker scripts reserve identical common SRAM, excluded from
+ordinary `.bss` clearing. M7 initializes shared state before publishing an epoch-
+qualified ready handshake. Shared queue state is authoritative; HSEM doorbells
+may coalesce, requiring drain/recheck before sleeping. A peer timeout does not
+authorize reusing state it may still own.
+
+Start with noncacheable shared control and SPSC rings using aligned 32-bit indices
+and inspected acquire/release publication. Cacheable payloads use cache-line-
+exclusive ownership: clean/complete before publication, invalidate/complete before
+consumption. Include unrelated dirty-byte loss and late-DMA counterexamples.
+Do not assume generic inter-core CAS support on this target.
+
+Specify lock-free progress for the whole admitted operation, including allocation,
+reclamation and callbacks. Identify a linearization point and record overlapping
+operation histories. Stalling one participant is an essential test, not proof of
+all schedules. Hazard protect/validate/retire and epoch quiescence are lifetime
+protocols; neither follows merely from making a pointer atomic.
+
+## Real-time and physical observations
+
+Separate task WCET assumptions, release jitter, blocking, interrupt interference,
+scheduler overhead and communication-server interference. Derive response-time or
+demand bounds for the declared model; compare model traces with actual traces.
+Keep fixed-priority ceilings and EDF resource rules distinct. A utilization bound
+for independent uniprocessor tasks does not certify a shared-resource multicore
+application. Overload handling must name drop, defer, coalesce or fail behavior.
+
+Physical H745 records include both image hashes/boot epochs, overlapping work
+pulses on one analyzer timebase, a shared peripheral timer for common timestamps,
+per-core DWT deltas, fixed clock settings, silicon revision, cache/MPU regions,
+trace overflow and instrument overhead. Never subtract unrelated M7/M4 cycle
+counters as if they shared a synchronized origin. Run cold-reset trials detached
+from the debugger. Mark simulated, emulated, instrumented and physical records
+separately, preserving missing observations as not-run.
 
 
 ---
@@ -1179,6 +1502,25 @@ An instrumented investigative variant has its own dependency contract. Sanitizer
 
 Add named cost units, simultaneous lifetime peaks, completion/reclamation events and observer overhead to the resource ledger. Fixed link sections, whole-path conditional stack estimates, sampled high water, allocator retention, process resident bytes and cgroup accounting are distinct entries. Reuse these ledgers in [T43](#t43)–[T45](#t45); the directory does not add another implementation budget.
 
+## Strict third-edition E/F variant
+
+T50–T56 custom images select the strict E/F variant in their dependency ledger.
+They retain the existing profile letters for compatibility and add the explicit
+restriction: no linked libc, libgcc, compiler-rt, libatomic, HAL, OpenAMP or existing
+RTOS. Original memory/arithmetic helpers are allowed and need ABI tests. Compiler
+type/limit headers, register definitions and inspected inline intrinsics are
+permitted. The x86 bootloader handoff remains an explicit pre-runtime boundary.
+
+Inspect the final link inputs, symbol ownership, memory map and disassembly.
+An entirely resolved ELF can still contain an unintended statically linked
+library. Ensure memory helpers cannot be optimized into recursive calls to
+themselves; prove supported atomic widths/alignment and reject unsupported helper
+calls. Diagnostic hosted builds and FreeRTOS/Linux comparison applications have
+separate dependency profiles and cannot substitute for a strict-image audit.
+
+See [concurrent-system contracts](#guide-concurrent-system-contracts) for task/ISR
+legality, wait outcomes, reclamation and the physical evidence requirements.
+
 
 ---
 
@@ -1550,6 +1892,14 @@ The five values are reading / implementation / verification / assessment / conso
 | [T46](#t46) | runtime specialization | T03, T04, T07, T14, T15, T18, T32 | 12 / 64 / 34 / 8 / 6 | 124 | 0 |
 | [T47](#t47) | systems | T03, T15, T21, T32, T36, T43, T45 | 18 / 64 / 38 / 10 / 8 | 138 | 0 |
 | [T48](#t48) | kernel | T08, T09, T16, T23, T27, T32, T37, T46, T47 | 26 / 90 / 48 / 10 / 12 | 186 | 0 |
+| [T49](#t49) | linux | T23, T24, T25, T37 | 12 / 56 / 30 / 8 / 8 | 114 | 0 |
+| [T50](#t50) | bare-metal | T29, T30, T33, T49 | 12 / 68 / 36 / 8 / 8 | 132 | 0 |
+| [T51](#t51) | cross-track | T25, T50 | 12 / 78 / 42 / 8 / 8 | 148 | 0 |
+| [T52](#t52) | cross-track | T30, T37, T51 | 17 / 68 / 36 / 8 / 8 | 137 | 0 |
+| [T53](#t53) | kernel | T48, T50, T51 | 12 / 68 / 36 / 8 / 8 | 132 | 0 |
+| [T54](#t54) | bare-metal | T50, T51, T52 | 12 / 56 / 30 / 8 / 8 | 114 | 0 |
+| [T55](#t55) | cross-track | T26, T51, T53 | 12 / 56 / 30 / 8 / 8 | 114 | 0 |
+| [T56](#t56) | kernel | T46, T47, T48, T53, T54, T55 | 12 / 68 / 36 / 8 / 8 | 132 | 0 |
 
 ## Integration additions
 
@@ -1566,15 +1916,17 @@ The five values are reading / implementation / verification / assessment / conso
 
 ## Planning totals
 
-The architecture and networking domains T36–T42 contribute **690 hours**. The performance and debugging domains T43–T45 contribute **370 hours**. The runtime, storage and kernel families contribute **448 hours**. All are already included below. The current allocation to the original 35-domain catalog is **2,348 hours**; the current allocation through T42 is **3,038 hours**. The archived first edition remains the source of historical estimates. Communication and runtime family directories add no second budget. Reuse previous implementations and charge only newly assigned work.
+The T49–T56 operating-system, concurrency and multicore route contributes **1,023 hours**, already included in the totals below. The remaining runtime/store/kernel allocation is **448 hours**. These are provisional project estimates, not measured learner completion times.
 
-The full catalog estimate is **3,856 hours**. The conservative core estimate including the complete T01 diagnostic/remediation allocation is **3,776 hours**. Elective implementation/verification slices total **80 hours**. T01's full allocation is **25 hours**; after passing the initial diagnostic, retain its evidence and remove only its unneeded remedial activities from your personal plan.
+The architecture and networking domains T36–T42 contribute **690 hours**. The performance and debugging domains T43–T45 contribute **370 hours**. The runtime, storage, kernel and OS/concurrency families contribute **1,471 hours**. All are already included below. The current allocation to the original 35-domain catalog is **2,348 hours**; the current allocation through T42 is **3,038 hours**. The archived first edition remains the source of historical estimates. Communication and runtime family directories add no second budget. Reuse previous implementations and charge only newly assigned work.
 
-With the 3-hour initial entry check passed and no T01 remediation required, the core estimate becomes **3,754 hours**, or 376 / 188 weeks at 10 / 20 hours per week. Other targeted mathematics or semantic remediation is additional when needed.
+The full catalog estimate is **4,879 hours**. The conservative core estimate including the complete T01 diagnostic/remediation allocation is **4,799 hours**. Elective implementation/verification slices total **80 hours**. T01's full allocation is **25 hours**; after passing the initial diagnostic, retain its evidence and remove only its unneeded remedial activities from your personal plan.
+
+With the 3-hour initial entry check passed and no T01 remediation required, the core estimate becomes **4,777 hours**, or 478 / 239 weeks at 10 / 20 hours per week. Other targeted mathematics or semantic remediation is additional when needed.
 
 New integration implementation/verification adds 160 hours, plus 48 hours of reading, assessment and delayed transfer. This 208-hour integration slice is already included in both the full-catalog and core totals above. The shared protocol, containers and their prior tests are charged in their original modules, not again in both capstones. Each capstone budget pays for its platform-specific assembly, campaigns and defense.
 
-At **10 hours/week**, the conservative core arithmetic is 3776/10, rounded up to **378 weeks**. At **20 hours/week**, it is 3776/20, rounded up to **189 weeks**. Breaks, equipment access, prior knowledge and retests change elapsed time. These are workload illustrations, not promises of mastery.
+At **10 hours/week**, the conservative core arithmetic is 4799/10, rounded up to **480 weeks**. At **20 hours/week**, it is 4799/20, rounded up to **240 weeks**. Breaks, equipment access, prior knowledge and retests change elapsed time. These are workload illustrations, not promises of mastery.
 
 ## Weekly rhythm
 
@@ -1844,6 +2196,98 @@ When a project has more than one family, choose the additional workspace explici
 | [PR-T48-12](#pr-t48-12) | kernel | `kernel_runtime` | Selected tests are immediate anchors; an empty set requires the project-local manual guest trace. deferred_tests are later cumulative regression only. Cross-family variables required for projects 12–13.  |
 | [PR-T48-13](#pr-t48-13) | kernel | `kernel_integration` | Selected tests are immediate anchors; an empty set requires the project-local manual guest trace. deferred_tests are later cumulative regression only. Cross-family variables required for projects 12–13.  |
 | [PR-T48-14](#pr-t48-14) | kernel | `kernel_guest` | Selected tests are immediate anchors; an empty set requires the project-local manual guest trace. deferred_tests are later cumulative regression only. Cross-family variables required for projects 12–13.  |
+| [PR-T49-01](#pr-t49-01) | os_observatory | `os_process` | Real fork/pipe/wait boundary anchor; syscall/disassembly trace and privilege explanation remain required.  |
+| [PR-T49-02](#pr-t49-02) | os_observatory | `os_process`, `os_thread` | Process-private versus shared state and joined thread lifecycle.  |
+| [PR-T49-03](#pr-t49-03) | os_observatory | `os_schedulers` | Independent finite FCFS/SJF/SRTF/RR traces; CPU-only integer-tick model.  |
+| [PR-T49-04](#pr-t49-04) | os_observatory | `os_fairness` | Defined MLFQ/stride traces; Linux EEVDF inspection and changed workloads remain required.  |
+| [PR-T49-05](#pr-t49-05) | os_observatory | `os_memory` | Actual anonymous-page touches and process fault counters; working-set sweep remains learner evidence.  |
+| [PR-T49-06](#pr-t49-06) | os_observatory | `os_clock` | CLOCK second-chance mechanism; FIFO anomaly and offline optimal comparison remain learner evidence.  |
+| [PR-T49-07](#pr-t49-07) | os_observatory | `os_descriptor` | Actual dup offset sharing and unlink/open-file lifetime.  |
+| [PR-T49-08](#pr-t49-08) | os_observatory | `os_descriptor`, `os_signal` | Readiness notification and object lifetime anchors; namespace and device-completion dossier remains required.  |
+| [PR-T49-09](#pr-t49-09) | os_observatory | `os_memory`, `os_thread` | Runnable bounded workload; delegated cgroup CPU/memory limit campaign is separate and must actually run.  |
+| [PR-T49-10](#pr-t49-10) | os_observatory | `os_io` | Exact logical I/O and fsync-return observation; io.max enforcement and physical durability are not established.  |
+| [PR-T50-01](#pr-t50-01) | execution | `execution.admission` | Original image/initialization gate; stack/handler disassembly and strict no-runtime audit required.  |
+| [PR-T50-02](#pr-t50-02) | execution | `execution.admission` | Static nonoverlap/alignment/exhaustion contract. Private stack ownership remains target evidence.  |
+| [PR-T50-03](#pr-t50-03) | execution | `execution.scheduler` | Actual Cortex-M PSP context switching without timer preemption.  |
+| [PR-T50-04](#pr-t50-04) | execution | `execution.scheduler` | Serialized ready/wait lifecycle; Cortex stage adds real dispatch.  |
+| [PR-T50-05](#pr-t50-05) | execution | `execution.timers` | Modular deadline and exact-boundary race tests; timer data-structure cost measurements remain required.  |
+| [PR-T50-06](#pr-t50-06) | execution | `execution.scheduler` | Actual SysTick/PendSV/SVC preemption of nonyielding tasks.  |
+| [PR-T50-07](#pr-t50-07) | execution | `execution.scheduler` | Saved interrupt-mask nesting and ISR/nested-critical blocking rejection execute in the guest.  |
+| [PR-T50-08](#pr-t50-08) | execution | `execution.scheduler` | Actual s16 context preservation plus a rejected corrupt-restore mutant.  |
+| [PR-T50-09](#pr-t50-09) | execution | `execution.lifecycle` | Exit/join/reap slot lifecycle; stack must remain live through switch-out and reap.  |
+| [PR-T50-10](#pr-t50-10) | execution | `execution.faults` | Cooperative cancellation, owner-exit refusal and lifecycle checks; stack guards are also in target port.  |
+| [PR-T50-11](#pr-t50-11) | execution | `execution.timers` | Rollover anchor only; implement next-deadline programming and physically measure tickless sleep/wakeup separately.  |
+| [PR-T50-12](#pr-t50-12) | execution | `execution.comparison` | Hosted logical integration; target integrated stage runs actual preemptive tasks and queue close/drain.  |
+| [PR-T51-01](#pr-t51-01) | execution | `execution.enrollment` | Latched signal-before/enrollment-after atomicity; one port serialization domain.  |
+| [PR-T51-02](#pr-t51-02) | execution | `execution.semaphore` | Direct permit handoff, timeout and close.  |
+| [PR-T51-03](#pr-t51-03) | execution | `execution.mutex` | Owned nonrecursive mutex and wrong-owner/deadlock rejection.  |
+| [PR-T51-04](#pr-t51-04) | execution | `execution.inheritance` | Transitive donation and withdrawal when a donor times out.  |
+| [PR-T51-05](#pr-t51-05) | execution | `execution.condition` | Atomic release/enrollment; timeout and cancellation return only after mutex reacquisition.  |
+| [PR-T51-06](#pr-t51-06) | execution | `execution.queue` | Bounded queue, full/empty wait, drain-close versus discard-abort.  |
+| [PR-T51-07](#pr-t51-07) | execution | `execution.queue` | Capacity-zero rendezvous and capacity-one mailbox; endpoint ownership remains learner design.  |
+| [PR-T51-08](#pr-t51-08) | execution | `execution.events` | Any/all masks and FIFO clear-on-consume.  |
+| [PR-T51-09](#pr-t51-09) | execution | `execution.notification` | Counted delivery and overflow rejection.  |
+| [PR-T51-10](#pr-t51-10) | execution | `execution.barrier` | Reusable generation and collective break on cancellation/timeout.  |
+| [PR-T51-11](#pr-t51-11) | execution | `execution.once` | Single owner and retry after failed initialization; RETRY waiters must re-enter.  |
+| [PR-T51-12](#pr-t51-12) | execution | `execution.rwlock` | Writer preference, upgrade rejection and reader admission after last writer withdraws.  |
+| [PR-T51-13](#pr-t51-13) | execution | `execution.faults` | Deadline/cancel/close races, blocked reentry and condition reacquisition.  |
+| [PR-T51-14](#pr-t51-14) | execution | `execution.teardown`, `execution.faults` | Close and join lifetime; owner death refused until cooperative cleanup. Forced recovery remains additional work.  |
+| [PR-T52-01](#pr-t52-01) | execution | `execution.priorities` | Stable RM/DM ordering; measured WCET and response-time assumptions required.  |
+| [PR-T52-02](#pr-t52-02) | execution | `execution.edf` | Finite exact demand-bound gate, constrained assumptions and explicit horizon.  |
+| [PR-T52-03](#pr-t52-03) | execution | `execution.response` | Fixed-priority response time with jitter and blocking; measure/add dispatch and interrupt overhead to cost.  |
+| [PR-T52-04](#pr-t52-04) | execution | `execution.ceiling` | Immediate priority ceiling, not original priority-ceiling protocol/system-ceiling admission.  |
+| [PR-T52-05](#pr-t52-05) | execution | `execution.server` | Bounded sporadic-server replenishments; deferrable/polling alternatives remain comparative learner traces.  |
+| [PR-T52-06](#pr-t52-06) | execution | `execution.cbs` | CBS budget/deadline replenishment model.  |
+| [PR-T52-07](#pr-t52-07) | execution | `execution.edf` | Admission failures under explicit finite horizon; overload policy dossier remains required.  |
+| [PR-T52-08](#pr-t52-08) | execution | `execution.timers` | Modular rollover anchor; physical tickless programming remains separate.  |
+| [PR-T52-09](#pr-t52-09) | execution | `execution.partition` | Finite hyperperiod first-fit partitioning and partitioned EDF simulation.  |
+| [PR-T52-10](#pr-t52-10) | execution | `execution.partition` | Global-EDF miss counterexample against feasible partition; finite model, no optimality claim.  |
+| [PR-T52-11](#pr-t52-11) | os_observatory | `os_linux_comparison` | Same bounded eight-slot, 256-item queue workload; use freertos-posix with explicit pinned external source for RTOS comparison. Physical MCU timing and Linux RT policy campaigns remain separate.  |
+| [PR-T52-12](#pr-t52-12) | os_observatory | `os_linux_comparison` | Same bounded eight-slot, 256-item queue workload; use freertos-posix with explicit pinned external source for RTOS comparison. Physical MCU timing and Linux RT policy campaigns remain separate.  |
+| [PR-T53-01](#pr-t53-01) | kernel_smp | `kernel_smp_madt`, `kernel_smp_guest_madt` | Bounded MADT parser plus actual guest discovery.  |
+| [PR-T53-02](#pr-t53-02) | kernel_smp | `kernel_smp_guest_startup` | Real INIT/SIPI AP startup.  |
+| [PR-T53-03](#pr-t53-03) | kernel_smp | `kernel_smp_guest_startup` | Per-CPU GDT/TSS/IDT and stacks.  |
+| [PR-T53-04](#pr-t53-04) | kernel_smp | `kernel_smp_guest_apic` | Actual APIC timer and IPI delivery before workload.  |
+| [PR-T53-05](#pr-t53-05) | kernel_smp | `kernel_smp_guest_threads` | Spinlock-protected original kernel-thread workload.  |
+| [PR-T53-06](#pr-t53-06) | kernel_smp | `kernel_smp_guest_threads` | Cooperative per-CPU ready queues and assembly context switch.  |
+| [PR-T53-07](#pr-t53-07) | kernel_smp | `kernel_smp_guest_channel` | Cross-core channel wait/wake and bounded message accounting.  |
+| [PR-T53-08](#pr-t53-08) | kernel_smp | `kernel_smp_guest_affinity` | SMP ring-3 scheduler migration; bounded shared global run queue.  |
+| [PR-T53-09](#pr-t53-09) | kernel_smp | `kernel_smp_guest_tlb` | Dedicated IPI/CR3 reload acknowledgement barrier; demand/COW permission transitions tested in T56.  |
+| [PR-T53-10](#pr-t53-10) | kernel_smp | `kernel_smp_guest_reduction` | Native atomic reduction over 257 integer jobs; sequential oracle and all-CPU execution mask. Requires T56 thread substrate.  |
+| [PR-T53-11](#pr-t53-11) | kernel_smp | `kernel_smp_guest_pool` | Two dispatch rounds through a reusable pinned bounded user workpool. Requires T56 thread substrate.  |
+| [PR-T53-12](#pr-t53-12) | kernel_smp | `kernel_smp_guest_dag` | 16-node dependency graph with acquire/release publication and serial oracle. Requires T56 thread substrate; emulator TSC is not physical speedup evidence.  |
+| [PR-T54-01](#pr-t54-01) | execution | `execution.spsc` | Two private strict images and reserved shared SRAM map; physical boot evidence required.  |
+| [PR-T54-02](#pr-t54-02) | execution | `execution.spsc` | Cold-global-reset epoch-one release/ack baseline; warm/reset recovery remains separate.  |
+| [PR-T54-03](#pr-t54-03) | execution | `execution.spsc` | Original shared noncacheable SRAM SPSC packet ownership; board execution required.  |
+| [PR-T54-04](#pr-t54-04) | execution | `execution.spsc` | Original HSEM release notification/IRQ with coalesced ring-authoritative data path.  |
+| [PR-T54-05](#pr-t54-05) | execution | `execution.spsc` | Noncacheable MPU baseline only; cached clean/invalidate variant and failure experiment required.  |
+| [PR-T54-06](#pr-t54-06) | execution | `execution.spsc` | Static CPU ownership baseline only; implement and physically observe DMA ownership and cache transitions.  |
+| [PR-T54-07](#pr-t54-07) | execution | `execution.spsc` | Per-core logical progress only; implement clock calibration and bound skew physically.  |
+| [PR-T54-08](#pr-t54-08) | execution | `execution.spsc` | Epoch mismatch fail-stop baseline only; implement independent-peer-reset recovery and stale-message rejection.  |
+| [PR-T54-09](#pr-t54-09) | execution | `execution.spsc` | Short HSEM ISR records notification and task context drains rings; physical ISR timing required.  |
+| [PR-T54-10](#pr-t54-10) | execution | `execution.spsc` | Coldboot 1000-packet AMP endpoint plus two local runtimes; physical load/fault dossier required.  |
+| [PR-T55-01](#pr-t55-01) | execution | `execution.spsc` | Native unsigned acquire/release SPSC, capacity and wrap.  |
+| [PR-T55-02](#pr-t55-02) | execution | `execution.progress` | Ticket reservation stall counterexample; distinguish reservation from publication.  |
+| [PR-T55-03](#pr-t55-03) | execution | `execution.identity` | Generation identity ABA/reuse/exhaustion experiment.  |
+| [PR-T55-04](#pr-t55-04) | execution | `execution.identity` | Bounded slot ownership and nonwrapping generation handles.  |
+| [PR-T55-05](#pr-t55-05) | execution | `execution.hazard`, `execution.collector_aba` | Hazard publication/revalidation and retirement; tagged concurrent-collector regression.  |
+| [PR-T55-06](#pr-t55-06) | execution | `execution.hazard`, `execution.parallel` | Original Michael-Scott queue with bounded pool and four exclusive participant slots.  |
+| [PR-T55-07](#pr-t55-07) | execution | `execution.epoch` | Externally serialized epoch/grace tracker; stalls prevent reclamation.  |
+| [PR-T55-08](#pr-t55-08) | execution | `execution.rcu` | Coarse immutable-root RCU with active-reader slots and one serialized writer.  |
+| [PR-T55-09](#pr-t55-09) | execution | `execution.history` | Finite complete-history checker with per-participant and real-time order constraints.  |
+| [PR-T55-10](#pr-t55-10) | execution | `execution.parallel`, `execution.history` | Four real pthread participants, 40000 unique items; finite stress, no standalone proof.  |
+| [PR-T56-01](#pr-t56-01) | kernel_smp | `kernel_smp_guest_userthreads` | Separate process address-space and thread execution state.  |
+| [PR-T56-02](#pr-t56-02) | kernel_smp | `kernel_smp_guest_spawn` | Read-only archive spawn, last-thread process exit and parent wait.  |
+| [PR-T56-03](#pr-t56-03) | kernel_smp | `kernel_smp_guest_zero` | Actual demand-zero page faults.  |
+| [PR-T56-04](#pr-t56-04) | kernel_smp | `kernel_smp_guest_cow` | Restricted single-live-thread COW fork and wait.  |
+| [PR-T56-05](#pr-t56-05) | kernel_smp | `kernel_smp_channel`, `kernel_smp_guest_ipc` | Bounded blocking channels and stale handle rejection.  |
+| [PR-T56-06](#pr-t56-06) | kernel_smp | `kernel_smp_guest_shared` | Refcounted shared-memory mapping lifetime across process fork.  |
+| [PR-T56-07](#pr-t56-07) | kernel_smp | `kernel_smp_guest_async` | Real virtio MSI-X completion, bounded submit/wait and poisoned-device deadline.  |
+| [PR-T56-08](#pr-t56-08) | kernel_smp | `kernel_archive` | Bounded read-only boot archive parser; actual ELF use in guest regression.  |
+| [PR-T56-09](#pr-t56-09) | kernel_smp | `kernel_integration` | VM client process exchanges requests over channels with store owner; explicit runtime/store dependencies required.  |
+| [PR-T56-10](#pr-t56-10) | kernel_smp | `kernel_integration` | Separate store owner retains sole disk capability; VM client denied it.  |
+| [PR-T56-11](#pr-t56-11) | kernel_smp | `kernel_integration` | Commit plus indeterminate reply and next-boot recovery of stored42.  |
+| [PR-T56-12](#pr-t56-12) | os_observatory | `os_linux_comparison` | Same bounded eight-slot, 256-item queue workload; use freertos-posix with explicit pinned external source for RTOS comparison. Physical MCU timing and Linux RT policy campaigns remain separate.  |
 
 
 ---
@@ -13598,6 +14042,11 @@ After at least one day, reconstruct a selected contract and failing trace from m
 
 Use the declared Linux x86-64 environment for hosted observations and profile-specific adapters for portable components. Record compiler, linker, OS/library, architecture and configuration. Synthetic fixtures certify their declared static/reference calculations only. Unavailable target runs, unsupported instrumentation and hardware-dependent results are reported explicitly; emulator results do not prove STM32 electrical/peripheral behavior. No privileged host operation is required by a core project. See [guide-laboratory](#guide-laboratory), [guide-profiles](#guide-profiles) and [guide-inventory](#guide-inventory) before changing a boundary.
 
+<!-- third-edition handoff -->
+
+## Third-edition implementation handoff
+
+T49 observes these interfaces; T56 implements bounded spawn/exit/wait, demand-zero/COW, mappings and file-handle mechanisms in the educational kernel.
 
 ## Assigned source passages
 
@@ -14094,6 +14543,12 @@ Use the declared Linux x86-64 environment for hosted observations and profile-sp
 Reuse partial-I/O cursors, descriptor identities and event histories in [T43](#t43) and [T44](#t44). Measure return versus completion and diagnose short progress, EOF, retry, lost events and cleanup without another event loop.
 
 Follow [guide-performance-debugging](#guide-performance-debugging) for the full route. The new project briefs budget only the additional experiment, diagnosis and repair; earlier implementation evidence stays in its original module.
+
+<!-- third-edition handoff -->
+
+## Third-edition implementation handoff
+
+T51 implements blocking wait/wake, channels, events and counted notifications. T56 crosses process boundaries with explicit capabilities and shared-memory offsets.
 
 ## Assigned source passages
 
@@ -14600,6 +15055,12 @@ Use the existing controlled schedules and synchronization arguments in [T44](#t4
 
 Follow [guide-performance-debugging](#guide-performance-debugging) for the full route. The new project briefs budget only the additional experiment, diagnosis and repair; earlier implementation evidence stays in its original module.
 
+<!-- third-edition handoff -->
+
+## Third-edition implementation handoff
+
+T50 and T51 implement the task and synchronization machinery under the hosted interfaces. T53 and T54 test the changed coherent-SMP and physical-AMP assumptions.
+
 ## Assigned source passages
 
 | Resource | Inspected locator | Purpose | Hours |
@@ -15025,6 +15486,11 @@ After at least one day, reconstruct a selected contract and failing trace from m
 
 Use the declared Linux x86-64 environment for hosted observations and profile-specific adapters for portable components. Record compiler, linker, OS/library, architecture and configuration. Synthetic fixtures certify their declared static/reference calculations only. Unavailable target runs, unsupported instrumentation and hardware-dependent results are reported explicitly; emulator results do not prove STM32 electrical/peripheral behavior. No privileged host operation is required by a core project. See [guide-laboratory](#guide-laboratory), [guide-profiles](#guide-profiles) and [guide-inventory](#guide-inventory) before changing a boundary.
 
+<!-- third-edition handoff -->
+
+## Third-edition implementation handoff
+
+The original awareness/elective identities remain intact. T55 is the required advanced implementation route for progress, lock-free queues, hazard pointers, epoch reclamation and concurrent histories.
 
 ## Assigned source passages
 
@@ -16427,6 +16893,12 @@ In the earlier DMA comparison, “cacheless target” concerns the selected F439
 
 Follow [guide-performance-debugging](#guide-performance-debugging) for the full route. The new project briefs budget only the additional experiment, diagnosis and repair; earlier implementation evidence stays in its original module.
 
+<!-- third-edition handoff -->
+
+## Third-edition implementation handoff
+
+T50 builds original exception/context-switch machinery. T54 revisits interrupt handoff with two MCU cores, explicit shared SRAM, caches and DMA ownership.
+
 ## Assigned source passages
 
 | Resource | Inspected locator | Purpose | Hours |
@@ -16551,7 +17023,7 @@ Retain a separate evidence item for each objective below. Meeting one objective 
 
 ### T30.03 — Preemption and RTOS integration
 
-An RTOS task boundary changes blocking, ownership and context assumptions; it does not automatically fix them. Read the selected CM4F port's PendSV/priority assertions and map which application operations may block. Implement a two-task producer/consumer integration using caller-owned bounded storage and the appropriate ISR API only where priority permits. Writing a new scheduler kernel is a separate elective. Evidence includes configuration, context/stack ledger and shutdown/error ownership paths.
+An RTOS task boundary changes blocking, ownership and context assumptions; it does not automatically fix them. Read the selected CM4F port's PendSV/priority assertions and map which application operations may block. Implement a two-task producer/consumer integration using caller-owned bounded storage and the appropriate ISR API only where priority permits. The original scheduler implementation is assessed separately in T50; it is not required to pass this integration milestone. Evidence includes configuration, context/stack ledger and shutdown/error ownership paths.
 
 Apply this mechanism in [PR-T30-02](#pr-t30-02).
 
@@ -16863,6 +17335,12 @@ Use [guide-inventory](#guide-inventory) to find supplied data and [guide-integra
 Carry the release/start/finish ledger and counter assumptions into [T43](#t43). Add scoped latency, throughput, jitter and overhead experiments; retain the distinction between observed maxima and a justified bound.
 
 Follow [guide-performance-debugging](#guide-performance-debugging) for the full route. The new project briefs budget only the additional experiment, diagnosis and repair; earlier implementation evidence stays in its original module.
+
+<!-- third-edition handoff -->
+
+## Third-edition implementation handoff
+
+T52 extends analysis to blocking/jitter/overheads, ceilings, CBS, overload and partitioning. The original FreeRTOS integration remains a separate comparison; T50 implements the original runtime.
 
 ## Assigned source passages
 
@@ -22420,6 +22898,11 @@ Core hosted observations use permitted interfaces and disposable files. Controll
 
 The Arm route's static/captured evidence is mandatory and its actual silicon implementation is optional, with additional firmware gates in PR-T43-12. Emulation demonstrates functional execution, not silicon timing. No project claims energy without an instrument/source, experimental crash durability, whole-program stack proof from .su alone, or WCET from sampled maxima. tools/verify_performance_fixtures.py independently verifies finite arithmetic/semantic certificates and strict owned file correspondence; it does not compile or solve the learner's C, mutate host controls or certify hardware.
 
+<!-- third-edition handoff -->
+
+## Third-edition implementation handoff
+
+T49–T56 reuse this measurement ledger for dispatch work, context switches, wakeup latency, interference, contention, parallel speedup and I/O. Count reused work once.
 
 ## Assigned source passages
 
@@ -23034,6 +23517,11 @@ After at least seven days, diagnose a withheld new boundary, cleanup, schedule o
 
 GDB's inspected 19.0.50.20261009-git manual is a current development snapshot. Installed compiler/debugger, target watch resources, permissions, core generation and tool platforms must be recorded. Watchpoints can expire or miss other threads; optimization can erase variables; logs/stops/instrumentation perturb timing. Dynamic tools observe supported executed paths, static tools require context and may alarm conservatively, and cores omit history/memory. Undefined behavior and data races have no prescribed symptom. Linux close/EINTR policy is not a portable generic POSIX rule. The F439/basic-frame/static model excludes unsupported FP/padding/board effects; the selected F439 SRAM/DMA path has no core data-cache maintenance requirement. No fixture or emulator certifies physical timing, peripheral effects or electrical behavior.
 
+<!-- third-edition handoff -->
+
+## Third-edition implementation handoff
+
+T50–T56 extend controlled diagnosis to context corruption, missed wakeups, priority inversion, remote scheduling, cache visibility and late completion. A longer stress run is not a causal explanation.
 
 ## Assigned source passages
 
@@ -23520,6 +24008,11 @@ Core hosted observation requires a supported Linux setup for the Memcheck compar
 
 Follow [guide-laboratory](#guide-laboratory), [guide-profiles](#guide-profiles), [guide-standards](#guide-standards), [guide-integrations](#guide-integrations) and [guide-audit](#guide-audit) for environment, boundary and evidence records.
 
+<!-- third-edition handoff -->
+
+## Third-edition implementation handoff
+
+T51/T55/T56 extend lifetime drills to wait nodes, task stacks, stale handles, ABA, reclamation, COW frames and DMA buffers. Repair ownership before increasing retry counts.
 
 ## Assigned source passages
 
@@ -25080,6 +25573,12 @@ After at least seven days, diagnose one unseen page, ELF, handle or queue pertur
 
 The selected kernel is single-core, uses static ELF admission at boot and a nonpreemptible kernel. Synchronous bounded device polling may delay peers. There is no required SMP, general POSIX/filesystem/network stack, JIT, dynamic linker or physical-device conformance. User faults terminate the process; unexpected kernel exceptions stop the diagnostic image. QEMU-backed persistence and supplied crash models remain separately scoped.
 
+<!-- third-edition handoff -->
+
+## Third-edition implementation handoff
+
+Preserve this bounded single-core route and ABI regression. T53 adds a separate SMP profile; T56 introduces thread/process separation, blocking IPC, memory faults and concurrent services.
+
 ## Assigned source passages
 
 | Resource | Inspected locator | Purpose | Hours |
@@ -25118,6 +25617,3920 @@ The selected kernel is single-core, uses static ELF admission at boot and a nonp
 - [PR-T48-12: One portable VM core inside a user process](#pr-t48-12)
 - [PR-T48-13: VM, durable store and kernel reboot integration](#pr-t48-13)
 - [PR-T48-14: Kernel diagnosis, negative controls and delayed transfer](#pr-t48-14)
+
+
+---
+
+<a id="t49"></a>
+
+# T49 — Operating-system mechanisms and the Linux observatory
+
+| Track | Status | Hours | Dependency profiles |
+| --- | --- | --- | --- |
+| linux | core | 114 | A, C |
+
+**Prerequisites:** [T23](#t23), [T24](#t24), [T25](#t25), [T37](#t37).
+
+| Reading | Implementation | Verification | Assessment | Consolidation |
+| --- | --- | --- | --- | --- |
+| 12 | 56 | 30 | 8 | 8 |
+
+## Purpose and outcomes
+
+Treat a process as an ownership and protection boundary, a thread as an execution context, and scheduling as a policy over runnable contexts. Build models before comparing their predictions with observed Linux behavior.
+
+The 10 projects contribute 86 implementation/verification hours. Together with reading (12), assessment (8) and consolidation (8), the provisional module budget is 114 hours. These are planning estimates, not measured learner calibration.
+
+## Entry check and remediation
+
+Reuse the process launcher, descriptor ledger and thread join exercises. Before the observatory, distinguish a return value from errno and explain which process owns a descriptor. Assembly context switching is taught later and is not an entry requirement here. Where a prerequisite is missing, repair its smallest failing experiment first. Use prior projects by ID rather than duplicating their implementation hours. Explicit project dependencies govern the implementation route; module prerequisites describe the complete study background.
+
+## Study sequence and teaching
+
+
+<a id="t49-01"></a>
+
+### T49.01 — Privilege, traps and a syscall observatory
+
+Trace one write from a C call through the syscall ABI to kernel work and return. A library function, syscall, trap and device interrupt are different boundaries. An address meaningful in user mode is not automatically a valid kernel copy source; errno is a wrapper convention rather than the machine return ABI.
+
+Build a bounded syscall tracer experiment and an original raw-syscall assembly wrapper for one write. Compare its return with the libc wrapper on success and an invalid descriptor; inspect arguments and clobbers in disassembly.
+
+A discriminating experiment exposes: negative return confused with positive byte count; missing register clobber; invalid pointer; interrupted call; partial transfer. Required evidence: Retain a source-to-disassembly-to-trace correspondence, correct byte counts and a checked error conversion. Identify precisely which behavior belongs to ISO C, the chosen ABI and Linux.
+
+Develop this mechanism in [PR-T49-01](#pr-t49-01).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t49-01-a"></a>
+
+
+- **T49.01.a** Derive and defend the state, ownership and ordering contract for privilege, traps and a syscall observatory. **Disposition:** core. **Activity:** [PR-T49-01](#pr-t49-01).
+
+
+<a id="t49-01-b"></a>
+
+
+- **T49.01.b** Build a bounded syscall tracer experiment and an original raw-syscall assembly wrapper for one write. Compare its return with the libc wrapper on success and an invalid descriptor; inspect arguments and clobbers in disassembly. **Disposition:** core. **Activity:** [PR-T49-01](#pr-t49-01).
+
+
+<a id="t49-01-c"></a>
+
+
+- **T49.01.c** Retain a source-to-disassembly-to-trace correspondence, correct byte counts and a checked error conversion. Identify precisely which behavior belongs to ISO C, the chosen ABI and Linux. **Disposition:** core. **Activity:** [PR-T49-01](#pr-t49-01).
+
+
+<a id="t49-02"></a>
+
+### T49.02 — Processes, threads and lifetime ownership
+
+A process owns an address-space and descriptor context; multiple threads can execute within it. A child process initially sharing physical pages is not permission to share later ordinary writes. Exiting a thread, exiting a process, waiting for a child and joining a thread have distinct reclamation obligations.
+
+Build a process/thread tree that reports identities, shared and private counters, exit states and reaping. Use explicit synchronization and wait for every owned child or thread.
+
+A discriminating experiment exposes: unreaped child; joining twice; thread using a returned stack address; duplicated buffered output after fork; process exit mistaken for thread exit. Required evidence: Observe thread-shared state and process-private state, account for all created entities, and explain termination when one worker fails before publishing its result.
+
+Develop this mechanism in [PR-T49-02](#pr-t49-02).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t49-02-a"></a>
+
+
+- **T49.02.a** Derive and defend the state, ownership and ordering contract for processes, threads and lifetime ownership. **Disposition:** core. **Activity:** [PR-T49-02](#pr-t49-02).
+
+
+<a id="t49-02-b"></a>
+
+
+- **T49.02.b** Build a process/thread tree that reports identities, shared and private counters, exit states and reaping. Use explicit synchronization and wait for every owned child or thread. **Disposition:** core. **Activity:** [PR-T49-02](#pr-t49-02).
+
+
+<a id="t49-02-c"></a>
+
+
+- **T49.02.c** Observe thread-shared state and process-private state, account for all created entities, and explain termination when one worker fails before publishing its result. **Disposition:** core. **Activity:** [PR-T49-02](#pr-t49-02).
+
+
+<a id="t49-03"></a>
+
+### T49.03 — FCFS, SJF, SRTF and round-robin scheduling
+
+Implement a discrete-event policy model with integer arrival and service times. Tie-break by arrival then task ID; a completion at time t precedes an arrival at t, and dispatch has zero cost in the first model. Turnaround is completion minus arrival; response is first start minus arrival. Shortest remaining time is preemptive, unlike shortest job first.
+
+Implement FCFS, nonpreemptive SJF, SRTF and RR with a configurable positive quantum. Use jobs A=(0,8), B=(1,2), C=(2,1) and derive the complete timeline by hand before executing.
+
+A discriminating experiment exposes: zero quantum; empty workload; simultaneous arrivals; completion at quantum boundary; idle gap; arithmetic overflow. Required evidence: Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service.
+
+Develop this mechanism in [PR-T49-03](#pr-t49-03).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t49-03-a"></a>
+
+
+- **T49.03.a** Derive and defend the state, ownership and ordering contract for fcfs, sjf, srtf and round-robin scheduling. **Disposition:** core. **Activity:** [PR-T49-03](#pr-t49-03).
+
+
+<a id="t49-03-b"></a>
+
+
+- **T49.03.b** Implement FCFS, nonpreemptive SJF, SRTF and RR with a configurable positive quantum. Use jobs A=(0,8), B=(1,2), C=(2,1) and derive the complete timeline by hand before executing. **Disposition:** core. **Activity:** [PR-T49-03](#pr-t49-03).
+
+
+<a id="t49-03-c"></a>
+
+
+- **T49.03.c** Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service. **Disposition:** core. **Activity:** [PR-T49-03](#pr-t49-03).
+
+
+<a id="t49-04"></a>
+
+### T49.04 — Feedback and proportional-share scheduling
+
+MLFQ infers behavior from CPU consumption; stride allocates proportional service using virtual progress. Neither is a deadline guarantee. Charge CPU use across voluntary yields so a yielding task cannot repeatedly reset its allotment. Represent virtual accounting with checked integers and normalize before wrap.
+
+Add a three-level MLFQ with explicit allotments, periodic boost and yield accounting, then stride scheduling with weights1:2:4. Compare interactive bursts, a CPU hog and a yield-gaming worker.
+
+A discriminating experiment exposes: allotment reset on every yield; starving low queue; zero weight; pass overflow; unfair tie-breaking; sleeping worker receiving unbounded credit. Required evidence: Show the boost prevents the declared starvation case and service converges toward the selected weight ratios over a finite long run. Document transient error and distinguish this teaching policy from Linux EEVDF.
+
+Develop this mechanism in [PR-T49-04](#pr-t49-04).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t49-04-a"></a>
+
+
+- **T49.04.a** Derive and defend the state, ownership and ordering contract for feedback and proportional-share scheduling. **Disposition:** core. **Activity:** [PR-T49-04](#pr-t49-04).
+
+
+<a id="t49-04-b"></a>
+
+
+- **T49.04.b** Add a three-level MLFQ with explicit allotments, periodic boost and yield accounting, then stride scheduling with weights1:2:4. Compare interactive bursts, a CPU hog and a yield-gaming worker. **Disposition:** core. **Activity:** [PR-T49-04](#pr-t49-04).
+
+
+<a id="t49-04-c"></a>
+
+
+- **T49.04.c** Show the boost prevents the declared starvation case and service converges toward the selected weight ratios over a finite long run. Document transient error and distinguish this teaching policy from Linux EEVDF. **Disposition:** core. **Activity:** [PR-T49-04](#pr-t49-04).
+
+
+<a id="t49-05"></a>
+
+### T49.05 — Working sets and page-fault observation
+
+Allocated virtual bytes, resident pages and physical I/O are different measurements. First-touch demand-zero faults can consume CPU without disk reads; file-backed misses can trigger readahead or page-cache hits. A working set is tied to a reference window, not merely the allocation size.
+
+Build sequential, strided and randomized page-touch workloads with fixed seeds. Record minor/major faults, RSS, CPU time, elapsed time and the page-size/huge-page configuration before and after each phase.
+
+A discriminating experiment exposes: allocation optimized away; pages never touched; warm cache mislabeled cold; RSS sampled before touch; huge pages changing the unit; background pressure. Required evidence: Explain observed fault classes with a page-reference trace and separate requested bytes, touched pages and resident bytes. Report conditions that prevent a controlled cold-cache experiment.
+
+Develop this mechanism in [PR-T49-05](#pr-t49-05).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t49-05-a"></a>
+
+
+- **T49.05.a** Derive and defend the state, ownership and ordering contract for working sets and page-fault observation. **Disposition:** core. **Activity:** [PR-T49-05](#pr-t49-05).
+
+
+<a id="t49-05-b"></a>
+
+
+- **T49.05.b** Build sequential, strided and randomized page-touch workloads with fixed seeds. Record minor/major faults, RSS, CPU time, elapsed time and the page-size/huge-page configuration before and after each phase. **Disposition:** core. **Activity:** [PR-T49-05](#pr-t49-05).
+
+
+<a id="t49-05-c"></a>
+
+
+- **T49.05.c** Explain observed fault classes with a page-reference trace and separate requested bytes, touched pages and resident bytes. Report conditions that prevent a controlled cold-cache experiment. **Disposition:** core. **Activity:** [PR-T49-05](#pr-t49-05).
+
+
+<a id="t49-06"></a>
+
+### T49.06 — Page replacement from a reference string
+
+A replacement simulator knows logical references, not hardware timing. Use FIFO, LRU, CLOCK and offline optimal with the same frame capacity. CLOCK reference bits approximate recency; optimal needs future knowledge and is an oracle rather than a deployable policy.
+
+Implement the four policies and print each eviction. Use reference string1,2,3,4,1,2,5,1,2,3,4,5 with three and four frames to examine FIFO anomaly.
+
+A discriminating experiment exposes: evicting a free frame; wrong LRU update on hit; CLOCK hand never advancing; capacity zero; using future information in LRU. Required evidence: Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
+
+Develop this mechanism in [PR-T49-06](#pr-t49-06).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t49-06-a"></a>
+
+
+- **T49.06.a** Derive and defend the state, ownership and ordering contract for page replacement from a reference string. **Disposition:** core. **Activity:** [PR-T49-06](#pr-t49-06).
+
+
+<a id="t49-06-b"></a>
+
+
+- **T49.06.b** Implement the four policies and print each eviction. Use reference string1,2,3,4,1,2,5,1,2,3,4,5 with three and four frames to examine FIFO anomaly. **Disposition:** core. **Activity:** [PR-T49-06](#pr-t49-06).
+
+
+<a id="t49-06-c"></a>
+
+
+- **T49.06.c** Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO. **Disposition:** core. **Activity:** [PR-T49-06](#pr-t49-06).
+
+
+<a id="t49-07"></a>
+
+### T49.07 — Descriptors and open-file-description lifetimes
+
+A descriptor is a per-process integer referring to an open-file description. dup and inherited descriptors can share an offset, while separate opens ordinarily do not. Closing an integer relinquishes one reference; it does not mean an in-flight operation or a peer descriptor has ended.
+
+Build a descriptor ledger across open, dup, fork, read and close using a temporary file. Demonstrate shared offset updates and independent opens, then enforce close-on-exec for private descriptors.
+
+A discriminating experiment exposes: descriptor-number reuse; double close; leaked pipe writer preventing EOF; assuming dup creates an independent offset; retrying a Linux close after ambiguous failure. Required evidence: Reconcile every descriptor reference and observed file offset. Show pipe EOF only after all writer references close, including inherited copies.
+
+Develop this mechanism in [PR-T49-07](#pr-t49-07).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t49-07-a"></a>
+
+
+- **T49.07.a** Derive and defend the state, ownership and ordering contract for descriptors and open-file-description lifetimes. **Disposition:** core. **Activity:** [PR-T49-07](#pr-t49-07).
+
+
+<a id="t49-07-b"></a>
+
+
+- **T49.07.b** Build a descriptor ledger across open, dup, fork, read and close using a temporary file. Demonstrate shared offset updates and independent opens, then enforce close-on-exec for private descriptors. **Disposition:** core. **Activity:** [PR-T49-07](#pr-t49-07).
+
+
+<a id="t49-07-c"></a>
+
+
+- **T49.07.c** Reconcile every descriptor reference and observed file offset. Show pipe EOF only after all writer references close, including inherited copies. **Disposition:** core. **Activity:** [PR-T49-07](#pr-t49-07).
+
+
+<a id="t49-08"></a>
+
+### T49.08 — Namespaces, readiness and device completion
+
+A namespace changes a resource view; it is not the same mechanism as a cgroup resource budget. Readiness means an operation may make progress now, not that all requested work is complete. Completion needs an operation identity and buffer lifetime extending until its terminal result.
+
+Observe available PID/mount namespace views in a disposable permitted environment and build a poll-driven pipe reader that survives short transfers. Model device submission/completion with generation-checked request IDs.
+
+A discriminating experiment exposes: namespace privileges unavailable; readiness consumed by another reader; stale completion; buffer reused early; EINTR; partial EOF record. Required evidence: Show a readiness race safely handled by retry/error state and reject a stale synthetic completion. Record unavailable namespace operations honestly rather than weakening the isolation claim.
+
+Develop this mechanism in [PR-T49-08](#pr-t49-08).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t49-08-a"></a>
+
+
+- **T49.08.a** Derive and defend the state, ownership and ordering contract for namespaces, readiness and device completion. **Disposition:** core. **Activity:** [PR-T49-08](#pr-t49-08).
+
+
+<a id="t49-08-b"></a>
+
+
+- **T49.08.b** Observe available PID/mount namespace views in a disposable permitted environment and build a poll-driven pipe reader that survives short transfers. Model device submission/completion with generation-checked request IDs. **Disposition:** core. **Activity:** [PR-T49-08](#pr-t49-08).
+
+
+<a id="t49-08-c"></a>
+
+
+- **T49.08.c** Show a readiness race safely handled by retry/error state and reject a stale synthetic completion. Record unavailable namespace operations honestly rather than weakening the isolation claim. **Disposition:** core. **Activity:** [PR-T49-08](#pr-t49-08).
+
+
+<a id="t49-09"></a>
+
+### T49.09 — CPU and memory budgets with cgroups
+
+CPU quota limits service over a period; it is not a dedicated processor or deterministic response-time guarantee. memory.current includes charged memory under kernel rules and need not equal process RSS. A constrained experiment needs an isolated child group, explicit cleanup and a supervisor outside the tested budget.
+
+Run the same bounded compute/allocation workload without a group, with CPU quota, and with a memory limit in a delegated subtree. Capture cpu.stat, memory.events, pressure observations and workload exits.
+
+A discriminating experiment exposes: no delegation; parent quota dominating child; supervisor inside killed group; conflating throttling with slower instructions; memory pressure unrelated to allocation size. Required evidence: Attribute throughput changes to throttled time where supported, detect allocation/kill outcomes, and preserve exit/status evidence. If delegation is unavailable, close only the model gate.
+
+Develop this mechanism in [PR-T49-09](#pr-t49-09).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t49-09-a"></a>
+
+
+- **T49.09.a** Derive and defend the state, ownership and ordering contract for cpu and memory budgets with cgroups. **Disposition:** core. **Activity:** [PR-T49-09](#pr-t49-09).
+
+
+<a id="t49-09-b"></a>
+
+
+- **T49.09.b** Run the same bounded compute/allocation workload without a group, with CPU quota, and with a memory limit in a delegated subtree. Capture cpu.stat, memory.events, pressure observations and workload exits. **Disposition:** core. **Activity:** [PR-T49-09](#pr-t49-09).
+
+
+<a id="t49-09-c"></a>
+
+
+- **T49.09.c** Attribute throughput changes to throttled time where supported, detect allocation/kill outcomes, and preserve exit/status evidence. If delegation is unavailable, close only the model gate. **Disposition:** core. **Activity:** [PR-T49-09](#pr-t49-09).
+
+
+<a id="t49-10"></a>
+
+### T49.10 — I/O accounting and interference
+
+Application bytes, page-cache traffic and device bytes are different quantities. Buffered write completion does not establish durability; fsync can shift costs into another phase. A cgroup I/O limit applies to the selected controller/device path, so unsupported or cached operations can evade a naive interpretation.
+
+Build bounded read/write/fsync phases on a disposable file and compare warm-cache, explicit durable completion and controller-supported throttling. Record device identity, io.stat, CPU time and wall time.
+
+A discriminating experiment exposes: benchmark exceeds file capacity; cached read mistaken for device transfer; fsync omitted; unsupported controller; merging unrelated processes in accounting; insufficient free space. Required evidence: Publish a component budget separating data generation, system calls, waiting and completion, with byte ledgers and uncertainty. Explain every difference between application and device accounting.
+
+Develop this mechanism in [PR-T49-10](#pr-t49-10).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t49-10-a"></a>
+
+
+- **T49.10.a** Derive and defend the state, ownership and ordering contract for i/o accounting and interference. **Disposition:** core. **Activity:** [PR-T49-10](#pr-t49-10).
+
+
+<a id="t49-10-b"></a>
+
+
+- **T49.10.b** Build bounded read/write/fsync phases on a disposable file and compare warm-cache, explicit durable completion and controller-supported throttling. Record device identity, io.stat, CPU time and wall time. **Disposition:** core. **Activity:** [PR-T49-10](#pr-t49-10).
+
+
+<a id="t49-10-c"></a>
+
+
+- **T49.10.c** Publish a component budget separating data generation, system calls, waiting and completion, with byte ledgers and uncertainty. Explain every difference between application and device accounting. **Disposition:** core. **Activity:** [PR-T49-10](#pr-t49-10).
+
+## Reading guidance
+
+Read only the assigned locator before the related experiment, then return to it after the counterexample. State the source's machine and task-model assumptions next to your own. Historical pseudocode does not authorize undefined C races; Linux, ISO C and a microcontroller memory system are separate contracts. The source/search/reflection ledger is in `research/v3/`; filenames and graph records alone do not qualify as inspected readings.
+
+## Implementation projects
+
+Complete [PR-T49-01](#pr-t49-01), [PR-T49-02](#pr-t49-02), [PR-T49-03](#pr-t49-03), [PR-T49-04](#pr-t49-04), [PR-T49-05](#pr-t49-05), [PR-T49-06](#pr-t49-06), [PR-T49-07](#pr-t49-07), [PR-T49-08](#pr-t49-08), [PR-T49-09](#pr-t49-09), [PR-T49-10](#pr-t49-10) in order. Project manifests distinguish model, host, emulator, cross-build and physical evidence. Later cumulative tests may require later mechanisms; an early milestone is assessed on its own contract and cannot borrow a later reference implementation.
+
+## Mastery gate and feedback
+
+Demonstrate one correct execution and one deliberately wrong variant per mechanism. Explain the first invalid transition, fix its cause, and repeat with an independently chosen input. Review safety, progress, resource lifetime and timing as distinct claims. A stress test supplies observations; bounded exhaustive schedules supply only the stated finite coverage. A deadlocked or unavailable run is not a pass.
+
+## Consolidation and transfer
+
+After seven days rebuild one mechanism from its public contract, change the contention or arrival pattern, and compare the new prediction with the result. After a month integrate two previously separate boundaries. Record surprises, remediation hours and the source passage that changed your reasoning.
+
+## Environment and limits
+
+Linux/WSL with procfs, GCC/Clang and debugger Disposable cgroup subtree when delegation is available. Custom target images provide their own startup and required runtime helpers. Compiler-provided type headers and reviewed intrinsics are allowed; linked libc, libgcc, compiler-rt, libatomic, vendor HAL, OpenAMP and pre-existing kernels are excluded. FreeRTOS/Linux comparison programs are explicitly separate builds. Never infer physical WCET, electrical behavior or dual-core cache correctness from QEMU or a hosted model. The final learner record preserves unresolved or unavailable gates.
+
+## Assigned source passages
+
+| Resource | Inspected locator | Purpose | Hours |
+| --- | --- | --- | --- |
+| [Operating Systems: Principles and Practice, Volume II: Concurrency](#r-os3-ospp-ii) | 5.7.1 and 5.7.3 introductory paragraphs: uniprocessor and multiprocessor exclusion | Main conceptual spine for execution context, blocking and multicore policy/mechanism separation. | 2 |
+| [Operating Systems: Principles and Practice, Volume II: Concurrency](#r-os3-ospp-ii) | 7.2 introductory paragraphs: multiprocessor scheduling | Main conceptual spine for execution context, blocking and multicore policy/mechanism separation. | 2 |
+| [The Linux Programming Interface: A Linux and UNIX System Programming Handbook](#r-sys-tlpi-2010) | §3.4 Handling Errors from System Calls and Library Functions, pp. 48–55 | Connects system-call wrappers and error handling to concrete mutex, condition-variable and mapping behavior. Broad Linux exposition becomes useful when bounded by current contracts. | 2 |
+| [EEVDF Scheduler](#r-os3-linux-eevdf) | Lag, eligibility and virtual-deadline selection | Avoid presenting historical CFS as the only current fair-scheduling model. | 1 |
+
+## Project directory
+
+- [PR-T49-01: Privilege, traps and a syscall observatory](#pr-t49-01)
+- [PR-T49-02: Processes, threads and lifetime ownership](#pr-t49-02)
+- [PR-T49-03: FCFS, SJF, SRTF and round-robin scheduling](#pr-t49-03)
+- [PR-T49-04: Feedback and proportional-share scheduling](#pr-t49-04)
+- [PR-T49-05: Working sets and page-fault observation](#pr-t49-05)
+- [PR-T49-06: Page replacement from a reference string](#pr-t49-06)
+- [PR-T49-07: Descriptors and open-file-description lifetimes](#pr-t49-07)
+- [PR-T49-08: Namespaces, readiness and device completion](#pr-t49-08)
+- [PR-T49-09: CPU and memory budgets with cgroups](#pr-t49-09)
+- [PR-T49-10: I/O accounting and interference](#pr-t49-10)
+
+
+---
+
+<a id="t50"></a>
+
+# T50 — An original freestanding preemptive task runtime
+
+| Track | Status | Hours | Dependency profiles |
+| --- | --- | --- | --- |
+| bare-metal | core | 132 | C, E |
+
+**Prerequisites:** [T29](#t29), [T30](#t30), [T33](#t33), [T49](#t49).
+
+| Reading | Implementation | Verification | Assessment | Consolidation |
+| --- | --- | --- | --- | --- |
+| 12 | 68 | 36 | 8 | 8 |
+
+## Purpose and outcomes
+
+Start with a callable assembly context switch, then add preemption and task lifecycle. The kernel being built supplies its own services; no existing OS, libc, libgcc, compiler-rt, libatomic, vendor HAL or OpenAMP is linked into custom images.
+
+The 12 projects contribute 104 implementation/verification hours. Together with reading (12), assessment (8) and consolidation (8), the provisional module budget is 132 hours. These are planning estimates, not measured learner calibration.
+
+## Entry check and remediation
+
+Reuse the reset/exception frame decoder, bounded ISR and ABI experiments. Draw the basic Cortex-M exception frame, identify PSP/MSP and show an ELF/map with accounted RAM before writing a scheduler. Where a prerequisite is missing, repair its smallest failing experiment first. Use prior projects by ID rather than duplicating their implementation hours. Explicit project dependencies govern the implementation route; module prerequisites describe the complete study background.
+
+## Study sequence and teaching
+
+
+<a id="t50-01"></a>
+
+### T50.01 — Freestanding image and runtime dependency audit
+
+Freestanding compilation changes language/library expectations; it does not guarantee a self-contained link. A compiler can emit memcpy, division helpers or atomics support. The custom image must provide original required helpers and contain no linked libc, libgcc, compiler-rt or libatomic. Standard type headers and reviewed intrinsics are permitted.
+
+Build an original reset entry, vector table, linker layout and C entry. Initialize data/BSS, audit map/undefined symbols, and deliberately compile operations likely to request a helper.
+
+A discriminating experiment exposes: hosted startup linked; BSS not zeroed; data copied from wrong load address; helper dependency hidden by optimization; stack misalignment. Required evidence: Boot to an original C marker and account for every linked symbol and section. A deliberately introduced hosted dependency must fail the audit, and the repaired helper must pass independent edge cases.
+
+Develop this mechanism in [PR-T50-01](#pr-t50-01).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t50-01-a"></a>
+
+
+- **T50.01.a** Derive and defend the state, ownership and ordering contract for freestanding image and runtime dependency audit. **Disposition:** core. **Activity:** [PR-T50-01](#pr-t50-01).
+
+
+<a id="t50-01-b"></a>
+
+
+- **T50.01.b** Build an original reset entry, vector table, linker layout and C entry. Initialize data/BSS, audit map/undefined symbols, and deliberately compile operations likely to request a helper. **Disposition:** core. **Activity:** [PR-T50-01](#pr-t50-01).
+
+
+<a id="t50-01-c"></a>
+
+
+- **T50.01.c** Boot to an original C marker and account for every linked symbol and section. A deliberately introduced hosted dependency must fail the audit, and the repaired helper must pass independent edge cases. **Disposition:** core. **Activity:** [PR-T50-01](#pr-t50-01).
+
+
+<a id="t50-02"></a>
+
+### T50.02 — Static task pools, stacks and handles
+
+The runtime has sixteen task slots (CMX_TASKS), including one reserved idle task and fifteen application slots. Each owns a disjoint aligned stack. The supplied admission anchor uses raw slot IDs; implementing a generation-validated public handle adapter is required learner work. Creating a task reserves all resources before publication; failed creation leaves the pool unchanged. A stack high-water pattern reveals observed use, not a proof of maximum use. Reusing a slot must not revive a stale handle.
+
+Implement task allocation, initial stack-frame construction, stack bounds and generation validation using caller-owned fixed arrays. Reserve one of the sixteen slots for a permanent idle task, outside application exhaustion accounting.
+
+A discriminating experiment exposes: pool exhaustion; tiny stack; stale handle; misalignment; overlapping stacks; generation wrap; partial reservation leak. Required evidence: Exhaust and refill the pool while rejecting old handles. Inspect the exact initial register frame and reconcile static RAM, stack reservation and observed high-water usage.
+
+Develop this mechanism in [PR-T50-02](#pr-t50-02).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t50-02-a"></a>
+
+
+- **T50.02.a** Derive and defend the state, ownership and ordering contract for static task pools, stacks and handles. **Disposition:** core. **Activity:** [PR-T50-02](#pr-t50-02).
+
+
+<a id="t50-02-b"></a>
+
+
+- **T50.02.b** Implement task allocation, initial stack-frame construction, stack bounds and generation validation using caller-owned fixed arrays. Reserve one of the sixteen slots for a permanent idle task, outside application exhaustion accounting. **Disposition:** core. **Activity:** [PR-T50-02](#pr-t50-02).
+
+
+<a id="t50-02-c"></a>
+
+
+- **T50.02.c** Exhaust and refill the pool while rejecting old handles. Inspect the exact initial register frame and reconcile static RAM, stack reservation and observed high-water usage. **Disposition:** core. **Activity:** [PR-T50-02](#pr-t50-02).
+
+
+<a id="t50-03"></a>
+
+### T50.03 — Cooperative assembly context switching
+
+A cooperative switch occurs at an ABI call boundary. Save the callee-preserved register set, stack pointer and return path required by the selected ABI; asynchronous preemption later needs a different contract. A task entry that returns must reach a controlled exit trampoline.
+
+Write the original Thumb switch routine and a two-task yield loop. Fill preserved registers with distinct sentinels, call nested C functions and retain disassembly of the save/restore path.
+
+A discriminating experiment exposes: omitted preserved register; wrong stack alignment; return to expired frame; restored stack from another task; task entry returns into garbage. Required evidence: Execute repeated switches with intact register and local-variable sentinels, plus a deliberate omitted-register fault. Show that two contexts exist even though only one runs at an instant.
+
+Develop this mechanism in [PR-T50-03](#pr-t50-03).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t50-03-a"></a>
+
+
+- **T50.03.a** Derive and defend the state, ownership and ordering contract for cooperative assembly context switching. **Disposition:** core. **Activity:** [PR-T50-03](#pr-t50-03).
+
+
+<a id="t50-03-b"></a>
+
+
+- **T50.03.b** Write the original Thumb switch routine and a two-task yield loop. Fill preserved registers with distinct sentinels, call nested C functions and retain disassembly of the save/restore path. **Disposition:** core. **Activity:** [PR-T50-03](#pr-t50-03).
+
+
+<a id="t50-03-c"></a>
+
+
+- **T50.03.c** Execute repeated switches with intact register and local-variable sentinels, plus a deliberate omitted-register fault. Show that two contexts exist even though only one runs at an instant. **Disposition:** core. **Activity:** [PR-T50-03](#pr-t50-03).
+
+
+<a id="t50-04"></a>
+
+### T50.04 — Ready, blocked, sleeping and exited states
+
+A task belongs to one scheduler state and at most one runnable queue. Blocking is not a busy wait. The idle task runs only when no ordinary task is runnable. Queue membership and current execution ownership must change together under the selected critical-section contract.
+
+Implement cooperative ready/block/sleep/exit transitions and deterministic selection. Attach an invariant checker to every transition in the hosted model before exercising target code.
+
+A discriminating experiment exposes: task enqueued twice; blocked task selected; exited task resumed; no idle context; task present in two queues; yield loses task. Required evidence: Produce a transition ledger showing single membership and service conservation. Reject illegal transitions without corrupting later scheduling.
+
+Develop this mechanism in [PR-T50-04](#pr-t50-04).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t50-04-a"></a>
+
+
+- **T50.04.a** Derive and defend the state, ownership and ordering contract for ready, blocked, sleeping and exited states. **Disposition:** core. **Activity:** [PR-T50-04](#pr-t50-04).
+
+
+<a id="t50-04-b"></a>
+
+
+- **T50.04.b** Implement cooperative ready/block/sleep/exit transitions and deterministic selection. Attach an invariant checker to every transition in the hosted model before exercising target code. **Disposition:** core. **Activity:** [PR-T50-04](#pr-t50-04).
+
+
+<a id="t50-04-c"></a>
+
+
+- **T50.04.c** Produce a transition ledger showing single membership and service conservation. Reject illegal transitions without corrupting later scheduling. **Disposition:** core. **Activity:** [PR-T50-04](#pr-t50-04).
+
+
+<a id="t50-05"></a>
+
+### T50.05 — Timers and an absolute-deadline queue
+
+Delay-until maintains a release phase; repeated delay-after-work accumulates execution time as drift. A modular clock comparison is valid only when compared distances stay within half the counter range. Timer cancellation needs identity, not just a pointer into a recycled slot.
+
+Implement a bounded deadline queue with stable equal-deadline ordering and generation-checked cancellation. Compare phase-preserving periodic release with delay-after-work using a fake clock.
+
+A discriminating experiment exposes: clock wrap; already-due deadline; simultaneous expiry; canceled timer reused; zero delay; requested distance at or beyond half range. Required evidence: Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
+
+Develop this mechanism in [PR-T50-05](#pr-t50-05).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t50-05-a"></a>
+
+
+- **T50.05.a** Derive and defend the state, ownership and ordering contract for timers and an absolute-deadline queue. **Disposition:** core. **Activity:** [PR-T50-05](#pr-t50-05).
+
+
+<a id="t50-05-b"></a>
+
+
+- **T50.05.b** Implement a bounded deadline queue with stable equal-deadline ordering and generation-checked cancellation. Compare phase-preserving periodic release with delay-after-work using a fake clock. **Disposition:** core. **Activity:** [PR-T50-05](#pr-t50-05).
+
+
+<a id="t50-05-c"></a>
+
+
+- **T50.05.c** Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces. **Disposition:** core. **Activity:** [PR-T50-05](#pr-t50-05).
+
+
+<a id="t50-06"></a>
+
+### T50.06 — PendSV, SVC and timer-driven preemption
+
+Exception entry supplies a hardware frame; the switch handler supplies the remaining context. SVC establishes a controlled service boundary, while PendSV performs a deferred switch at the chosen low priority. A timer must preempt a task that never calls yield.
+
+Implement original SVC startup, SysTick accounting and PendSV save/restore with PSP task stacks and an MSP handler stack. Draw both basic frame and software frame before declaring C structures.
+
+A discriminating experiment exposes: wrong EXC_RETURN; incorrect PSP/MSP selection; PendSV priority too high; missing saved register; unacknowledged timer; assuming cooperative tests prove preemption. Required evidence: Run two CPU loops that never yield and show timer-caused progress for both with intact contexts. Retain register-frame and exception-priority evidence.
+
+Develop this mechanism in [PR-T50-06](#pr-t50-06).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t50-06-a"></a>
+
+
+- **T50.06.a** Derive and defend the state, ownership and ordering contract for pendsv, svc and timer-driven preemption. **Disposition:** core. **Activity:** [PR-T50-06](#pr-t50-06).
+
+
+<a id="t50-06-b"></a>
+
+
+- **T50.06.b** Implement original SVC startup, SysTick accounting and PendSV save/restore with PSP task stacks and an MSP handler stack. Draw both basic frame and software frame before declaring C structures. **Disposition:** core. **Activity:** [PR-T50-06](#pr-t50-06).
+
+
+<a id="t50-06-c"></a>
+
+
+- **T50.06.c** Run two CPU loops that never yield and show timer-caused progress for both with intact contexts. Retain register-frame and exception-priority evidence. **Disposition:** core. **Activity:** [PR-T50-06](#pr-t50-06).
+
+
+<a id="t50-07"></a>
+
+### T50.07 — Nested interrupt masks and ISR handoff
+
+Restore the incoming interrupt mask rather than blindly enabling interrupts at critical-section exit. An ISR may publish bounded work and request rescheduling; it must not call a blocking API. BASEPRI priority values use implemented priority bits and cannot be compared naively with arbitrary numerical labels.
+
+Implement nest-safe critical sections and a nonblocking ISR-to-task handoff. Inject an interrupt at each transition around publication and pending-reschedule state.
+
+A discriminating experiment exposes: inner exit re-enables interrupts; blocking from ISR; urgent interrupt calls masked-kernel API; lost reschedule request; incorrect priority encoding. Required evidence: Show nested mask restoration and bounded ISR execution, with all forbidden contexts rejected. Record the longest observed mask interval separately from any analytical bound.
+
+Develop this mechanism in [PR-T50-07](#pr-t50-07).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t50-07-a"></a>
+
+
+- **T50.07.a** Derive and defend the state, ownership and ordering contract for nested interrupt masks and isr handoff. **Disposition:** core. **Activity:** [PR-T50-07](#pr-t50-07).
+
+
+<a id="t50-07-b"></a>
+
+
+- **T50.07.b** Implement nest-safe critical sections and a nonblocking ISR-to-task handoff. Inject an interrupt at each transition around publication and pending-reschedule state. **Disposition:** core. **Activity:** [PR-T50-07](#pr-t50-07).
+
+
+<a id="t50-07-c"></a>
+
+
+- **T50.07.c** Show nested mask restoration and bounded ISR execution, with all forbidden contexts rejected. Record the longest observed mask interval separately from any analytical bound. **Disposition:** core. **Activity:** [PR-T50-07](#pr-t50-07).
+
+
+<a id="t50-08"></a>
+
+### T50.08 — Floating-point task context and lazy stacking
+
+Floating-point context ownership depends on exception-return state and the selected lazy-stacking configuration. Integer-only tests cannot detect corruption of S16-S31. The first FP instruction in an exception can change stack use and timing; account for reserved and actually written frame space separately.
+
+Run two FP tasks with distinct register sentinels and an integer-only task. Implement the required high-register preservation and explicitly choose/document eager or lazy FP stacking.
+
+A discriminating experiment exposes: saving FP state unconditionally to wrong frame; missing high FP registers; stack budget ignores extended frame; exception handler accidentally emits FP. Required evidence: Preserve each task FP state through preemption and diagnose a faulty variant that drops one FP register. Retain compiler options, frame diagrams and stack measurements.
+
+Develop this mechanism in [PR-T50-08](#pr-t50-08).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t50-08-a"></a>
+
+
+- **T50.08.a** Derive and defend the state, ownership and ordering contract for floating-point task context and lazy stacking. **Disposition:** core. **Activity:** [PR-T50-08](#pr-t50-08).
+
+
+<a id="t50-08-b"></a>
+
+
+- **T50.08.b** Run two FP tasks with distinct register sentinels and an integer-only task. Implement the required high-register preservation and explicitly choose/document eager or lazy FP stacking. **Disposition:** core. **Activity:** [PR-T50-08](#pr-t50-08).
+
+
+<a id="t50-08-c"></a>
+
+
+- **T50.08.c** Preserve each task FP state through preemption and diagnose a faulty variant that drops one FP register. Retain compiler options, frame diagrams and stack measurements. **Disposition:** core. **Activity:** [PR-T50-08](#pr-t50-08).
+
+
+<a id="t50-09"></a>
+
+### T50.09 — Exit, join and deferred reclamation
+
+A task cannot reclaim the stack on which it is still executing. Exit publishes a result and transfers control; another context reaps storage only after no owner can resume it. Join is a single-consumer lifecycle operation in this teaching API, distinct from waiting on an event.
+
+Implement exit trampolines, one permitted joiner and deferred reaping. Allow joining an already-exited task and reject joining self or a stale generation.
+
+A discriminating experiment exposes: freeing current stack; two joiners; self join; exit before join enrollment; stale task result; detached task never reaped. Required evidence: Account for every stack before and after completion, including exit-before-join. Show that a stale handle cannot observe a new task result.
+
+Develop this mechanism in [PR-T50-09](#pr-t50-09).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t50-09-a"></a>
+
+
+- **T50.09.a** Derive and defend the state, ownership and ordering contract for exit, join and deferred reclamation. **Disposition:** core. **Activity:** [PR-T50-09](#pr-t50-09).
+
+
+<a id="t50-09-b"></a>
+
+
+- **T50.09.b** Implement exit trampolines, one permitted joiner and deferred reaping. Allow joining an already-exited task and reject joining self or a stale generation. **Disposition:** core. **Activity:** [PR-T50-09](#pr-t50-09).
+
+
+<a id="t50-09-c"></a>
+
+
+- **T50.09.c** Account for every stack before and after completion, including exit-before-join. Show that a stale handle cannot observe a new task result. **Disposition:** core. **Activity:** [PR-T50-09](#pr-t50-09).
+
+
+<a id="t50-10"></a>
+
+### T50.10 — Cancellation and task-fault containment
+
+Cancellation is a request observed at declared safe points, not arbitrary forced execution of cleanup code. A task fault must stop that task and preserve diagnostic state; it cannot silently release a mutex while shared data may be inconsistent. Stack guards detect particular accesses, while canaries detect only later damage.
+
+Implement cooperative cancellation points and an explicit faulted state with a retained fault record. Test a stack-bound violation and a cancellation while blocked.
+
+A discriminating experiment exposes: cancel during critical mutation; fault record overwritten; canceled task still on wait queue; guard absent; releasing owner resource as if consistent. Required evidence: Show one terminal state and one reclamation path per task. Preserve the first fault evidence and identify resources left poisoned for higher-level recovery.
+
+Develop this mechanism in [PR-T50-10](#pr-t50-10).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t50-10-a"></a>
+
+
+- **T50.10.a** Derive and defend the state, ownership and ordering contract for cancellation and task-fault containment. **Disposition:** core. **Activity:** [PR-T50-10](#pr-t50-10).
+
+
+<a id="t50-10-b"></a>
+
+
+- **T50.10.b** Implement cooperative cancellation points and an explicit faulted state with a retained fault record. Test a stack-bound violation and a cancellation while blocked. **Disposition:** core. **Activity:** [PR-T50-10](#pr-t50-10).
+
+
+<a id="t50-10-c"></a>
+
+
+- **T50.10.c** Show one terminal state and one reclamation path per task. Preserve the first fault evidence and identify resources left poisoned for higher-level recovery. **Disposition:** core. **Activity:** [PR-T50-10](#pr-t50-10).
+
+
+<a id="t50-11"></a>
+
+### T50.11 — Tickless idle and wakeup accounting
+
+Tickless operation programs the next relevant deadline instead of counting every periodic tick. Reading time, checking work and entering sleep form a race-sensitive protocol: an interrupt between the check and sleep must still cause progress. Rounding hardware timer counts must not produce early expiry.
+
+Implement next-deadline selection, bounded timer programming and elapsed-time compensation. Use a deterministic wake-before-sleep injection before a target low-power experiment.
+
+A discriminating experiment exposes: lost wake at sleep boundary; timer range exceeded; elapsed time counted twice; early timeout by rounding; no pending timer; wake source disabled. Required evidence: Reconcile logical elapsed time with timer events across idle intervals and show the injected wake cannot strand a runnable task. Separate energy measurements from logical correctness.
+
+Develop this mechanism in [PR-T50-11](#pr-t50-11).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t50-11-a"></a>
+
+
+- **T50.11.a** Derive and defend the state, ownership and ordering contract for tickless idle and wakeup accounting. **Disposition:** core. **Activity:** [PR-T50-11](#pr-t50-11).
+
+
+<a id="t50-11-b"></a>
+
+
+- **T50.11.b** Implement next-deadline selection, bounded timer programming and elapsed-time compensation. Use a deterministic wake-before-sleep injection before a target low-power experiment. **Disposition:** core. **Activity:** [PR-T50-11](#pr-t50-11).
+
+
+<a id="t50-11-c"></a>
+
+
+- **T50.11.c** Reconcile logical elapsed time with timer events across idle intervals and show the injected wake cannot strand a runnable task. Separate energy measurements from logical correctness. **Disposition:** core. **Activity:** [PR-T50-11](#pr-t50-11).
+
+
+<a id="t50-12"></a>
+
+### T50.12 — Integrated original MCU runtime
+
+Combine the accepted runtime mechanisms in a bounded sensor-processing workload with periodic acquisition, CPU work and deferred output. Keep driver interrupts nonblocking and all task/resource capacities explicit. Emulator execution can validate control flow; physical latency requires board traces.
+
+Integrate the task pool, original switch/preemption path, timers, lifecycle and diagnostic records. Use one overload burst and one task failure while other tasks continue.
+
+A discriminating experiment exposes: unbounded log output; pool exhaustion during recovery; CPU hog defeats preemption; missed release hidden by relative delay; measurement code changes priorities. Required evidence: Supply a complete map/symbol audit, target execution traces and a per-component RAM/CPU budget. Mark physical timing as not-run until the actual board trace exists.
+
+Develop this mechanism in [PR-T50-12](#pr-t50-12).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t50-12-a"></a>
+
+
+- **T50.12.a** Derive and defend the state, ownership and ordering contract for integrated original mcu runtime. **Disposition:** core. **Activity:** [PR-T50-12](#pr-t50-12).
+
+
+<a id="t50-12-b"></a>
+
+
+- **T50.12.b** Integrate the task pool, original switch/preemption path, timers, lifecycle and diagnostic records. Use one overload burst and one task failure while other tasks continue. **Disposition:** core. **Activity:** [PR-T50-12](#pr-t50-12).
+
+
+<a id="t50-12-c"></a>
+
+
+- **T50.12.c** Supply a complete map/symbol audit, target execution traces and a per-component RAM/CPU budget. Mark physical timing as not-run until the actual board trace exists. **Disposition:** core. **Activity:** [PR-T50-12](#pr-t50-12).
+
+## Reading guidance
+
+Read only the assigned locator before the related experiment, then return to it after the counterexample. State the source's machine and task-model assumptions next to your own. Historical pseudocode does not authorize undefined C races; Linux, ISO C and a microcontroller memory system are separate contracts. The source/search/reflection ledger is in `research/v3/`; filenames and graph records alone do not qualify as inspected readings.
+
+## Implementation projects
+
+Complete [PR-T50-01](#pr-t50-01), [PR-T50-02](#pr-t50-02), [PR-T50-03](#pr-t50-03), [PR-T50-04](#pr-t50-04), [PR-T50-05](#pr-t50-05), [PR-T50-06](#pr-t50-06), [PR-T50-07](#pr-t50-07), [PR-T50-08](#pr-t50-08), [PR-T50-09](#pr-t50-09), [PR-T50-10](#pr-t50-10), [PR-T50-11](#pr-t50-11), [PR-T50-12](#pr-t50-12) in order. Project manifests distinguish model, host, emulator, cross-build and physical evidence. Later cumulative tests may require later mechanisms; an early milestone is assessed on its own contract and cannot borrow a later reference implementation.
+
+## Mastery gate and feedback
+
+Demonstrate one correct execution and one deliberately wrong variant per mechanism. Explain the first invalid transition, fix its cause, and repeat with an independently chosen input. Review safety, progress, resource lifetime and timing as distinct claims. A stress test supplies observations; bounded exhaustive schedules supply only the stated finite coverage. A deadlocked or unavailable run is not a pass.
+
+## Consolidation and transfer
+
+After seven days rebuild one mechanism from its public contract, change the contention or arrival pattern, and compare the new prediction with the result. After a month integrate two previously separate boundaries. Record surprises, remediation hours and the source passage that changed your reasoning.
+
+## Environment and limits
+
+Cortex-M4F compiler and emulator Existing F439 board for physical timing; original startup and link scripts. Custom target images provide their own startup and required runtime helpers. Compiler-provided type headers and reviewed intrinsics are allowed; linked libc, libgcc, compiler-rt, libatomic, vendor HAL, OpenAMP and pre-existing kernels are excluded. FreeRTOS/Linux comparison programs are explicitly separate builds. Never infer physical WCET, electrical behavior or dual-core cache correctness from QEMU or a hosted model. The final learner record preserves unresolved or unavailable gates.
+
+## Assigned source passages
+
+| Resource | Inspected locator | Purpose | Hours |
+| --- | --- | --- | --- |
+| [Operating Systems: Principles and Practice, Volume II: Concurrency](#r-os3-ospp-ii) | 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching | Main conceptual spine for execution context, blocking and multicore policy/mechanism separation. | 3 |
+| [FreeRTOS Kernel GCC ARM_CM4F port](#r-freertos-cm4f-1120) | xPortPendSVHandler | Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation. | 2 |
+| [Cortex-M4(F) Lazy Stacking and Context Switching](#r-os3-arm-dai0298a) | Printed pp.4 and15: FP frame ownership and PendSV | Ground the integer-versus-FP context split and deferred switching. | 2 |
+| [STM32 Cortex-M4 MCUs and MPUs programming manual](#r-os3-st-pm0214-r10) | pp.24-26 mask/CONTROL registers | Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards. | 1 |
+| [STM32 Cortex-M4 MCUs and MPUs programming manual](#r-os3-st-pm0214-r10) | pp.42-44 section2.3.7 exception entry/return and frame | Construct and inspect the initial exception frame and restore path. | 1 |
+| [Procedure Call Standard for the Arm Architecture](#r-os3-arm-aapcs32) | VFP register usage conventions: s16-s31 | Derive the floating-point preservation test from the ABI. | 1 |
+| [Procedure Call Standard for the Arm Architecture](#r-os3-arm-aapcs32) | Stack constraints at a public interface: SP modulo8 | Check stack alignment at original assembly/C call boundaries. | 1 |
+
+## Project directory
+
+- [PR-T50-01: Freestanding image and runtime dependency audit](#pr-t50-01)
+- [PR-T50-02: Static task pools, stacks and handles](#pr-t50-02)
+- [PR-T50-03: Cooperative assembly context switching](#pr-t50-03)
+- [PR-T50-04: Ready, blocked, sleeping and exited states](#pr-t50-04)
+- [PR-T50-05: Timers and an absolute-deadline queue](#pr-t50-05)
+- [PR-T50-06: PendSV, SVC and timer-driven preemption](#pr-t50-06)
+- [PR-T50-07: Nested interrupt masks and ISR handoff](#pr-t50-07)
+- [PR-T50-08: Floating-point task context and lazy stacking](#pr-t50-08)
+- [PR-T50-09: Exit, join and deferred reclamation](#pr-t50-09)
+- [PR-T50-10: Cancellation and task-fault containment](#pr-t50-10)
+- [PR-T50-11: Tickless idle and wakeup accounting](#pr-t50-11)
+- [PR-T50-12: Integrated original MCU runtime](#pr-t50-12)
+
+
+---
+
+<a id="t51"></a>
+
+# T51 — Synchronization and bounded inter-task communication
+
+| Track | Status | Hours | Dependency profiles |
+| --- | --- | --- | --- |
+| cross-track | core | 148 | C, E |
+
+**Prerequisites:** [T25](#t25), [T50](#t50).
+
+| Reading | Implementation | Verification | Assessment | Consolidation |
+| --- | --- | --- | --- | --- |
+| 12 | 78 | 42 | 8 | 8 |
+
+## Purpose and outcomes
+
+A synchronization primitive is a state machine with ownership, progress and lifetime rules. Implement the wait protocol once, then derive blocking objects without duplicating its enrollment and timeout races.
+
+The 14 projects contribute 120 implementation/verification hours. Together with reading (12), assessment (8) and consolidation (8), the provisional module budget is 148 hours. These are planning estimates, not measured learner calibration.
+
+## Entry check and remediation
+
+Bring a working task lifecycle, a bounded wait queue and the C publication exercise. Explain why check-then-sleep can lose a wake before adding any blocking object. Where a prerequisite is missing, repair its smallest failing experiment first. Use prior projects by ID rather than duplicating their implementation hours. Explicit project dependencies govern the implementation route; module prerequisites describe the complete study background.
+
+## Study sequence and teaching
+
+
+<a id="t51-01"></a>
+
+### T51.01 — Atomic wait enrollment and lost-wakeup prevention
+
+Checking a predicate and joining its wait queue must be one atomic protocol relative to the producer. Otherwise a notification can occur after the check but before sleep, leaving the waiter blocked forever. Notification does not store a Boolean truth on behalf of the caller.
+
+Implement a shared wait-queue primitive with predicate recheck, enrollment and scheduler block under one protection domain. Enumerate producer actions before check, during enrollment and after block.
+
+A discriminating experiment exposes: check-then-sleep gap; double enrollment; spurious wake; wake before block commit; wait on destroyed object. Required evidence: Reduce a broken implementation to a two-task lost-wakeup trace and show the repair completes every enumerated schedule without duplicating runnable entries.
+
+Develop this mechanism in [PR-T51-01](#pr-t51-01).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-01-a"></a>
+
+
+- **T51.01.a** Derive and defend the state, ownership and ordering contract for atomic wait enrollment and lost-wakeup prevention. **Disposition:** core. **Activity:** [PR-T51-01](#pr-t51-01).
+
+
+<a id="t51-01-b"></a>
+
+
+- **T51.01.b** Implement a shared wait-queue primitive with predicate recheck, enrollment and scheduler block under one protection domain. Enumerate producer actions before check, during enrollment and after block. **Disposition:** core. **Activity:** [PR-T51-01](#pr-t51-01).
+
+
+<a id="t51-01-c"></a>
+
+
+- **T51.01.c** Reduce a broken implementation to a two-task lost-wakeup trace and show the repair completes every enumerated schedule without duplicating runnable entries. **Disposition:** core. **Activity:** [PR-T51-01](#pr-t51-01).
+
+
+<a id="t51-02"></a>
+
+### T51.02 — Counting and binary semaphores
+
+A semaphore accounts for permits and has no mutex ownership rule. Its invariant relates initial permits, successful posts and successful waits; a waiter cannot consume a permit twice after a timeout race. Binary saturation is an explicit policy, not an accidental integer wrap.
+
+Implement bounded counting semaphores with nonblocking try, blocking wait and ISR-safe post. Specify maximum count and choose an error on overflow rather than silently discarding a counted event.
+
+A discriminating experiment exposes: count overflow; underflow; ISR blocks; timeout consumes later permit; duplicate wake; binary semaphore used as owned mutex. Required evidence: Reconcile the permit ledger through contention and cancellation. Demonstrate that a task different from the waiter may post and explain why this does not provide ownership protection.
+
+Develop this mechanism in [PR-T51-02](#pr-t51-02).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-02-a"></a>
+
+
+- **T51.02.a** Derive and defend the state, ownership and ordering contract for counting and binary semaphores. **Disposition:** core. **Activity:** [PR-T51-02](#pr-t51-02).
+
+
+<a id="t51-02-b"></a>
+
+
+- **T51.02.b** Implement bounded counting semaphores with nonblocking try, blocking wait and ISR-safe post. Specify maximum count and choose an error on overflow rather than silently discarding a counted event. **Disposition:** core. **Activity:** [PR-T51-02](#pr-t51-02).
+
+
+<a id="t51-02-c"></a>
+
+
+- **T51.02.c** Reconcile the permit ledger through contention and cancellation. Demonstrate that a task different from the waiter may post and explain why this does not provide ownership protection. **Disposition:** core. **Activity:** [PR-T51-02](#pr-t51-02).
+
+
+<a id="t51-03"></a>
+
+### T51.03 — Owned mutexes and lock ordering
+
+A mutex grants exclusive ownership to a task, so only that owner may unlock. This first mutex is nonrecursive: self-lock reports an error instead of deadlocking invisibly. Ownership transfer and wakeup must appear atomic to contenders, with a documented queue discipline.
+
+Implement owner tracking, try-lock, blocking lock and unlock using the wait protocol. Protect a two-field invariant and publish a lock-order graph for a two-object operation.
+
+A discriminating experiment exposes: nonowner unlock; self lock; owner exits; object destroyed with waiters; protected fields observed between updates. Required evidence: Show mutual exclusion and correct handoff, reject nonowner operations and produce a minimal lock-order-cycle deadlock that the declared ordering prevents.
+
+Develop this mechanism in [PR-T51-03](#pr-t51-03).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-03-a"></a>
+
+
+- **T51.03.a** Derive and defend the state, ownership and ordering contract for owned mutexes and lock ordering. **Disposition:** core. **Activity:** [PR-T51-03](#pr-t51-03).
+
+
+<a id="t51-03-b"></a>
+
+
+- **T51.03.b** Implement owner tracking, try-lock, blocking lock and unlock using the wait protocol. Protect a two-field invariant and publish a lock-order graph for a two-object operation. **Disposition:** core. **Activity:** [PR-T51-03](#pr-t51-03).
+
+
+<a id="t51-03-c"></a>
+
+
+- **T51.03.c** Show mutual exclusion and correct handoff, reject nonowner operations and produce a minimal lock-order-cycle deadlock that the declared ordering prevents. **Disposition:** core. **Activity:** [PR-T51-03](#pr-t51-03).
+
+
+<a id="t51-04"></a>
+
+### T51.04 — Transitive priority inheritance
+
+Priority inheritance changes an owner effective priority while a higher-priority task waits. Donation follows ownership chains; a single saved old priority is insufficient when an owner holds multiple mutexes or a donor times out. Base and effective priority remain distinct fields.
+
+Implement bounded donation-chain traversal and recomputation on unlock, timeout and cancellation. Use low L owning A, medium M consuming CPU and high H waiting on A, then extend to a second owner through B.
+
+A discriminating experiment exposes: only immediate donation; stale donated priority; reverting while another donor remains; cycle in ownership chain; missing ready-queue reposition. Required evidence: Show that H blocking no longer includes unrelated M execution under the stated single-core policy, and validate transitive donation plus correct partial disinheritance.
+
+Develop this mechanism in [PR-T51-04](#pr-t51-04).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-04-a"></a>
+
+
+- **T51.04.a** Derive and defend the state, ownership and ordering contract for transitive priority inheritance. **Disposition:** core. **Activity:** [PR-T51-04](#pr-t51-04).
+
+
+<a id="t51-04-b"></a>
+
+
+- **T51.04.b** Implement bounded donation-chain traversal and recomputation on unlock, timeout and cancellation. Use low L owning A, medium M consuming CPU and high H waiting on A, then extend to a second owner through B. **Disposition:** core. **Activity:** [PR-T51-04](#pr-t51-04).
+
+
+<a id="t51-04-c"></a>
+
+
+- **T51.04.c** Show that H blocking no longer includes unrelated M execution under the stated single-core policy, and validate transitive donation plus correct partial disinheritance. **Disposition:** core. **Activity:** [PR-T51-04](#pr-t51-04).
+
+
+<a id="t51-05"></a>
+
+### T51.05 — Condition variables and Mesa-style predicates
+
+The condition wait atomically releases its associated mutex and enrolls the task; returning reacquires the mutex before the caller rechecks its predicate. A signal merely makes a waiter eligible. Another task may invalidate the condition before the waiter runs, so the loop is essential.
+
+Implement condition wait/signal/broadcast on the common wait protocol. Build a bounded producer-consumer object whose predicate is protected by the same mutex.
+
+A discriminating experiment exposes: if instead of while; signal before predicate update; different mutexes for one predicate; wake without reacquisition; cancellation strands mutex state. Required evidence: Force a signaled waiter to lose the race for the item, observe the necessary second wait, and preserve queue capacity under broadcast and spurious wake injection.
+
+Develop this mechanism in [PR-T51-05](#pr-t51-05).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-05-a"></a>
+
+
+- **T51.05.a** Derive and defend the state, ownership and ordering contract for condition variables and mesa-style predicates. **Disposition:** core. **Activity:** [PR-T51-05](#pr-t51-05).
+
+
+<a id="t51-05-b"></a>
+
+
+- **T51.05.b** Implement condition wait/signal/broadcast on the common wait protocol. Build a bounded producer-consumer object whose predicate is protected by the same mutex. **Disposition:** core. **Activity:** [PR-T51-05](#pr-t51-05).
+
+
+<a id="t51-05-c"></a>
+
+
+- **T51.05.c** Force a signaled waiter to lose the race for the item, observe the necessary second wait, and preserve queue capacity under broadcast and spurious wake injection. **Disposition:** core. **Activity:** [PR-T51-05](#pr-t51-05).
+
+
+<a id="t51-06"></a>
+
+### T51.06 — Bounded message queues with copied payloads
+
+A copied-message queue owns each payload after successful send and releases its slot after receive. The initial API has fixed-size messages and FIFO ordering; it rejects a short output buffer without consuming a message. Full and empty waits use separate predicates over one protected state.
+
+Implement a fixed-capacity queue with try/block/timed send and receive. Record message sequence IDs and lengths, then run multiple producers and consumers with explicit shutdown.
+
+A discriminating experiment exposes: full overwrite; read from empty; output too short; timeout commits anyway; message reordered; close loses queued messages. Required evidence: Account for every accepted message exactly once and preserve per-producer order. Rejected sends preserve occupancy; normal close rejects new sends and drains queued messages, while explicit abort discards queued messages with a recorded cancellation count.
+
+Develop this mechanism in [PR-T51-06](#pr-t51-06).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-06-a"></a>
+
+
+- **T51.06.a** Derive and defend the state, ownership and ordering contract for bounded message queues with copied payloads. **Disposition:** core. **Activity:** [PR-T51-06](#pr-t51-06).
+
+
+<a id="t51-06-b"></a>
+
+
+- **T51.06.b** Implement a fixed-capacity queue with try/block/timed send and receive. Record message sequence IDs and lengths, then run multiple producers and consumers with explicit shutdown. **Disposition:** core. **Activity:** [PR-T51-06](#pr-t51-06).
+
+
+<a id="t51-06-c"></a>
+
+
+- **T51.06.c** Account for every accepted message exactly once and preserve per-producer order. Rejected sends preserve occupancy; normal close rejects new sends and drains queued messages, while explicit abort discards queued messages with a recorded cancellation count. **Disposition:** core. **Activity:** [PR-T51-06](#pr-t51-06).
+
+
+<a id="t51-07"></a>
+
+### T51.07 — Mailboxes and synchronous rendezvous
+
+A mailbox retains a value; a rendezvous transfers only when sender and receiver meet. Their cancellation and backpressure behavior differ. The chosen one-slot mailbox preserves the previous message on a failed send; rendezvous acknowledges transfer before either side may reuse its buffer.
+
+Build both mechanisms over common wait queues and compare the same request/reply workload. Attach request generations so a late reply cannot satisfy a new call.
+
+A discriminating experiment exposes: sender frees buffer before transfer; overwritten mailbox; receiver cancels after match; stale reply; both endpoints waiting on the same direction. Required evidence: Draw the match/commit boundary and show exactly one terminal outcome for each operation under sender and receiver cancellation races.
+
+Develop this mechanism in [PR-T51-07](#pr-t51-07).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-07-a"></a>
+
+
+- **T51.07.a** Derive and defend the state, ownership and ordering contract for mailboxes and synchronous rendezvous. **Disposition:** core. **Activity:** [PR-T51-07](#pr-t51-07).
+
+
+<a id="t51-07-b"></a>
+
+
+- **T51.07.b** Build both mechanisms over common wait queues and compare the same request/reply workload. Attach request generations so a late reply cannot satisfy a new call. **Disposition:** core. **Activity:** [PR-T51-07](#pr-t51-07).
+
+
+<a id="t51-07-c"></a>
+
+
+- **T51.07.c** Draw the match/commit boundary and show exactly one terminal outcome for each operation under sender and receiver cancellation races. **Disposition:** core. **Activity:** [PR-T51-07](#pr-t51-07).
+
+
+<a id="t51-08"></a>
+
+### T51.08 — Event flags with any/all semantics
+
+Event bits represent conditions that may coalesce, not counts. Define wait-any versus wait-all and explicit clear-on-success behavior. With multiple waiters, consuming a bit can change another waiter eligibility, so wakeup order and clearing must be one protected operation.
+
+Implement a fixed-width event group with set, clear and timed wait. Use bits for data-ready, stop-requested and calibration-done, with both any and all waiters.
+
+A discriminating experiment exposes: counted occurrences collapsed; clearing before matching; zero mask; wait-all awakened on one bit; two consuming waiters both claim one bit. Required evidence: Demonstrate the selected any/all and clearing truth tables, including two waiters racing for overlapping masks. Explain why three identical sets need not produce three wakes.
+
+Develop this mechanism in [PR-T51-08](#pr-t51-08).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-08-a"></a>
+
+
+- **T51.08.a** Derive and defend the state, ownership and ordering contract for event flags with any/all semantics. **Disposition:** core. **Activity:** [PR-T51-08](#pr-t51-08).
+
+
+<a id="t51-08-b"></a>
+
+
+- **T51.08.b** Implement a fixed-width event group with set, clear and timed wait. Use bits for data-ready, stop-requested and calibration-done, with both any and all waiters. **Disposition:** core. **Activity:** [PR-T51-08](#pr-t51-08).
+
+
+<a id="t51-08-c"></a>
+
+
+- **T51.08.c** Demonstrate the selected any/all and clearing truth tables, including two waiters racing for overlapping masks. Explain why three identical sets need not produce three wakes. **Disposition:** core. **Activity:** [PR-T51-08](#pr-t51-08).
+
+
+<a id="t51-09"></a>
+
+### T51.09 — Counted task notifications
+
+A counted notification stores occurrence count for one recipient and therefore differs from event bits and a hardware doorbell. Choose decrement-one on consume and saturating-error behavior at a declared maximum; never infer message count from interrupt count.
+
+Implement post-count and wait-one with an ISR-safe path. Burst several posts while the recipient is descheduled, then compare with a Boolean event implementation.
+
+A discriminating experiment exposes: notification overflow; lost post during consume; wrong recipient generation; ISR waits; hardware interrupt coalescence mistaken for software count loss. Required evidence: Show that all accepted posts are eventually consumed or explicitly canceled, even when only one interrupt wakes the recipient. Retain the count ledger.
+
+Develop this mechanism in [PR-T51-09](#pr-t51-09).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-09-a"></a>
+
+
+- **T51.09.a** Derive and defend the state, ownership and ordering contract for counted task notifications. **Disposition:** core. **Activity:** [PR-T51-09](#pr-t51-09).
+
+
+<a id="t51-09-b"></a>
+
+
+- **T51.09.b** Implement post-count and wait-one with an ISR-safe path. Burst several posts while the recipient is descheduled, then compare with a Boolean event implementation. **Disposition:** core. **Activity:** [PR-T51-09](#pr-t51-09).
+
+
+<a id="t51-09-c"></a>
+
+
+- **T51.09.c** Show that all accepted posts are eventually consumed or explicitly canceled, even when only one interrupt wakes the recipient. Retain the count ledger. **Disposition:** core. **Activity:** [PR-T51-09](#pr-t51-09).
+
+
+<a id="t51-10"></a>
+
+### T51.10 — Reusable barriers and generations
+
+A reusable barrier separates rounds by generation. Counting arrivals alone allows a fast participant to enter the next round while another still exits the old round. This barrier has a fixed participant set; cancellation breaks the generation and wakes peers with an error.
+
+Implement an arrival counter, generation and broken state. Run three tasks for repeated rounds, delaying a different participant in each round.
+
+A discriminating experiment exposes: cross-generation release; duplicate arrival; missing participant; counter wrap; cancellation leaves peers asleep; reset while old waiters remain. Required evidence: Assert no task crosses round k before every participant arrives at k, and show the broken-generation policy releases all affected waiters.
+
+Develop this mechanism in [PR-T51-10](#pr-t51-10).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-10-a"></a>
+
+
+- **T51.10.a** Derive and defend the state, ownership and ordering contract for reusable barriers and generations. **Disposition:** core. **Activity:** [PR-T51-10](#pr-t51-10).
+
+
+<a id="t51-10-b"></a>
+
+
+- **T51.10.b** Implement an arrival counter, generation and broken state. Run three tasks for repeated rounds, delaying a different participant in each round. **Disposition:** core. **Activity:** [PR-T51-10](#pr-t51-10).
+
+
+<a id="t51-10-c"></a>
+
+
+- **T51.10.c** Assert no task crosses round k before every participant arrives at k, and show the broken-generation policy releases all affected waiters. **Disposition:** core. **Activity:** [PR-T51-10](#pr-t51-10).
+
+
+<a id="t51-11"></a>
+
+### T51.11 — Once initialization and failure policy
+
+Once initialization has uninitialized, initializing, initialized and failed states. Readers may observe the object only after successful publication. Recursive entry by the initializer cannot wait for itself; a failed initializer must follow an explicit retry or permanent-failure policy.
+
+Implement once with permanent failure for this milestone, release/acquire publication and waiter wakeup. Initialize a table with a checksum and make every reader validate it.
+
+A discriminating experiment exposes: flag set before data complete; recursive initialization; initializer cancellation; failure leaves state initializing; second initializer runs concurrently. Required evidence: Show one initializer, consistent data for all readers and a stable error after injected failure. Distinguish exactly-once attempt from exactly-once successful effect.
+
+Develop this mechanism in [PR-T51-11](#pr-t51-11).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-11-a"></a>
+
+
+- **T51.11.a** Derive and defend the state, ownership and ordering contract for once initialization and failure policy. **Disposition:** core. **Activity:** [PR-T51-11](#pr-t51-11).
+
+
+<a id="t51-11-b"></a>
+
+
+- **T51.11.b** Implement once with permanent failure for this milestone, release/acquire publication and waiter wakeup. Initialize a table with a checksum and make every reader validate it. **Disposition:** core. **Activity:** [PR-T51-11](#pr-t51-11).
+
+
+<a id="t51-11-c"></a>
+
+
+- **T51.11.c** Show one initializer, consistent data for all readers and a stable error after injected failure. Distinguish exactly-once attempt from exactly-once successful effect. **Disposition:** core. **Activity:** [PR-T51-11](#pr-t51-11).
+
+
+<a id="t51-12"></a>
+
+### T51.12 — Reader-writer locks and admission fairness
+
+Concurrent readers can share access while writers need exclusion. A reader-preferred policy can starve a writer under continuous arrivals. The chosen writer-pending policy stops new readers once a writer waits; this is a policy guarantee with possible reader latency costs.
+
+Implement reader counts, writer owner and writer-pending admission. Compare bounded read-heavy workloads with an explicitly reader-preferred faulty variant.
+
+A discriminating experiment exposes: writer overlaps reader; reader count underflow; implicit upgrade deadlock; starved writer; owner exits; recursive writer entry. Required evidence: Preserve exclusion and show the queued writer progresses after existing readers leave despite new arrivals. Reject unsupported upgrade/downgrade operations explicitly.
+
+Develop this mechanism in [PR-T51-12](#pr-t51-12).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-12-a"></a>
+
+
+- **T51.12.a** Derive and defend the state, ownership and ordering contract for reader-writer locks and admission fairness. **Disposition:** core. **Activity:** [PR-T51-12](#pr-t51-12).
+
+
+<a id="t51-12-b"></a>
+
+
+- **T51.12.b** Implement reader counts, writer owner and writer-pending admission. Compare bounded read-heavy workloads with an explicitly reader-preferred faulty variant. **Disposition:** core. **Activity:** [PR-T51-12](#pr-t51-12).
+
+
+<a id="t51-12-c"></a>
+
+
+- **T51.12.c** Preserve exclusion and show the queued writer progresses after existing readers leave despite new arrivals. Reject unsupported upgrade/downgrade operations explicitly. **Disposition:** core. **Activity:** [PR-T51-12](#pr-t51-12).
+
+
+<a id="t51-13"></a>
+
+### T51.13 — Timeout, cancellation and wakeup arbitration
+
+An operation can complete, time out or be canceled exactly once. A deadline firing concurrently with resource availability must choose one linearization boundary; cleanup then removes every other registration. The caller must know whether the resource was acquired before cancellation was reported.
+
+Centralize terminal-state arbitration using operation generations. Enumerate resource-ready, timer-fire and cancellation orders, including all pairwise ties at one logical instant.
+
+A discriminating experiment exposes: double completion; stale timer accesses reused wait record; permit lost after timeout; canceled task remains runnable twice; cleanup accesses destroyed object. Required evidence: For every finite ordering, record one result and reconcile all queue memberships, timers and permits. Reproduce at least one double-completion defect and its repair.
+
+Develop this mechanism in [PR-T51-13](#pr-t51-13).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-13-a"></a>
+
+
+- **T51.13.a** Derive and defend the state, ownership and ordering contract for timeout, cancellation and wakeup arbitration. **Disposition:** core. **Activity:** [PR-T51-13](#pr-t51-13).
+
+
+<a id="t51-13-b"></a>
+
+
+- **T51.13.b** Centralize terminal-state arbitration using operation generations. Enumerate resource-ready, timer-fire and cancellation orders, including all pairwise ties at one logical instant. **Disposition:** core. **Activity:** [PR-T51-13](#pr-t51-13).
+
+
+<a id="t51-13-c"></a>
+
+
+- **T51.13.c** For every finite ordering, record one result and reconcile all queue memberships, timers and permits. Reproduce at least one double-completion defect and its repair. **Disposition:** core. **Activity:** [PR-T51-13](#pr-t51-13).
+
+
+<a id="t51-14"></a>
+
+### T51.14 — Object teardown and owner-death recovery
+
+Destruction is a protocol: close prevents new operations, existing operations finish or receive a terminal error, and storage is reclaimed only after references drain. Owner death can leave protected data inconsistent. A poisoned mutex requires explicit repair and consistency acknowledgment.
+
+Implement close/drain/destroy states for one queue and an owner-death result for one mutex. Use generation handles and a supervisor that repairs a deliberately half-updated record.
+
+A discriminating experiment exposes: destroy with live waiter; reused address mistaken for same object; unlock after owner death silently accepted; recovery crashes; shutdown loses accepted work. Required evidence: Show no use-after-free through teardown, reject stale handles and demonstrate both successful repair and permanently unrecoverable state.
+
+Develop this mechanism in [PR-T51-14](#pr-t51-14).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t51-14-a"></a>
+
+
+- **T51.14.a** Derive and defend the state, ownership and ordering contract for object teardown and owner-death recovery. **Disposition:** core. **Activity:** [PR-T51-14](#pr-t51-14).
+
+
+<a id="t51-14-b"></a>
+
+
+- **T51.14.b** Implement close/drain/destroy states for one queue and an owner-death result for one mutex. Use generation handles and a supervisor that repairs a deliberately half-updated record. **Disposition:** core. **Activity:** [PR-T51-14](#pr-t51-14).
+
+
+<a id="t51-14-c"></a>
+
+
+- **T51.14.c** Show no use-after-free through teardown, reject stale handles and demonstrate both successful repair and permanently unrecoverable state. **Disposition:** core. **Activity:** [PR-T51-14](#pr-t51-14).
+
+## Reading guidance
+
+Read only the assigned locator before the related experiment, then return to it after the counterexample. State the source's machine and task-model assumptions next to your own. Historical pseudocode does not authorize undefined C races; Linux, ISO C and a microcontroller memory system are separate contracts. The source/search/reflection ledger is in `research/v3/`; filenames and graph records alone do not qualify as inspected readings.
+
+## Implementation projects
+
+Complete [PR-T51-01](#pr-t51-01), [PR-T51-02](#pr-t51-02), [PR-T51-03](#pr-t51-03), [PR-T51-04](#pr-t51-04), [PR-T51-05](#pr-t51-05), [PR-T51-06](#pr-t51-06), [PR-T51-07](#pr-t51-07), [PR-T51-08](#pr-t51-08), [PR-T51-09](#pr-t51-09), [PR-T51-10](#pr-t51-10), [PR-T51-11](#pr-t51-11), [PR-T51-12](#pr-t51-12), [PR-T51-13](#pr-t51-13), [PR-T51-14](#pr-t51-14) in order. Project manifests distinguish model, host, emulator, cross-build and physical evidence. Later cumulative tests may require later mechanisms; an early milestone is assessed on its own contract and cannot borrow a later reference implementation.
+
+## Mastery gate and feedback
+
+Demonstrate one correct execution and one deliberately wrong variant per mechanism. Explain the first invalid transition, fix its cause, and repeat with an independently chosen input. Review safety, progress, resource lifetime and timing as distinct claims. A stress test supplies observations; bounded exhaustive schedules supply only the stated finite coverage. A deadlocked or unavailable run is not a pass.
+
+## Consolidation and transfer
+
+After seven days rebuild one mechanism from its public contract, change the contention or arrival pattern, and compare the new prediction with the result. After a month integrate two previously separate boundaries. Record surprises, remediation hours and the source passage that changed your reasoning.
+
+## Environment and limits
+
+Deterministic interleaving driver Original runtime; MCU/emulator and Linux host. Custom target images provide their own startup and required runtime helpers. Compiler-provided type headers and reviewed intrinsics are allowed; linked libc, libgcc, compiler-rt, libatomic, vendor HAL, OpenAMP and pre-existing kernels are excluded. FreeRTOS/Linux comparison programs are explicitly separate builds. Never infer physical WCET, electrical behavior or dual-core cache correctness from QEMU or a hosted model. The final learner record preserves unresolved or unavailable gates.
+
+## Assigned source passages
+
+| Resource | Inspected locator | Purpose | Hours |
+| --- | --- | --- | --- |
+| [Operating Systems: Principles and Practice, Volume II: Concurrency](#r-os3-ospp-ii) | 5.3.1 and 5.4.1: lock and condition-variable definitions | Main conceptual spine for execution context, blocking and multicore policy/mechanism separation. | 2 |
+| [Operating Systems: Principles and Practice, Volume II: Concurrency](#r-os3-ospp-ii) | 5.7.1 and 5.7.3 introductory paragraphs: uniprocessor and multiprocessor exclusion | Main conceptual spine for execution context, blocking and multicore policy/mechanism separation. | 2 |
+| [Cooperating Sequential Processes](#r-os3-dijkstra-ewd123) | 3.2 Synchronizing primitives; 4.3 Bounded buffer | Foundational source for semaphore accounting and communication invariants. | 2 |
+| [Priority Inheritance Protocols: An Approach to Real-Time Synchronization](#r-os3-sha-pi-1990) | Printed p.1176: inversion example and task/resource assumptions | Tie inversion demonstrations to assumptions rather than assuming every mutex fixes timing. | 1 |
+
+## Project directory
+
+- [PR-T51-01: Atomic wait enrollment and lost-wakeup prevention](#pr-t51-01)
+- [PR-T51-02: Counting and binary semaphores](#pr-t51-02)
+- [PR-T51-03: Owned mutexes and lock ordering](#pr-t51-03)
+- [PR-T51-04: Transitive priority inheritance](#pr-t51-04)
+- [PR-T51-05: Condition variables and Mesa-style predicates](#pr-t51-05)
+- [PR-T51-06: Bounded message queues with copied payloads](#pr-t51-06)
+- [PR-T51-07: Mailboxes and synchronous rendezvous](#pr-t51-07)
+- [PR-T51-08: Event flags with any/all semantics](#pr-t51-08)
+- [PR-T51-09: Counted task notifications](#pr-t51-09)
+- [PR-T51-10: Reusable barriers and generations](#pr-t51-10)
+- [PR-T51-11: Once initialization and failure policy](#pr-t51-11)
+- [PR-T51-12: Reader-writer locks and admission fairness](#pr-t51-12)
+- [PR-T51-13: Timeout, cancellation and wakeup arbitration](#pr-t51-13)
+- [PR-T51-14: Object teardown and owner-death recovery](#pr-t51-14)
+
+
+---
+
+<a id="t52"></a>
+
+# T52 — Real-time scheduling, interference and admission
+
+| Track | Status | Hours | Dependency profiles |
+| --- | --- | --- | --- |
+| cross-track | core | 137 | C, E |
+
+**Prerequisites:** [T30](#t30), [T37](#t37), [T51](#t51).
+
+| Reading | Implementation | Verification | Assessment | Consolidation |
+| --- | --- | --- | --- | --- |
+| 17 | 68 | 36 | 8 | 8 |
+
+## Purpose and outcomes
+
+A timely result requires a task model, resource bounds and an admission argument. Separate mathematical schedulability, a finite trace and measurements from an actual processor; none alone supplies all three.
+
+The 12 projects contribute 104 implementation/verification hours. Together with reading (17), assessment (8) and consolidation (8), the provisional module budget is 137 hours. These are planning estimates, not measured learner calibration.
+
+## Entry check and remediation
+
+Bring fixed-priority response-analysis, timer rollover and priority-inheritance traces. Distinguish release, start, completion, execution cost and deadline before calculating utilization. Where a prerequisite is missing, repair its smallest failing experiment first. Use prior projects by ID rather than duplicating their implementation hours. Explicit project dependencies govern the implementation route; module prerequisites describe the complete study background.
+
+## Study sequence and teaching
+
+
+<a id="t52-01"></a>
+
+### T52.01 — Rate-monotonic and deadline-monotonic scheduling
+
+RM orders by period; DM orders by relative deadline. Their textbook optimality claims require the stated independent, preemptive single-processor task model. For implicit deadlines RM utilization bounds are sufficient, not necessary. A task with a shorter deadline than period changes which ordering is appropriate.
+
+Implement fixed-priority job release and completion traces with separate period, deadline and cost fields. Compare RM and DM on constrained-deadline task sets and evaluate the classic sufficient bound.
+
+A discriminating experiment exposes: period substituted for deadline; utilization treated as necessary test; release jitter ignored; cost zero or greater than limit; unstable equal-priority ordering. Required evidence: Produce a schedulable set rejected by the sufficient bound and verify it by exact response-time analysis. State all assumptions alongside each conclusion.
+
+Develop this mechanism in [PR-T52-01](#pr-t52-01).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t52-01-a"></a>
+
+
+- **T52.01.a** Derive and defend the state, ownership and ordering contract for rate-monotonic and deadline-monotonic scheduling. **Disposition:** core. **Activity:** [PR-T52-01](#pr-t52-01).
+
+
+<a id="t52-01-b"></a>
+
+
+- **T52.01.b** Implement fixed-priority job release and completion traces with separate period, deadline and cost fields. Compare RM and DM on constrained-deadline task sets and evaluate the classic sufficient bound. **Disposition:** core. **Activity:** [PR-T52-01](#pr-t52-01).
+
+
+<a id="t52-01-c"></a>
+
+
+- **T52.01.c** Produce a schedulable set rejected by the sufficient bound and verify it by exact response-time analysis. State all assumptions alongside each conclusion. **Disposition:** core. **Activity:** [PR-T52-01](#pr-t52-01).
+
+
+<a id="t52-02"></a>
+
+### T52.02 — Earliest-deadline-first dispatch
+
+EDF chooses the ready job with earliest absolute deadline, not the task with smallest period. For independent preemptive implicit-deadline tasks on one CPU, utilization at most one is the exact idealized test. Constrained deadlines require a different argument.
+
+Implement a deadline-ordered ready structure and explicit tie rule. Compare EDF with fixed priorities, recording preemptions, deadline misses and remaining service.
+
+A discriminating experiment exposes: relative instead of absolute comparison; completed job remains ready; equal deadlines unstable; overflowed absolute deadline; infeasible job silently dropped. Required evidence: Check service conservation and deadline outcomes against an independent event model, including an overloaded set and a constrained-deadline counterexample to naive utilization testing.
+
+Develop this mechanism in [PR-T52-02](#pr-t52-02).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t52-02-a"></a>
+
+
+- **T52.02.a** Derive and defend the state, ownership and ordering contract for earliest-deadline-first dispatch. **Disposition:** core. **Activity:** [PR-T52-02](#pr-t52-02).
+
+
+<a id="t52-02-b"></a>
+
+
+- **T52.02.b** Implement a deadline-ordered ready structure and explicit tie rule. Compare EDF with fixed priorities, recording preemptions, deadline misses and remaining service. **Disposition:** core. **Activity:** [PR-T52-02](#pr-t52-02).
+
+
+<a id="t52-02-c"></a>
+
+
+- **T52.02.c** Check service conservation and deadline outcomes against an independent event model, including an overloaded set and a constrained-deadline counterexample to naive utilization testing. **Disposition:** core. **Activity:** [PR-T52-02](#pr-t52-02).
+
+
+<a id="t52-03"></a>
+
+### T52.03 — Response-time analysis with blocking and jitter
+
+The response-time recurrence includes own execution, lower-priority blocking and higher-priority interference. For a chosen fixed-priority model, iterate until a fixed point or a deadline violation. Measure-derived execution maxima are observations; using them as WCET assumptions must remain explicit.
+
+Implement checked integer response-time iteration including release jitter and declared kernel overhead. For C=2, B=1 and one interferer Cj=1,Tj=4,Jj=0, start R=3 and iterate to R=4.
+
+A discriminating experiment exposes: rounding division down; omitting blocking; double-counting overhead; recurrence overflow; premature convergence; measurement maximum mislabeled proof. Required evidence: Recompute every recurrence term independently, distinguish sufficient rejection from demonstrated execution failure, and compare predicted interference with a trace under the same model.
+
+Develop this mechanism in [PR-T52-03](#pr-t52-03).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t52-03-a"></a>
+
+
+- **T52.03.a** Derive and defend the state, ownership and ordering contract for response-time analysis with blocking and jitter. **Disposition:** core. **Activity:** [PR-T52-03](#pr-t52-03).
+
+
+<a id="t52-03-b"></a>
+
+
+- **T52.03.b** Implement checked integer response-time iteration including release jitter and declared kernel overhead. For C=2, B=1 and one interferer Cj=1,Tj=4,Jj=0, start R=3 and iterate to R=4. **Disposition:** core. **Activity:** [PR-T52-03](#pr-t52-03).
+
+
+<a id="t52-03-c"></a>
+
+
+- **T52.03.c** Recompute every recurrence term independently, distinguish sufficient rejection from demonstrated execution failure, and compare predicted interference with a trace under the same model. **Disposition:** core. **Activity:** [PR-T52-03](#pr-t52-03).
+
+
+<a id="t52-04"></a>
+
+### T52.04 — Immediate priority ceilings
+
+An immediate-ceiling mutex raises an owner to the resource ceiling while held. Ceiling assignment depends on all tasks that may access the resource. Do not transplant a single-core blocking bound to SMP or to arbitrary nesting without rechecking assumptions.
+
+Implement immediate-ceiling admission and restoration with a static resource-use table. Compare the same inversion workload with no protocol, inheritance and immediate ceiling.
+
+A discriminating experiment exposes: ceiling below a user priority; restoring base while another ceiling held; unlisted task accesses resource; nesting violates declared order; ISR uses blocking lock. Required evidence: Show bounded blocking for the declared task/resource graph and reject invalid ceiling configurations before tasks start. Record the latency effect of elevated execution.
+
+Develop this mechanism in [PR-T52-04](#pr-t52-04).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t52-04-a"></a>
+
+
+- **T52.04.a** Derive and defend the state, ownership and ordering contract for immediate priority ceilings. **Disposition:** core. **Activity:** [PR-T52-04](#pr-t52-04).
+
+
+<a id="t52-04-b"></a>
+
+
+- **T52.04.b** Implement immediate-ceiling admission and restoration with a static resource-use table. Compare the same inversion workload with no protocol, inheritance and immediate ceiling. **Disposition:** core. **Activity:** [PR-T52-04](#pr-t52-04).
+
+
+<a id="t52-04-c"></a>
+
+
+- **T52.04.c** Show bounded blocking for the declared task/resource graph and reject invalid ceiling configurations before tasks start. Record the latency effect of elevated execution. **Disposition:** core. **Activity:** [PR-T52-04](#pr-t52-04).
+
+
+<a id="t52-05"></a>
+
+### T52.05 — Aperiodic service within periodic workloads
+
+Background, polling and sporadic service make different commitments to aperiodic work and periodic interference. A replenishment policy is part of the algorithm, not a bookkeeping choice. A server that restores its budget too early can exceed the interference assumed by analysis.
+
+Model background service and a bounded polling server first, then implement a sporadic-server replenishment ledger with a fixed maximum number of records.
+
+A discriminating experiment exposes: budget restored on every wake; replenishment lost; replenishment table overflow; server capacity exceeds period; burst starves periodic work. Required evidence: Reconcile consumed and replenished service over sliding intervals and show the bad early-replenishment variant violating its declared budget.
+
+Develop this mechanism in [PR-T52-05](#pr-t52-05).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t52-05-a"></a>
+
+
+- **T52.05.a** Derive and defend the state, ownership and ordering contract for aperiodic service within periodic workloads. **Disposition:** core. **Activity:** [PR-T52-05](#pr-t52-05).
+
+
+<a id="t52-05-b"></a>
+
+
+- **T52.05.b** Model background service and a bounded polling server first, then implement a sporadic-server replenishment ledger with a fixed maximum number of records. **Disposition:** core. **Activity:** [PR-T52-05](#pr-t52-05).
+
+
+<a id="t52-05-c"></a>
+
+
+- **T52.05.c** Reconcile consumed and replenished service over sliding intervals and show the bad early-replenishment variant violating its declared budget. **Disposition:** core. **Activity:** [PR-T52-05](#pr-t52-05).
+
+
+<a id="t52-06"></a>
+
+### T52.06 — Constant-bandwidth-server reservation
+
+CBS separates an application deadline from its scheduling deadline and remaining budget. The executable anchor implements soft CBS: budget depletion refills the budget and postpones the scheduling deadline; it does not force idling when no competing work is eligible. Implement and label that variant first. Contrast it with the supplied throttled periodic-reservation fixture and the documented Linux SCHED_DEADLINE policy. The fixture with Q=3, P=10 and demand=8 finishes at time22 only under its periodic throttling assumptions; this is not the expected completion time for isolated soft CBS.
+
+Implement runtime, period, scheduling deadline and remaining-budget state. Trace a well-behaved client and an overrunning client under competing EDF reservations. Compare immediate refill/deadline postponement with fixed-window throttling and explain idle-capacity use.
+
+A discriminating experiment exposes: budget negative without refill/deadline update; confusing soft CBS with fixed-window throttling; wake resets budget unconditionally; time units mixed; deadline smaller than runtime; blocked server credited twice. Required evidence: Under an explicitly feasible single-core EDF reservation set, trace budget/deadline updates and competing service. Explain the stated isolation assumptions, scheduling versus application deadlines, and why the periodic fixture does not establish a soft-CBS per-window cap.
+
+Develop this mechanism in [PR-T52-06](#pr-t52-06).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t52-06-a"></a>
+
+
+- **T52.06.a** Derive and defend the state, ownership and ordering contract for constant-bandwidth-server reservation. **Disposition:** core. **Activity:** [PR-T52-06](#pr-t52-06).
+
+
+<a id="t52-06-b"></a>
+
+
+- **T52.06.b** Implement runtime, period, scheduling deadline and remaining-budget state. Trace a well-behaved client and an overrunning client under competing EDF reservations. Compare immediate refill/deadline postponement with fixed-window throttling and explain idle-capacity use. **Disposition:** core. **Activity:** [PR-T52-06](#pr-t52-06).
+
+
+<a id="t52-06-c"></a>
+
+
+- **T52.06.c** Under an explicitly feasible single-core EDF reservation set, trace budget/deadline updates and competing service. Explain the stated isolation assumptions, scheduling versus application deadlines, and why the periodic fixture does not establish a soft-CBS per-window cap. **Disposition:** core. **Activity:** [PR-T52-06](#pr-t52-06).
+
+
+<a id="t52-07"></a>
+
+### T52.07 — Admission, overload and deadline-miss policy
+
+Admission evaluates the declared model before accepting work. A deadline miss is an explicit event, not permission to skip accounting. Choose per-stream drop-oldest or reject-new behavior, with bounded backlog and sequence IDs so loss remains visible.
+
+Build an admission checker and overload controller for periodic jobs plus queued messages. Inject a cost overrun and sustained arrival overload; preserve supervisor progress.
+
+A discriminating experiment exposes: admitting from average cost; unbounded backlog; silent dropped work; stale result accepted after deadline; supervisor starved; overload mode never exits. Required evidence: Show bounded memory and an explicit miss/drop ledger while useful admitted work continues. Explain whether recovery restores the original timing assumptions.
+
+Develop this mechanism in [PR-T52-07](#pr-t52-07).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t52-07-a"></a>
+
+
+- **T52.07.a** Derive and defend the state, ownership and ordering contract for admission, overload and deadline-miss policy. **Disposition:** core. **Activity:** [PR-T52-07](#pr-t52-07).
+
+
+<a id="t52-07-b"></a>
+
+
+- **T52.07.b** Build an admission checker and overload controller for periodic jobs plus queued messages. Inject a cost overrun and sustained arrival overload; preserve supervisor progress. **Disposition:** core. **Activity:** [PR-T52-07](#pr-t52-07).
+
+
+<a id="t52-07-c"></a>
+
+
+- **T52.07.c** Show bounded memory and an explicit miss/drop ledger while useful admitted work continues. Explain whether recovery restores the original timing assumptions. **Disposition:** core. **Activity:** [PR-T52-07](#pr-t52-07).
+
+
+<a id="t52-08"></a>
+
+### T52.08 — Tick rollover, phase and tickless timing
+
+A 32-bit modular tick supports unambiguous ordering only within a declared half-range horizon. Converting microseconds to timer counts needs a specified rounding direction. Tickless idle must include wakeup and reprogramming cost in the observed response path.
+
+Reuse the original timer queue with rollover fixtures near UINT32_MAX. Implement deadline conversion without overflow and compare periodic tick with tickless release traces.
+
+A discriminating experiment exposes: signed overflow in difference; deadline too distant; rounded-down timeout; elapsed ticks counted twice; clock-frequency change; latency omitted from budget. Required evidence: Predict and verify wrap-crossing releases and reject ambiguous horizons. Report timer quantization, wakeup delay and measurement resolution separately.
+
+Develop this mechanism in [PR-T52-08](#pr-t52-08).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t52-08-a"></a>
+
+
+- **T52.08.a** Derive and defend the state, ownership and ordering contract for tick rollover, phase and tickless timing. **Disposition:** core. **Activity:** [PR-T52-08](#pr-t52-08).
+
+
+<a id="t52-08-b"></a>
+
+
+- **T52.08.b** Reuse the original timer queue with rollover fixtures near UINT32_MAX. Implement deadline conversion without overflow and compare periodic tick with tickless release traces. **Disposition:** core. **Activity:** [PR-T52-08](#pr-t52-08).
+
+
+<a id="t52-08-c"></a>
+
+
+- **T52.08.c** Predict and verify wrap-crossing releases and reject ambiguous horizons. Report timer quantization, wakeup delay and measurement resolution separately. **Disposition:** core. **Activity:** [PR-T52-08](#pr-t52-08).
+
+
+<a id="t52-09"></a>
+
+### T52.09 — Partitioned multicore real-time scheduling
+
+Partitioning assigns each task to one CPU and applies a single-core scheduler per partition. Aggregate utilization below the number of CPUs does not imply a feasible placement. Shared resources, interrupts and memory bandwidth can add interference across partitions.
+
+Implement first-fit decreasing placement by utilization and per-core analysis. Use tasks with utilizations0.6,0.6,0.6 on two cores to expose a packing failure despite total1.8.
+
+A discriminating experiment exposes: aggregate test substituted for placement; task migrates despite partition model; omitted cross-core lock blocking; asymmetric core speeds treated equal. Required evidence: Show the packing counterexample, record each task affinity and prove per-partition assumptions before comparing actual parallel traces.
+
+Develop this mechanism in [PR-T52-09](#pr-t52-09).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t52-09-a"></a>
+
+
+- **T52.09.a** Derive and defend the state, ownership and ordering contract for partitioned multicore real-time scheduling. **Disposition:** core. **Activity:** [PR-T52-09](#pr-t52-09).
+
+
+<a id="t52-09-b"></a>
+
+
+- **T52.09.b** Implement first-fit decreasing placement by utilization and per-core analysis. Use tasks with utilizations0.6,0.6,0.6 on two cores to expose a packing failure despite total1.8. **Disposition:** core. **Activity:** [PR-T52-09](#pr-t52-09).
+
+
+<a id="t52-09-c"></a>
+
+
+- **T52.09.c** Show the packing counterexample, record each task affinity and prove per-partition assumptions before comparing actual parallel traces. **Disposition:** core. **Activity:** [PR-T52-09](#pr-t52-09).
+
+
+<a id="t52-10"></a>
+
+### T52.10 — Global EDF and multiprocessor counterexamples
+
+Global EDF can migrate jobs and has different schedulability properties from one-core EDF. Dhall-style examples show misses even with utilization only slightly above one on multiple CPUs. Finite successful traces do not establish universal schedulability.
+
+Implement a two-core global-EDF model with migration accounting. Use one job requiring its full period and two tiny earlier-deadline jobs that delay its first dispatch.
+
+A discriminating experiment exposes: one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most2 treated sufficient; deadline tie hides counterexample. Required evidence: Derive a concrete miss from the timeline and distinguish partitioned, global and clustered policy assumptions. Include CPU-ownership and service-conservation checks.
+
+Develop this mechanism in [PR-T52-10](#pr-t52-10).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t52-10-a"></a>
+
+
+- **T52.10.a** Derive and defend the state, ownership and ordering contract for global edf and multiprocessor counterexamples. **Disposition:** core. **Activity:** [PR-T52-10](#pr-t52-10).
+
+
+<a id="t52-10-b"></a>
+
+
+- **T52.10.b** Implement a two-core global-EDF model with migration accounting. Use one job requiring its full period and two tiny earlier-deadline jobs that delay its first dispatch. **Disposition:** core. **Activity:** [PR-T52-10](#pr-t52-10).
+
+
+<a id="t52-10-c"></a>
+
+
+- **T52.10.c** Derive a concrete miss from the timeline and distinguish partitioned, global and clustered policy assumptions. Include CPU-ownership and service-conservation checks. **Disposition:** core. **Activity:** [PR-T52-10](#pr-t52-10).
+
+
+<a id="t52-11"></a>
+
+### T52.11 — Compare the original runtime with FreeRTOS
+
+The original kernel and a pinned FreeRTOS build run the same workload but remain separate artifacts. A similar API name does not promise identical mutex inheritance, notification, timer or ISR semantics. Port assembly and configuration are part of the comparison boundary.
+
+Port one bounded producer-consumer and inversion workload to FreeRTOS with static allocation. Record kernel version, priorities, tick rate, interrupt settings and all configuration choices.
+
+A discriminating experiment exposes: dynamic allocation hidden in comparison; unequal workloads; missing ISR yield; assuming identical inheritance; measurement instrumentation differs; custom image accidentally links RTOS. Required evidence: Explain semantic and timing differences with traces and source locators. Preserve separate linker audits proving that the original implementation remains independent.
+
+Develop this mechanism in [PR-T52-11](#pr-t52-11).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t52-11-a"></a>
+
+
+- **T52.11.a** Derive and defend the state, ownership and ordering contract for compare the original runtime with freertos. **Disposition:** core. **Activity:** [PR-T52-11](#pr-t52-11).
+
+
+<a id="t52-11-b"></a>
+
+
+- **T52.11.b** Port one bounded producer-consumer and inversion workload to FreeRTOS with static allocation. Record kernel version, priorities, tick rate, interrupt settings and all configuration choices. **Disposition:** core. **Activity:** [PR-T52-11](#pr-t52-11).
+
+
+<a id="t52-11-c"></a>
+
+
+- **T52.11.c** Explain semantic and timing differences with traces and source locators. Preserve separate linker audits proving that the original implementation remains independent. **Disposition:** core. **Activity:** [PR-T52-11](#pr-t52-11).
+
+
+<a id="t52-12"></a>
+
+### T52.12 — Linux fair and real-time scheduling comparison
+
+Linux fair scheduling, FIFO/RR real-time priorities and deadline reservations serve different policies. Pin the kernel version and inspect its documented EEVDF behavior rather than describing every current system as old CFS. Required privileges and host interference limit experiments.
+
+Run a bounded CPU/periodic workload under available normal, FIFO/RR and SCHED_DEADLINE modes with a supervisor and explicit termination bound. Capture scheduling parameters, affinity and throttling.
+
+A discriminating experiment exposes: permission denied reported as pass; worker monopolizes test host; reservation parameters invalid; cgroup quota confounds result; priority mistaken for deadline guarantee. Required evidence: Separate unavailable modes from measured results, compare response distributions and identify scheduler versus application deadlines. Do not claim hard physical guarantees from the hosted comparison.
+
+Develop this mechanism in [PR-T52-12](#pr-t52-12).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t52-12-a"></a>
+
+
+- **T52.12.a** Derive and defend the state, ownership and ordering contract for linux fair and real-time scheduling comparison. **Disposition:** core. **Activity:** [PR-T52-12](#pr-t52-12).
+
+
+<a id="t52-12-b"></a>
+
+
+- **T52.12.b** Run a bounded CPU/periodic workload under available normal, FIFO/RR and SCHED_DEADLINE modes with a supervisor and explicit termination bound. Capture scheduling parameters, affinity and throttling. **Disposition:** core. **Activity:** [PR-T52-12](#pr-t52-12).
+
+
+<a id="t52-12-c"></a>
+
+
+- **T52.12.c** Separate unavailable modes from measured results, compare response distributions and identify scheduler versus application deadlines. Do not claim hard physical guarantees from the hosted comparison. **Disposition:** core. **Activity:** [PR-T52-12](#pr-t52-12).
+
+## Reading guidance
+
+Read only the assigned locator before the related experiment, then return to it after the counterexample. State the source's machine and task-model assumptions next to your own. Historical pseudocode does not authorize undefined C races; Linux, ISO C and a microcontroller memory system are separate contracts. The source/search/reflection ledger is in `research/v3/`; filenames and graph records alone do not qualify as inspected readings.
+
+## Implementation projects
+
+Complete [PR-T52-01](#pr-t52-01), [PR-T52-02](#pr-t52-02), [PR-T52-03](#pr-t52-03), [PR-T52-04](#pr-t52-04), [PR-T52-05](#pr-t52-05), [PR-T52-06](#pr-t52-06), [PR-T52-07](#pr-t52-07), [PR-T52-08](#pr-t52-08), [PR-T52-09](#pr-t52-09), [PR-T52-10](#pr-t52-10), [PR-T52-11](#pr-t52-11), [PR-T52-12](#pr-t52-12) in order. Project manifests distinguish model, host, emulator, cross-build and physical evidence. Later cumulative tests may require later mechanisms; an early milestone is assessed on its own contract and cannot borrow a later reference implementation.
+
+## Mastery gate and feedback
+
+Demonstrate one correct execution and one deliberately wrong variant per mechanism. Explain the first invalid transition, fix its cause, and repeat with an independently chosen input. Review safety, progress, resource lifetime and timing as distinct claims. A stress test supplies observations; bounded exhaustive schedules supply only the stated finite coverage. A deadlocked or unavailable run is not a pass.
+
+## Consolidation and transfer
+
+After seven days rebuild one mechanism from its public contract, change the contention or arrival pattern, and compare the new prediction with the result. After a month integrate two previously separate boundaries. Record surprises, remediation hours and the source passage that changed your reasoning.
+
+## Environment and limits
+
+Deterministic job scheduler F439 timing capture Pinned FreeRTOS comparison build and Linux RT permissions when available. Custom target images provide their own startup and required runtime helpers. Compiler-provided type headers and reviewed intrinsics are allowed; linked libc, libgcc, compiler-rt, libatomic, vendor HAL, OpenAMP and pre-existing kernels are excluded. FreeRTOS/Linux comparison programs are explicitly separate builds. Never infer physical WCET, electrical behavior or dual-core cache correctness from QEMU or a hosted model. The final learner record preserves unresolved or unavailable gates.
+
+## Assigned source passages
+
+| Resource | Inspected locator | Purpose | Hours |
+| --- | --- | --- | --- |
+| [Scheduling Algorithms for Multiprogramming in a Hard-Real-Time Environment](#r-liu-layland-1973) | 3. The Environment | Foundational source for fixed-priority critical instants and utilization-bound reasoning with explicit task-model assumptions. | 1 |
+| [Scheduling Algorithms for Multiprogramming in a Hard-Real-Time Environment](#r-liu-layland-1973) | 4. A Fixed Priority Scheduling Algorithm | Foundational source for fixed-priority critical instants and utilization-bound reasoning with explicit task-model assumptions. | 2 |
+| [Hard Real-Time Computing Systems: Predictable Scheduling Algorithms and Applications](#r-os3-buttazzo-2011) | 4.3-4.6 introductory definitions: RM, EDF, DM and processor demand | Bind scheduling implementations to precise task models and include runtime overhead. | 3 |
+| [Hard Real-Time Computing Systems: Predictable Scheduling Algorithms and Applications](#r-os3-buttazzo-2011) | 7.3 Terminology and assumptions; 10.7 System overhead | Bind scheduling implementations to precise task models and include runtime overhead. | 2 |
+| [Deadline Task Scheduling](#r-os3-linux-deadline) | 2.1 Main algorithm; 3.1-3.4 task models and schedulability | Distinguish reservation deadlines, application deadlines and multicore admission. | 2 |
+| [EEVDF Scheduler](#r-os3-linux-eevdf) | Lag, eligibility and virtual-deadline selection | Avoid presenting historical CFS as the only current fair-scheduling model. | 1 |
+| [Priority Inheritance Protocols: An Approach to Real-Time Synchronization](#r-os3-sha-pi-1990) | Printed p.1176: inversion example and task/resource assumptions | Tie inversion demonstrations to assumptions rather than assuming every mutex fixes timing. | 1 |
+| [FreeRTOS Kernel POSIX port](#r-os3-freertos-posix-1120) | port.c scheduler startup/shutdown and POSIX dependencies; portmacro.h types/stack macros | Support a separate pinned reference comparison without importing an RTOS into custom images. | 1 |
+
+## Project directory
+
+- [PR-T52-01: Rate-monotonic and deadline-monotonic scheduling](#pr-t52-01)
+- [PR-T52-02: Earliest-deadline-first dispatch](#pr-t52-02)
+- [PR-T52-03: Response-time analysis with blocking and jitter](#pr-t52-03)
+- [PR-T52-04: Immediate priority ceilings](#pr-t52-04)
+- [PR-T52-05: Aperiodic service within periodic workloads](#pr-t52-05)
+- [PR-T52-06: Constant-bandwidth-server reservation](#pr-t52-06)
+- [PR-T52-07: Admission, overload and deadline-miss policy](#pr-t52-07)
+- [PR-T52-08: Tick rollover, phase and tickless timing](#pr-t52-08)
+- [PR-T52-09: Partitioned multicore real-time scheduling](#pr-t52-09)
+- [PR-T52-10: Global EDF and multiprocessor counterexamples](#pr-t52-10)
+- [PR-T52-11: Compare the original runtime with FreeRTOS](#pr-t52-11)
+- [PR-T52-12: Linux fair and real-time scheduling comparison](#pr-t52-12)
+
+
+---
+
+<a id="t53"></a>
+
+# T53 — Symmetric multiprocessing and parallel execution on x86-64
+
+| Track | Status | Hours | Dependency profiles |
+| --- | --- | --- | --- |
+| kernel | core | 132 | C, F |
+
+**Prerequisites:** [T48](#t48), [T50](#t50), [T51](#t51).
+
+| Reading | Implementation | Verification | Assessment | Consolidation |
+| --- | --- | --- | --- | --- |
+| 12 | 68 | 36 | 8 | 8 |
+
+## Purpose and outcomes
+
+Extend the one-core machine deliberately: secondary CPUs need explicit boot, private execution state, shared-memory synchronization and remote coordination. Parallel work must actually execute on multiple CPUs; a scheduler model is only one supporting oracle.
+
+The 12 projects contribute 104 implementation/verification hours. Together with reading (12), assessment (8) and consolidation (8), the provisional module budget is 132 hours. These are planning estimates, not measured learner calibration.
+
+## Entry check and remediation
+
+Bring the T48 boot/trap/frame allocator and C atomic publication artifacts. Early AP startup does not require finishing the VM/store capstone. Add task and IPC prerequisites only at the milestones that use them. Where a prerequisite is missing, repair its smallest failing experiment first. Use prior projects by ID rather than duplicating their implementation hours. Explicit project dependencies govern the implementation route; module prerequisites describe the complete study background.
+
+## Study sequence and teaching
+
+
+<a id="t53-01"></a>
+
+### T53.01 — ACPI MADT and processor discovery
+
+Firmware tables are bounded input, not trusted C structs at arbitrary addresses. Validate signatures, total lengths and checksums before walking MADT records. Distinguish processor IDs from APIC IDs and exclude disabled processors according to the selected table contract.
+
+Parse the boot-provided ACPI root and MADT using checked byte spans. Build a finite CPU inventory and retain the table bytes and decoded topology from actual QEMU boot.
+
+A discriminating experiment exposes: bad checksum; zero-length subrecord; truncated table; duplicate APIC ID; disabled entry admitted; unsupported entry interpreted as known layout. Required evidence: Match the accepted CPU inventory with QEMU configurations1,2,4 and reject malformed synthetic tables without reading outside their spans.
+
+Develop this mechanism in [PR-T53-01](#pr-t53-01).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t53-01-a"></a>
+
+
+- **T53.01.a** Derive and defend the state, ownership and ordering contract for acpi madt and processor discovery. **Disposition:** core. **Activity:** [PR-T53-01](#pr-t53-01).
+
+
+<a id="t53-01-b"></a>
+
+
+- **T53.01.b** Parse the boot-provided ACPI root and MADT using checked byte spans. Build a finite CPU inventory and retain the table bytes and decoded topology from actual QEMU boot. **Disposition:** core. **Activity:** [PR-T53-01](#pr-t53-01).
+
+
+<a id="t53-01-c"></a>
+
+
+- **T53.01.c** Match the accepted CPU inventory with QEMU configurations1,2,4 and reject malformed synthetic tables without reading outside their spans. **Disposition:** core. **Activity:** [PR-T53-01](#pr-t53-01).
+
+
+<a id="t53-02"></a>
+
+### T53.02 — Secondary-CPU trampoline and startup
+
+A secondary processor does not begin in the bootstrap CPU C environment. Its low-memory trampoline establishes the selected mode transition, page tables and private stack before joining C code. Startup acknowledgment must identify the CPU and boot generation.
+
+Implement original AP startup using the selected local-APIC INIT/SIPI sequence and a bounded acknowledgment timeout. Keep trampoline storage reserved until no AP can still execute it.
+
+A discriminating experiment exposes: trampoline outside startup-address range; duplicate startup; wrong CR3; shared temporary stack; AP never acknowledges; stale acknowledgment from prior boot. Required evidence: Boot1,2,4 CPUs and retain distinct per-CPU entry markers and stack addresses. An intentionally missing acknowledgment must fail within the declared bound.
+
+Develop this mechanism in [PR-T53-02](#pr-t53-02).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t53-02-a"></a>
+
+
+- **T53.02.a** Derive and defend the state, ownership and ordering contract for secondary-cpu trampoline and startup. **Disposition:** core. **Activity:** [PR-T53-02](#pr-t53-02).
+
+
+<a id="t53-02-b"></a>
+
+
+- **T53.02.b** Implement original AP startup using the selected local-APIC INIT/SIPI sequence and a bounded acknowledgment timeout. Keep trampoline storage reserved until no AP can still execute it. **Disposition:** core. **Activity:** [PR-T53-02](#pr-t53-02).
+
+
+<a id="t53-02-c"></a>
+
+
+- **T53.02.c** Boot1,2,4 CPUs and retain distinct per-CPU entry markers and stack addresses. An intentionally missing acknowledgment must fail within the declared bound. **Disposition:** core. **Activity:** [PR-T53-02](#pr-t53-02).
+
+
+<a id="t53-03"></a>
+
+### T53.03 — Per-CPU execution state and stacks
+
+Each CPU owns its current-task pointer, interrupt nesting state, idle stack and fault context. Sharing a stack corrupts independent execution even when global counters are atomic. Per-CPU storage reduces contention only when ownership and cache-line placement are explicit.
+
+Allocate distinct CPU-local records, GDT/TSS state and kernel/idle stacks. Exercise simultaneous nested calls and a controlled fault on one CPU while peers report progress.
+
+A discriminating experiment exposes: one global current pointer; reused TSS stack; false sharing; incorrect CPU-index mapping; local interrupt state stored globally. Required evidence: Demonstrate nonoverlapping live stack ranges and CPU-local identities under parallel work. A fault record must identify its CPU and retain peer progress evidence.
+
+Develop this mechanism in [PR-T53-03](#pr-t53-03).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t53-03-a"></a>
+
+
+- **T53.03.a** Derive and defend the state, ownership and ordering contract for per-cpu execution state and stacks. **Disposition:** core. **Activity:** [PR-T53-03](#pr-t53-03).
+
+
+<a id="t53-03-b"></a>
+
+
+- **T53.03.b** Allocate distinct CPU-local records, GDT/TSS state and kernel/idle stacks. Exercise simultaneous nested calls and a controlled fault on one CPU while peers report progress. **Disposition:** core. **Activity:** [PR-T53-03](#pr-t53-03).
+
+
+<a id="t53-03-c"></a>
+
+
+- **T53.03.c** Demonstrate nonoverlapping live stack ranges and CPU-local identities under parallel work. A fault record must identify its CPU and retain peer progress evidence. **Disposition:** core. **Activity:** [PR-T53-03](#pr-t53-03).
+
+
+<a id="t53-04"></a>
+
+### T53.04 — Local APIC timers and interprocessor interrupts
+
+An IPI asks another CPU to act; it is not proof that the action has completed. Acknowledgment needs a separate generation or sequence. Timer counts require calibration and measurement bounds; QEMU virtual timing is not physical cycle accuracy.
+
+Implement per-CPU timer interrupts and an IPI request/acknowledgment mailbox. Separate vector dispatch, end-of-interrupt and higher-level completion state.
+
+A discriminating experiment exposes: missing EOI; wrong destination; stale acknowledgment; mailbox overwritten; interrupt arrives before handler ready; timeout mistaken for completed action. Required evidence: Show each CPU receiving its own timer events and complete a directed IPI round trip with a bounded timeout and matching sequence.
+
+Develop this mechanism in [PR-T53-04](#pr-t53-04).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t53-04-a"></a>
+
+
+- **T53.04.a** Derive and defend the state, ownership and ordering contract for local apic timers and interprocessor interrupts. **Disposition:** core. **Activity:** [PR-T53-04](#pr-t53-04).
+
+
+<a id="t53-04-b"></a>
+
+
+- **T53.04.b** Implement per-CPU timer interrupts and an IPI request/acknowledgment mailbox. Separate vector dispatch, end-of-interrupt and higher-level completion state. **Disposition:** core. **Activity:** [PR-T53-04](#pr-t53-04).
+
+
+<a id="t53-04-c"></a>
+
+
+- **T53.04.c** Show each CPU receiving its own timer events and complete a directed IPI round trip with a bounded timeout and matching sequence. **Disposition:** core. **Activity:** [PR-T53-04](#pr-t53-04).
+
+
+<a id="t53-05"></a>
+
+### T53.05 — SMP spinlocks and interrupt context
+
+Disabling local interrupts does not exclude another CPU. A spinlock must use supported atomic operations and ordering, and a same-CPU interrupt must not spin forever on a lock held by the interrupted context. Protect only bounded nonblocking sections.
+
+Implement test-and-set and ticket locks, then compare with an MCS queue-lock model. Add IRQ-save wrappers that restore the previous local mask and audit lock ordering.
+
+A discriminating experiment exposes: plain volatile lock; local-mask-only exclusion; sleeping while locked; ISR self-deadlock; missing acquire/release; ticket wrap ambiguity. Required evidence: Run multiple CPUs updating a protected invariant and reject the local-mask-only faulty variant. Measure contention and wait distributions separately from correctness.
+
+Develop this mechanism in [PR-T53-05](#pr-t53-05).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t53-05-a"></a>
+
+
+- **T53.05.a** Derive and defend the state, ownership and ordering contract for smp spinlocks and interrupt context. **Disposition:** core. **Activity:** [PR-T53-05](#pr-t53-05).
+
+
+<a id="t53-05-b"></a>
+
+
+- **T53.05.b** Implement test-and-set and ticket locks, then compare with an MCS queue-lock model. Add IRQ-save wrappers that restore the previous local mask and audit lock ordering. **Disposition:** core. **Activity:** [PR-T53-05](#pr-t53-05).
+
+
+<a id="t53-05-c"></a>
+
+
+- **T53.05.c** Run multiple CPUs updating a protected invariant and reject the local-mask-only faulty variant. Measure contention and wait distributions separately from correctness. **Disposition:** core. **Activity:** [PR-T53-05](#pr-t53-05).
+
+
+<a id="t53-06"></a>
+
+### T53.06 — Per-CPU ready queues
+
+A runnable task is assigned to one ready queue or one executing CPU, never both. Queue locking, task-state updates and selection are one ownership protocol. Start with fixed affinity so migration does not obscure the first SMP scheduler invariant.
+
+Implement per-CPU ready queues and fixed-affinity dispatch. Record transitions with CPU, task generation, old state and new state; validate the combined trace independently.
+
+A discriminating experiment exposes: task executes on two CPUs; task lost between state and enqueue; global current pointer; queue ownership absent; idle chosen with runnable work. Required evidence: Show actual task execution on all admitted CPUs with one-owner invariants and service accounting, then inject a duplicate enqueue that the checker rejects.
+
+Develop this mechanism in [PR-T53-06](#pr-t53-06).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t53-06-a"></a>
+
+
+- **T53.06.a** Derive and defend the state, ownership and ordering contract for per-cpu ready queues. **Disposition:** core. **Activity:** [PR-T53-06](#pr-t53-06).
+
+
+<a id="t53-06-b"></a>
+
+
+- **T53.06.b** Implement per-CPU ready queues and fixed-affinity dispatch. Record transitions with CPU, task generation, old state and new state; validate the combined trace independently. **Disposition:** core. **Activity:** [PR-T53-06](#pr-t53-06).
+
+
+<a id="t53-06-c"></a>
+
+
+- **T53.06.c** Show actual task execution on all admitted CPUs with one-owner invariants and service accounting, then inject a duplicate enqueue that the checker rejects. **Disposition:** core. **Activity:** [PR-T53-06](#pr-t53-06).
+
+
+<a id="t53-07"></a>
+
+### T53.07 — Remote wakeup and reschedule delivery
+
+A task waking on another CPU needs an atomic state transition, placement in the destination queue and a reschedule request. The mailbox or queue state is authoritative; the IPI is a doorbell that can coalesce. Checking empty then sleeping must not strand remote work.
+
+Implement remote wakeup with a generation-checked task handle and destination notification. Inject wakeups before idle check, between check and sleep, and during existing execution.
+
+A discriminating experiment exposes: lost wake at idle boundary; duplicate wake enqueues twice; stale task handle; IPI before state publication; queue lock acquired in inconsistent order. Required evidence: Every accepted wake either makes the task runnable once or observes it already runnable. Retain a target trace showing remote progress after the receiving CPU was idle.
+
+Develop this mechanism in [PR-T53-07](#pr-t53-07).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t53-07-a"></a>
+
+
+- **T53.07.a** Derive and defend the state, ownership and ordering contract for remote wakeup and reschedule delivery. **Disposition:** core. **Activity:** [PR-T53-07](#pr-t53-07).
+
+
+<a id="t53-07-b"></a>
+
+
+- **T53.07.b** Implement remote wakeup with a generation-checked task handle and destination notification. Inject wakeups before idle check, between check and sleep, and during existing execution. **Disposition:** core. **Activity:** [PR-T53-07](#pr-t53-07).
+
+
+<a id="t53-07-c"></a>
+
+
+- **T53.07.c** Every accepted wake either makes the task runnable once or observes it already runnable. Retain a target trace showing remote progress after the receiving CPU was idle. **Disposition:** core. **Activity:** [PR-T53-07](#pr-t53-07).
+
+
+<a id="t53-08"></a>
+
+### T53.08 — Affinity, migration and load balance
+
+Migration transfers ownership; it does not copy a live task context. A running task must first stop at a safe handoff boundary. Acquire source/destination queue locks in a total order and preserve affinity constraints and pending wakeups.
+
+Add explicit affinity masks and migration of ready tasks, followed by a bounded work-balancing policy. Measure migration count, queue imbalance and cache-warmup cost.
+
+A discriminating experiment exposes: migrating a running task without stop; source removed before destination reservation; empty affinity mask; wake races migration; reversed lock order. Required evidence: Show every migration has one source release and one destination acquisition, with no lost service or simultaneous execution. Explain why balancing overhead can reduce throughput.
+
+Develop this mechanism in [PR-T53-08](#pr-t53-08).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t53-08-a"></a>
+
+
+- **T53.08.a** Derive and defend the state, ownership and ordering contract for affinity, migration and load balance. **Disposition:** core. **Activity:** [PR-T53-08](#pr-t53-08).
+
+
+<a id="t53-08-b"></a>
+
+
+- **T53.08.b** Add explicit affinity masks and migration of ready tasks, followed by a bounded work-balancing policy. Measure migration count, queue imbalance and cache-warmup cost. **Disposition:** core. **Activity:** [PR-T53-08](#pr-t53-08).
+
+
+<a id="t53-08-c"></a>
+
+
+- **T53.08.c** Show every migration has one source release and one destination acquisition, with no lost service or simultaneous execution. Explain why balancing overhead can reduce throughput. **Disposition:** core. **Activity:** [PR-T53-08](#pr-t53-08).
+
+
+<a id="t53-09"></a>
+
+### T53.09 — TLB shootdown and page reclamation
+
+Changing a shared address-space mapping does not immediately invalidate another CPU cached translation. Reclaiming the old frame before all relevant CPUs acknowledge invalidation can expose unrelated data through a stale TLB entry. Track active address-space CPUs and shootdown generations.
+
+Implement bounded shootdown requests, local invalidation and acknowledgments before reclaim. Begin with one page and two CPUs using the same address space.
+
+A discriminating experiment exposes: frame reused before acknowledgment; stale generation accepted; inactive CPU set incorrect; address/range overflow; target CPU offline without protocol. Required evidence: Demonstrate that an old mapping cannot access a recycled frame after the completion boundary. A deliberately early-reclaim variant must fail a targeted interleaving test.
+
+Develop this mechanism in [PR-T53-09](#pr-t53-09).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t53-09-a"></a>
+
+
+- **T53.09.a** Derive and defend the state, ownership and ordering contract for tlb shootdown and page reclamation. **Disposition:** core. **Activity:** [PR-T53-09](#pr-t53-09).
+
+
+<a id="t53-09-b"></a>
+
+
+- **T53.09.b** Implement bounded shootdown requests, local invalidation and acknowledgments before reclaim. Begin with one page and two CPUs using the same address space. **Disposition:** core. **Activity:** [PR-T53-09](#pr-t53-09).
+
+
+<a id="t53-09-c"></a>
+
+
+- **T53.09.c** Demonstrate that an old mapping cannot access a recycled frame after the completion boundary. A deliberately early-reclaim variant must fail a targeted interleaving test. **Disposition:** core. **Activity:** [PR-T53-09](#pr-t53-09).
+
+
+<a id="t53-10"></a>
+
+### T53.10 — Parallel reduction with deterministic partitioning
+
+A reduction separates independent local work from a combining operation. Associative integer arithmetic still needs an overflow policy; floating-point sums depend on order. Speedup compares equivalent work and includes launch, synchronization and combination costs.
+
+Split an input range across1,2,4 CPUs with disjoint ownership, compute checked local sums and combine in fixed order. Include nondivisible lengths and empty partitions.
+
+A discriminating experiment exposes: overlapping partition; missing tail elements; overflow; unsynchronized final read; parallel workers actually all run on one CPU; unfair serial baseline. Required evidence: Match a wide independent sum oracle, show distinct CPU execution and report wall time, CPU time and overhead. Do not infer physical speedup from emulator virtual CPU counts.
+
+Develop this mechanism in [PR-T53-10](#pr-t53-10).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t53-10-a"></a>
+
+
+- **T53.10.a** Derive and defend the state, ownership and ordering contract for parallel reduction with deterministic partitioning. **Disposition:** core. **Activity:** [PR-T53-10](#pr-t53-10).
+
+
+<a id="t53-10-b"></a>
+
+
+- **T53.10.b** Split an input range across1,2,4 CPUs with disjoint ownership, compute checked local sums and combine in fixed order. Include nondivisible lengths and empty partitions. **Disposition:** core. **Activity:** [PR-T53-10](#pr-t53-10).
+
+
+<a id="t53-10-c"></a>
+
+
+- **T53.10.c** Match a wide independent sum oracle, show distinct CPU execution and report wall time, CPU time and overhead. Do not infer physical speedup from emulator virtual CPU counts. **Disposition:** core. **Activity:** [PR-T53-10](#pr-t53-10).
+
+
+<a id="t53-11"></a>
+
+### T53.11 — Bounded parallel work pool
+
+A work pool owns accepted jobs until completion or explicit cancellation. Fixed queue capacity creates backpressure, while shutdown needs a clear drain/cancel policy. Worker count and CPU count differ; a blocked worker can reduce effective parallelism.
+
+Build a bounded shared work queue with original worker tasks, per-job IDs and a completion ledger. Compare static partitioning and dynamic dispatch for uneven job costs.
+
+A discriminating experiment exposes: job accepted after close; queue capacity exceeded; duplicate completion; shutdown while worker owns buffer; all workers block waiting for work they themselves must perform. Required evidence: Account for every submitted, rejected, completed and canceled job and show real execution on multiple CPUs. Diagnose one nested-submission deadlock.
+
+Develop this mechanism in [PR-T53-11](#pr-t53-11).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t53-11-a"></a>
+
+
+- **T53.11.a** Derive and defend the state, ownership and ordering contract for bounded parallel work pool. **Disposition:** core. **Activity:** [PR-T53-11](#pr-t53-11).
+
+
+<a id="t53-11-b"></a>
+
+
+- **T53.11.b** Build a bounded shared work queue with original worker tasks, per-job IDs and a completion ledger. Compare static partitioning and dynamic dispatch for uneven job costs. **Disposition:** core. **Activity:** [PR-T53-11](#pr-t53-11).
+
+
+<a id="t53-11-c"></a>
+
+
+- **T53.11.c** Account for every submitted, rejected, completed and canceled job and show real execution on multiple CPUs. Diagnose one nested-submission deadlock. **Disposition:** core. **Activity:** [PR-T53-11](#pr-t53-11).
+
+
+<a id="t53-12"></a>
+
+### T53.12 — Dependency DAG execution and scaling limits
+
+A DAG task becomes ready when all predecessor results are published. Indegree is not a substitute for validating acyclicity. Total work and critical-path length bound available parallelism, but scheduling, cache and communication costs add implementation overhead.
+
+Implement bounded DAG validation, dependency counters and ready dispatch. Use a fork/join graph with unequal branch costs and compare1,2,4 CPU traces.
+
+A discriminating experiment exposes: cycle; duplicate edge; decrement before result publication; counter underflow; abandoned dependent after failure; graph exceeds fixed capacity. Required evidence: Check topological precedence and one execution per node, compute work/span bounds independently, and explain observed scaling limits and failed-node propagation.
+
+Develop this mechanism in [PR-T53-12](#pr-t53-12).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t53-12-a"></a>
+
+
+- **T53.12.a** Derive and defend the state, ownership and ordering contract for dependency dag execution and scaling limits. **Disposition:** core. **Activity:** [PR-T53-12](#pr-t53-12).
+
+
+<a id="t53-12-b"></a>
+
+
+- **T53.12.b** Implement bounded DAG validation, dependency counters and ready dispatch. Use a fork/join graph with unequal branch costs and compare1,2,4 CPU traces. **Disposition:** core. **Activity:** [PR-T53-12](#pr-t53-12).
+
+
+<a id="t53-12-c"></a>
+
+
+- **T53.12.c** Check topological precedence and one execution per node, compute work/span bounds independently, and explain observed scaling limits and failed-node propagation. **Disposition:** core. **Activity:** [PR-T53-12](#pr-t53-12).
+
+## Reading guidance
+
+Read only the assigned locator before the related experiment, then return to it after the counterexample. State the source's machine and task-model assumptions next to your own. Historical pseudocode does not authorize undefined C races; Linux, ISO C and a microcontroller memory system are separate contracts. The source/search/reflection ledger is in `research/v3/`; filenames and graph records alone do not qualify as inspected readings.
+
+## Implementation projects
+
+The implementation route crosses module boundaries: after PR-T53-07, complete PR-T56-01 before returning to PR-T53-08. This supplies the process/thread substrate for the actual user-mode affinity and parallel-work gates. Project dependency edges, rather than module numbering, govern this revisit.
+
+Complete [PR-T53-01](#pr-t53-01), [PR-T53-02](#pr-t53-02), [PR-T53-03](#pr-t53-03), [PR-T53-04](#pr-t53-04), [PR-T53-05](#pr-t53-05), [PR-T53-06](#pr-t53-06), [PR-T53-07](#pr-t53-07), [PR-T53-08](#pr-t53-08), [PR-T53-09](#pr-t53-09), [PR-T53-10](#pr-t53-10), [PR-T53-11](#pr-t53-11), [PR-T53-12](#pr-t53-12) in order. Project manifests distinguish model, host, emulator, cross-build and physical evidence. Later cumulative tests may require later mechanisms; an early milestone is assessed on its own contract and cannot borrow a later reference implementation.
+
+## Mastery gate and feedback
+
+Demonstrate one correct execution and one deliberately wrong variant per mechanism. Explain the first invalid transition, fix its cause, and repeat with an independently chosen input. Review safety, progress, resource lifetime and timing as distinct claims. A stress test supplies observations; bounded exhaustive schedules supply only the stated finite coverage. A deadlocked or unavailable run is not a pass.
+
+## Consolidation and transfer
+
+After seven days rebuild one mechanism from its public contract, change the contention or arrival pattern, and compare the new prediction with the result. After a month integrate two previously separate boundaries. Record surprises, remediation hours and the source passage that changed your reasoning.
+
+## Environment and limits
+
+QEMU PC with 1, 2 and 4 virtual CPUs Original x86-64 image and AP trampoline Host multicore machine for comparative timings. Custom target images provide their own startup and required runtime helpers. Compiler-provided type headers and reviewed intrinsics are allowed; linked libc, libgcc, compiler-rt, libatomic, vendor HAL, OpenAMP and pre-existing kernels are excluded. FreeRTOS/Linux comparison programs are explicitly separate builds. Never infer physical WCET, electrical behavior or dual-core cache correctness from QEMU or a hosted model. The final learner record preserves unresolved or unavailable gates.
+
+## Assigned source passages
+
+| Resource | Inspected locator | Purpose | Hours |
+| --- | --- | --- | --- |
+| [Operating Systems: Principles and Practice, Volume II: Concurrency](#r-os3-ospp-ii) | 5.7.1 and 5.7.3 introductory paragraphs: uniprocessor and multiprocessor exclusion | Main conceptual spine for execution context, blocking and multicore policy/mechanism separation. | 2 |
+| [Operating Systems: Principles and Practice, Volume II: Concurrency](#r-os3-ospp-ii) | 7.2 introductory paragraphs: multiprocessor scheduling | Main conceptual spine for execution context, blocking and multicore policy/mechanism separation. | 2 |
+| [Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors](#r-os3-mcs-1991) | Pseudocode: test-and-set, ticket and MCS locks | Compare contention costs and queue-node ownership across lock designs. | 2 |
+| [ACPI Specification 6.6: MADT](#r-os3-acpi66-madt) | 5.2.5.3 RSDP; 5.2.6 table header | Derive safe root/table extent and checksum validation before walking firmware bytes. | 1 |
+| [ACPI Specification 6.6: MADT](#r-os3-acpi66-madt) | 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2 | Decode processor/APIC identities and reject malformed or disabled records. | 1 |
+| [Intel 64 and IA-32 Architectures Software Developer Manual, Volume 3A](#r-os3-intel3a-smp060) | 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI | Justify the low-memory trampoline and BSP/AP startup responsibilities. | 1 |
+| [Intel 64 and IA-32 Architectures Software Developer Manual, Volume 3A](#r-os3-intel3a-smp060) | 10.5.4, printed10-16–10-17: APIC timer | Decode timer fields and distinguish logical interrupts from calibrated time. | 1 |
+| [Intel 64 and IA-32 Architectures Software Developer Manual, Volume 3A](#r-os3-intel3a-smp060) | 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI | Explain IPI destination and delivery before testing remote reschedule. | 1 |
+| [Intel 64 and IA-32 Architectures Software Developer Manual, Volume 3A](#r-os3-intel3a-smp060) | 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG | State the local invalidation boundary and derive the remote acknowledgment requirement. | 1 |
+
+## Project directory
+
+- [PR-T53-01: ACPI MADT and processor discovery](#pr-t53-01)
+- [PR-T53-02: Secondary-CPU trampoline and startup](#pr-t53-02)
+- [PR-T53-03: Per-CPU execution state and stacks](#pr-t53-03)
+- [PR-T53-04: Local APIC timers and interprocessor interrupts](#pr-t53-04)
+- [PR-T53-05: SMP spinlocks and interrupt context](#pr-t53-05)
+- [PR-T53-06: Per-CPU ready queues](#pr-t53-06)
+- [PR-T53-07: Remote wakeup and reschedule delivery](#pr-t53-07)
+- [PR-T53-08: Affinity, migration and load balance](#pr-t53-08)
+- [PR-T53-09: TLB shootdown and page reclamation](#pr-t53-09)
+- [PR-T53-10: Parallel reduction with deterministic partitioning](#pr-t53-10)
+- [PR-T53-11: Bounded parallel work pool](#pr-t53-11)
+- [PR-T53-12: Dependency DAG execution and scaling limits](#pr-t53-12)
+
+
+---
+
+<a id="t54"></a>
+
+# T54 — Dual-core microcontroller AMP and shared-memory ownership
+
+| Track | Status | Hours | Dependency profiles |
+| --- | --- | --- | --- |
+| bare-metal | core | 114 | C, E |
+
+**Prerequisites:** [T50](#t50), [T51](#t51), [T52](#t52).
+
+| Reading | Implementation | Verification | Assessment | Consolidation |
+| --- | --- | --- | --- | --- |
+| 12 | 56 | 30 | 8 | 8 |
+
+## Purpose and outcomes
+
+Build separate M7 and M4 images with static peripheral ownership. This is asymmetric multiprocessing, not a coherent SMP machine. Shared SRAM, cache state, DMA and notifications each require an explicit contract.
+
+The 10 projects contribute 86 implementation/verification hours. Together with reading (12), assessment (8) and consolidation (8), the provisional module budget is 114 hours. These are planning estimates, not measured learner calibration.
+
+## Entry check and remediation
+
+Bring original MCU startup, the memory-master placement ledger and the single-core runtime. Explain which SRAM each core and DMA can access before declaring any shared buffer. Where a prerequisite is missing, repair its smallest failing experiment first. Use prior projects by ID rather than duplicating their implementation hours. Explicit project dependencies govern the implementation route; module prerequisites describe the complete study background.
+
+## Study sequence and teaching
+
+
+<a id="t54-01"></a>
+
+### T54.01 — Dual images and static peripheral ownership
+
+The H745 M7 and M4 run separate images with different core capabilities and memory access paths. Define an address map and a single owner for each peripheral, clock-control operation and shared region. An M7 TCM pointer is not automatically an M4-accessible buffer.
+
+Build two original vector/startup/linker paths and an ownership table. Reserve nonoverlapping flash/RAM images plus an explicitly shared SRAM region and audit both map files.
+
+A discriminating experiment exposes: overlapping image ranges; both cores initialize one peripheral; inaccessible shared buffer; wrong CPU compiler flags; hidden HAL or runtime library. Required evidence: Cross-build both images with no forbidden dependencies and validate every declared range and owner. Physical boot remains a separate gate with exact board revision recorded.
+
+Develop this mechanism in [PR-T54-01](#pr-t54-01).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t54-01-a"></a>
+
+
+- **T54.01.a** Derive and defend the state, ownership and ordering contract for dual images and static peripheral ownership. **Disposition:** core. **Activity:** [PR-T54-01](#pr-t54-01).
+
+
+<a id="t54-01-b"></a>
+
+
+- **T54.01.b** Build two original vector/startup/linker paths and an ownership table. Reserve nonoverlapping flash/RAM images plus an explicitly shared SRAM region and audit both map files. **Disposition:** core. **Activity:** [PR-T54-01](#pr-t54-01).
+
+
+<a id="t54-01-c"></a>
+
+
+- **T54.01.c** Cross-build both images with no forbidden dependencies and validate every declared range and owner. Physical boot remains a separate gate with exact board revision recorded. **Disposition:** core. **Activity:** [PR-T54-01](#pr-t54-01).
+
+
+<a id="t54-02"></a>
+
+### T54.02 — Dual boot and epoch handshake
+
+A boot handshake needs a version, epoch and readiness state so one core does not use stale SRAM left by a previous run. One core owns initialization; the peer acknowledges the same epoch after checking layout and capabilities. A peer may be late or absent.
+
+Implement explicit M7/M4 boot sequencing and a bounded shared-memory handshake using original register code. Clear only owned state and publish readiness after initialization.
+
+A discriminating experiment exposes: stale ready flag; mismatched protocol version; peer absent; both cores clear shared state; reset during publication; acknowledgment for old epoch. Required evidence: Capture distinct core start markers and matching epoch agreement. Inject a stale epoch in the model and demonstrate rejection; retain physical boot traces separately.
+
+Develop this mechanism in [PR-T54-02](#pr-t54-02).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t54-02-a"></a>
+
+
+- **T54.02.a** Derive and defend the state, ownership and ordering contract for dual boot and epoch handshake. **Disposition:** core. **Activity:** [PR-T54-02](#pr-t54-02).
+
+
+<a id="t54-02-b"></a>
+
+
+- **T54.02.b** Implement explicit M7/M4 boot sequencing and a bounded shared-memory handshake using original register code. Clear only owned state and publish readiness after initialization. **Disposition:** core. **Activity:** [PR-T54-02](#pr-t54-02).
+
+
+<a id="t54-02-c"></a>
+
+
+- **T54.02.c** Capture distinct core start markers and matching epoch agreement. Inject a stale epoch in the model and demonstrate rejection; retain physical boot traces separately. **Disposition:** core. **Activity:** [PR-T54-02](#pr-t54-02).
+
+
+<a id="t54-03"></a>
+
+### T54.03 — Shared-SRAM SPSC channel
+
+One producer owns head publication and one consumer owns tail publication. The baseline shared region is explicitly noncacheable with aligned indices and bounded payloads. Data publication ordering still matters; volatile alone does not define the required cross-core protocol.
+
+Implement two unidirectional SPSC channels with sequence and epoch fields. Use a fixed power-of-two capacity and explicit full/empty policy, then inspect emitted barriers.
+
+A discriminating experiment exposes: two producers on SPSC; head published before payload; stale epoch; full overwrite; index wrap confused with empty; shared region wrongly cacheable. Required evidence: Transfer numbered payloads with no gaps except declared rejection, preserve slot ownership and compare payload checksums across cores. Require a real dual-core run for the physical gate.
+
+Develop this mechanism in [PR-T54-03](#pr-t54-03).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t54-03-a"></a>
+
+
+- **T54.03.a** Derive and defend the state, ownership and ordering contract for shared-sram spsc channel. **Disposition:** core. **Activity:** [PR-T54-03](#pr-t54-03).
+
+
+<a id="t54-03-b"></a>
+
+
+- **T54.03.b** Implement two unidirectional SPSC channels with sequence and epoch fields. Use a fixed power-of-two capacity and explicit full/empty policy, then inspect emitted barriers. **Disposition:** core. **Activity:** [PR-T54-03](#pr-t54-03).
+
+
+<a id="t54-03-c"></a>
+
+
+- **T54.03.c** Transfer numbered payloads with no gaps except declared rejection, preserve slot ownership and compare payload checksums across cores. Require a real dual-core run for the physical gate. **Disposition:** core. **Activity:** [PR-T54-03](#pr-t54-03).
+
+
+<a id="t54-04"></a>
+
+### T54.04 — HSEM and coalesced doorbells
+
+A hardware semaphore notification signals that shared state may have changed. Several payload publications may produce one pending interrupt, so the receiver must drain authoritative queue state rather than consume one message per interrupt. HSEM ownership and interrupt clearing follow the selected register contract.
+
+Implement original HSEM take/release and notification handling with bounded ISR work. After waking, drain the SPSC channel and recheck the sleep boundary.
+
+A discriminating experiment exposes: interrupt count used as message count; status cleared in wrong order; data published after doorbell; HSEM ownership mismatch; sleeping with queue nonempty. Required evidence: Demonstrate a burst of several messages serviced after one coalesced wake and preserve every accepted sequence ID. Record ISR and task responsibilities separately.
+
+Develop this mechanism in [PR-T54-04](#pr-t54-04).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t54-04-a"></a>
+
+
+- **T54.04.a** Derive and defend the state, ownership and ordering contract for hsem and coalesced doorbells. **Disposition:** core. **Activity:** [PR-T54-04](#pr-t54-04).
+
+
+<a id="t54-04-b"></a>
+
+
+- **T54.04.b** Implement original HSEM take/release and notification handling with bounded ISR work. After waking, drain the SPSC channel and recheck the sleep boundary. **Disposition:** core. **Activity:** [PR-T54-04](#pr-t54-04).
+
+
+<a id="t54-04-c"></a>
+
+
+- **T54.04.c** Demonstrate a burst of several messages serviced after one coalesced wake and preserve every accepted sequence ID. Record ISR and task responsibilities separately. **Disposition:** core. **Activity:** [PR-T54-04](#pr-t54-04).
+
+
+<a id="t54-05"></a>
+
+### T54.05 — Cache visibility and cache-line ownership
+
+The M7 data cache is not automatically coherent with the M4. Cache maintenance operates on lines and can damage unrelated dirty data sharing a line. Keep control and payload ownership explicit; the baseline noncacheable channel and a cached-buffer experiment are separate variants.
+
+Create a cached transfer variant with aligned dedicated cache lines, clean before remote reads and invalidate before consuming remote writes as required. Include barriers and retain a cache-operation ledger.
+
+A discriminating experiment exposes: unaligned maintenance span; dirty unrelated bytes invalidated; clean after notification; stale consumer line; barrier substituted for cache maintenance. Required evidence: Compute rounded cache-line ranges independently, reproduce stale-data behavior under controlled conditions when observable, and demonstrate corrected payload checksums on hardware.
+
+Develop this mechanism in [PR-T54-05](#pr-t54-05).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t54-05-a"></a>
+
+
+- **T54.05.a** Derive and defend the state, ownership and ordering contract for cache visibility and cache-line ownership. **Disposition:** core. **Activity:** [PR-T54-05](#pr-t54-05).
+
+
+<a id="t54-05-b"></a>
+
+
+- **T54.05.b** Create a cached transfer variant with aligned dedicated cache lines, clean before remote reads and invalidate before consuming remote writes as required. Include barriers and retain a cache-operation ledger. **Disposition:** core. **Activity:** [PR-T54-05](#pr-t54-05).
+
+
+<a id="t54-05-c"></a>
+
+
+- **T54.05.c** Compute rounded cache-line ranges independently, reproduce stale-data behavior under controlled conditions when observable, and demonstrate corrected payload checksums on hardware. **Disposition:** core. **Activity:** [PR-T54-05](#pr-t54-05).
+
+
+<a id="t54-06"></a>
+
+### T54.06 — DMA buffers and CPU ownership transitions
+
+A DMA engine is another memory actor. A CPU may not modify a buffer while DMA owns it, and a completion interrupt does not by itself fix cache visibility. Model free, CPU-filling, device-owned, completed and CPU-consuming states explicitly.
+
+Implement one bounded DMA transfer path using statically assigned channels and buffers. Publish completion with request generation and perform the chosen cache protocol before CPU consumption.
+
+A discriminating experiment exposes: CPU writes device-owned buffer; early reuse; stale completion; inaccessible DMA memory; missing cache clean/invalidate; error completion treated as success. Required evidence: Reconcile every buffer transition and verify payload bytes after actual DMA completion. Inject cancellation and stale-completion cases in the host model without claiming it simulates the bus.
+
+Develop this mechanism in [PR-T54-06](#pr-t54-06).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t54-06-a"></a>
+
+
+- **T54.06.a** Derive and defend the state, ownership and ordering contract for dma buffers and cpu ownership transitions. **Disposition:** core. **Activity:** [PR-T54-06](#pr-t54-06).
+
+
+<a id="t54-06-b"></a>
+
+
+- **T54.06.b** Implement one bounded DMA transfer path using statically assigned channels and buffers. Publish completion with request generation and perform the chosen cache protocol before CPU consumption. **Disposition:** core. **Activity:** [PR-T54-06](#pr-t54-06).
+
+
+<a id="t54-06-c"></a>
+
+
+- **T54.06.c** Reconcile every buffer transition and verify payload bytes after actual DMA completion. Inject cancellation and stale-completion cases in the host model without claiming it simulates the bus. **Disposition:** core. **Activity:** [PR-T54-06](#pr-t54-06).
+
+
+<a id="t54-07"></a>
+
+### T54.07 — Cross-core clocks and latency measurement
+
+Independent cycle counters need not share rate, origin or wrap behavior. Subtracting one core timestamp from the other is meaningless without a synchronization model. A shared external GPIO capture provides another observation with its own resolution and probe cost.
+
+Measure request/response latency using same-core round trips and a shared logic-analyzer timebase. Record M7/M4 frequencies, timer widths, calibration and instrumentation overhead.
+
+A discriminating experiment exposes: cross-counter subtraction; frequency changes; wrap; GPIO overhead omitted; dropped samples; average hides tail latency. Required evidence: Report distributions and upper observed values with sample count, clock conversion and uncertainty. Distinguish physical measurement from model timing and from an analytical WCET bound.
+
+Develop this mechanism in [PR-T54-07](#pr-t54-07).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t54-07-a"></a>
+
+
+- **T54.07.a** Derive and defend the state, ownership and ordering contract for cross-core clocks and latency measurement. **Disposition:** core. **Activity:** [PR-T54-07](#pr-t54-07).
+
+
+<a id="t54-07-b"></a>
+
+
+- **T54.07.b** Measure request/response latency using same-core round trips and a shared logic-analyzer timebase. Record M7/M4 frequencies, timer widths, calibration and instrumentation overhead. **Disposition:** core. **Activity:** [PR-T54-07](#pr-t54-07).
+
+
+<a id="t54-07-c"></a>
+
+
+- **T54.07.c** Report distributions and upper observed values with sample count, clock conversion and uncertainty. Distinguish physical measurement from model timing and from an analytical WCET bound. **Disposition:** core. **Activity:** [PR-T54-07](#pr-t54-07).
+
+
+<a id="t54-08"></a>
+
+### T54.08 — Peer failure and protocol recovery
+
+A peer reset invalidates its in-flight operation identities and potentially leaves buffers owned by an absent participant. Recovery must establish a new epoch before reusing shared storage. Exactly-once external effects require application-level deduplication, not merely a transport retry.
+
+Implement heartbeat/timeout observation and supervisor-driven epoch recovery. Stop a peer after publication and before acknowledgment, then reconcile retained or discarded work.
+
+A discriminating experiment exposes: old reply accepted after restart; both peers reset shared state; duplicate command effect; ownership leaked forever; timeout interpreted as proof peer executed nothing. Required evidence: Show stale epochs rejected, buffers returned through a defined recovery path and explicit uncertain-result reporting for a request interrupted across reset.
+
+Develop this mechanism in [PR-T54-08](#pr-t54-08).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t54-08-a"></a>
+
+
+- **T54.08.a** Derive and defend the state, ownership and ordering contract for peer failure and protocol recovery. **Disposition:** core. **Activity:** [PR-T54-08](#pr-t54-08).
+
+
+<a id="t54-08-b"></a>
+
+
+- **T54.08.b** Implement heartbeat/timeout observation and supervisor-driven epoch recovery. Stop a peer after publication and before acknowledgment, then reconcile retained or discarded work. **Disposition:** core. **Activity:** [PR-T54-08](#pr-t54-08).
+
+
+<a id="t54-08-c"></a>
+
+
+- **T54.08.c** Show stale epochs rejected, buffers returned through a defined recovery path and explicit uncertain-result reporting for a request interrupted across reset. **Disposition:** core. **Activity:** [PR-T54-08](#pr-t54-08).
+
+
+<a id="t54-09"></a>
+
+### T54.09 — Interrupt-to-task pipelines on both cores
+
+Each core has its own interrupt/task scheduler boundary; shared transport links them. Keep interrupt handlers bounded and move parsing or long computation to tasks. Priority choices on one core do not automatically bound delay on the other.
+
+Build acquisition ISR to M4 task to shared queue to M7 worker to response pipeline. Give every hop a bounded queue and overload policy, then trace sequence IDs end to end.
+
+A discriminating experiment exposes: unbounded ISR parsing; hidden queue growth; downstream stall; mixed epochs; priority inversion on one hop; timestamps use incompatible clocks. Required evidence: Reconcile accepted, completed and dropped items at every hop and derive an end-to-end latency budget from component observations with stated interference.
+
+Develop this mechanism in [PR-T54-09](#pr-t54-09).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t54-09-a"></a>
+
+
+- **T54.09.a** Derive and defend the state, ownership and ordering contract for interrupt-to-task pipelines on both cores. **Disposition:** core. **Activity:** [PR-T54-09](#pr-t54-09).
+
+
+<a id="t54-09-b"></a>
+
+
+- **T54.09.b** Build acquisition ISR to M4 task to shared queue to M7 worker to response pipeline. Give every hop a bounded queue and overload policy, then trace sequence IDs end to end. **Disposition:** core. **Activity:** [PR-T54-09](#pr-t54-09).
+
+
+<a id="t54-09-c"></a>
+
+
+- **T54.09.c** Reconcile accepted, completed and dropped items at every hop and derive an end-to-end latency budget from component observations with stated interference. **Disposition:** core. **Activity:** [PR-T54-09](#pr-t54-09).
+
+
+<a id="t54-10"></a>
+
+### T54.10 — AMP end-to-end observatory
+
+A complete physical experiment combines independent images, ownership, cache/DMA discipline, notification and recovery. Compilation and a host transport model establish narrower facts than board execution. Keep the original runtime independent of FreeRTOS, HAL and OpenAMP.
+
+Package both ELF images, maps, protocol version and board configuration. Run periodic acquisition plus parallel compute, a queue-overload burst and a peer restart with external timing capture.
+
+A discriminating experiment exposes: wrong flashed image; mismatched shared layout; optimization changes barriers; stale evidence; queue loss hidden in average throughput; unavailable board marked pass. Required evidence: Provide actual dual-core progress, queue and recovery traces with source/image hashes and a full RAM/CPU/I/O ledger. If hardware is unavailable, leave physical completion explicitly not-run.
+
+Develop this mechanism in [PR-T54-10](#pr-t54-10).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t54-10-a"></a>
+
+
+- **T54.10.a** Derive and defend the state, ownership and ordering contract for amp end-to-end observatory. **Disposition:** core. **Activity:** [PR-T54-10](#pr-t54-10).
+
+
+<a id="t54-10-b"></a>
+
+
+- **T54.10.b** Package both ELF images, maps, protocol version and board configuration. Run periodic acquisition plus parallel compute, a queue-overload burst and a peer restart with external timing capture. **Disposition:** core. **Activity:** [PR-T54-10](#pr-t54-10).
+
+
+<a id="t54-10-c"></a>
+
+
+- **T54.10.c** Provide actual dual-core progress, queue and recovery traces with source/image hashes and a full RAM/CPU/I/O ledger. If hardware is unavailable, leave physical completion explicitly not-run. **Disposition:** core. **Activity:** [PR-T54-10](#pr-t54-10).
+
+## Reading guidance
+
+Read only the assigned locator before the related experiment, then return to it after the counterexample. State the source's machine and task-model assumptions next to your own. Historical pseudocode does not authorize undefined C races; Linux, ISO C and a microcontroller memory system are separate contracts. The source/search/reflection ledger is in `research/v3/`; filenames and graph records alone do not qualify as inspected readings.
+
+## Implementation projects
+
+Complete [PR-T54-01](#pr-t54-01), [PR-T54-02](#pr-t54-02), [PR-T54-03](#pr-t54-03), [PR-T54-04](#pr-t54-04), [PR-T54-05](#pr-t54-05), [PR-T54-06](#pr-t54-06), [PR-T54-07](#pr-t54-07), [PR-T54-08](#pr-t54-08), [PR-T54-09](#pr-t54-09), [PR-T54-10](#pr-t54-10) in order. Project manifests distinguish model, host, emulator, cross-build and physical evidence. Later cumulative tests may require later mechanisms; an early milestone is assessed on its own contract and cannot borrow a later reference implementation.
+
+## Mastery gate and feedback
+
+Demonstrate one correct execution and one deliberately wrong variant per mechanism. Explain the first invalid transition, fix its cause, and repeat with an independently chosen input. Review safety, progress, resource lifetime and timing as distinct claims. A stress test supplies observations; bounded exhaustive schedules supply only the stated finite coverage. A deadlocked or unavailable run is not a pass.
+
+## Consolidation and transfer
+
+After seven days rebuild one mechanism from its public contract, change the contention or arrival pattern, and compare the new prediction with the result. After a month integrate two previously separate boundaries. Record surprises, remediation hours and the source passage that changed your reasoning.
+
+## Environment and limits
+
+NUCLEO-H745ZI-Q dual-core board with exact board and silicon revisions recorded Two ELF images, debugger and logic analyzer Selected board reference manual and cache application notes. Custom target images provide their own startup and required runtime helpers. Compiler-provided type headers and reviewed intrinsics are allowed; linked libc, libgcc, compiler-rt, libatomic, vendor HAL, OpenAMP and pre-existing kernels are excluded. FreeRTOS/Linux comparison programs are explicitly separate builds. Never infer physical WCET, electrical behavior or dual-core cache correctness from QEMU or a hosted model. The final learner record preserves unresolved or unavailable gates.
+
+## Assigned source passages
+
+| Resource | Inspected locator | Purpose | Hours |
+| --- | --- | --- | --- |
+| [Introduction to inter-processor communications for STM32H745/755 and STM32H747/757 MCUs](#r-os3-st-an5617) | 2.1-2.2 Use cases, shared memory and notification | Explain separate images, ownership and authoritative queue state versus notifications. | 2 |
+| [Introduction to inter-processor communications for STM32H745/755 and STM32H747/757 MCUs](#r-os3-st-an5617) | 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA | Explain separate images, ownership and authoritative queue state versus notifications. | 2 |
+| [Level1 cache on STM32F7 Series and STM32H7 Series](#r-os3-st-an4839) | 3.1-3.2 Default settings and cache maintenance/data coherency example | Separate cache visibility, barriers and DMA ownership. | 2 |
+| [STM32H745/755 and STM32H747/757 advanced Arm-based 32-bit MCUs](#r-os3-st-rm0399-r4) | p.138 table7; pp.142-144 memory/boot; p.362 hold boot | Justify private/shared memory placement and controlled secondary-core boot. | 1 |
+| [STM32H745/755 and STM32H747/757 advanced Arm-based 32-bit MCUs](#r-os3-st-rm0399-r4) | p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42 | Decode boot and SRAM/peripheral allocation registers against the linker/board contract. | 1 |
+| [STM32H745/755 and STM32H747/757 advanced Arm-based 32-bit MCUs](#r-os3-st-rm0399-r4) | pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows | Implement owned HSEM release notifications and acknowledge the correct per-core interrupt. | 1 |
+| [STM32F7 Series and STM32H7 Series Cortex-M7 processor programming manual](#r-os3-st-pm0253-r5) | pp.226-230 sections4.6.4-4.6.8, especially table91 | Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions. | 1 |
+| [STM32H745 device peripheral definitions](#r-os3-st-h745-header) | IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs | Cross-check IRQ numbers and register offsets against pinned primary definitions. | 1 |
+
+## Project directory
+
+- [PR-T54-01: Dual images and static peripheral ownership](#pr-t54-01)
+- [PR-T54-02: Dual boot and epoch handshake](#pr-t54-02)
+- [PR-T54-03: Shared-SRAM SPSC channel](#pr-t54-03)
+- [PR-T54-04: HSEM and coalesced doorbells](#pr-t54-04)
+- [PR-T54-05: Cache visibility and cache-line ownership](#pr-t54-05)
+- [PR-T54-06: DMA buffers and CPU ownership transitions](#pr-t54-06)
+- [PR-T54-07: Cross-core clocks and latency measurement](#pr-t54-07)
+- [PR-T54-08: Peer failure and protocol recovery](#pr-t54-08)
+- [PR-T54-09: Interrupt-to-task pipelines on both cores](#pr-t54-09)
+- [PR-T54-10: AMP end-to-end observatory](#pr-t54-10)
+
+
+---
+
+<a id="t55"></a>
+
+# T55 — Lock-free algorithms, reclamation and progress arguments
+
+| Track | Status | Hours | Dependency profiles |
+| --- | --- | --- | --- |
+| cross-track | core | 114 | C, F |
+
+**Prerequisites:** [T26](#t26), [T51](#t51), [T53](#t53).
+
+| Reading | Implementation | Verification | Assessment | Consolidation |
+| --- | --- | --- | --- | --- |
+| 12 | 56 | 30 | 8 | 8 |
+
+## Purpose and outcomes
+
+Separate atomicity, linearizability, memory reclamation and progress. A successful stress run does not prove any of them. The required CAS queue runs on x86-64; the H745 route uses ownership and SPSC without assuming cross-core exclusive-monitor behavior.
+
+The 10 projects contribute 86 implementation/verification hours. Together with reading (12), assessment (8) and consolidation (8), the provisional module budget is 114 hours. These are planning estimates, not measured learner calibration.
+
+## Entry check and remediation
+
+Bring an acquire/release publication argument, a bounded node lifetime ledger and actual multicore execution. Revisit the ABA counterexample before adding reclamation. Where a prerequisite is missing, repair its smallest failing experiment first. Use prior projects by ID rather than duplicating their implementation hours. Explicit project dependencies govern the implementation route; module prerequisites describe the complete study background.
+
+## Study sequence and teaching
+
+
+<a id="t55-01"></a>
+
+### T55.01 — SPSC publication and acquire-release ordering
+
+In an SPSC ring, payload writes happen before producer publication and consumer observation precedes payload reads. Each index has one writer. Independent head and tail counters need a bounded-distance invariant so wrap does not create false free space.
+
+Implement a fixed-capacity C atomic SPSC queue and a deliberately relaxed-publication model. State the happens-before chain and inspect the selected target instruction sequence.
+
+A discriminating experiment exposes: payload read before acquire; second producer; unbounded counter distance; false sharing; non-lock-free atomic width; output modified on empty. Required evidence: Validate sequence preservation and slot ownership under wrap and contention. Explain why failure to observe a relaxed-ordering defect on x86 does not prove portability.
+
+Develop this mechanism in [PR-T55-01](#pr-t55-01).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t55-01-a"></a>
+
+
+- **T55.01.a** Derive and defend the state, ownership and ordering contract for spsc publication and acquire-release ordering. **Disposition:** core. **Activity:** [PR-T55-01](#pr-t55-01).
+
+
+<a id="t55-01-b"></a>
+
+
+- **T55.01.b** Implement a fixed-capacity C atomic SPSC queue and a deliberately relaxed-publication model. State the happens-before chain and inspect the selected target instruction sequence. **Disposition:** core. **Activity:** [PR-T55-01](#pr-t55-01).
+
+
+<a id="t55-01-c"></a>
+
+
+- **T55.01.c** Validate sequence preservation and slot ownership under wrap and contention. Explain why failure to observe a relaxed-ordering defect on x86 does not prove portability. **Disposition:** core. **Activity:** [PR-T55-01](#pr-t55-01).
+
+
+<a id="t55-02"></a>
+
+### T55.02 — Compare-and-swap and progress classifications
+
+A CAS operation can fail because another thread changed the value; weak CAS may also fail spuriously. Retry loops need updated observations and a proof of what successful interference means. Lock-free system progress differs from wait-free per-operation bounds and from merely avoiding a mutex API.
+
+Implement an x86 CAS counter and a bounded model of interfering updates. Audit compiler atomic width and emitted instructions; keep allocation, logging and error paths in the progress analysis.
+
+A discriminating experiment exposes: expected value not refreshed; signed overflow; spurious failure mishandled; hidden libatomic call; unbounded unrelated work inside retry loop. Required evidence: Classify each operation progress property with explicit assumptions and show a schedule that starves one caller while others progress. Do not label that schedule wait-free.
+
+Develop this mechanism in [PR-T55-02](#pr-t55-02).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t55-02-a"></a>
+
+
+- **T55.02.a** Derive and defend the state, ownership and ordering contract for compare-and-swap and progress classifications. **Disposition:** core. **Activity:** [PR-T55-02](#pr-t55-02).
+
+
+<a id="t55-02-b"></a>
+
+
+- **T55.02.b** Implement an x86 CAS counter and a bounded model of interfering updates. Audit compiler atomic width and emitted instructions; keep allocation, logging and error paths in the progress analysis. **Disposition:** core. **Activity:** [PR-T55-02](#pr-t55-02).
+
+
+<a id="t55-02-c"></a>
+
+
+- **T55.02.c** Classify each operation progress property with explicit assumptions and show a schedule that starves one caller while others progress. Do not label that schedule wait-free. **Disposition:** core. **Activity:** [PR-T55-02](#pr-t55-02).
+
+
+<a id="t55-03"></a>
+
+### T55.03 — ABA and identity reuse
+
+Equality of pointer bits does not establish that the object is the same lifetime. A node removed and reused can return a head pointer to A while the surrounding structure changed. A finite tag only postpones wrap; its correctness needs a reuse bound or another lifetime scheme.
+
+Build a deterministic three-step stack model that pauses a reader, removes/reuses nodes and resumes its stale CAS. Compare raw pointers, tagged generations and deferred reuse.
+
+A discriminating experiment exposes: ABA accepted; tag wraps; node contents changed behind equal address; allocator assumed immutable; stale pointer dereferenced before validation. Required evidence: Show the exact corrupted history for raw-pointer CAS and state which assumption each mitigation adds. Distinguish ABA prevention from general use-after-free prevention.
+
+Develop this mechanism in [PR-T55-03](#pr-t55-03).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t55-03-a"></a>
+
+
+- **T55.03.a** Derive and defend the state, ownership and ordering contract for aba and identity reuse. **Disposition:** core. **Activity:** [PR-T55-03](#pr-t55-03).
+
+
+<a id="t55-03-b"></a>
+
+
+- **T55.03.b** Build a deterministic three-step stack model that pauses a reader, removes/reuses nodes and resumes its stale CAS. Compare raw pointers, tagged generations and deferred reuse. **Disposition:** core. **Activity:** [PR-T55-03](#pr-t55-03).
+
+
+<a id="t55-03-c"></a>
+
+
+- **T55.03.c** Show the exact corrupted history for raw-pointer CAS and state which assumption each mitigation adds. Distinguish ABA prevention from general use-after-free prevention. **Disposition:** core. **Activity:** [PR-T55-03](#pr-t55-03).
+
+
+<a id="t55-04"></a>
+
+### T55.04 — A bounded pool for concurrent nodes
+
+Lock-free queue claims include node acquisition and reclamation. A fixed pool avoids general allocator dependencies but still needs a nonblocking allocation contract, exhaustion result and safe reuse discipline. Pool exhaustion must not silently turn into a blocking wait.
+
+Implement a fixed node arena with explicit free, live and retired states and generation IDs. Integrate a try-allocation result before linking a node into a queue.
+
+A discriminating experiment exposes: pool allocation blocks; retired node reused early; double retirement; capacity leaked on failed CAS; generation wrap; free-list ABA. Required evidence: Reconcile all node states under exhaustion and contention, and include the free-list algorithm in the progress argument rather than treating it as magic infrastructure.
+
+Develop this mechanism in [PR-T55-04](#pr-t55-04).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t55-04-a"></a>
+
+
+- **T55.04.a** Derive and defend the state, ownership and ordering contract for a bounded pool for concurrent nodes. **Disposition:** core. **Activity:** [PR-T55-04](#pr-t55-04).
+
+
+<a id="t55-04-b"></a>
+
+
+- **T55.04.b** Implement a fixed node arena with explicit free, live and retired states and generation IDs. Integrate a try-allocation result before linking a node into a queue. **Disposition:** core. **Activity:** [PR-T55-04](#pr-t55-04).
+
+
+<a id="t55-04-c"></a>
+
+
+- **T55.04.c** Reconcile all node states under exhaustion and contention, and include the free-list algorithm in the progress argument rather than treating it as magic infrastructure. **Disposition:** core. **Activity:** [PR-T55-04](#pr-t55-04).
+
+
+<a id="t55-05"></a>
+
+### T55.05 — Hazard-pointer publication and reclamation
+
+A reader publishes a hazard then revalidates the source pointer before dereferencing. Otherwise reclamation can occur between its initial read and publication. Retired nodes become reusable only after a correctly ordered scan finds no protecting hazard; thread registration and stalled readers affect finite memory capacity.
+
+Implement a bounded hazard domain with fixed participants and retired lists. Enumerate protect-publish-recheck against remove-retire-scan, using conservative ordering before optimization.
+
+A discriminating experiment exposes: dereference before protection; missing revalidation; hazard cleared too early; scan ignores participant; participant reused with stale hazard; retired list overflows. Required evidence: Demonstrate safe reuse only after the final hazard clears and report bounded-pool exhaustion when a reader stalls. Separate memory safety from progress and memory-usage guarantees.
+
+Develop this mechanism in [PR-T55-05](#pr-t55-05).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t55-05-a"></a>
+
+
+- **T55.05.a** Derive and defend the state, ownership and ordering contract for hazard-pointer publication and reclamation. **Disposition:** core. **Activity:** [PR-T55-05](#pr-t55-05).
+
+
+<a id="t55-05-b"></a>
+
+
+- **T55.05.b** Implement a bounded hazard domain with fixed participants and retired lists. Enumerate protect-publish-recheck against remove-retire-scan, using conservative ordering before optimization. **Disposition:** core. **Activity:** [PR-T55-05](#pr-t55-05).
+
+
+<a id="t55-05-c"></a>
+
+
+- **T55.05.c** Demonstrate safe reuse only after the final hazard clears and report bounded-pool exhaustion when a reader stalls. Separate memory safety from progress and memory-usage guarantees. **Disposition:** core. **Activity:** [PR-T55-05](#pr-t55-05).
+
+
+<a id="t55-06"></a>
+
+### T55.06 — Michael-Scott queue with bounded reclamation
+
+The queue uses a dummy node and helping: a lagging tail may be advanced by another participant. Its linearization points differ between enqueue and dequeue. Original pseudocode allocator assumptions do not authorize ordinary free; use the accepted hazard domain and bounded pool.
+
+Implement the queue on x86 with supported CAS widths, explicit memory orders and protected node reads. Integrate empty, full-pool and help-tail paths and record operation histories.
+
+A discriminating experiment exposes: missing tail help; dummy node freed early; node protected after dereference; double dequeue; allocator blocks; pair CAS not actually lock-free. Required evidence: Check finite histories against FIFO semantics and demonstrate delayed-tail helping plus safe reclamation. Audit the entire call path before making a lock-free claim.
+
+Develop this mechanism in [PR-T55-06](#pr-t55-06).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t55-06-a"></a>
+
+
+- **T55.06.a** Derive and defend the state, ownership and ordering contract for michael-scott queue with bounded reclamation. **Disposition:** core. **Activity:** [PR-T55-06](#pr-t55-06).
+
+
+<a id="t55-06-b"></a>
+
+
+- **T55.06.b** Implement the queue on x86 with supported CAS widths, explicit memory orders and protected node reads. Integrate empty, full-pool and help-tail paths and record operation histories. **Disposition:** core. **Activity:** [PR-T55-06](#pr-t55-06).
+
+
+<a id="t55-06-c"></a>
+
+
+- **T55.06.c** Check finite histories against FIFO semantics and demonstrate delayed-tail helping plus safe reclamation. Audit the entire call path before making a lock-free claim. **Disposition:** core. **Activity:** [PR-T55-06](#pr-t55-06).
+
+
+<a id="t55-07"></a>
+
+### T55.07 — Epoch reclamation and quiescent states
+
+Epoch schemes delay reuse until every participant that could have seen a retired node passes a quiescent boundary. A stalled participant can retain memory indefinitely. Epoch entry/exit and participant deregistration are part of the safety contract, not optional instrumentation.
+
+Implement a fixed-participant epoch domain for an append/read/remove structure and compare retire-list growth with hazard pointers under a paused reader.
+
+A discriminating experiment exposes: reader accesses after leaving epoch; epoch advanced too early; deregistered active reader ignored; counter wrap; pool exhaustion hidden. Required evidence: Identify the earliest safe reuse point for each retired node and show memory retention under a nonquiescent reader. State that bounded storage can force explicit exhaustion despite algorithmic progress.
+
+Develop this mechanism in [PR-T55-07](#pr-t55-07).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t55-07-a"></a>
+
+
+- **T55.07.a** Derive and defend the state, ownership and ordering contract for epoch reclamation and quiescent states. **Disposition:** core. **Activity:** [PR-T55-07](#pr-t55-07).
+
+
+<a id="t55-07-b"></a>
+
+
+- **T55.07.b** Implement a fixed-participant epoch domain for an append/read/remove structure and compare retire-list growth with hazard pointers under a paused reader. **Disposition:** core. **Activity:** [PR-T55-07](#pr-t55-07).
+
+
+<a id="t55-07-c"></a>
+
+
+- **T55.07.c** Identify the earliest safe reuse point for each retired node and show memory retention under a nonquiescent reader. State that bounded storage can force explicit exhaustion despite algorithmic progress. **Disposition:** core. **Activity:** [PR-T55-07](#pr-t55-07).
+
+
+<a id="t55-08"></a>
+
+### T55.08 — Read-copy-update as an ownership protocol
+
+RCU readers observe a published immutable version while writers replace it and wait for a grace period before reclamation. Publication, grace-period detection and freeing are separate obligations. A teaching userspace/guest scheme is not automatically equivalent to Linux RCU.
+
+Implement immutable configuration replacement with fixed version slots and a bounded quiescent-state protocol. Keep writer serialization explicit and prevent mutation of published versions.
+
+A discriminating experiment exposes: writer edits published object; grace period ignores preexisting reader; nested read section mishandled; callback frees current version; stalled reader exhausts versions. Required evidence: Show each reader sees a self-consistent version and old storage remains valid through its final reader. Explain the selected grace-period model and its limits.
+
+Develop this mechanism in [PR-T55-08](#pr-t55-08).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t55-08-a"></a>
+
+
+- **T55.08.a** Derive and defend the state, ownership and ordering contract for read-copy-update as an ownership protocol. **Disposition:** core. **Activity:** [PR-T55-08](#pr-t55-08).
+
+
+<a id="t55-08-b"></a>
+
+
+- **T55.08.b** Implement immutable configuration replacement with fixed version slots and a bounded quiescent-state protocol. Keep writer serialization explicit and prevent mutation of published versions. **Disposition:** core. **Activity:** [PR-T55-08](#pr-t55-08).
+
+
+<a id="t55-08-c"></a>
+
+
+- **T55.08.c** Show each reader sees a self-consistent version and old storage remains valid through its final reader. Explain the selected grace-period model and its limits. **Disposition:** core. **Activity:** [PR-T55-08](#pr-t55-08).
+
+
+<a id="t55-09"></a>
+
+### T55.09 — Concurrent histories and linearizability checking
+
+A history records invocation, response, arguments and result for each operation. A linearization must preserve real-time order of nonoverlapping calls and satisfy the sequential object specification. A checker of small histories is a finite oracle, not proof of every possible execution.
+
+Write a bounded backtracking checker for queue histories with distinct operation IDs. Feed generated legal histories and hand-designed lost-item, duplicate-item and ordering violations.
+
+A discriminating experiment exposes: using log order as total execution order; ignoring real-time precedence; pending operation mishandled; duplicate ID; checker accepts empty dequeue while required item exists. Required evidence: Reject the supplied impossible histories and show a witness sequential order for accepted ones. State the history length/state-space limit and retain the smallest counterexample.
+
+Develop this mechanism in [PR-T55-09](#pr-t55-09).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t55-09-a"></a>
+
+
+- **T55.09.a** Derive and defend the state, ownership and ordering contract for concurrent histories and linearizability checking. **Disposition:** core. **Activity:** [PR-T55-09](#pr-t55-09).
+
+
+<a id="t55-09-b"></a>
+
+
+- **T55.09.b** Write a bounded backtracking checker for queue histories with distinct operation IDs. Feed generated legal histories and hand-designed lost-item, duplicate-item and ordering violations. **Disposition:** core. **Activity:** [PR-T55-09](#pr-t55-09).
+
+
+<a id="t55-09-c"></a>
+
+
+- **T55.09.c** Reject the supplied impossible histories and show a witness sequential order for accepted ones. State the history length/state-space limit and retain the smallest counterexample. **Disposition:** core. **Activity:** [PR-T55-09](#pr-t55-09).
+
+
+<a id="t55-10"></a>
+
+### T55.10 — End-to-end progress and contention audit
+
+Performance comparisons require equal semantics, payloads, allocation policy and shutdown behavior. A lock-free data path that calls a blocking allocator or logger is not an end-to-end lock-free operation. Retry count, tail latency, fairness, cache traffic and memory retention complement throughput.
+
+Compare SPSC, a mutex queue and the reclaimed MPMC queue under uncontended, contended, oversubscribed and paused-participant workloads. Audit all success, failure and reclamation paths.
+
+A discriminating experiment exposes: unequal capacity; benchmarks optimize away work; hidden allocation; only average latency; sanitizer timing used as performance result; stress success advertised as proof. Required evidence: Publish correctness evidence separately from performance data, record uncertainty and classify progress for each complete operation. Explain an observed case where locking performs better.
+
+Develop this mechanism in [PR-T55-10](#pr-t55-10).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t55-10-a"></a>
+
+
+- **T55.10.a** Derive and defend the state, ownership and ordering contract for end-to-end progress and contention audit. **Disposition:** core. **Activity:** [PR-T55-10](#pr-t55-10).
+
+
+<a id="t55-10-b"></a>
+
+
+- **T55.10.b** Compare SPSC, a mutex queue and the reclaimed MPMC queue under uncontended, contended, oversubscribed and paused-participant workloads. Audit all success, failure and reclamation paths. **Disposition:** core. **Activity:** [PR-T55-10](#pr-t55-10).
+
+
+<a id="t55-10-c"></a>
+
+
+- **T55.10.c** Publish correctness evidence separately from performance data, record uncertainty and classify progress for each complete operation. Explain an observed case where locking performs better. **Disposition:** core. **Activity:** [PR-T55-10](#pr-t55-10).
+
+## Reading guidance
+
+Read only the assigned locator before the related experiment, then return to it after the counterexample. State the source's machine and task-model assumptions next to your own. Historical pseudocode does not authorize undefined C races; Linux, ISO C and a microcontroller memory system are separate contracts. The source/search/reflection ledger is in `research/v3/`; filenames and graph records alone do not qualify as inspected readings.
+
+## Implementation projects
+
+Complete [PR-T55-01](#pr-t55-01), [PR-T55-02](#pr-t55-02), [PR-T55-03](#pr-t55-03), [PR-T55-04](#pr-t55-04), [PR-T55-05](#pr-t55-05), [PR-T55-06](#pr-t55-06), [PR-T55-07](#pr-t55-07), [PR-T55-08](#pr-t55-08), [PR-T55-09](#pr-t55-09), [PR-T55-10](#pr-t55-10) in order. Project manifests distinguish model, host, emulator, cross-build and physical evidence. Later cumulative tests may require later mechanisms; an early milestone is assessed on its own contract and cannot borrow a later reference implementation.
+
+## Mastery gate and feedback
+
+Demonstrate one correct execution and one deliberately wrong variant per mechanism. Explain the first invalid transition, fix its cause, and repeat with an independently chosen input. Review safety, progress, resource lifetime and timing as distinct claims. A stress test supplies observations; bounded exhaustive schedules supply only the stated finite coverage. A deadlocked or unavailable run is not a pass.
+
+## Consolidation and transfer
+
+After seven days rebuild one mechanism from its public contract, change the contention or arrival pattern, and compare the new prediction with the result. After a month integrate two previously separate boundaries. Record surprises, remediation hours and the source passage that changed your reasoning.
+
+## Environment and limits
+
+x86-64 lock-free atomic widths audited in disassembly History/interleaving checker Multicore execution; bounded node pools. Custom target images provide their own startup and required runtime helpers. Compiler-provided type headers and reviewed intrinsics are allowed; linked libc, libgcc, compiler-rt, libatomic, vendor HAL, OpenAMP and pre-existing kernels are excluded. FreeRTOS/Linux comparison programs are explicitly separate builds. Never infer physical WCET, electrical behavior or dual-core cache correctness from QEMU or a hosted model. The final learner record preserves unresolved or unavailable gates.
+
+## Assigned source passages
+
+| Resource | Inspected locator | Purpose | Hours |
+| --- | --- | --- | --- |
+| [Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms](#r-sys-michael-scott-1996) | §3.1 Safety | A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions. | 2 |
+| [Corrected pseudocode for Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms](#r-os3-ms-corrected) | Memory-management assumptions and corrected non-blocking pseudocode | Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted. | 2 |
+| [Hazard Pointers: Safe Memory Reclamation for Lock-Free Objects](#r-os3-hazard-2004) | Printed p.492: hazard ownership and retire/scan methodology | Introduce reclamation as a separate obligation from a queue linearization argument. | 1 |
+| [Linearizability: A Correctness Condition for Concurrent Objects](#r-os3-herlihy-wing-1990) | Printed pp.465-467: FIFO histories and Section2.1 histories | Ground the observable history contract and distinguish legal overlap from FIFO violations. | 2 |
+
+## Project directory
+
+- [PR-T55-01: SPSC publication and acquire-release ordering](#pr-t55-01)
+- [PR-T55-02: Compare-and-swap and progress classifications](#pr-t55-02)
+- [PR-T55-03: ABA and identity reuse](#pr-t55-03)
+- [PR-T55-04: A bounded pool for concurrent nodes](#pr-t55-04)
+- [PR-T55-05: Hazard-pointer publication and reclamation](#pr-t55-05)
+- [PR-T55-06: Michael-Scott queue with bounded reclamation](#pr-t55-06)
+- [PR-T55-07: Epoch reclamation and quiescent states](#pr-t55-07)
+- [PR-T55-08: Read-copy-update as an ownership protocol](#pr-t55-08)
+- [PR-T55-09: Concurrent histories and linearizability checking](#pr-t55-09)
+- [PR-T55-10: End-to-end progress and contention audit](#pr-t55-10)
+
+
+---
+
+<a id="t56"></a>
+
+# T56 — Concurrent OS services and integrated systems
+
+| Track | Status | Hours | Dependency profiles |
+| --- | --- | --- | --- |
+| kernel | core | 132 | C, F |
+
+**Prerequisites:** [T46](#t46), [T47](#t47), [T48](#t48), [T53](#t53), [T54](#t54), [T55](#t55).
+
+| Reading | Implementation | Verification | Assessment | Consolidation |
+| --- | --- | --- | --- | --- |
+| 12 | 68 | 36 | 8 | 8 |
+
+## Purpose and outcomes
+
+Turn mechanisms into services with explicit process, thread, memory and I/O ownership. Preserve the VM and persistent store implementations; give the store one owner and communicate through bounded requests rather than sharing its internals.
+
+The 12 projects contribute 104 implementation/verification hours. Together with reading (12), assessment (8) and consolidation (8), the provisional module budget is 132 hours. These are planning estimates, not measured learner calibration.
+
+## Entry check and remediation
+
+Bring accepted process isolation and SMP mechanisms. VM, store and physical AMP artifacts enter only when their service milestones require them; early process/memory work does not require the final application. Where a prerequisite is missing, repair its smallest failing experiment first. Use prior projects by ID rather than duplicating their implementation hours. Explicit project dependencies govern the implementation route; module prerequisites describe the complete study background.
+
+## Study sequence and teaching
+
+
+<a id="t56-01"></a>
+
+### T56.01 — Process and thread objects as distinct lifetimes
+
+A process owns an address space and handle table; its threads own execution contexts and stacks. Removing the last thread triggers process cleanup only after outstanding kernel references drain. Per-process and per-thread IDs need independent generation checks.
+
+Refactor the existing one-thread process representation into bounded process and thread pools. Preserve old isolation tests and add two threads sharing one process mapping.
+
+A discriminating experiment exposes: process freed while thread runnable; wrong address space selected; thread handle used as process handle; shared kernel stack; count decremented twice. Required evidence: Demonstrate shared user state within one process and isolation across two processes, with complete pool/refcount accounting after all threads exit.
+
+Develop this mechanism in [PR-T56-01](#pr-t56-01).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t56-01-a"></a>
+
+
+- **T56.01.a** Derive and defend the state, ownership and ordering contract for process and thread objects as distinct lifetimes. **Disposition:** core. **Activity:** [PR-T56-01](#pr-t56-01).
+
+
+<a id="t56-01-b"></a>
+
+
+- **T56.01.b** Refactor the existing one-thread process representation into bounded process and thread pools. Preserve old isolation tests and add two threads sharing one process mapping. **Disposition:** core. **Activity:** [PR-T56-01](#pr-t56-01).
+
+
+<a id="t56-01-c"></a>
+
+
+- **T56.01.c** Demonstrate shared user state within one process and isolation across two processes, with complete pool/refcount accounting after all threads exit. **Disposition:** core. **Activity:** [PR-T56-01](#pr-t56-01).
+
+
+<a id="t56-02"></a>
+
+### T56.02 — Spawn, exit, wait and process reaping
+
+Spawn loads a checked image into a new process; it is distinct from copying the caller address space. Exit publishes status and closes owned resources; wait consumes a child completion according to a single-parent policy. Partial load failure must roll back frames and handles.
+
+Implement bounded spawn/exit/wait using the existing static ELF profile and boot archive. Test parent wait before and after child exit and define orphan handling.
+
+A discriminating experiment exposes: malformed image leaks frames; wait on nonchild; child reaped twice; parent exits first; child handle reused; wait blocks while holding global lock. Required evidence: Run real child programs with distinct exit values and reject foreign/stale waits. Reconcile all resources on load failure and orphan cleanup.
+
+Develop this mechanism in [PR-T56-02](#pr-t56-02).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t56-02-a"></a>
+
+
+- **T56.02.a** Derive and defend the state, ownership and ordering contract for spawn, exit, wait and process reaping. **Disposition:** core. **Activity:** [PR-T56-02](#pr-t56-02).
+
+
+<a id="t56-02-b"></a>
+
+
+- **T56.02.b** Implement bounded spawn/exit/wait using the existing static ELF profile and boot archive. Test parent wait before and after child exit and define orphan handling. **Disposition:** core. **Activity:** [PR-T56-02](#pr-t56-02).
+
+
+<a id="t56-02-c"></a>
+
+
+- **T56.02.c** Run real child programs with distinct exit values and reject foreign/stale waits. Reconcile all resources on load failure and orphan cleanup. **Disposition:** core. **Activity:** [PR-T56-02](#pr-t56-02).
+
+
+<a id="t56-03"></a>
+
+### T56.03 — Demand-zero faults and frame ownership
+
+An admitted virtual region can begin without a physical page. A not-present user fault within that region allocates and zeroes a frame; a protection fault or invalid address is a different event. Publish the mapping only after initialization, with rollback on allocation failure.
+
+Implement demand-zero for one bounded heap region using the existing frame allocator. Decode fault cause and retain per-process page ledgers.
+
+A discriminating experiment exposes: kernel fault treated as user allocation; stale nonzero data exposed; allocating outside region; racing faults allocate twice; out-of-memory loses existing mapping. Required evidence: Observe real first-touch faults and zero-filled bytes, show invalid accesses terminate the offending process, and verify no frame leaks across exhaustion and exit.
+
+Develop this mechanism in [PR-T56-03](#pr-t56-03).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t56-03-a"></a>
+
+
+- **T56.03.a** Derive and defend the state, ownership and ordering contract for demand-zero faults and frame ownership. **Disposition:** core. **Activity:** [PR-T56-03](#pr-t56-03).
+
+
+<a id="t56-03-b"></a>
+
+
+- **T56.03.b** Implement demand-zero for one bounded heap region using the existing frame allocator. Decode fault cause and retain per-process page ledgers. **Disposition:** core. **Activity:** [PR-T56-03](#pr-t56-03).
+
+
+<a id="t56-03-c"></a>
+
+
+- **T56.03.c** Observe real first-touch faults and zero-filled bytes, show invalid accesses terminate the offending process, and verify no frame leaks across exhaustion and exit. **Disposition:** core. **Activity:** [PR-T56-03](#pr-t56-03).
+
+
+<a id="t56-04"></a>
+
+### T56.04 — Restricted copy-on-write cloning
+
+Restrict COW cloning to a single-threaded process with supported anonymous private pages; reject unsupported shared/device mappings. Mark both mappings read-only, increment frame references and invalidate relevant TLB entries before resuming. A write fault copies only when sharing remains.
+
+Implement the restricted clone and write-fault path with checked frame refcounts and rollback. Test parent and child writing separate values to the same virtual address.
+
+A discriminating experiment exposes: parent remains writable; reference count wrong; old frame freed before shootdown; out-of-memory corrupts original; unsupported multithreaded clone admitted. Required evidence: Demonstrate shared physical frames before writes and distinct contents afterward, including a sole-owner optimization and allocation-failure rollback.
+
+Develop this mechanism in [PR-T56-04](#pr-t56-04).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t56-04-a"></a>
+
+
+- **T56.04.a** Derive and defend the state, ownership and ordering contract for restricted copy-on-write cloning. **Disposition:** core. **Activity:** [PR-T56-04](#pr-t56-04).
+
+
+<a id="t56-04-b"></a>
+
+
+- **T56.04.b** Implement the restricted clone and write-fault path with checked frame refcounts and rollback. Test parent and child writing separate values to the same virtual address. **Disposition:** core. **Activity:** [PR-T56-04](#pr-t56-04).
+
+
+<a id="t56-04-c"></a>
+
+
+- **T56.04.c** Demonstrate shared physical frames before writes and distinct contents afterward, including a sole-owner optimization and allocation-failure rollback. **Disposition:** core. **Activity:** [PR-T56-04](#pr-t56-04).
+
+
+<a id="t56-05"></a>
+
+### T56.05 — Bounded process channels
+
+A channel crosses a process boundary and therefore validates user spans and owns queued copies. Handles name endpoints, not arbitrary shared pointers. Close semantics distinguish peer shutdown, queued data still available and cancellation of blocked operations.
+
+Expose bounded send/receive/close syscalls using generation-checked endpoints. Start with fixed maximum message size and explicit directional rights.
+
+A discriminating experiment exposes: kernel pointer supplied; output crosses unmapped page; oversized payload; endpoint used after close; sender dies with waiter enrolled; message consumed before copy succeeds. Required evidence: Run isolated client/server processes, reject invalid spans without kernel corruption and preserve queued-message accounting through peer exit.
+
+Develop this mechanism in [PR-T56-05](#pr-t56-05).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t56-05-a"></a>
+
+
+- **T56.05.a** Derive and defend the state, ownership and ordering contract for bounded process channels. **Disposition:** core. **Activity:** [PR-T56-05](#pr-t56-05).
+
+
+<a id="t56-05-b"></a>
+
+
+- **T56.05.b** Expose bounded send/receive/close syscalls using generation-checked endpoints. Start with fixed maximum message size and explicit directional rights. **Disposition:** core. **Activity:** [PR-T56-05](#pr-t56-05).
+
+
+<a id="t56-05-c"></a>
+
+
+- **T56.05.c** Run isolated client/server processes, reject invalid spans without kernel corruption and preserve queued-message accounting through peer exit. **Disposition:** core. **Activity:** [PR-T56-05](#pr-t56-05).
+
+
+<a id="t56-06"></a>
+
+### T56.06 — Shared-memory objects and explicit synchronization
+
+Shared memory is a separately owned object mapped into admitted processes; mapping it does not synchronize data access. Rights, page lifetime and mapping references must remain explicit. A process exit drops its mappings but must not free storage still mapped elsewhere.
+
+Implement bounded shared-memory create/map/unmap handles and one synchronized producer-consumer protocol. Keep executable mappings out of this teaching profile.
+
+A discriminating experiment exposes: write granted to read-only endpoint; frame freed on first unmap; stale handle; unsynchronized plain-data race; offset/length overflow; mappings overlap protected regions. Required evidence: Show one physical object visible through two virtual mappings with controlled publication, correct rights and final-reference reclamation.
+
+Develop this mechanism in [PR-T56-06](#pr-t56-06).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t56-06-a"></a>
+
+
+- **T56.06.a** Derive and defend the state, ownership and ordering contract for shared-memory objects and explicit synchronization. **Disposition:** core. **Activity:** [PR-T56-06](#pr-t56-06).
+
+
+<a id="t56-06-b"></a>
+
+
+- **T56.06.b** Implement bounded shared-memory create/map/unmap handles and one synchronized producer-consumer protocol. Keep executable mappings out of this teaching profile. **Disposition:** core. **Activity:** [PR-T56-06](#pr-t56-06).
+
+
+<a id="t56-06-c"></a>
+
+
+- **T56.06.c** Show one physical object visible through two virtual mappings with controlled publication, correct rights and final-reference reclamation. **Disposition:** core. **Activity:** [PR-T56-06](#pr-t56-06).
+
+
+<a id="t56-07"></a>
+
+### T56.07 — Asynchronous block requests and completion ownership
+
+Submission transfers a request buffer to the driver until terminal completion. The kernel may schedule other work while the device owns descriptors. Interrupt arrival is a prompt to consume used-ring state; it is not one completion per interrupt.
+
+Extend the original virtio block path with a bounded outstanding-request pool, generation IDs and wait queues. Preserve descriptor/buffer ownership through success, error and timeout observation.
+
+A discriminating experiment exposes: buffer reused before completion; used index wrap; coalesced interrupt loses completion; stale request ID; device error ignored; timeout frees still-device-owned memory. Required evidence: Run user work while actual block I/O is outstanding and account for all requests/descriptors. Demonstrate that timeout reports uncertainty without unsafe reuse.
+
+Develop this mechanism in [PR-T56-07](#pr-t56-07).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t56-07-a"></a>
+
+
+- **T56.07.a** Derive and defend the state, ownership and ordering contract for asynchronous block requests and completion ownership. **Disposition:** core. **Activity:** [PR-T56-07](#pr-t56-07).
+
+
+<a id="t56-07-b"></a>
+
+
+- **T56.07.b** Extend the original virtio block path with a bounded outstanding-request pool, generation IDs and wait queues. Preserve descriptor/buffer ownership through success, error and timeout observation. **Disposition:** core. **Activity:** [PR-T56-07](#pr-t56-07).
+
+
+<a id="t56-07-c"></a>
+
+
+- **T56.07.c** Run user work while actual block I/O is outstanding and account for all requests/descriptors. Demonstrate that timeout reports uncertainty without unsafe reuse. **Disposition:** core. **Activity:** [PR-T56-07](#pr-t56-07).
+
+
+<a id="t56-08"></a>
+
+### T56.08 — Read-only boot archive as a file service
+
+Expose the existing bounded boot archive through open/read/seek/close rather than direct archive pointers. Per-open offsets and rights belong to handles. A read may return fewer bytes at EOF; archive data remains immutable and bounds-checked.
+
+Implement a minimal read-only namespace and file operations over validated archive entries. Reuse the existing archive parser and reject writes or unsupported path syntax.
+
+A discriminating experiment exposes: negative/wrapping seek; duplicate names; path traversal accepted; stale file handle; offset shared accidentally between independent opens; read beyond EOF. Required evidence: Read known file hashes through the actual user syscall path and preserve independent offsets. Reject malformed archives before exposing any entries.
+
+Develop this mechanism in [PR-T56-08](#pr-t56-08).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t56-08-a"></a>
+
+
+- **T56.08.a** Derive and defend the state, ownership and ordering contract for read-only boot archive as a file service. **Disposition:** core. **Activity:** [PR-T56-08](#pr-t56-08).
+
+
+<a id="t56-08-b"></a>
+
+
+- **T56.08.b** Implement a minimal read-only namespace and file operations over validated archive entries. Reuse the existing archive parser and reject writes or unsupported path syntax. **Disposition:** core. **Activity:** [PR-T56-08](#pr-t56-08).
+
+
+<a id="t56-08-c"></a>
+
+
+- **T56.08.c** Read known file hashes through the actual user syscall path and preserve independent offsets. Reject malformed archives before exposing any entries. **Disposition:** core. **Activity:** [PR-T56-08](#pr-t56-08).
+
+
+<a id="t56-09"></a>
+
+### T56.09 — VM execution as a bounded service
+
+The VM service receives a bounded program/request, verifies it and executes with explicit fuel and object limits. Request identity, caller lifetime and reply ownership are separate from VM internal handles. A service failure must not expose arbitrary kernel state.
+
+Wrap the existing VM in an isolated process service over channels. Add request IDs, bounded program/result messages and a clear cancellation/result-too-large policy.
+
+A discriminating experiment exposes: unverified bytecode; fuel exhaustion crashes server; client exits before reply; oversized result; duplicate request confused with new work; native pointer sent as guest value. Required evidence: Run valid and malformed programs from separate clients, preserve process isolation and return explicit resource errors while other clients progress.
+
+Develop this mechanism in [PR-T56-09](#pr-t56-09).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t56-09-a"></a>
+
+
+- **T56.09.a** Derive and defend the state, ownership and ordering contract for vm execution as a bounded service. **Disposition:** core. **Activity:** [PR-T56-09](#pr-t56-09).
+
+
+<a id="t56-09-b"></a>
+
+
+- **T56.09.b** Wrap the existing VM in an isolated process service over channels. Add request IDs, bounded program/result messages and a clear cancellation/result-too-large policy. **Disposition:** core. **Activity:** [PR-T56-09](#pr-t56-09).
+
+
+<a id="t56-09-c"></a>
+
+
+- **T56.09.c** Run valid and malformed programs from separate clients, preserve process isolation and return explicit resource errors while other clients progress. **Disposition:** core. **Activity:** [PR-T56-09](#pr-t56-09).
+
+
+<a id="t56-10"></a>
+
+### T56.10 — Single-owner persistent store service
+
+The existing persistent store retains one mutation owner. Other processes submit bounded commands and never access its page cache or transaction structures directly. A successful reply requiring durability follows the store commit/flush boundary; transport receipt alone is insufficient.
+
+Build a channel-based store service with bounded get/put requests, request IDs and one owner of the block handle. Reuse the existing WAL/checkpoint implementation unchanged behind the adapter.
+
+A discriminating experiment exposes: two writers mutate cache; acknowledgment before durable commit; client retry duplicates nonidempotent effect; queue full loses ownership; store process exits midtransaction. Required evidence: Preserve the store regression suite, show concurrent clients serialized through one owner and correlate durable replies with committed log records.
+
+Develop this mechanism in [PR-T56-10](#pr-t56-10).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t56-10-a"></a>
+
+
+- **T56.10.a** Derive and defend the state, ownership and ordering contract for single-owner persistent store service. **Disposition:** core. **Activity:** [PR-T56-10](#pr-t56-10).
+
+
+<a id="t56-10-b"></a>
+
+
+- **T56.10.b** Build a channel-based store service with bounded get/put requests, request IDs and one owner of the block handle. Reuse the existing WAL/checkpoint implementation unchanged behind the adapter. **Disposition:** core. **Activity:** [PR-T56-10](#pr-t56-10).
+
+
+<a id="t56-10-c"></a>
+
+
+- **T56.10.c** Preserve the store regression suite, show concurrent clients serialized through one owner and correlate durable replies with committed log records. **Disposition:** core. **Activity:** [PR-T56-10](#pr-t56-10).
+
+
+<a id="t56-11"></a>
+
+### T56.11 — Service restart and reboot recovery
+
+A service crash and a machine reboot have different surviving state. In-flight requests may have uncertain outcomes; a durable operation ID can permit safe deduplication only if stored transactionally with the effect. Restart must revoke stale endpoint generations.
+
+Integrate VM and store clients with supervised restart and the existing disk-recovery path. Persist a known value, terminate/restart the service, then reboot the guest and verify recovery.
+
+A discriminating experiment exposes: stale endpoint still accepted; reply lost after commit; duplicate retry effect; supervisor holds dead process resources; recovery trusts incomplete WAL; fresh disk accidentally used. Required evidence: Recover the committed value after actual reboot, distinguish uncommitted work, and account for every request as completed, rejected or uncertain. Retain disk/image identities and restart traces.
+
+Develop this mechanism in [PR-T56-11](#pr-t56-11).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t56-11-a"></a>
+
+
+- **T56.11.a** Derive and defend the state, ownership and ordering contract for service restart and reboot recovery. **Disposition:** core. **Activity:** [PR-T56-11](#pr-t56-11).
+
+
+<a id="t56-11-b"></a>
+
+
+- **T56.11.b** Integrate VM and store clients with supervised restart and the existing disk-recovery path. Persist a known value, terminate/restart the service, then reboot the guest and verify recovery. **Disposition:** core. **Activity:** [PR-T56-11](#pr-t56-11).
+
+
+<a id="t56-11-c"></a>
+
+
+- **T56.11.c** Recover the committed value after actual reboot, distinguish uncommitted work, and account for every request as completed, rejected or uncertain. Retain disk/image identities and restart traces. **Disposition:** core. **Activity:** [PR-T56-11](#pr-t56-11).
+
+
+<a id="t56-12"></a>
+
+### T56.12 — Physical dual-core application and OS comparison
+
+Transfer the service decomposition to the H745: one core owns acquisition/control and the other owns bounded compute/telemetry. Keep each image freestanding and connect them with the accepted AMP protocol. Compare the same workload structure with the hosted and SMP systems while respecting their different protection and timing properties.
+
+Integrate the accepted dual-core runtime, queues, notifications, cache/DMA rules and peer recovery. Record an end-to-end message ledger, deadline-miss policy and external timing captures.
+
+A discriminating experiment exposes: physical run replaced by host simulation; two peripheral owners; stale epoch accepted; queue overload hidden; mixed clock timestamps; custom firmware links existing OS. Required evidence: Deliver two audited images and actual physical evidence for parallel progress, synchronization, overload and restart. Keep any missing board gate explicitly open while retaining completed build/model evidence.
+
+Develop this mechanism in [PR-T56-12](#pr-t56-12).
+
+
+#### Evidence checklist
+
+Retain a separate evidence item for each objective below. Meeting one objective does not establish the others.
+
+
+<a id="t56-12-a"></a>
+
+
+- **T56.12.a** Derive and defend the state, ownership and ordering contract for physical dual-core application and os comparison. **Disposition:** core. **Activity:** [PR-T56-12](#pr-t56-12).
+
+
+<a id="t56-12-b"></a>
+
+
+- **T56.12.b** Integrate the accepted dual-core runtime, queues, notifications, cache/DMA rules and peer recovery. Record an end-to-end message ledger, deadline-miss policy and external timing captures. **Disposition:** core. **Activity:** [PR-T56-12](#pr-t56-12).
+
+
+<a id="t56-12-c"></a>
+
+
+- **T56.12.c** Deliver two audited images and actual physical evidence for parallel progress, synchronization, overload and restart. Keep any missing board gate explicitly open while retaining completed build/model evidence. **Disposition:** core. **Activity:** [PR-T56-12](#pr-t56-12).
+
+## Reading guidance
+
+Read only the assigned locator before the related experiment, then return to it after the counterexample. State the source's machine and task-model assumptions next to your own. Historical pseudocode does not authorize undefined C races; Linux, ISO C and a microcontroller memory system are separate contracts. The source/search/reflection ledger is in `research/v3/`; filenames and graph records alone do not qualify as inspected readings.
+
+## Implementation projects
+
+Begin PR-T56-01 after the early SMP queue milestones, then revisit PR-T53-08 and PR-T53-09 before the COW milestone PR-T56-04. This deliberate cross-module route gives user-thread migration a real process/thread substrate without requiring the later VM/store capstone first.
+
+Complete [PR-T56-01](#pr-t56-01), [PR-T56-02](#pr-t56-02), [PR-T56-03](#pr-t56-03), [PR-T56-04](#pr-t56-04), [PR-T56-05](#pr-t56-05), [PR-T56-06](#pr-t56-06), [PR-T56-07](#pr-t56-07), [PR-T56-08](#pr-t56-08), [PR-T56-09](#pr-t56-09), [PR-T56-10](#pr-t56-10), [PR-T56-11](#pr-t56-11), [PR-T56-12](#pr-t56-12) in order. Project manifests distinguish model, host, emulator, cross-build and physical evidence. Later cumulative tests may require later mechanisms; an early milestone is assessed on its own contract and cannot borrow a later reference implementation.
+
+## Mastery gate and feedback
+
+Demonstrate one correct execution and one deliberately wrong variant per mechanism. Explain the first invalid transition, fix its cause, and repeat with an independently chosen input. Review safety, progress, resource lifetime and timing as distinct claims. A stress test supplies observations; bounded exhaustive schedules supply only the stated finite coverage. A deadlocked or unavailable run is not a pass.
+
+## Consolidation and transfer
+
+After seven days rebuild one mechanism from its public contract, change the contention or arrival pattern, and compare the new prediction with the result. After a month integrate two previously separate boundaries. Record surprises, remediation hours and the source passage that changed your reasoning.
+
+## Environment and limits
+
+Original SMP kernel and isolated user processes Disposable virtio disk image H745 physical endpoint for final transfer. Custom target images provide their own startup and required runtime helpers. Compiler-provided type headers and reviewed intrinsics are allowed; linked libc, libgcc, compiler-rt, libatomic, vendor HAL, OpenAMP and pre-existing kernels are excluded. FreeRTOS/Linux comparison programs are explicitly separate builds. Never infer physical WCET, electrical behavior or dual-core cache correctness from QEMU or a hosted model. The final learner record preserves unresolved or unavailable gates.
+
+## Assigned source passages
+
+| Resource | Inspected locator | Purpose | Hours |
+| --- | --- | --- | --- |
+| [Operating Systems: Principles and Practice, Volume II: Concurrency](#r-os3-ospp-ii) | 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching | Main conceptual spine for execution context, blocking and multicore policy/mechanism separation. | 2 |
+| [Operating Systems: Three Easy Pieces — Paging: Introduction](#r-ker-ostep-paging) | 18.1 A Simple Example And Overview | Frames and per-process translation examples; not a complete x86 page-table implementation. | 2 |
+| [Virtual I/O Device (VIRTIO) Version 1.2](#r-ker-virtio-1-2) | 2.7 Split Virtqueues | Modern PCI/split-queue/FLUSH contract; no packed-queue, MSI-X, IOMMU or general-device claim. | 2 |
+| [Introduction to inter-processor communications for STM32H745/755 and STM32H747/757 MCUs](#r-os3-st-an5617) | 2.1-2.2 Use cases, shared memory and notification | Explain separate images, ownership and authoritative queue state versus notifications. | 2 |
+| [Virtual I/O Device (VIRTIO) Version 1.2](#r-os3-virtio12-msix) | 4.1.5.1.2–4.1.5.1.3: vector mapping/readback and queue initialization | Check accepted vector assignments before enabling asynchronous completion. | 1 |
+| [Virtual I/O Device (VIRTIO) Version 1.2](#r-os3-virtio12-msix) | 4.1.5.3–4.1.5.5: used-buffer notification and driver interrupt handling | Separate interrupt acknowledgment from used-ring completion and buffer ownership. | 1 |
+
+## Project directory
+
+- [PR-T56-01: Process and thread objects as distinct lifetimes](#pr-t56-01)
+- [PR-T56-02: Spawn, exit, wait and process reaping](#pr-t56-02)
+- [PR-T56-03: Demand-zero faults and frame ownership](#pr-t56-03)
+- [PR-T56-04: Restricted copy-on-write cloning](#pr-t56-04)
+- [PR-T56-05: Bounded process channels](#pr-t56-05)
+- [PR-T56-06: Shared-memory objects and explicit synchronization](#pr-t56-06)
+- [PR-T56-07: Asynchronous block requests and completion ownership](#pr-t56-07)
+- [PR-T56-08: Read-only boot archive as a file service](#pr-t56-08)
+- [PR-T56-09: VM execution as a bounded service](#pr-t56-09)
+- [PR-T56-10: Single-owner persistent store service](#pr-t56-10)
+- [PR-T56-11: Service restart and reboot recovery](#pr-t56-11)
+- [PR-T56-12: Physical dual-core application and OS comparison](#pr-t56-12)
 
 
 ---
@@ -70020,6 +74433,8050 @@ Defend and implement one changed resource limit or fault policy without consulti
 
 ---
 
+<a id="pr-t49-01"></a>
+
+# PR-T49-01 — Privilege, traps and a syscall observatory
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | C |
+
+**Executable anchors:** os_observatory. [Unsolved family scaffold](labs/os_observatory/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T49](#t49).
+
+**Covered topics:** [T49.01](#t49-01).
+
+## Contract
+
+Trace one write from a C call through the syscall ABI to kernel work and return. A library function, syscall, trap and device interrupt are different boundaries. An address meaningful in user mode is not automatically a valid kernel copy source; errno is a wrapper convention rather than the machine return ABI.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T49-01.json` contains a finite `syscall` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `os_observatory` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Build a bounded syscall tracer experiment and an original raw-syscall assembly wrapper for one write. Compare its return with the libc wrapper on success and an invalid descriptor; inspect arguments and clobbers in disassembly.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+negative return confused with positive byte count; missing register clobber; invalid pointer; interrupted call; partial transfer.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Retain a source-to-disassembly-to-trace correspondence, correct byte counts and a checked error conversion. Identify precisely which behavior belongs to ISO C, the chosen ABI and Linux.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Repeat with a nonblocking pipe whose available capacity is smaller than the requested write. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T49-01.json](fixtures/os_v3/PR-T49-01.json)
+
+```json
+{
+  "id": "PR-T49-01",
+  "description": "Privilege, traps and a syscall observatory finite independent example",
+  "oracle": "syscall",
+  "input": {
+    "raw_result": -9
+  },
+  "expected": {
+    "result": -1,
+    "errno": 9
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Trace one write from a C call through the syscall ABI to kernel work and return. A library function, syscall, trap and device interrupt are different boundaries. An address meaningful in user mode is not automatically a valid kernel copy source; errno is a wrapper convention rather than the machine return ABI.",
+  "required_observation": "Retain a source-to-disassembly-to-trace correspondence, correct byte counts and a checked error conversion. Identify precisely which behavior belongs to ISO C, the chosen ABI and Linux."
+}
+```
+
+
+---
+
+<a id="pr-t49-02"></a>
+
+# PR-T49-02 — Processes, threads and lifetime ownership
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | C |
+
+**Executable anchors:** os_observatory. [Unsolved family scaffold](labs/os_observatory/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T49](#t49).
+
+**Covered topics:** [T49.02](#t49-02).
+
+## Contract
+
+A process owns an address-space and descriptor context; multiple threads can execute within it. A child process initially sharing physical pages is not permission to share later ordinary writes. Exiting a thread, exiting a process, waiting for a child and joining a thread have distinct reclamation obligations.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T49-02.json` contains a finite `references` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `os_observatory` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Build a process/thread tree that reports identities, shared and private counters, exit states and reaping. Use explicit synchronization and wait for every owned child or thread.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+unreaped child; joining twice; thread using a returned stack address; duplicated buffered output after fork; process exit mistaken for thread exit.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Observe thread-shared state and process-private state, account for all created entities, and explain termination when one worker fails before publishing its result.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Move a descriptor open before process creation and measure which offset state is shared. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T49-02.json](fixtures/os_v3/PR-T49-02.json)
+
+```json
+{
+  "id": "PR-T49-02",
+  "description": "Processes, threads and lifetime ownership finite independent example",
+  "oracle": "references",
+  "input": {
+    "initial": 1,
+    "deltas": [
+      1,
+      1,
+      -1,
+      -1,
+      -1
+    ]
+  },
+  "expected": {
+    "counts": [
+      2,
+      3,
+      2,
+      1,
+      0
+    ],
+    "first_zero_step": 5
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A process owns an address-space and descriptor context; multiple threads can execute within it. A child process initially sharing physical pages is not permission to share later ordinary writes. Exiting a thread, exiting a process, waiting for a child and joining a thread have distinct reclamation obligations.",
+  "required_observation": "Observe thread-shared state and process-private state, account for all created entities, and explain termination when one worker fails before publishing its result."
+}
+```
+
+
+---
+
+<a id="pr-t49-03"></a>
+
+# PR-T49-03 — FCFS, SJF, SRTF and round-robin scheduling
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | C |
+
+**Executable anchors:** os_observatory. [Unsolved family scaffold](labs/os_observatory/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T49](#t49).
+
+**Covered topics:** [T49.03](#t49-03).
+
+## Contract
+
+Implement a discrete-event policy model with integer arrival and service times. Tie-break by arrival then task ID; a completion at time t precedes an arrival at t, and dispatch has zero cost in the first model. Turnaround is completion minus arrival; response is first start minus arrival. Shortest remaining time is preemptive, unlike shortest job first.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T49-03.json` contains a finite `srtf` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `os_observatory` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement FCFS, nonpreemptive SJF, SRTF and RR with a configurable positive quantum. Use jobs A=(0,8), B=(1,2), C=(2,1) and derive the complete timeline by hand before executing.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+zero quantum; empty workload; simultaneous arrivals; completion at quantum boundary; idle gap; arithmetic overflow.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add a one-unit dispatch cost and show where an apparently better quantum loses its advantage. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T49-03.json](fixtures/os_v3/PR-T49-03.json)
+
+```json
+{
+  "id": "PR-T49-03",
+  "description": "FCFS, SJF, SRTF and round-robin scheduling finite independent example",
+  "oracle": "srtf",
+  "input": {
+    "jobs": [
+      [
+        "A",
+        0,
+        8
+      ],
+      [
+        "B",
+        1,
+        2
+      ],
+      [
+        "C",
+        2,
+        1
+      ]
+    ]
+  },
+  "expected": {
+    "finish": {
+      "A": 11,
+      "B": 3,
+      "C": 4
+    },
+    "first_start": {
+      "A": 0,
+      "B": 1,
+      "C": 3
+    }
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Implement a discrete-event policy model with integer arrival and service times. Tie-break by arrival then task ID; a completion at time t precedes an arrival at t, and dispatch has zero cost in the first model. Turnaround is completion minus arrival; response is first start minus arrival. Shortest remaining time is preemptive, unlike shortest job first.",
+  "required_observation": "Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service."
+}
+```
+
+
+---
+
+<a id="pr-t49-04"></a>
+
+# PR-T49-04 — Feedback and proportional-share scheduling
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | C |
+
+**Executable anchors:** os_observatory. [Unsolved family scaffold](labs/os_observatory/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T49](#t49).
+
+**Covered topics:** [T49.04](#t49-04).
+
+## Contract
+
+MLFQ infers behavior from CPU consumption; stride allocates proportional service using virtual progress. Neither is a deadline guarantee. Charge CPU use across voluntary yields so a yielding task cannot repeatedly reset its allotment. Represent virtual accounting with checked integers and normalize before wrap.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T49-04.json` contains a finite `stride` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `os_observatory` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Add a three-level MLFQ with explicit allotments, periodic boost and yield accounting, then stride scheduling with weights1:2:4. Compare interactive bursts, a CPU hog and a yield-gaming worker.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+allotment reset on every yield; starving low queue; zero weight; pass overflow; unfair tie-breaking; sleeping worker receiving unbounded credit.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show the boost prevents the declared starvation case and service converges toward the selected weight ratios over a finite long run. Document transient error and distinguish this teaching policy from Linux EEVDF.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Change one worker weight halfway through a run and defend the pass-reinitialization policy. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T49-04.json](fixtures/os_v3/PR-T49-04.json)
+
+```json
+{
+  "id": "PR-T49-04",
+  "description": "Feedback and proportional-share scheduling finite independent example",
+  "oracle": "stride",
+  "input": {
+    "weights": [
+      1,
+      2,
+      4
+    ],
+    "scale": 28,
+    "dispatches": 14
+  },
+  "expected": {
+    "service": [
+      2,
+      4,
+      8
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "MLFQ infers behavior from CPU consumption; stride allocates proportional service using virtual progress. Neither is a deadline guarantee. Charge CPU use across voluntary yields so a yielding task cannot repeatedly reset its allotment. Represent virtual accounting with checked integers and normalize before wrap.",
+  "required_observation": "Show the boost prevents the declared starvation case and service converges toward the selected weight ratios over a finite long run. Document transient error and distinguish this teaching policy from Linux EEVDF."
+}
+```
+
+
+---
+
+<a id="pr-t49-05"></a>
+
+# PR-T49-05 — Working sets and page-fault observation
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | C |
+
+**Executable anchors:** os_observatory. [Unsolved family scaffold](labs/os_observatory/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T49](#t49).
+
+**Covered topics:** [T49.05](#t49-05).
+
+## Contract
+
+Allocated virtual bytes, resident pages and physical I/O are different measurements. First-touch demand-zero faults can consume CPU without disk reads; file-backed misses can trigger readahead or page-cache hits. A working set is tied to a reference window, not merely the allocation size.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T49-05.json` contains a finite `pages` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `os_observatory` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Build sequential, strided and randomized page-touch workloads with fixed seeds. Record minor/major faults, RSS, CPU time, elapsed time and the page-size/huge-page configuration before and after each phase.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+allocation optimized away; pages never touched; warm cache mislabeled cold; RSS sampled before touch; huge pages changing the unit; background pressure.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Explain observed fault classes with a page-reference trace and separate requested bytes, touched pages and resident bytes. Report conditions that prevent a controlled cold-cache experiment.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Use two interleaved reference windows with identical total bytes and different locality. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T49-05.json](fixtures/os_v3/PR-T49-05.json)
+
+```json
+{
+  "id": "PR-T49-05",
+  "description": "Working sets and page-fault observation finite independent example",
+  "oracle": "pages",
+  "input": {
+    "addresses": [
+      0,
+      4095,
+      4096,
+      8191,
+      12288,
+      0
+    ],
+    "page_size": 4096
+  },
+  "expected": {
+    "unique_pages": [
+      0,
+      1,
+      3
+    ],
+    "first_touch_faults": 3
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Allocated virtual bytes, resident pages and physical I/O are different measurements. First-touch demand-zero faults can consume CPU without disk reads; file-backed misses can trigger readahead or page-cache hits. A working set is tied to a reference window, not merely the allocation size.",
+  "required_observation": "Explain observed fault classes with a page-reference trace and separate requested bytes, touched pages and resident bytes. Report conditions that prevent a controlled cold-cache experiment."
+}
+```
+
+
+---
+
+<a id="pr-t49-06"></a>
+
+# PR-T49-06 — Page replacement from a reference string
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | C |
+
+**Executable anchors:** os_observatory. [Unsolved family scaffold](labs/os_observatory/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T49](#t49).
+
+**Covered topics:** [T49.06](#t49-06).
+
+## Contract
+
+A replacement simulator knows logical references, not hardware timing. Use FIFO, LRU, CLOCK and offline optimal with the same frame capacity. CLOCK reference bits approximate recency; optimal needs future knowledge and is an oracle rather than a deployable policy.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T49-06.json` contains a finite `fifo_faults` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `os_observatory` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement the four policies and print each eviction. Use reference string1,2,3,4,1,2,5,1,2,3,4,5 with three and four frames to examine FIFO anomaly.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+evicting a free frame; wrong LRU update on hit; CLOCK hand never advancing; capacity zero; using future information in LRU.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add dirty pages and report writeback count separately from faults. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T49-06.json](fixtures/os_v3/PR-T49-06.json)
+
+```json
+{
+  "id": "PR-T49-06",
+  "description": "Page replacement from a reference string finite independent example",
+  "oracle": "fifo_faults",
+  "input": {
+    "refs": [
+      1,
+      2,
+      3,
+      4,
+      1,
+      2,
+      5,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "capacities": [
+      3,
+      4
+    ]
+  },
+  "expected": {
+    "faults": [
+      9,
+      10
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A replacement simulator knows logical references, not hardware timing. Use FIFO, LRU, CLOCK and offline optimal with the same frame capacity. CLOCK reference bits approximate recency; optimal needs future knowledge and is an oracle rather than a deployable policy.",
+  "required_observation": "Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO."
+}
+```
+
+
+---
+
+<a id="pr-t49-07"></a>
+
+# PR-T49-07 — Descriptors and open-file-description lifetimes
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | C |
+
+**Executable anchors:** os_observatory. [Unsolved family scaffold](labs/os_observatory/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T49](#t49).
+
+**Covered topics:** [T49.07](#t49-07).
+
+## Contract
+
+A descriptor is a per-process integer referring to an open-file description. dup and inherited descriptors can share an offset, while separate opens ordinarily do not. Closing an integer relinquishes one reference; it does not mean an in-flight operation or a peer descriptor has ended.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T49-07.json` contains a finite `offsets` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `os_observatory` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Build a descriptor ledger across open, dup, fork, read and close using a temporary file. Demonstrate shared offset updates and independent opens, then enforce close-on-exec for private descriptors.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+descriptor-number reuse; double close; leaked pipe writer preventing EOF; assuming dup creates an independent offset; retrying a Linux close after ambiguous failure.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Reconcile every descriptor reference and observed file offset. Show pipe EOF only after all writer references close, including inherited copies.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Pass a descriptor through a Unix-domain socket and update the ownership ledger. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T49-07.json](fixtures/os_v3/PR-T49-07.json)
+
+```json
+{
+  "id": "PR-T49-07",
+  "description": "Descriptors and open-file-description lifetimes finite independent example",
+  "oracle": "offsets",
+  "input": {
+    "actions": [
+      [
+        "open",
+        "a",
+        "x"
+      ],
+      [
+        "dup",
+        "a",
+        "b"
+      ],
+      [
+        "read",
+        "a",
+        3
+      ],
+      [
+        "read",
+        "b",
+        2
+      ],
+      [
+        "open",
+        "c",
+        "y"
+      ],
+      [
+        "read",
+        "c",
+        4
+      ]
+    ]
+  },
+  "expected": {
+    "offsets": {
+      "a": 5,
+      "b": 5,
+      "c": 4
+    }
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A descriptor is a per-process integer referring to an open-file description. dup and inherited descriptors can share an offset, while separate opens ordinarily do not. Closing an integer relinquishes one reference; it does not mean an in-flight operation or a peer descriptor has ended.",
+  "required_observation": "Reconcile every descriptor reference and observed file offset. Show pipe EOF only after all writer references close, including inherited copies."
+}
+```
+
+
+---
+
+<a id="pr-t49-08"></a>
+
+# PR-T49-08 — Namespaces, readiness and device completion
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | C |
+
+**Executable anchors:** os_observatory. [Unsolved family scaffold](labs/os_observatory/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T49](#t49).
+
+**Covered topics:** [T49.08](#t49-08).
+
+## Contract
+
+A namespace changes a resource view; it is not the same mechanism as a cgroup resource budget. Readiness means an operation may make progress now, not that all requested work is complete. Completion needs an operation identity and buffer lifetime extending until its terminal result.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T49-08.json` contains a finite `completion` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `os_observatory` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Observe available PID/mount namespace views in a disposable permitted environment and build a poll-driven pipe reader that survives short transfers. Model device submission/completion with generation-checked request IDs.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+namespace privileges unavailable; readiness consumed by another reader; stale completion; buffer reused early; EINTR; partial EOF record.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show a readiness race safely handled by retry/error state and reject a stale synthetic completion. Record unavailable namespace operations honestly rather than weakening the isolation claim.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Deliver completions out of order and show that request identities preserve buffer ownership. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T49-08.json](fixtures/os_v3/PR-T49-08.json)
+
+```json
+{
+  "id": "PR-T49-08",
+  "description": "Namespaces, readiness and device completion finite independent example",
+  "oracle": "completion",
+  "input": {
+    "active_generation": 4,
+    "events": [
+      [
+        3,
+        12
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        4,
+        8
+      ]
+    ]
+  },
+  "expected": {
+    "accepted": [
+      7
+    ],
+    "rejected": 2
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A namespace changes a resource view; it is not the same mechanism as a cgroup resource budget. Readiness means an operation may make progress now, not that all requested work is complete. Completion needs an operation identity and buffer lifetime extending until its terminal result.",
+  "required_observation": "Show a readiness race safely handled by retry/error state and reject a stale synthetic completion. Record unavailable namespace operations honestly rather than weakening the isolation claim."
+}
+```
+
+
+---
+
+<a id="pr-t49-09"></a>
+
+# PR-T49-09 — CPU and memory budgets with cgroups
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | C |
+
+**Executable anchors:** os_observatory. [Unsolved family scaffold](labs/os_observatory/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T49](#t49).
+
+**Covered topics:** [T49.09](#t49-09).
+
+## Contract
+
+CPU quota limits service over a period; it is not a dedicated processor or deterministic response-time guarantee. memory.current includes charged memory under kernel rules and need not equal process RSS. A constrained experiment needs an isolated child group, explicit cleanup and a supervisor outside the tested budget.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T49-09.json` contains a finite `quota` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `os_observatory` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Run the same bounded compute/allocation workload without a group, with CPU quota, and with a memory limit in a delegated subtree. Capture cpu.stat, memory.events, pressure observations and workload exits.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+no delegation; parent quota dominating child; supervisor inside killed group; conflating throttling with slower instructions; memory pressure unrelated to allocation size.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Attribute throughput changes to throttled time where supported, detect allocation/kill outcomes, and preserve exit/status evidence. If delegation is unavailable, close only the model gate.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Use two competing children with different weights and then impose a parent quota. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T49-09.json](fixtures/os_v3/PR-T49-09.json)
+
+```json
+{
+  "id": "PR-T49-09",
+  "description": "CPU and memory budgets with cgroups finite independent example",
+  "oracle": "quota",
+  "input": {
+    "quota": 20000,
+    "period": 100000,
+    "elapsed": 500000
+  },
+  "expected": {
+    "full_periods": 5,
+    "service_ceiling": 100000
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "CPU quota limits service over a period; it is not a dedicated processor or deterministic response-time guarantee. memory.current includes charged memory under kernel rules and need not equal process RSS. A constrained experiment needs an isolated child group, explicit cleanup and a supervisor outside the tested budget.",
+  "required_observation": "Attribute throughput changes to throttled time where supported, detect allocation/kill outcomes, and preserve exit/status evidence. If delegation is unavailable, close only the model gate."
+}
+```
+
+
+---
+
+<a id="pr-t49-10"></a>
+
+# PR-T49-10 — I/O accounting and interference
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | C |
+
+**Executable anchors:** os_observatory. [Unsolved family scaffold](labs/os_observatory/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T49](#t49).
+
+**Covered topics:** [T49.10](#t49-10).
+
+## Contract
+
+Application bytes, page-cache traffic and device bytes are different quantities. Buffered write completion does not establish durability; fsync can shift costs into another phase. A cgroup I/O limit applies to the selected controller/device path, so unsupported or cached operations can evade a naive interpretation.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T49-10.json` contains a finite `bytes` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `os_observatory` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Build bounded read/write/fsync phases on a disposable file and compare warm-cache, explicit durable completion and controller-supported throttling. Record device identity, io.stat, CPU time and wall time.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+benchmark exceeds file capacity; cached read mistaken for device transfer; fsync omitted; unsupported controller; merging unrelated processes in accounting; insufficient free space.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Publish a component budget separating data generation, system calls, waiting and completion, with byte ledgers and uncertainty. Explain every difference between application and device accounting.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add a concurrent reader and identify interference without claiming causal attribution from one sample. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T49-10.json](fixtures/os_v3/PR-T49-10.json)
+
+```json
+{
+  "id": "PR-T49-10",
+  "description": "I/O accounting and interference finite independent example",
+  "oracle": "bytes",
+  "input": {
+    "writes": [
+      4096,
+      2048,
+      1024
+    ],
+    "reads": [
+      1024,
+      1024
+    ],
+    "durable_prefix_writes": 2
+  },
+  "expected": {
+    "application_written": 7168,
+    "application_read": 2048,
+    "acknowledged_durable_prefix": 6144
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Application bytes, page-cache traffic and device bytes are different quantities. Buffered write completion does not establish durability; fsync can shift costs into another phase. A cgroup I/O limit applies to the selected controller/device path, so unsupported or cached operations can evade a naive interpretation.",
+  "required_observation": "Publish a component budget separating data generation, system calls, waiting and completion, with byte ledgers and uncertainty. Explain every difference between application and device accounting."
+}
+```
+
+
+---
+
+<a id="pr-t50-01"></a>
+
+# PR-T50-01 — Freestanding image and runtime dependency audit
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T50](#t50).
+
+**Covered topics:** [T50.01](#t50-01).
+
+## Contract
+
+Freestanding compilation changes language/library expectations; it does not guarantee a self-contained link. A compiler can emit memcpy, division helpers or atomics support. The custom image must provide original required helpers and contain no linked libc, libgcc, compiler-rt or libatomic. Standard type headers and reviewed intrinsics are permitted.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T50-01.json` contains a finite `image` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Build an original reset entry, vector table, linker layout and C entry. Initialize data/BSS, audit map/undefined symbols, and deliberately compile operations likely to request a helper.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+hosted startup linked; BSS not zeroed; data copied from wrong load address; helper dependency hidden by optimization; stack misalignment.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Boot to an original C marker and account for every linked symbol and section. A deliberately introduced hosted dependency must fail the audit, and the repaired helper must pass independent edge cases.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Change optimization level and compiler, then compare the dependency ledger. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T50-01.json](fixtures/os_v3/PR-T50-01.json)
+
+```json
+{
+  "id": "PR-T50-01",
+  "description": "Freestanding image and runtime dependency audit finite independent example",
+  "oracle": "image",
+  "input": {
+    "symbols": [
+      "reset",
+      "main",
+      "memcpy",
+      "__aeabi_uidiv"
+    ],
+    "provided": [
+      "reset",
+      "main",
+      "memcpy"
+    ],
+    "libraries": []
+  },
+  "expected": {
+    "unresolved": [
+      "__aeabi_uidiv"
+    ],
+    "forbidden_libraries": []
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Freestanding compilation changes language/library expectations; it does not guarantee a self-contained link. A compiler can emit memcpy, division helpers or atomics support. The custom image must provide original required helpers and contain no linked libc, libgcc, compiler-rt or libatomic. Standard type headers and reviewed intrinsics are permitted.",
+  "required_observation": "Boot to an original C marker and account for every linked symbol and section. A deliberately introduced hosted dependency must fail the audit, and the repaired helper must pass independent edge cases."
+}
+```
+
+
+---
+
+<a id="pr-t50-02"></a>
+
+# PR-T50-02 — Static task pools, stacks and handles
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T50](#t50).
+
+**Covered topics:** [T50.02](#t50-02).
+
+## Contract
+
+The runtime has sixteen task slots (CMX_TASKS), including one reserved idle task and fifteen application slots. Each owns a disjoint aligned stack. The supplied admission anchor uses raw slot IDs; implementing a generation-validated public handle adapter is required learner work. Creating a task reserves all resources before publication; failed creation leaves the pool unchanged. A stack high-water pattern reveals observed use, not a proof of maximum use. Reusing a slot must not revive a stale handle.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T50-02.json` contains a finite `pool` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+The capacity8 arithmetic fixture is a smaller independent pool example; it does not replace the sixteen-slot runtime contract.
+
+## Steps
+
+Implement task allocation, initial stack-frame construction, stack bounds and generation validation using caller-owned fixed arrays. Reserve one of the sixteen slots for a permanent idle task, outside application exhaustion accounting.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+pool exhaustion; tiny stack; stale handle; misalignment; overlapping stacks; generation wrap; partial reservation leak.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Exhaust and refill the pool while rejecting old handles. Inspect the exact initial register frame and reconcile static RAM, stack reservation and observed high-water usage.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Use unequal stack sizes and explain the fragmentation or fixed-class tradeoff. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T50-02.json](fixtures/os_v3/PR-T50-02.json)
+
+```json
+{
+  "id": "PR-T50-02",
+  "description": "Static task pools, stacks and handles finite independent example",
+  "oracle": "pool",
+  "input": {
+    "capacity": 8,
+    "requests": [
+      3,
+      4,
+      2,
+      -3,
+      2
+    ]
+  },
+  "expected": {
+    "used": [
+      3,
+      7,
+      7,
+      4,
+      6
+    ],
+    "rejected": [
+      2
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The runtime has sixteen task slots (CMX_TASKS), including one reserved idle task and fifteen application slots. Each owns a disjoint aligned stack. The supplied admission anchor uses raw slot IDs; implementing a generation-validated public handle adapter is required learner work. Creating a task reserves all resources before publication; failed creation leaves the pool unchanged. A stack high-water pattern reveals observed use, not a proof of maximum use. Reusing a slot must not revive a stale handle.",
+  "required_observation": "Exhaust and refill the pool while rejecting old handles. Inspect the exact initial register frame and reconcile static RAM, stack reservation and observed high-water usage.",
+  "model_scope": "The capacity8 arithmetic fixture is a smaller independent pool example; it does not replace the sixteen-slot runtime contract."
+}
+```
+
+
+---
+
+<a id="pr-t50-03"></a>
+
+# PR-T50-03 — Cooperative assembly context switching
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T50](#t50).
+
+**Covered topics:** [T50.03](#t50-03).
+
+## Contract
+
+A cooperative switch occurs at an ABI call boundary. Save the callee-preserved register set, stack pointer and return path required by the selected ABI; asynchronous preemption later needs a different contract. A task entry that returns must reach a controlled exit trampoline.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T50-03.json` contains a finite `frame` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Write the original Thumb switch routine and a two-task yield loop. Fill preserved registers with distinct sentinels, call nested C functions and retain disassembly of the save/restore path.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+omitted preserved register; wrong stack alignment; return to expired frame; restored stack from another task; task entry returns into garbage.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Execute repeated switches with intact register and local-variable sentinels, plus a deliberate omitted-register fault. Show that two contexts exist even though only one runs at an instant.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add a third task with a deeper call chain and different stack usage. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T50-03.json](fixtures/os_v3/PR-T50-03.json)
+
+```json
+{
+  "id": "PR-T50-03",
+  "description": "Cooperative assembly context switching finite independent example",
+  "oracle": "frame",
+  "input": {
+    "software_words": 9,
+    "hardware_words": 0,
+    "word_bytes": 4,
+    "alignment": 8
+  },
+  "expected": {
+    "payload_bytes": 36,
+    "aligned_bytes": 40
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A cooperative switch occurs at an ABI call boundary. Save the callee-preserved register set, stack pointer and return path required by the selected ABI; asynchronous preemption later needs a different contract. A task entry that returns must reach a controlled exit trampoline.",
+  "required_observation": "Execute repeated switches with intact register and local-variable sentinels, plus a deliberate omitted-register fault. Show that two contexts exist even though only one runs at an instant."
+}
+```
+
+
+---
+
+<a id="pr-t50-04"></a>
+
+# PR-T50-04 — Ready, blocked, sleeping and exited states
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T50](#t50).
+
+**Covered topics:** [T50.04](#t50-04).
+
+## Contract
+
+A task belongs to one scheduler state and at most one runnable queue. Blocking is not a busy wait. The idle task runs only when no ordinary task is runnable. Queue membership and current execution ownership must change together under the selected critical-section contract.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T50-04.json` contains a finite `states` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement cooperative ready/block/sleep/exit transitions and deterministic selection. Attach an invariant checker to every transition in the hosted model before exercising target code.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+task enqueued twice; blocked task selected; exited task resumed; no idle context; task present in two queues; yield loses task.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Produce a transition ledger showing single membership and service conservation. Reject illegal transitions without corrupting later scheduling.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Reverse the equal-priority insertion policy and predict which timelines change. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T50-04.json](fixtures/os_v3/PR-T50-04.json)
+
+```json
+{
+  "id": "PR-T50-04",
+  "description": "Ready, blocked, sleeping and exited states finite independent example",
+  "oracle": "states",
+  "input": {
+    "initial": "ready",
+    "actions": [
+      "dispatch",
+      "block",
+      "wake",
+      "dispatch",
+      "exit",
+      "reap"
+    ]
+  },
+  "expected": {
+    "states": [
+      "running",
+      "blocked",
+      "ready",
+      "running",
+      "exited",
+      "free"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A task belongs to one scheduler state and at most one runnable queue. Blocking is not a busy wait. The idle task runs only when no ordinary task is runnable. Queue membership and current execution ownership must change together under the selected critical-section contract.",
+  "required_observation": "Produce a transition ledger showing single membership and service conservation. Reject illegal transitions without corrupting later scheduling."
+}
+```
+
+
+---
+
+<a id="pr-t50-05"></a>
+
+# PR-T50-05 — Timers and an absolute-deadline queue
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T50](#t50).
+
+**Covered topics:** [T50.05](#t50-05).
+
+## Contract
+
+Delay-until maintains a release phase; repeated delay-after-work accumulates execution time as drift. A modular clock comparison is valid only when compared distances stay within half the counter range. Timer cancellation needs identity, not just a pointer into a recycled slot.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T50-05.json` contains a finite `periodic` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement a bounded deadline queue with stable equal-deadline ordering and generation-checked cancellation. Compare phase-preserving periodic release with delay-after-work using a fake clock.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+clock wrap; already-due deadline; simultaneous expiry; canceled timer reused; zero delay; requested distance at or beyond half range.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Replace the sorted list with a heap and measure insertion versus expiry cost. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T50-05.json](fixtures/os_v3/PR-T50-05.json)
+
+```json
+{
+  "id": "PR-T50-05",
+  "description": "Timers and an absolute-deadline queue finite independent example",
+  "oracle": "periodic",
+  "input": {
+    "phase": 0,
+    "period": 10,
+    "work": [
+      3,
+      6,
+      2
+    ]
+  },
+  "expected": {
+    "absolute_releases": [
+      10,
+      20,
+      30
+    ],
+    "relative_releases": [
+      10,
+      23,
+      39
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Delay-until maintains a release phase; repeated delay-after-work accumulates execution time as drift. A modular clock comparison is valid only when compared distances stay within half the counter range. Timer cancellation needs identity, not just a pointer into a recycled slot.",
+  "required_observation": "Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces."
+}
+```
+
+
+---
+
+<a id="pr-t50-06"></a>
+
+# PR-T50-06 — PendSV, SVC and timer-driven preemption
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T50](#t50).
+
+**Covered topics:** [T50.06](#t50-06).
+
+## Contract
+
+Exception entry supplies a hardware frame; the switch handler supplies the remaining context. SVC establishes a controlled service boundary, while PendSV performs a deferred switch at the chosen low priority. A timer must preempt a task that never calls yield.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T50-06.json` contains a finite `frame` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement original SVC startup, SysTick accounting and PendSV save/restore with PSP task stacks and an MSP handler stack. Draw both basic frame and software frame before declaring C structures.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+wrong EXC_RETURN; incorrect PSP/MSP selection; PendSV priority too high; missing saved register; unacknowledged timer; assuming cooperative tests prove preemption.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Run two CPU loops that never yield and show timer-caused progress for both with intact contexts. Retain register-frame and exception-priority evidence.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Move timer accounting away from the switch handler and verify that selection and mechanism remain independent. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T50-06.json](fixtures/os_v3/PR-T50-06.json)
+
+```json
+{
+  "id": "PR-T50-06",
+  "description": "PendSV, SVC and timer-driven preemption finite independent example",
+  "oracle": "frame",
+  "input": {
+    "software_words": 9,
+    "hardware_words": 8,
+    "word_bytes": 4,
+    "alignment": 8
+  },
+  "expected": {
+    "payload_bytes": 68,
+    "aligned_bytes": 72
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Exception entry supplies a hardware frame; the switch handler supplies the remaining context. SVC establishes a controlled service boundary, while PendSV performs a deferred switch at the chosen low priority. A timer must preempt a task that never calls yield.",
+  "required_observation": "Run two CPU loops that never yield and show timer-caused progress for both with intact contexts. Retain register-frame and exception-priority evidence."
+}
+```
+
+
+---
+
+<a id="pr-t50-07"></a>
+
+# PR-T50-07 — Nested interrupt masks and ISR handoff
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T50](#t50).
+
+**Covered topics:** [T50.07](#t50-07).
+
+## Contract
+
+Restore the incoming interrupt mask rather than blindly enabling interrupts at critical-section exit. An ISR may publish bounded work and request rescheduling; it must not call a blocking API. BASEPRI priority values use implemented priority bits and cannot be compared naively with arbitrary numerical labels.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T50-07.json` contains a finite `masks` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement nest-safe critical sections and a nonblocking ISR-to-task handoff. Inject an interrupt at each transition around publication and pending-reschedule state.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+inner exit re-enables interrupts; blocking from ISR; urgent interrupt calls masked-kernel API; lost reschedule request; incorrect priority encoding.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show nested mask restoration and bounded ISR execution, with all forbidden contexts rejected. Record the longest observed mask interval separately from any analytical bound.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Introduce one higher-urgency interrupt that cannot call the kernel and pass work through a dedicated buffer. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T50-07.json](fixtures/os_v3/PR-T50-07.json)
+
+```json
+{
+  "id": "PR-T50-07",
+  "description": "Nested interrupt masks and ISR handoff finite independent example",
+  "oracle": "masks",
+  "input": {
+    "encoding": "BASEPRI, zero means unmasked; smaller nonzero threshold is stronger",
+    "initial": 0,
+    "enter_masks": [
+      80,
+      48
+    ]
+  },
+  "expected": {
+    "during": [
+      80,
+      48
+    ],
+    "after_exit": [
+      80,
+      0
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Restore the incoming interrupt mask rather than blindly enabling interrupts at critical-section exit. An ISR may publish bounded work and request rescheduling; it must not call a blocking API. BASEPRI priority values use implemented priority bits and cannot be compared naively with arbitrary numerical labels.",
+  "required_observation": "Show nested mask restoration and bounded ISR execution, with all forbidden contexts rejected. Record the longest observed mask interval separately from any analytical bound."
+}
+```
+
+
+---
+
+<a id="pr-t50-08"></a>
+
+# PR-T50-08 — Floating-point task context and lazy stacking
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T50](#t50).
+
+**Covered topics:** [T50.08](#t50-08).
+
+## Contract
+
+Floating-point context ownership depends on exception-return state and the selected lazy-stacking configuration. Integer-only tests cannot detect corruption of S16-S31. The first FP instruction in an exception can change stack use and timing; account for reserved and actually written frame space separately.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T50-08.json` contains a finite `frame` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Run two FP tasks with distinct register sentinels and an integer-only task. Implement the required high-register preservation and explicitly choose/document eager or lazy FP stacking.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+saving FP state unconditionally to wrong frame; missing high FP registers; stack budget ignores extended frame; exception handler accidentally emits FP.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Preserve each task FP state through preemption and diagnose a faulty variant that drops one FP register. Retain compiler options, frame diagrams and stack measurements.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Switch stacking mode and explain changed stack and interrupt-latency observations. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T50-08.json](fixtures/os_v3/PR-T50-08.json)
+
+```json
+{
+  "id": "PR-T50-08",
+  "description": "Floating-point task context and lazy stacking finite independent example",
+  "oracle": "frame",
+  "input": {
+    "software_words": 25,
+    "hardware_words": 26,
+    "word_bytes": 4,
+    "alignment": 8
+  },
+  "expected": {
+    "payload_bytes": 204,
+    "aligned_bytes": 208
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Floating-point context ownership depends on exception-return state and the selected lazy-stacking configuration. Integer-only tests cannot detect corruption of S16-S31. The first FP instruction in an exception can change stack use and timing; account for reserved and actually written frame space separately.",
+  "required_observation": "Preserve each task FP state through preemption and diagnose a faulty variant that drops one FP register. Retain compiler options, frame diagrams and stack measurements."
+}
+```
+
+
+---
+
+<a id="pr-t50-09"></a>
+
+# PR-T50-09 — Exit, join and deferred reclamation
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T50](#t50).
+
+**Covered topics:** [T50.09](#t50-09).
+
+## Contract
+
+A task cannot reclaim the stack on which it is still executing. Exit publishes a result and transfers control; another context reaps storage only after no owner can resume it. Join is a single-consumer lifecycle operation in this teaching API, distinct from waiting on an event.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T50-09.json` contains a finite `references` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement exit trampolines, one permitted joiner and deferred reaping. Allow joining an already-exited task and reject joining self or a stale generation.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+freeing current stack; two joiners; self join; exit before join enrollment; stale task result; detached task never reaped.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Account for every stack before and after completion, including exit-before-join. Show that a stale handle cannot observe a new task result.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add detached tasks with an explicit reaper policy and compare the ownership diagram. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T50-09.json](fixtures/os_v3/PR-T50-09.json)
+
+```json
+{
+  "id": "PR-T50-09",
+  "description": "Exit, join and deferred reclamation finite independent example",
+  "oracle": "references",
+  "input": {
+    "initial": 3,
+    "deltas": [
+      -1,
+      -1,
+      -1
+    ]
+  },
+  "expected": {
+    "counts": [
+      2,
+      1,
+      0
+    ],
+    "first_zero_step": 3
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A task cannot reclaim the stack on which it is still executing. Exit publishes a result and transfers control; another context reaps storage only after no owner can resume it. Join is a single-consumer lifecycle operation in this teaching API, distinct from waiting on an event.",
+  "required_observation": "Account for every stack before and after completion, including exit-before-join. Show that a stale handle cannot observe a new task result."
+}
+```
+
+
+---
+
+<a id="pr-t50-10"></a>
+
+# PR-T50-10 — Cancellation and task-fault containment
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T50](#t50).
+
+**Covered topics:** [T50.10](#t50-10).
+
+## Contract
+
+Cancellation is a request observed at declared safe points, not arbitrary forced execution of cleanup code. A task fault must stop that task and preserve diagnostic state; it cannot silently release a mutex while shared data may be inconsistent. Stack guards detect particular accesses, while canaries detect only later damage.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T50-10.json` contains a finite `winner` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement cooperative cancellation points and an explicit faulted state with a retained fault record. Test a stack-bound violation and a cancellation while blocked.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+cancel during critical mutation; fault record overwritten; canceled task still on wait queue; guard absent; releasing owner resource as if consistent.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show one terminal state and one reclamation path per task. Preserve the first fault evidence and identify resources left poisoned for higher-level recovery.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Fault a task while it owns two resources and design a supervisor recovery sequence. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T50-10.json](fixtures/os_v3/PR-T50-10.json)
+
+```json
+{
+  "id": "PR-T50-10",
+  "description": "Cancellation and task-fault containment finite independent example",
+  "oracle": "winner",
+  "input": {
+    "events": [
+      "cancel",
+      "wake",
+      "timeout"
+    ]
+  },
+  "expected": {
+    "terminal": "cancel",
+    "ignored": [
+      "wake",
+      "timeout"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Cancellation is a request observed at declared safe points, not arbitrary forced execution of cleanup code. A task fault must stop that task and preserve diagnostic state; it cannot silently release a mutex while shared data may be inconsistent. Stack guards detect particular accesses, while canaries detect only later damage.",
+  "required_observation": "Show one terminal state and one reclamation path per task. Preserve the first fault evidence and identify resources left poisoned for higher-level recovery."
+}
+```
+
+
+---
+
+<a id="pr-t50-11"></a>
+
+# PR-T50-11 — Tickless idle and wakeup accounting
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T50](#t50).
+
+**Covered topics:** [T50.11](#t50-11).
+
+## Contract
+
+Tickless operation programs the next relevant deadline instead of counting every periodic tick. Reading time, checking work and entering sleep form a race-sensitive protocol: an interrupt between the check and sleep must still cause progress. Rounding hardware timer counts must not produce early expiry.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T50-11.json` contains a finite `timer_counts` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement next-deadline selection, bounded timer programming and elapsed-time compensation. Use a deterministic wake-before-sleep injection before a target low-power experiment.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+lost wake at sleep boundary; timer range exceeded; elapsed time counted twice; early timeout by rounding; no pending timer; wake source disabled.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Reconcile logical elapsed time with timer events across idle intervals and show the injected wake cannot strand a runnable task. Separate energy measurements from logical correctness.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Change the timer frequency so common deadlines are not exact timer multiples. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T50-11.json](fixtures/os_v3/PR-T50-11.json)
+
+```json
+{
+  "id": "PR-T50-11",
+  "description": "Tickless idle and wakeup accounting finite independent example",
+  "oracle": "timer_counts",
+  "input": {
+    "microseconds": 101,
+    "frequency": 32768
+  },
+  "expected": {
+    "counts": 4,
+    "actual_us_numerator": 4000000,
+    "actual_us_denominator": 32768
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Tickless operation programs the next relevant deadline instead of counting every periodic tick. Reading time, checking work and entering sleep form a race-sensitive protocol: an interrupt between the check and sleep must still cause progress. Rounding hardware timer counts must not produce early expiry.",
+  "required_observation": "Reconcile logical elapsed time with timer events across idle intervals and show the injected wake cannot strand a runnable task. Separate energy measurements from logical correctness."
+}
+```
+
+
+---
+
+<a id="pr-t50-12"></a>
+
+# PR-T50-12 — Integrated original MCU runtime
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T50](#t50).
+
+**Covered topics:** [T50.12](#t50-12).
+
+## Contract
+
+Combine the accepted runtime mechanisms in a bounded sensor-processing workload with periodic acquisition, CPU work and deferred output. Keep driver interrupts nonblocking and all task/resource capacities explicit. Emulator execution can validate control flow; physical latency requires board traces.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T50-12.json` contains a finite `budget` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Integrate the task pool, original switch/preemption path, timers, lifecycle and diagnostic records. Use one overload burst and one task failure while other tasks continue.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+unbounded log output; pool exhaustion during recovery; CPU hog defeats preemption; missed release hidden by relative delay; measurement code changes priorities.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Supply a complete map/symbol audit, target execution traces and a per-component RAM/CPU budget. Mark physical timing as not-run until the actual board trace exists.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Replace the sensor producer with a UART interrupt burst while preserving the runtime contract. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T50-12.json](fixtures/os_v3/PR-T50-12.json)
+
+```json
+{
+  "id": "PR-T50-12",
+  "description": "Integrated original MCU runtime finite independent example",
+  "oracle": "budget",
+  "input": {
+    "ram_components": [
+      4096,
+      8192,
+      2048,
+      512
+    ],
+    "ram_limit": 16384,
+    "cycles": [
+      120,
+      80,
+      40
+    ]
+  },
+  "expected": {
+    "ram_used": 14848,
+    "ram_free": 1536,
+    "cycles_total": 240
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Combine the accepted runtime mechanisms in a bounded sensor-processing workload with periodic acquisition, CPU work and deferred output. Keep driver interrupts nonblocking and all task/resource capacities explicit. Emulator execution can validate control flow; physical latency requires board traces.",
+  "required_observation": "Supply a complete map/symbol audit, target execution traces and a per-component RAM/CPU budget. Mark physical timing as not-run until the actual board trace exists."
+}
+```
+
+
+---
+
+<a id="pr-t51-01"></a>
+
+# PR-T51-01 — Atomic wait enrollment and lost-wakeup prevention
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.01](#t51-01).
+
+## Contract
+
+Checking a predicate and joining its wait queue must be one atomic protocol relative to the producer. Otherwise a notification can occur after the check but before sleep, leaving the waiter blocked forever. Notification does not store a Boolean truth on behalf of the caller.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-01.json` contains a finite `wait_protocol` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement a shared wait-queue primitive with predicate recheck, enrollment and scheduler block under one protection domain. Enumerate producer actions before check, during enrollment and after block.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+check-then-sleep gap; double enrollment; spurious wake; wake before block commit; wait on destroyed object.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Reduce a broken implementation to a two-task lost-wakeup trace and show the repair completes every enumerated schedule without duplicating runnable entries.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add a timeout arriving at the exact publication boundary. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-01.json](fixtures/os_v3/PR-T51-01.json)
+
+```json
+{
+  "id": "PR-T51-01",
+  "description": "Atomic wait enrollment and lost-wakeup prevention finite independent example",
+  "oracle": "wait_protocol",
+  "input": {
+    "events": [
+      "check_false",
+      "publish",
+      "enroll",
+      "recheck"
+    ]
+  },
+  "expected": {
+    "sleep": false,
+    "reason": "predicate_true_at_recheck"
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Checking a predicate and joining its wait queue must be one atomic protocol relative to the producer. Otherwise a notification can occur after the check but before sleep, leaving the waiter blocked forever. Notification does not store a Boolean truth on behalf of the caller.",
+  "required_observation": "Reduce a broken implementation to a two-task lost-wakeup trace and show the repair completes every enumerated schedule without duplicating runnable entries."
+}
+```
+
+
+---
+
+<a id="pr-t51-02"></a>
+
+# PR-T51-02 — Counting and binary semaphores
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.02](#t51-02).
+
+## Contract
+
+A semaphore accounts for permits and has no mutex ownership rule. Its invariant relates initial permits, successful posts and successful waits; a waiter cannot consume a permit twice after a timeout race. Binary saturation is an explicit policy, not an accidental integer wrap.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-02.json` contains a finite `semaphore` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement bounded counting semaphores with nonblocking try, blocking wait and ISR-safe post. Specify maximum count and choose an error on overflow rather than silently discarding a counted event.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+count overflow; underflow; ISR blocks; timeout consumes later permit; duplicate wake; binary semaphore used as owned mutex.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Reconcile the permit ledger through contention and cancellation. Demonstrate that a task different from the waiter may post and explain why this does not provide ownership protection.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Use a semaphore to bound a fixed buffer pool and prove buffers and permits cannot diverge. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-02.json](fixtures/os_v3/PR-T51-02.json)
+
+```json
+{
+  "id": "PR-T51-02",
+  "description": "Counting and binary semaphores finite independent example",
+  "oracle": "semaphore",
+  "input": {
+    "initial": 1,
+    "maximum": 2,
+    "actions": [
+      "wait",
+      "wait",
+      "post",
+      "post",
+      "post",
+      "post"
+    ]
+  },
+  "expected": {
+    "count": 2,
+    "blocked": 0,
+    "overflow": 1,
+    "successful_waits": 2
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A semaphore accounts for permits and has no mutex ownership rule. Its invariant relates initial permits, successful posts and successful waits; a waiter cannot consume a permit twice after a timeout race. Binary saturation is an explicit policy, not an accidental integer wrap.",
+  "required_observation": "Reconcile the permit ledger through contention and cancellation. Demonstrate that a task different from the waiter may post and explain why this does not provide ownership protection."
+}
+```
+
+
+---
+
+<a id="pr-t51-03"></a>
+
+# PR-T51-03 — Owned mutexes and lock ordering
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.03](#t51-03).
+
+## Contract
+
+A mutex grants exclusive ownership to a task, so only that owner may unlock. This first mutex is nonrecursive: self-lock reports an error instead of deadlocking invisibly. Ownership transfer and wakeup must appear atomic to contenders, with a documented queue discipline.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-03.json` contains a finite `mutex` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement owner tracking, try-lock, blocking lock and unlock using the wait protocol. Protect a two-field invariant and publish a lock-order graph for a two-object operation.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+nonowner unlock; self lock; owner exits; object destroyed with waiters; protected fields observed between updates.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show mutual exclusion and correct handoff, reject nonowner operations and produce a minimal lock-order-cycle deadlock that the declared ordering prevents.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add an optional recursive wrapper without changing the base mutex semantics. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-03.json](fixtures/os_v3/PR-T51-03.json)
+
+```json
+{
+  "id": "PR-T51-03",
+  "description": "Owned mutexes and lock ordering finite independent example",
+  "oracle": "mutex",
+  "input": {
+    "actions": [
+      [
+        "lock",
+        "A"
+      ],
+      [
+        "unlock",
+        "B"
+      ],
+      [
+        "unlock",
+        "A"
+      ],
+      [
+        "lock",
+        "B"
+      ]
+    ]
+  },
+  "expected": {
+    "owner": "B",
+    "errors": [
+      "nonowner_unlock"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A mutex grants exclusive ownership to a task, so only that owner may unlock. This first mutex is nonrecursive: self-lock reports an error instead of deadlocking invisibly. Ownership transfer and wakeup must appear atomic to contenders, with a documented queue discipline.",
+  "required_observation": "Show mutual exclusion and correct handoff, reject nonowner operations and produce a minimal lock-order-cycle deadlock that the declared ordering prevents."
+}
+```
+
+
+---
+
+<a id="pr-t51-04"></a>
+
+# PR-T51-04 — Transitive priority inheritance
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.04](#t51-04).
+
+## Contract
+
+Priority inheritance changes an owner effective priority while a higher-priority task waits. Donation follows ownership chains; a single saved old priority is insufficient when an owner holds multiple mutexes or a donor times out. Base and effective priority remain distinct fields.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-04.json` contains a finite `inheritance` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement bounded donation-chain traversal and recomputation on unlock, timeout and cancellation. Use low L owning A, medium M consuming CPU and high H waiting on A, then extend to a second owner through B.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+only immediate donation; stale donated priority; reverting while another donor remains; cycle in ownership chain; missing ready-queue reposition.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show that H blocking no longer includes unrelated M execution under the stated single-core policy, and validate transitive donation plus correct partial disinheritance.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Cancel the highest-priority donor while a lower-priority donor remains. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-04.json](fixtures/os_v3/PR-T51-04.json)
+
+```json
+{
+  "id": "PR-T51-04",
+  "description": "Transitive priority inheritance finite independent example",
+  "oracle": "inheritance",
+  "input": {
+    "base": {
+      "A": 1,
+      "B": 2,
+      "C": 5
+    },
+    "waits": [
+      [
+        "C",
+        "B"
+      ],
+      [
+        "B",
+        "A"
+      ]
+    ],
+    "priority_convention": "larger-is-more-urgent"
+  },
+  "expected": {
+    "effective": {
+      "A": 5,
+      "B": 5,
+      "C": 5
+    }
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Priority inheritance changes an owner effective priority while a higher-priority task waits. Donation follows ownership chains; a single saved old priority is insufficient when an owner holds multiple mutexes or a donor times out. Base and effective priority remain distinct fields.",
+  "required_observation": "Show that H blocking no longer includes unrelated M execution under the stated single-core policy, and validate transitive donation plus correct partial disinheritance."
+}
+```
+
+
+---
+
+<a id="pr-t51-05"></a>
+
+# PR-T51-05 — Condition variables and Mesa-style predicates
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.05](#t51-05).
+
+## Contract
+
+The condition wait atomically releases its associated mutex and enrolls the task; returning reacquires the mutex before the caller rechecks its predicate. A signal merely makes a waiter eligible. Another task may invalidate the condition before the waiter runs, so the loop is essential.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-05.json` contains a finite `predicate` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement condition wait/signal/broadcast on the common wait protocol. Build a bounded producer-consumer object whose predicate is protected by the same mutex.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+if instead of while; signal before predicate update; different mutexes for one predicate; wake without reacquisition; cancellation strands mutex state.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Force a signaled waiter to lose the race for the item, observe the necessary second wait, and preserve queue capacity under broadcast and spurious wake injection.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add shutdown as a second predicate so all blocked producers and consumers terminate. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-05.json](fixtures/os_v3/PR-T51-05.json)
+
+```json
+{
+  "id": "PR-T51-05",
+  "description": "Condition variables and Mesa-style predicates finite independent example",
+  "oracle": "predicate",
+  "input": {
+    "initial_items": 1,
+    "actions": [
+      "signal",
+      "other_consume",
+      "waiter_recheck"
+    ]
+  },
+  "expected": {
+    "items": 0,
+    "waiter_blocks": true
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The condition wait atomically releases its associated mutex and enrolls the task; returning reacquires the mutex before the caller rechecks its predicate. A signal merely makes a waiter eligible. Another task may invalidate the condition before the waiter runs, so the loop is essential.",
+  "required_observation": "Force a signaled waiter to lose the race for the item, observe the necessary second wait, and preserve queue capacity under broadcast and spurious wake injection."
+}
+```
+
+
+---
+
+<a id="pr-t51-06"></a>
+
+# PR-T51-06 — Bounded message queues with copied payloads
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.06](#t51-06).
+
+## Contract
+
+A copied-message queue owns each payload after successful send and releases its slot after receive. The initial API has fixed-size messages and FIFO ordering; it rejects a short output buffer without consuming a message. Full and empty waits use separate predicates over one protected state.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-06.json` contains a finite `queue` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement a fixed-capacity queue with try/block/timed send and receive. Record message sequence IDs and lengths, then run multiple producers and consumers with explicit shutdown.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+full overwrite; read from empty; output too short; timeout commits anyway; message reordered; close loses queued messages.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Account for every accepted message exactly once and preserve per-producer order. Rejected sends preserve occupancy; normal close rejects new sends and drains queued messages, while explicit abort discards queued messages with a recorded cancellation count.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Replace payload copying with fixed-buffer ownership transfer and audit every release. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-06.json](fixtures/os_v3/PR-T51-06.json)
+
+```json
+{
+  "id": "PR-T51-06",
+  "description": "Bounded message queues with copied payloads finite independent example",
+  "oracle": "queue",
+  "input": {
+    "capacity": 2,
+    "actions": [
+      [
+        "put",
+        11
+      ],
+      [
+        "put",
+        12
+      ],
+      [
+        "put",
+        13
+      ],
+      [
+        "get"
+      ],
+      [
+        "put",
+        14
+      ],
+      [
+        "get"
+      ],
+      [
+        "get"
+      ]
+    ]
+  },
+  "expected": {
+    "received": [
+      11,
+      12,
+      14
+    ],
+    "rejected": 1,
+    "remaining": []
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A copied-message queue owns each payload after successful send and releases its slot after receive. The initial API has fixed-size messages and FIFO ordering; it rejects a short output buffer without consuming a message. Full and empty waits use separate predicates over one protected state.",
+  "required_observation": "Account for every accepted message exactly once and preserve per-producer order. Rejected sends preserve occupancy; normal close rejects new sends and drains queued messages, while explicit abort discards queued messages with a recorded cancellation count."
+}
+```
+
+
+---
+
+<a id="pr-t51-07"></a>
+
+# PR-T51-07 — Mailboxes and synchronous rendezvous
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.07](#t51-07).
+
+## Contract
+
+A mailbox retains a value; a rendezvous transfers only when sender and receiver meet. Their cancellation and backpressure behavior differ. The chosen one-slot mailbox preserves the previous message on a failed send; rendezvous acknowledges transfer before either side may reuse its buffer.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-07.json` contains a finite `rendezvous` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Build both mechanisms over common wait queues and compare the same request/reply workload. Attach request generations so a late reply cannot satisfy a new call.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+sender frees buffer before transfer; overwritten mailbox; receiver cancels after match; stale reply; both endpoints waiting on the same direction.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Draw the match/commit boundary and show exactly one terminal outcome for each operation under sender and receiver cancellation races.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Turn request/reply into a two-client server with bounded outstanding calls. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-07.json](fixtures/os_v3/PR-T51-07.json)
+
+```json
+{
+  "id": "PR-T51-07",
+  "description": "Mailboxes and synchronous rendezvous finite independent example",
+  "oracle": "rendezvous",
+  "input": {
+    "events": [
+      "send",
+      "cancel_sender",
+      "receive"
+    ]
+  },
+  "expected": {
+    "transferred": false,
+    "sender_result": "canceled"
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A mailbox retains a value; a rendezvous transfers only when sender and receiver meet. Their cancellation and backpressure behavior differ. The chosen one-slot mailbox preserves the previous message on a failed send; rendezvous acknowledges transfer before either side may reuse its buffer.",
+  "required_observation": "Draw the match/commit boundary and show exactly one terminal outcome for each operation under sender and receiver cancellation races."
+}
+```
+
+
+---
+
+<a id="pr-t51-08"></a>
+
+# PR-T51-08 — Event flags with any/all semantics
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.08](#t51-08).
+
+## Contract
+
+Event bits represent conditions that may coalesce, not counts. Define wait-any versus wait-all and explicit clear-on-success behavior. With multiple waiters, consuming a bit can change another waiter eligibility, so wakeup order and clearing must be one protected operation.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-08.json` contains a finite `events` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement a fixed-width event group with set, clear and timed wait. Use bits for data-ready, stop-requested and calibration-done, with both any and all waiters.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+counted occurrences collapsed; clearing before matching; zero mask; wait-all awakened on one bit; two consuming waiters both claim one bit.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Demonstrate the selected any/all and clearing truth tables, including two waiters racing for overlapping masks. Explain why three identical sets need not produce three wakes.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add a nonconsuming observer and compare its evidence with a consuming waiter. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-08.json](fixtures/os_v3/PR-T51-08.json)
+
+```json
+{
+  "id": "PR-T51-08",
+  "description": "Event flags with any/all semantics finite independent example",
+  "oracle": "events",
+  "input": {
+    "bits": 5,
+    "mask": 3,
+    "mode": "any",
+    "clear": true
+  },
+  "expected": {
+    "matched": true,
+    "observed": 1,
+    "remaining": 4
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Event bits represent conditions that may coalesce, not counts. Define wait-any versus wait-all and explicit clear-on-success behavior. With multiple waiters, consuming a bit can change another waiter eligibility, so wakeup order and clearing must be one protected operation.",
+  "required_observation": "Demonstrate the selected any/all and clearing truth tables, including two waiters racing for overlapping masks. Explain why three identical sets need not produce three wakes."
+}
+```
+
+
+---
+
+<a id="pr-t51-09"></a>
+
+# PR-T51-09 — Counted task notifications
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.09](#t51-09).
+
+## Contract
+
+A counted notification stores occurrence count for one recipient and therefore differs from event bits and a hardware doorbell. Choose decrement-one on consume and saturating-error behavior at a declared maximum; never infer message count from interrupt count.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-09.json` contains a finite `notification` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement post-count and wait-one with an ISR-safe path. Burst several posts while the recipient is descheduled, then compare with a Boolean event implementation.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+notification overflow; lost post during consume; wrong recipient generation; ISR waits; hardware interrupt coalescence mistaken for software count loss.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show that all accepted posts are eventually consumed or explicitly canceled, even when only one interrupt wakes the recipient. Retain the count ledger.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add consume-all and define its atomic result without changing post ownership. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-09.json](fixtures/os_v3/PR-T51-09.json)
+
+```json
+{
+  "id": "PR-T51-09",
+  "description": "Counted task notifications finite independent example",
+  "oracle": "notification",
+  "input": {
+    "initial": 0,
+    "posts": [
+      3,
+      2
+    ],
+    "consumes": 4,
+    "maximum": 8
+  },
+  "expected": {
+    "accepted": 5,
+    "consumed": 4,
+    "remaining": 1
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A counted notification stores occurrence count for one recipient and therefore differs from event bits and a hardware doorbell. Choose decrement-one on consume and saturating-error behavior at a declared maximum; never infer message count from interrupt count.",
+  "required_observation": "Show that all accepted posts are eventually consumed or explicitly canceled, even when only one interrupt wakes the recipient. Retain the count ledger."
+}
+```
+
+
+---
+
+<a id="pr-t51-10"></a>
+
+# PR-T51-10 — Reusable barriers and generations
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.10](#t51-10).
+
+## Contract
+
+A reusable barrier separates rounds by generation. Counting arrivals alone allows a fast participant to enter the next round while another still exits the old round. This barrier has a fixed participant set; cancellation breaks the generation and wakes peers with an error.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-10.json` contains a finite `barrier` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement an arrival counter, generation and broken state. Run three tasks for repeated rounds, delaying a different participant in each round.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+cross-generation release; duplicate arrival; missing participant; counter wrap; cancellation leaves peers asleep; reset while old waiters remain.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Assert no task crosses round k before every participant arrives at k, and show the broken-generation policy releases all affected waiters.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Permit a coordinated participant-set change only between completed generations. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-10.json](fixtures/os_v3/PR-T51-10.json)
+
+```json
+{
+  "id": "PR-T51-10",
+  "description": "Reusable barriers and generations finite independent example",
+  "oracle": "barrier",
+  "input": {
+    "participants": 3,
+    "arrivals": [
+      0,
+      1,
+      2,
+      2,
+      0,
+      1
+    ]
+  },
+  "expected": {
+    "released_generations": [
+      0,
+      1
+    ],
+    "generation": 2,
+    "pending": []
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A reusable barrier separates rounds by generation. Counting arrivals alone allows a fast participant to enter the next round while another still exits the old round. This barrier has a fixed participant set; cancellation breaks the generation and wakes peers with an error.",
+  "required_observation": "Assert no task crosses round k before every participant arrives at k, and show the broken-generation policy releases all affected waiters."
+}
+```
+
+
+---
+
+<a id="pr-t51-11"></a>
+
+# PR-T51-11 — Once initialization and failure policy
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.11](#t51-11).
+
+## Contract
+
+Once initialization has uninitialized, initializing, initialized and failed states. Readers may observe the object only after successful publication. Recursive entry by the initializer cannot wait for itself; a failed initializer must follow an explicit retry or permanent-failure policy.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-11.json` contains a finite `once` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement once with permanent failure for this milestone, release/acquire publication and waiter wakeup. Initialize a table with a checksum and make every reader validate it.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+flag set before data complete; recursive initialization; initializer cancellation; failure leaves state initializing; second initializer runs concurrently.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show one initializer, consistent data for all readers and a stable error after injected failure. Distinguish exactly-once attempt from exactly-once successful effect.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add retry using a new generation and specify which external effects are safe to repeat. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-11.json](fixtures/os_v3/PR-T51-11.json)
+
+```json
+{
+  "id": "PR-T51-11",
+  "description": "Once initialization and failure policy finite independent example",
+  "oracle": "once",
+  "input": {
+    "attempts": [
+      "begin_A",
+      "begin_B",
+      "fail_A",
+      "begin_C"
+    ]
+  },
+  "expected": {
+    "state": "failed",
+    "initializer": "A",
+    "attempt_count": 1
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Once initialization has uninitialized, initializing, initialized and failed states. Readers may observe the object only after successful publication. Recursive entry by the initializer cannot wait for itself; a failed initializer must follow an explicit retry or permanent-failure policy.",
+  "required_observation": "Show one initializer, consistent data for all readers and a stable error after injected failure. Distinguish exactly-once attempt from exactly-once successful effect."
+}
+```
+
+
+---
+
+<a id="pr-t51-12"></a>
+
+# PR-T51-12 — Reader-writer locks and admission fairness
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.12](#t51-12).
+
+## Contract
+
+Concurrent readers can share access while writers need exclusion. A reader-preferred policy can starve a writer under continuous arrivals. The chosen writer-pending policy stops new readers once a writer waits; this is a policy guarantee with possible reader latency costs.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-12.json` contains a finite `rw_admit` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement reader counts, writer owner and writer-pending admission. Compare bounded read-heavy workloads with an explicitly reader-preferred faulty variant.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+writer overlaps reader; reader count underflow; implicit upgrade deadlock; starved writer; owner exits; recursive writer entry.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Preserve exclusion and show the queued writer progresses after existing readers leave despite new arrivals. Reject unsupported upgrade/downgrade operations explicitly.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Implement phase-fair admission and compare worst observed reader and writer waits. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-12.json](fixtures/os_v3/PR-T51-12.json)
+
+```json
+{
+  "id": "PR-T51-12",
+  "description": "Reader-writer locks and admission fairness finite independent example",
+  "oracle": "rw_admit",
+  "input": {
+    "events": [
+      "read_A",
+      "write_B",
+      "read_C",
+      "release_A"
+    ]
+  },
+  "expected": {
+    "admitted": [
+      "A",
+      "B"
+    ],
+    "waiting": [
+      "C"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Concurrent readers can share access while writers need exclusion. A reader-preferred policy can starve a writer under continuous arrivals. The chosen writer-pending policy stops new readers once a writer waits; this is a policy guarantee with possible reader latency costs.",
+  "required_observation": "Preserve exclusion and show the queued writer progresses after existing readers leave despite new arrivals. Reject unsupported upgrade/downgrade operations explicitly."
+}
+```
+
+
+---
+
+<a id="pr-t51-13"></a>
+
+# PR-T51-13 — Timeout, cancellation and wakeup arbitration
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.13](#t51-13).
+
+## Contract
+
+An operation can complete, time out or be canceled exactly once. A deadline firing concurrently with resource availability must choose one linearization boundary; cleanup then removes every other registration. The caller must know whether the resource was acquired before cancellation was reported.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-13.json` contains a finite `winner` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Centralize terminal-state arbitration using operation generations. Enumerate resource-ready, timer-fire and cancellation orders, including all pairwise ties at one logical instant.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+double completion; stale timer accesses reused wait record; permit lost after timeout; canceled task remains runnable twice; cleanup accesses destroyed object.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+For every finite ordering, record one result and reconcile all queue memberships, timers and permits. Reproduce at least one double-completion defect and its repair.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Introduce task migration and show which synchronization protects terminal state. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-13.json](fixtures/os_v3/PR-T51-13.json)
+
+```json
+{
+  "id": "PR-T51-13",
+  "description": "Timeout, cancellation and wakeup arbitration finite independent example",
+  "oracle": "winner",
+  "input": {
+    "events": [
+      "timeout",
+      "wake",
+      "cancel"
+    ]
+  },
+  "expected": {
+    "terminal": "timeout",
+    "ignored": [
+      "wake",
+      "cancel"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "An operation can complete, time out or be canceled exactly once. A deadline firing concurrently with resource availability must choose one linearization boundary; cleanup then removes every other registration. The caller must know whether the resource was acquired before cancellation was reported.",
+  "required_observation": "For every finite ordering, record one result and reconcile all queue memberships, timers and permits. Reproduce at least one double-completion defect and its repair."
+}
+```
+
+
+---
+
+<a id="pr-t51-14"></a>
+
+# PR-T51-14 — Object teardown and owner-death recovery
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T51](#t51).
+
+**Covered topics:** [T51.14](#t51-14).
+
+## Contract
+
+Destruction is a protocol: close prevents new operations, existing operations finish or receive a terminal error, and storage is reclaimed only after references drain. Owner death can leave protected data inconsistent. A poisoned mutex requires explicit repair and consistency acknowledgment.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T51-14.json` contains a finite `lifetime` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement close/drain/destroy states for one queue and an owner-death result for one mutex. Use generation handles and a supervisor that repairs a deliberately half-updated record.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+destroy with live waiter; reused address mistaken for same object; unlock after owner death silently accepted; recovery crashes; shutdown loses accepted work.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show no use-after-free through teardown, reject stale handles and demonstrate both successful repair and permanently unrecoverable state.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Restart a service that owns several IPC objects and recover each lifetime in dependency order. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T51-14.json](fixtures/os_v3/PR-T51-14.json)
+
+```json
+{
+  "id": "PR-T51-14",
+  "description": "Object teardown and owner-death recovery finite independent example",
+  "oracle": "lifetime",
+  "input": {
+    "refs": 2,
+    "events": [
+      "close",
+      "drop",
+      "drop",
+      "destroy"
+    ]
+  },
+  "expected": {
+    "state": "destroyed",
+    "refs": 0
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Destruction is a protocol: close prevents new operations, existing operations finish or receive a terminal error, and storage is reclaimed only after references drain. Owner death can leave protected data inconsistent. A poisoned mutex requires explicit repair and consistency acknowledgment.",
+  "required_observation": "Show no use-after-free through teardown, reject stale handles and demonstrate both successful repair and permanently unrecoverable state."
+}
+```
+
+
+---
+
+<a id="pr-t52-01"></a>
+
+# PR-T52-01 — Rate-monotonic and deadline-monotonic scheduling
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T52](#t52).
+
+**Covered topics:** [T52.01](#t52-01).
+
+## Contract
+
+RM orders by period; DM orders by relative deadline. Their textbook optimality claims require the stated independent, preemptive single-processor task model. For implicit deadlines RM utilization bounds are sufficient, not necessary. A task with a shorter deadline than period changes which ordering is appropriate.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T52-01.json` contains a finite `priority_order` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement fixed-priority job release and completion traces with separate period, deadline and cost fields. Compare RM and DM on constrained-deadline task sets and evaluate the classic sufficient bound.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+period substituted for deadline; utilization treated as necessary test; release jitter ignored; cost zero or greater than limit; unstable equal-priority ordering.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Produce a schedulable set rejected by the sufficient bound and verify it by exact response-time analysis. State all assumptions alongside each conclusion.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Introduce release jitter and identify which original conclusion no longer follows. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T52-01.json](fixtures/os_v3/PR-T52-01.json)
+
+```json
+{
+  "id": "PR-T52-01",
+  "description": "Rate-monotonic and deadline-monotonic scheduling finite independent example",
+  "oracle": "priority_order",
+  "input": {
+    "tasks": [
+      [
+        "A",
+        10,
+        4
+      ],
+      [
+        "B",
+        6,
+        6
+      ],
+      [
+        "C",
+        20,
+        3
+      ]
+    ]
+  },
+  "expected": {
+    "rm": [
+      "B",
+      "A",
+      "C"
+    ],
+    "dm": [
+      "C",
+      "A",
+      "B"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "RM orders by period; DM orders by relative deadline. Their textbook optimality claims require the stated independent, preemptive single-processor task model. For implicit deadlines RM utilization bounds are sufficient, not necessary. A task with a shorter deadline than period changes which ordering is appropriate.",
+  "required_observation": "Produce a schedulable set rejected by the sufficient bound and verify it by exact response-time analysis. State all assumptions alongside each conclusion."
+}
+```
+
+
+---
+
+<a id="pr-t52-02"></a>
+
+# PR-T52-02 — Earliest-deadline-first dispatch
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T52](#t52).
+
+**Covered topics:** [T52.02](#t52-02).
+
+## Contract
+
+EDF chooses the ready job with earliest absolute deadline, not the task with smallest period. For independent preemptive implicit-deadline tasks on one CPU, utilization at most one is the exact idealized test. Constrained deadlines require a different argument.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T52-02.json` contains a finite `edf` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement a deadline-ordered ready structure and explicit tie rule. Compare EDF with fixed priorities, recording preemptions, deadline misses and remaining service.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+relative instead of absolute comparison; completed job remains ready; equal deadlines unstable; overflowed absolute deadline; infeasible job silently dropped.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Check service conservation and deadline outcomes against an independent event model, including an overloaded set and a constrained-deadline counterexample to naive utilization testing.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add nonpreemptive critical sections and expose a miss despite unchanged utilization. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T52-02.json](fixtures/os_v3/PR-T52-02.json)
+
+```json
+{
+  "id": "PR-T52-02",
+  "description": "Earliest-deadline-first dispatch finite independent example",
+  "oracle": "edf",
+  "input": {
+    "jobs": [
+      [
+        "A",
+        0,
+        3,
+        6
+      ],
+      [
+        "B",
+        1,
+        1,
+        3
+      ],
+      [
+        "C",
+        2,
+        1,
+        5
+      ]
+    ]
+  },
+  "expected": {
+    "finish": {
+      "A": 5,
+      "B": 2,
+      "C": 3
+    },
+    "misses": []
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "EDF chooses the ready job with earliest absolute deadline, not the task with smallest period. For independent preemptive implicit-deadline tasks on one CPU, utilization at most one is the exact idealized test. Constrained deadlines require a different argument.",
+  "required_observation": "Check service conservation and deadline outcomes against an independent event model, including an overloaded set and a constrained-deadline counterexample to naive utilization testing."
+}
+```
+
+
+---
+
+<a id="pr-t52-03"></a>
+
+# PR-T52-03 — Response-time analysis with blocking and jitter
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T52](#t52).
+
+**Covered topics:** [T52.03](#t52-03).
+
+## Contract
+
+The response-time recurrence includes own execution, lower-priority blocking and higher-priority interference. For a chosen fixed-priority model, iterate until a fixed point or a deadline violation. Measure-derived execution maxima are observations; using them as WCET assumptions must remain explicit.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T52-03.json` contains a finite `response` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement checked integer response-time iteration including release jitter and declared kernel overhead. For C=2, B=1 and one interferer Cj=1,Tj=4,Jj=0, start R=3 and iterate to R=4.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+rounding division down; omitting blocking; double-counting overhead; recurrence overflow; premature convergence; measurement maximum mislabeled proof.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Recompute every recurrence term independently, distinguish sufficient rejection from demonstrated execution failure, and compare predicted interference with a trace under the same model.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add one unit of higher-priority release jitter and derive the changed fixed point. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T52-03.json](fixtures/os_v3/PR-T52-03.json)
+
+```json
+{
+  "id": "PR-T52-03",
+  "description": "Response-time analysis with blocking and jitter finite independent example",
+  "oracle": "response",
+  "input": {
+    "cost": 2,
+    "blocking": 1,
+    "higher": [
+      [
+        1,
+        4,
+        0
+      ]
+    ],
+    "deadline": 10
+  },
+  "expected": {
+    "iterations": [
+      3,
+      4,
+      4
+    ],
+    "response": 4,
+    "schedulable": true
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The response-time recurrence includes own execution, lower-priority blocking and higher-priority interference. For a chosen fixed-priority model, iterate until a fixed point or a deadline violation. Measure-derived execution maxima are observations; using them as WCET assumptions must remain explicit.",
+  "required_observation": "Recompute every recurrence term independently, distinguish sufficient rejection from demonstrated execution failure, and compare predicted interference with a trace under the same model."
+}
+```
+
+
+---
+
+<a id="pr-t52-04"></a>
+
+# PR-T52-04 — Immediate priority ceilings
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T52](#t52).
+
+**Covered topics:** [T52.04](#t52-04).
+
+## Contract
+
+An immediate-ceiling mutex raises an owner to the resource ceiling while held. Ceiling assignment depends on all tasks that may access the resource. Do not transplant a single-core blocking bound to SMP or to arbitrary nesting without rechecking assumptions.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T52-04.json` contains a finite `ceiling` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement immediate-ceiling admission and restoration with a static resource-use table. Compare the same inversion workload with no protocol, inheritance and immediate ceiling.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+ceiling below a user priority; restoring base while another ceiling held; unlisted task accesses resource; nesting violates declared order; ISR uses blocking lock.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show bounded blocking for the declared task/resource graph and reject invalid ceiling configurations before tasks start. Record the latency effect of elevated execution.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add a new higher-priority resource user and recompute all affected ceilings. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T52-04.json](fixtures/os_v3/PR-T52-04.json)
+
+```json
+{
+  "id": "PR-T52-04",
+  "description": "Immediate priority ceilings finite independent example",
+  "oracle": "ceiling",
+  "input": {
+    "base": 2,
+    "held_ceilings": [
+      4,
+      7
+    ],
+    "priority_convention": "larger-is-more-urgent"
+  },
+  "expected": {
+    "effective": 7,
+    "after_release_highest": 4
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "An immediate-ceiling mutex raises an owner to the resource ceiling while held. Ceiling assignment depends on all tasks that may access the resource. Do not transplant a single-core blocking bound to SMP or to arbitrary nesting without rechecking assumptions.",
+  "required_observation": "Show bounded blocking for the declared task/resource graph and reject invalid ceiling configurations before tasks start. Record the latency effect of elevated execution."
+}
+```
+
+
+---
+
+<a id="pr-t52-05"></a>
+
+# PR-T52-05 — Aperiodic service within periodic workloads
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T52](#t52).
+
+**Covered topics:** [T52.05](#t52-05).
+
+## Contract
+
+Background, polling and sporadic service make different commitments to aperiodic work and periodic interference. A replenishment policy is part of the algorithm, not a bookkeeping choice. A server that restores its budget too early can exceed the interference assumed by analysis.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T52-05.json` contains a finite `replenishment` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Model background service and a bounded polling server first, then implement a sporadic-server replenishment ledger with a fixed maximum number of records.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+budget restored on every wake; replenishment lost; replenishment table overflow; server capacity exceeds period; burst starves periodic work.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Reconcile consumed and replenished service over sliding intervals and show the bad early-replenishment variant violating its declared budget.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Change burst arrival phase while keeping total aperiodic work constant. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T52-05.json](fixtures/os_v3/PR-T52-05.json)
+
+```json
+{
+  "id": "PR-T52-05",
+  "description": "Aperiodic service within periodic workloads finite independent example",
+  "oracle": "replenishment",
+  "input": {
+    "consumption": [
+      [
+        2,
+        1
+      ],
+      [
+        5,
+        2
+      ]
+    ],
+    "period": 10
+  },
+  "expected": {
+    "replenishments": [
+      [
+        12,
+        1
+      ],
+      [
+        15,
+        2
+      ]
+    ],
+    "total": 3
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Background, polling and sporadic service make different commitments to aperiodic work and periodic interference. A replenishment policy is part of the algorithm, not a bookkeeping choice. A server that restores its budget too early can exceed the interference assumed by analysis.",
+  "required_observation": "Reconcile consumed and replenished service over sliding intervals and show the bad early-replenishment variant violating its declared budget."
+}
+```
+
+
+---
+
+<a id="pr-t52-06"></a>
+
+# PR-T52-06 — Constant-bandwidth-server reservation
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T52](#t52).
+
+**Covered topics:** [T52.06](#t52-06).
+
+## Contract
+
+CBS separates an application deadline from its scheduling deadline and remaining budget. The executable anchor implements soft CBS: budget depletion refills the budget and postpones the scheduling deadline; it does not force idling when no competing work is eligible. Implement and label that variant first. Contrast it with the supplied throttled periodic-reservation fixture and the documented Linux SCHED_DEADLINE policy. The fixture with Q=3, P=10 and demand=8 finishes at time22 only under its periodic throttling assumptions; this is not the expected completion time for isolated soft CBS.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T52-06.json` contains a finite `reservation` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+This fixture models fixed-window periodic throttling, not the executable soft-CBS anchor.
+
+## Steps
+
+Implement runtime, period, scheduling deadline and remaining-budget state. Trace a well-behaved client and an overrunning client under competing EDF reservations. Compare immediate refill/deadline postponement with fixed-window throttling and explain idle-capacity use.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+budget negative without refill/deadline update; confusing soft CBS with fixed-window throttling; wake resets budget unconditionally; time units mixed; deadline smaller than runtime; blocked server credited twice.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Under an explicitly feasible single-core EDF reservation set, trace budget/deadline updates and competing service. Explain the stated isolation assumptions, scheduling versus application deadlines, and why the periodic fixture does not establish a soft-CBS per-window cap.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add two reservations that share a mutex and account for the new interference. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T52-06.json](fixtures/os_v3/PR-T52-06.json)
+
+```json
+{
+  "id": "PR-T52-06",
+  "description": "Constant-bandwidth-server reservation finite independent example",
+  "oracle": "reservation",
+  "input": {
+    "runtime": 3,
+    "period": 10,
+    "demand": 8
+  },
+  "expected": {
+    "windows": [
+      3,
+      3,
+      2
+    ],
+    "finish_if_start_zero": 22
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "CBS separates an application deadline from its scheduling deadline and remaining budget. The executable anchor implements soft CBS: budget depletion refills the budget and postpones the scheduling deadline; it does not force idling when no competing work is eligible. Implement and label that variant first. Contrast it with the supplied throttled periodic-reservation fixture and the documented Linux SCHED_DEADLINE policy. The fixture with Q=3, P=10 and demand=8 finishes at time22 only under its periodic throttling assumptions; this is not the expected completion time for isolated soft CBS.",
+  "required_observation": "Under an explicitly feasible single-core EDF reservation set, trace budget/deadline updates and competing service. Explain the stated isolation assumptions, scheduling versus application deadlines, and why the periodic fixture does not establish a soft-CBS per-window cap.",
+  "model_scope": "This fixture models fixed-window periodic throttling, not the executable soft-CBS anchor."
+}
+```
+
+
+---
+
+<a id="pr-t52-07"></a>
+
+# PR-T52-07 — Admission, overload and deadline-miss policy
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T52](#t52).
+
+**Covered topics:** [T52.07](#t52-07).
+
+## Contract
+
+Admission evaluates the declared model before accepting work. A deadline miss is an explicit event, not permission to skip accounting. Choose per-stream drop-oldest or reject-new behavior, with bounded backlog and sequence IDs so loss remains visible.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T52-07.json` contains a finite `queue` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Build an admission checker and overload controller for periodic jobs plus queued messages. Inject a cost overrun and sustained arrival overload; preserve supervisor progress.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+admitting from average cost; unbounded backlog; silent dropped work; stale result accepted after deadline; supervisor starved; overload mode never exits.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show bounded memory and an explicit miss/drop ledger while useful admitted work continues. Explain whether recovery restores the original timing assumptions.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Switch from reject-new to latest-value semantics and identify the application guarantees that change. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T52-07.json](fixtures/os_v3/PR-T52-07.json)
+
+```json
+{
+  "id": "PR-T52-07",
+  "description": "Admission, overload and deadline-miss policy finite independent example",
+  "oracle": "queue",
+  "input": {
+    "capacity": 2,
+    "actions": [
+      [
+        "put",
+        1
+      ],
+      [
+        "put",
+        2
+      ],
+      [
+        "put",
+        3
+      ],
+      [
+        "get"
+      ],
+      [
+        "put",
+        4
+      ]
+    ]
+  },
+  "expected": {
+    "received": [
+      1
+    ],
+    "rejected": 1,
+    "remaining": [
+      2,
+      4
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Admission evaluates the declared model before accepting work. A deadline miss is an explicit event, not permission to skip accounting. Choose per-stream drop-oldest or reject-new behavior, with bounded backlog and sequence IDs so loss remains visible.",
+  "required_observation": "Show bounded memory and an explicit miss/drop ledger while useful admitted work continues. Explain whether recovery restores the original timing assumptions."
+}
+```
+
+
+---
+
+<a id="pr-t52-08"></a>
+
+# PR-T52-08 — Tick rollover, phase and tickless timing
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T52](#t52).
+
+**Covered topics:** [T52.08](#t52-08).
+
+## Contract
+
+A 32-bit modular tick supports unambiguous ordering only within a declared half-range horizon. Converting microseconds to timer counts needs a specified rounding direction. Tickless idle must include wakeup and reprogramming cost in the observed response path.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T52-08.json` contains a finite `modular` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Reuse the original timer queue with rollover fixtures near UINT32_MAX. Implement deadline conversion without overflow and compare periodic tick with tickless release traces.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+signed overflow in difference; deadline too distant; rounded-down timeout; elapsed ticks counted twice; clock-frequency change; latency omitted from budget.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Predict and verify wrap-crossing releases and reject ambiguous horizons. Report timer quantization, wakeup delay and measurement resolution separately.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Change the tick width to16 and keep the same real-time horizon requirement. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T52-08.json](fixtures/os_v3/PR-T52-08.json)
+
+```json
+{
+  "id": "PR-T52-08",
+  "description": "Tick rollover, phase and tickless timing finite independent example",
+  "oracle": "modular",
+  "input": {
+    "bits": 32,
+    "now": 4294967292,
+    "deadline": 5
+  },
+  "expected": {
+    "distance": 9,
+    "future_within_half_range": true
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A 32-bit modular tick supports unambiguous ordering only within a declared half-range horizon. Converting microseconds to timer counts needs a specified rounding direction. Tickless idle must include wakeup and reprogramming cost in the observed response path.",
+  "required_observation": "Predict and verify wrap-crossing releases and reject ambiguous horizons. Report timer quantization, wakeup delay and measurement resolution separately."
+}
+```
+
+
+---
+
+<a id="pr-t52-09"></a>
+
+# PR-T52-09 — Partitioned multicore real-time scheduling
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T52](#t52).
+
+**Covered topics:** [T52.09](#t52-09).
+
+## Contract
+
+Partitioning assigns each task to one CPU and applies a single-core scheduler per partition. Aggregate utilization below the number of CPUs does not imply a feasible placement. Shared resources, interrupts and memory bandwidth can add interference across partitions.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T52-09.json` contains a finite `packing` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement first-fit decreasing placement by utilization and per-core analysis. Use tasks with utilizations0.6,0.6,0.6 on two cores to expose a packing failure despite total1.8.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+aggregate test substituted for placement; task migrates despite partition model; omitted cross-core lock blocking; asymmetric core speeds treated equal.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show the packing counterexample, record each task affinity and prove per-partition assumptions before comparing actual parallel traces.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Move the task set to heterogeneous M7/M4 cores using measured per-core costs. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T52-09.json](fixtures/os_v3/PR-T52-09.json)
+
+```json
+{
+  "id": "PR-T52-09",
+  "description": "Partitioned multicore real-time scheduling finite independent example",
+  "oracle": "packing",
+  "input": {
+    "loads_tenths": [
+      6,
+      6,
+      6
+    ],
+    "cores": 2
+  },
+  "expected": {
+    "bins_tenths": [
+      6,
+      6
+    ],
+    "unplaced": [
+      6
+    ],
+    "total_tenths": 18
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Partitioning assigns each task to one CPU and applies a single-core scheduler per partition. Aggregate utilization below the number of CPUs does not imply a feasible placement. Shared resources, interrupts and memory bandwidth can add interference across partitions.",
+  "required_observation": "Show the packing counterexample, record each task affinity and prove per-partition assumptions before comparing actual parallel traces."
+}
+```
+
+
+---
+
+<a id="pr-t52-10"></a>
+
+# PR-T52-10 — Global EDF and multiprocessor counterexamples
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T52](#t52).
+
+**Covered topics:** [T52.10](#t52-10).
+
+## Contract
+
+Global EDF can migrate jobs and has different schedulability properties from one-core EDF. Dhall-style examples show misses even with utilization only slightly above one on multiple CPUs. Finite successful traces do not establish universal schedulability.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T52-10.json` contains a finite `dhall` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement a two-core global-EDF model with migration accounting. Use one job requiring its full period and two tiny earlier-deadline jobs that delay its first dispatch.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most2 treated sufficient; deadline tie hides counterexample.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Derive a concrete miss from the timeline and distinguish partitioned, global and clustered policy assumptions. Include CPU-ownership and service-conservation checks.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Change the tiny jobs cost toward zero and explain why the counterexample persists. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T52-10.json](fixtures/os_v3/PR-T52-10.json)
+
+```json
+{
+  "id": "PR-T52-10",
+  "description": "Global EDF and multiprocessor counterexamples finite independent example",
+  "oracle": "dhall",
+  "input": {
+    "period": 10,
+    "epsilon": 1,
+    "cores": 2
+  },
+  "expected": {
+    "long_job_start": 1,
+    "long_job_finish": 11,
+    "deadline": 10,
+    "miss": true
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Global EDF can migrate jobs and has different schedulability properties from one-core EDF. Dhall-style examples show misses even with utilization only slightly above one on multiple CPUs. Finite successful traces do not establish universal schedulability.",
+  "required_observation": "Derive a concrete miss from the timeline and distinguish partitioned, global and clustered policy assumptions. Include CPU-ownership and service-conservation checks."
+}
+```
+
+
+---
+
+<a id="pr-t52-11"></a>
+
+# PR-T52-11 — Compare the original runtime with FreeRTOS
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** os_observatory. [Unsolved family scaffold](labs/os_observatory/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T52](#t52).
+
+**Covered topics:** [T52.11](#t52-11).
+
+## Contract
+
+The original kernel and a pinned FreeRTOS build run the same workload but remain separate artifacts. A similar API name does not promise identical mutex inheritance, notification, timer or ISR semantics. Port assembly and configuration are part of the comparison boundary.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T52-11.json` contains a finite `tick_round` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Port one bounded producer-consumer and inversion workload to FreeRTOS with static allocation. Record kernel version, priorities, tick rate, interrupt settings and all configuration choices.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+dynamic allocation hidden in comparison; unequal workloads; missing ISR yield; assuming identical inheritance; measurement instrumentation differs; custom image accidentally links RTOS.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Explain semantic and timing differences with traces and source locators. Preserve separate linker audits proving that the original implementation remains independent.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Change the FreeRTOS tick rate and predict which results are quantization effects. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T52-11.json](fixtures/os_v3/PR-T52-11.json)
+
+```json
+{
+  "id": "PR-T52-11",
+  "description": "Compare the original runtime with FreeRTOS finite independent example",
+  "oracle": "tick_round",
+  "input": {
+    "delay_ms": 11,
+    "tick_ms": 5
+  },
+  "expected": {
+    "ticks": 3,
+    "realized_ms": 15
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The original kernel and a pinned FreeRTOS build run the same workload but remain separate artifacts. A similar API name does not promise identical mutex inheritance, notification, timer or ISR semantics. Port assembly and configuration are part of the comparison boundary.",
+  "required_observation": "Explain semantic and timing differences with traces and source locators. Preserve separate linker audits proving that the original implementation remains independent."
+}
+```
+
+
+---
+
+<a id="pr-t52-12"></a>
+
+# PR-T52-12 — Linux fair and real-time scheduling comparison
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** os_observatory. [Unsolved family scaffold](labs/os_observatory/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T52](#t52).
+
+**Covered topics:** [T52.12](#t52-12).
+
+## Contract
+
+Linux fair scheduling, FIFO/RR real-time priorities and deadline reservations serve different policies. Pin the kernel version and inspect its documented EEVDF behavior rather than describing every current system as old CFS. Required privileges and host interference limit experiments.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T52-12.json` contains a finite `reservation_valid` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Run a bounded CPU/periodic workload under available normal, FIFO/RR and SCHED_DEADLINE modes with a supervisor and explicit termination bound. Capture scheduling parameters, affinity and throttling.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+permission denied reported as pass; worker monopolizes test host; reservation parameters invalid; cgroup quota confounds result; priority mistaken for deadline guarantee.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Separate unavailable modes from measured results, compare response distributions and identify scheduler versus application deadlines. Do not claim hard physical guarantees from the hosted comparison.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Place competing background I/O on the same CPU and trace additional interference. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T52-12.json](fixtures/os_v3/PR-T52-12.json)
+
+```json
+{
+  "id": "PR-T52-12",
+  "description": "Linux fair and real-time scheduling comparison finite independent example",
+  "oracle": "reservation_valid",
+  "input": {
+    "runtime": 3,
+    "deadline": 5,
+    "period": 10
+  },
+  "expected": {
+    "valid": true,
+    "utilization_numerator": 3,
+    "utilization_denominator": 10
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Linux fair scheduling, FIFO/RR real-time priorities and deadline reservations serve different policies. Pin the kernel version and inspect its documented EEVDF behavior rather than describing every current system as old CFS. Required privileges and host interference limit experiments.",
+  "required_observation": "Separate unavailable modes from measured results, compare response distributions and identify scheduler versus application deadlines. Do not claim hard physical guarantees from the hosted comparison."
+}
+```
+
+
+---
+
+<a id="pr-t53-01"></a>
+
+# PR-T53-01 — ACPI MADT and processor discovery
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T53](#t53).
+
+**Covered topics:** [T53.01](#t53-01).
+
+## Contract
+
+Firmware tables are bounded input, not trusted C structs at arbitrary addresses. Validate signatures, total lengths and checksums before walking MADT records. Distinguish processor IDs from APIC IDs and exclude disabled processors according to the selected table contract.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T53-01.json` contains a finite `cpu_inventory` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Parse the boot-provided ACPI root and MADT using checked byte spans. Build a finite CPU inventory and retain the table bytes and decoded topology from actual QEMU boot.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+bad checksum; zero-length subrecord; truncated table; duplicate APIC ID; disabled entry admitted; unsupported entry interpreted as known layout.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Match the accepted CPU inventory with QEMU configurations1,2,4 and reject malformed synthetic tables without reading outside their spans.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Insert an unknown well-sized MADT record and preserve compatible parsing. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T53-01.json](fixtures/os_v3/PR-T53-01.json)
+
+```json
+{
+  "id": "PR-T53-01",
+  "description": "ACPI MADT and processor discovery finite independent example",
+  "oracle": "cpu_inventory",
+  "input": {
+    "entries": [
+      [
+        0,
+        true
+      ],
+      [
+        2,
+        true
+      ],
+      [
+        4,
+        false
+      ],
+      [
+        6,
+        true
+      ]
+    ]
+  },
+  "expected": {
+    "enabled_apic_ids": [
+      0,
+      2,
+      6
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Firmware tables are bounded input, not trusted C structs at arbitrary addresses. Validate signatures, total lengths and checksums before walking MADT records. Distinguish processor IDs from APIC IDs and exclude disabled processors according to the selected table contract.",
+  "required_observation": "Match the accepted CPU inventory with QEMU configurations1,2,4 and reject malformed synthetic tables without reading outside their spans."
+}
+```
+
+
+---
+
+<a id="pr-t53-02"></a>
+
+# PR-T53-02 — Secondary-CPU trampoline and startup
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T53](#t53).
+
+**Covered topics:** [T53.02](#t53-02).
+
+## Contract
+
+A secondary processor does not begin in the bootstrap CPU C environment. Its low-memory trampoline establishes the selected mode transition, page tables and private stack before joining C code. Startup acknowledgment must identify the CPU and boot generation.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T53-02.json` contains a finite `ack` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement original AP startup using the selected local-APIC INIT/SIPI sequence and a bounded acknowledgment timeout. Keep trampoline storage reserved until no AP can still execute it.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+trampoline outside startup-address range; duplicate startup; wrong CR3; shared temporary stack; AP never acknowledges; stale acknowledgment from prior boot.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Boot1,2,4 CPUs and retain distinct per-CPU entry markers and stack addresses. An intentionally missing acknowledgment must fail within the declared bound.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Delay one AP and prove another AP cannot overwrite its startup parameters. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T53-02.json](fixtures/os_v3/PR-T53-02.json)
+
+```json
+{
+  "id": "PR-T53-02",
+  "description": "Secondary-CPU trampoline and startup finite independent example",
+  "oracle": "ack",
+  "input": {
+    "expected_epoch": 4,
+    "expected_cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "acks": [
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        4
+      ]
+    ]
+  },
+  "expected": {
+    "acknowledged": [
+      0,
+      1,
+      3
+    ],
+    "missing": [
+      2
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A secondary processor does not begin in the bootstrap CPU C environment. Its low-memory trampoline establishes the selected mode transition, page tables and private stack before joining C code. Startup acknowledgment must identify the CPU and boot generation.",
+  "required_observation": "Boot1,2,4 CPUs and retain distinct per-CPU entry markers and stack addresses. An intentionally missing acknowledgment must fail within the declared bound."
+}
+```
+
+
+---
+
+<a id="pr-t53-03"></a>
+
+# PR-T53-03 — Per-CPU execution state and stacks
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T53](#t53).
+
+**Covered topics:** [T53.03](#t53-03).
+
+## Contract
+
+Each CPU owns its current-task pointer, interrupt nesting state, idle stack and fault context. Sharing a stack corrupts independent execution even when global counters are atomic. Per-CPU storage reduces contention only when ownership and cache-line placement are explicit.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T53-03.json` contains a finite `ranges` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Allocate distinct CPU-local records, GDT/TSS state and kernel/idle stacks. Exercise simultaneous nested calls and a controlled fault on one CPU while peers report progress.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+one global current pointer; reused TSS stack; false sharing; incorrect CPU-index mapping; local interrupt state stored globally.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Demonstrate nonoverlapping live stack ranges and CPU-local identities under parallel work. A fault record must identify its CPU and retain peer progress evidence.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Pad and unpad hot per-CPU counters and compare observed contention. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T53-03.json](fixtures/os_v3/PR-T53-03.json)
+
+```json
+{
+  "id": "PR-T53-03",
+  "description": "Per-CPU execution state and stacks finite independent example",
+  "oracle": "ranges",
+  "input": {
+    "ranges": [
+      [
+        4096,
+        8192
+      ],
+      [
+        8192,
+        12288
+      ],
+      [
+        12288,
+        16384
+      ]
+    ]
+  },
+  "expected": {
+    "overlap": false,
+    "total_bytes": 12288
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Each CPU owns its current-task pointer, interrupt nesting state, idle stack and fault context. Sharing a stack corrupts independent execution even when global counters are atomic. Per-CPU storage reduces contention only when ownership and cache-line placement are explicit.",
+  "required_observation": "Demonstrate nonoverlapping live stack ranges and CPU-local identities under parallel work. A fault record must identify its CPU and retain peer progress evidence."
+}
+```
+
+
+---
+
+<a id="pr-t53-04"></a>
+
+# PR-T53-04 — Local APIC timers and interprocessor interrupts
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T53](#t53).
+
+**Covered topics:** [T53.04](#t53-04).
+
+## Contract
+
+An IPI asks another CPU to act; it is not proof that the action has completed. Acknowledgment needs a separate generation or sequence. Timer counts require calibration and measurement bounds; QEMU virtual timing is not physical cycle accuracy.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T53-04.json` contains a finite `completion` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement per-CPU timer interrupts and an IPI request/acknowledgment mailbox. Separate vector dispatch, end-of-interrupt and higher-level completion state.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+missing EOI; wrong destination; stale acknowledgment; mailbox overwritten; interrupt arrives before handler ready; timeout mistaken for completed action.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show each CPU receiving its own timer events and complete a directed IPI round trip with a bounded timeout and matching sequence.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Send two coalescible reschedule requests and show why one IPI can service both. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T53-04.json](fixtures/os_v3/PR-T53-04.json)
+
+```json
+{
+  "id": "PR-T53-04",
+  "description": "Local APIC timers and interprocessor interrupts finite independent example",
+  "oracle": "completion",
+  "input": {
+    "active_generation": 7,
+    "events": [
+      [
+        6,
+        1
+      ],
+      [
+        7,
+        2
+      ],
+      [
+        7,
+        3
+      ]
+    ]
+  },
+  "expected": {
+    "accepted": [
+      2
+    ],
+    "rejected": 2
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "An IPI asks another CPU to act; it is not proof that the action has completed. Acknowledgment needs a separate generation or sequence. Timer counts require calibration and measurement bounds; QEMU virtual timing is not physical cycle accuracy.",
+  "required_observation": "Show each CPU receiving its own timer events and complete a directed IPI round trip with a bounded timeout and matching sequence."
+}
+```
+
+
+---
+
+<a id="pr-t53-05"></a>
+
+# PR-T53-05 — SMP spinlocks and interrupt context
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T53](#t53).
+
+**Covered topics:** [T53.05](#t53-05).
+
+## Contract
+
+Disabling local interrupts does not exclude another CPU. A spinlock must use supported atomic operations and ordering, and a same-CPU interrupt must not spin forever on a lock held by the interrupted context. Protect only bounded nonblocking sections.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T53-05.json` contains a finite `tickets` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement test-and-set and ticket locks, then compare with an MCS queue-lock model. Add IRQ-save wrappers that restore the previous local mask and audit lock ordering.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+plain volatile lock; local-mask-only exclusion; sleeping while locked; ISR self-deadlock; missing acquire/release; ticket wrap ambiguity.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Run multiple CPUs updating a protected invariant and reject the local-mask-only faulty variant. Measure contention and wait distributions separately from correctness.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Pause the lock owner and explain why a spinlock is blocking even if its instruction is lock-free. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T53-05.json](fixtures/os_v3/PR-T53-05.json)
+
+```json
+{
+  "id": "PR-T53-05",
+  "description": "SMP spinlocks and interrupt context finite independent example",
+  "oracle": "tickets",
+  "input": {
+    "next": 14,
+    "serving": 14,
+    "bits": 4,
+    "acquires": 3
+  },
+  "expected": {
+    "tickets": [
+      14,
+      15,
+      0
+    ],
+    "next": 1,
+    "order": [
+      14,
+      15,
+      0
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Disabling local interrupts does not exclude another CPU. A spinlock must use supported atomic operations and ordering, and a same-CPU interrupt must not spin forever on a lock held by the interrupted context. Protect only bounded nonblocking sections.",
+  "required_observation": "Run multiple CPUs updating a protected invariant and reject the local-mask-only faulty variant. Measure contention and wait distributions separately from correctness."
+}
+```
+
+
+---
+
+<a id="pr-t53-06"></a>
+
+# PR-T53-06 — Per-CPU ready queues
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T53](#t53).
+
+**Covered topics:** [T53.06](#t53-06).
+
+## Contract
+
+A runnable task is assigned to one ready queue or one executing CPU, never both. Queue locking, task-state updates and selection are one ownership protocol. Start with fixed affinity so migration does not obscure the first SMP scheduler invariant.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T53-06.json` contains a finite `owners` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement per-CPU ready queues and fixed-affinity dispatch. Record transitions with CPU, task generation, old state and new state; validate the combined trace independently.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+task executes on two CPUs; task lost between state and enqueue; global current pointer; queue ownership absent; idle chosen with runnable work.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show actual task execution on all admitted CPUs with one-owner invariants and service accounting, then inject a duplicate enqueue that the checker rejects.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Replace one queue policy while preserving the scheduler ownership protocol. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T53-06.json](fixtures/os_v3/PR-T53-06.json)
+
+```json
+{
+  "id": "PR-T53-06",
+  "description": "Per-CPU ready queues finite independent example",
+  "oracle": "owners",
+  "input": {
+    "placements": [
+      [
+        "A",
+        0
+      ],
+      [
+        "B",
+        1
+      ],
+      [
+        "C",
+        1
+      ]
+    ]
+  },
+  "expected": {
+    "unique": true,
+    "loads": {
+      "0": 1,
+      "1": 2
+    }
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A runnable task is assigned to one ready queue or one executing CPU, never both. Queue locking, task-state updates and selection are one ownership protocol. Start with fixed affinity so migration does not obscure the first SMP scheduler invariant.",
+  "required_observation": "Show actual task execution on all admitted CPUs with one-owner invariants and service accounting, then inject a duplicate enqueue that the checker rejects."
+}
+```
+
+
+---
+
+<a id="pr-t53-07"></a>
+
+# PR-T53-07 — Remote wakeup and reschedule delivery
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T53](#t53).
+
+**Covered topics:** [T53.07](#t53-07).
+
+## Contract
+
+A task waking on another CPU needs an atomic state transition, placement in the destination queue and a reschedule request. The mailbox or queue state is authoritative; the IPI is a doorbell that can coalesce. Checking empty then sleeping must not strand remote work.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T53-07.json` contains a finite `doorbell` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement remote wakeup with a generation-checked task handle and destination notification. Inject wakeups before idle check, between check and sleep, and during existing execution.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+lost wake at idle boundary; duplicate wake enqueues twice; stale task handle; IPI before state publication; queue lock acquired in inconsistent order.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Every accepted wake either makes the task runnable once or observes it already runnable. Retain a target trace showing remote progress after the receiving CPU was idle.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Batch several remote wakes behind a single doorbell and account for all tasks. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T53-07.json](fixtures/os_v3/PR-T53-07.json)
+
+```json
+{
+  "id": "PR-T53-07",
+  "description": "Remote wakeup and reschedule delivery finite independent example",
+  "oracle": "doorbell",
+  "input": {
+    "published": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "interrupts": 1
+  },
+  "expected": {
+    "drained": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "required_messages": 4,
+    "notification_count": 1
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A task waking on another CPU needs an atomic state transition, placement in the destination queue and a reschedule request. The mailbox or queue state is authoritative; the IPI is a doorbell that can coalesce. Checking empty then sleeping must not strand remote work.",
+  "required_observation": "Every accepted wake either makes the task runnable once or observes it already runnable. Retain a target trace showing remote progress after the receiving CPU was idle."
+}
+```
+
+
+---
+
+<a id="pr-t53-08"></a>
+
+# PR-T53-08 — Affinity, migration and load balance
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T53](#t53).
+
+**Covered topics:** [T53.08](#t53-08).
+
+## Contract
+
+Complete the process/thread substrate in [PR-T56-01](#pr-t56-01) after the early SMP queue milestones, then return here. The supplied migration and affinity gate executes actual user threads on multiple CPUs.
+
+Migration transfers ownership; it does not copy a live task context. A running task must first stop at a safe handoff boundary. Acquire source/destination queue locks in a total order and preserve affinity constraints and pending wakeups.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T53-08.json` contains a finite `migration` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Add explicit affinity masks and migration of ready tasks, followed by a bounded work-balancing policy. Measure migration count, queue imbalance and cache-warmup cost.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+migrating a running task without stop; source removed before destination reservation; empty affinity mask; wake races migration; reversed lock order.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show every migration has one source release and one destination acquisition, with no lost service or simultaneous execution. Explain why balancing overhead can reduce throughput.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Pin one latency-sensitive task and rebalance only the remaining workers. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T53-08.json](fixtures/os_v3/PR-T53-08.json)
+
+```json
+{
+  "id": "PR-T53-08",
+  "description": "Affinity, migration and load balance finite independent example",
+  "oracle": "migration",
+  "input": {
+    "owner": 0,
+    "source": 0,
+    "destination": 2,
+    "affinity": [
+      1,
+      2
+    ]
+  },
+  "expected": {
+    "allowed": true,
+    "owner_after": 2
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Migration transfers ownership; it does not copy a live task context. A running task must first stop at a safe handoff boundary. Acquire source/destination queue locks in a total order and preserve affinity constraints and pending wakeups.",
+  "required_observation": "Show every migration has one source release and one destination acquisition, with no lost service or simultaneous execution. Explain why balancing overhead can reduce throughput."
+}
+```
+
+
+---
+
+<a id="pr-t53-09"></a>
+
+# PR-T53-09 — TLB shootdown and page reclamation
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T53](#t53).
+
+**Covered topics:** [T53.09](#t53-09).
+
+## Contract
+
+Changing a shared address-space mapping does not immediately invalidate another CPU cached translation. Reclaiming the old frame before all relevant CPUs acknowledge invalidation can expose unrelated data through a stale TLB entry. Track active address-space CPUs and shootdown generations.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T53-09.json` contains a finite `ack` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement bounded shootdown requests, local invalidation and acknowledgments before reclaim. Begin with one page and two CPUs using the same address space.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+frame reused before acknowledgment; stale generation accepted; inactive CPU set incorrect; address/range overflow; target CPU offline without protocol.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Demonstrate that an old mapping cannot access a recycled frame after the completion boundary. A deliberately early-reclaim variant must fail a targeted interleaving test.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Batch adjacent page invalidations and measure request versus per-page cost. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T53-09.json](fixtures/os_v3/PR-T53-09.json)
+
+```json
+{
+  "id": "PR-T53-09",
+  "description": "TLB shootdown and page reclamation finite independent example",
+  "oracle": "ack",
+  "input": {
+    "expected_epoch": 9,
+    "expected_cpus": [
+      0,
+      1,
+      2
+    ],
+    "acks": [
+      [
+        0,
+        9
+      ],
+      [
+        1,
+        8
+      ],
+      [
+        2,
+        9
+      ]
+    ]
+  },
+  "expected": {
+    "acknowledged": [
+      0,
+      2
+    ],
+    "missing": [
+      1
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Changing a shared address-space mapping does not immediately invalidate another CPU cached translation. Reclaiming the old frame before all relevant CPUs acknowledge invalidation can expose unrelated data through a stale TLB entry. Track active address-space CPUs and shootdown generations.",
+  "required_observation": "Demonstrate that an old mapping cannot access a recycled frame after the completion boundary. A deliberately early-reclaim variant must fail a targeted interleaving test."
+}
+```
+
+
+---
+
+<a id="pr-t53-10"></a>
+
+# PR-T53-10 — Parallel reduction with deterministic partitioning
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T53](#t53).
+
+**Covered topics:** [T53.10](#t53-10).
+
+## Contract
+
+A reduction separates independent local work from a combining operation. Associative integer arithmetic still needs an overflow policy; floating-point sums depend on order. Speedup compares equivalent work and includes launch, synchronization and combination costs.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T53-10.json` contains a finite `partition` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Split an input range across1,2,4 CPUs with disjoint ownership, compute checked local sums and combine in fixed order. Include nondivisible lengths and empty partitions.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+overlapping partition; missing tail elements; overflow; unsynchronized final read; parallel workers actually all run on one CPU; unfair serial baseline.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Match a wide independent sum oracle, show distinct CPU execution and report wall time, CPU time and overhead. Do not infer physical speedup from emulator virtual CPU counts.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Use a histogram reduction with per-CPU bins and compare false-sharing behavior. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T53-10.json](fixtures/os_v3/PR-T53-10.json)
+
+```json
+{
+  "id": "PR-T53-10",
+  "description": "Parallel reduction with deterministic partitioning finite independent example",
+  "oracle": "partition",
+  "input": {
+    "values": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "workers": 3
+  },
+  "expected": {
+    "ranges": [
+      [
+        0,
+        4
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        7,
+        10
+      ]
+    ],
+    "partial_sums": [
+      10,
+      18,
+      27
+    ],
+    "sum": 55
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A reduction separates independent local work from a combining operation. Associative integer arithmetic still needs an overflow policy; floating-point sums depend on order. Speedup compares equivalent work and includes launch, synchronization and combination costs.",
+  "required_observation": "Match a wide independent sum oracle, show distinct CPU execution and report wall time, CPU time and overhead. Do not infer physical speedup from emulator virtual CPU counts."
+}
+```
+
+
+---
+
+<a id="pr-t53-11"></a>
+
+# PR-T53-11 — Bounded parallel work pool
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T53](#t53).
+
+**Covered topics:** [T53.11](#t53-11).
+
+## Contract
+
+A work pool owns accepted jobs until completion or explicit cancellation. Fixed queue capacity creates backpressure, while shutdown needs a clear drain/cancel policy. Worker count and CPU count differ; a blocked worker can reduce effective parallelism.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T53-11.json` contains a finite `queue` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Build a bounded shared work queue with original worker tasks, per-job IDs and a completion ledger. Compare static partitioning and dynamic dispatch for uneven job costs.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+job accepted after close; queue capacity exceeded; duplicate completion; shutdown while worker owns buffer; all workers block waiting for work they themselves must perform.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Account for every submitted, rejected, completed and canceled job and show real execution on multiple CPUs. Diagnose one nested-submission deadlock.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Give one worker a long job and compare queueing delay under work chunking. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T53-11.json](fixtures/os_v3/PR-T53-11.json)
+
+```json
+{
+  "id": "PR-T53-11",
+  "description": "Bounded parallel work pool finite independent example",
+  "oracle": "queue",
+  "input": {
+    "capacity": 3,
+    "actions": [
+      [
+        "put",
+        10
+      ],
+      [
+        "put",
+        20
+      ],
+      [
+        "get"
+      ],
+      [
+        "put",
+        30
+      ],
+      [
+        "put",
+        40
+      ],
+      [
+        "put",
+        50
+      ],
+      [
+        "get"
+      ]
+    ]
+  },
+  "expected": {
+    "received": [
+      10,
+      20
+    ],
+    "rejected": 1,
+    "remaining": [
+      30,
+      40
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A work pool owns accepted jobs until completion or explicit cancellation. Fixed queue capacity creates backpressure, while shutdown needs a clear drain/cancel policy. Worker count and CPU count differ; a blocked worker can reduce effective parallelism.",
+  "required_observation": "Account for every submitted, rejected, completed and canceled job and show real execution on multiple CPUs. Diagnose one nested-submission deadlock."
+}
+```
+
+
+---
+
+<a id="pr-t53-12"></a>
+
+# PR-T53-12 — Dependency DAG execution and scaling limits
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T53](#t53).
+
+**Covered topics:** [T53.12](#t53-12).
+
+## Contract
+
+A DAG task becomes ready when all predecessor results are published. Indegree is not a substitute for validating acyclicity. Total work and critical-path length bound available parallelism, but scheduling, cache and communication costs add implementation overhead.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T53-12.json` contains a finite `dag` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement bounded DAG validation, dependency counters and ready dispatch. Use a fork/join graph with unequal branch costs and compare1,2,4 CPU traces.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+cycle; duplicate edge; decrement before result publication; counter underflow; abandoned dependent after failure; graph exceeds fixed capacity.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Check topological precedence and one execution per node, compute work/span bounds independently, and explain observed scaling limits and failed-node propagation.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Split a long node into several nodes and evaluate overhead against reduced span. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T53-12.json](fixtures/os_v3/PR-T53-12.json)
+
+```json
+{
+  "id": "PR-T53-12",
+  "description": "Dependency DAG execution and scaling limits finite independent example",
+  "oracle": "dag",
+  "input": {
+    "costs": {
+      "A": 2,
+      "B": 3,
+      "C": 5,
+      "D": 1
+    },
+    "edges": [
+      [
+        "A",
+        "B"
+      ],
+      [
+        "A",
+        "C"
+      ],
+      [
+        "B",
+        "D"
+      ],
+      [
+        "C",
+        "D"
+      ]
+    ]
+  },
+  "expected": {
+    "work": 11,
+    "span": 8,
+    "topological": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A DAG task becomes ready when all predecessor results are published. Indegree is not a substitute for validating acyclicity. Total work and critical-path length bound available parallelism, but scheduling, cache and communication costs add implementation overhead.",
+  "required_observation": "Check topological precedence and one execution per node, compute work/span bounds independently, and explain observed scaling limits and failed-node propagation."
+}
+```
+
+
+---
+
+<a id="pr-t54-01"></a>
+
+# PR-T54-01 — Dual images and static peripheral ownership
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T54](#t54).
+
+**Covered topics:** [T54.01](#t54-01).
+
+## Contract
+
+The H745 M7 and M4 run separate images with different core capabilities and memory access paths. Define an address map and a single owner for each peripheral, clock-control operation and shared region. An M7 TCM pointer is not automatically an M4-accessible buffer.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T54-01.json` contains a finite `ranges` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Build two original vector/startup/linker paths and an ownership table. Reserve nonoverlapping flash/RAM images plus an explicitly shared SRAM region and audit both map files.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+overlapping image ranges; both cores initialize one peripheral; inaccessible shared buffer; wrong CPU compiler flags; hidden HAL or runtime library.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Cross-build both images with no forbidden dependencies and validate every declared range and owner. Physical boot remains a separate gate with exact board revision recorded.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Move a shared buffer to another SRAM bank and re-evaluate access and power-domain assumptions. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T54-01.json](fixtures/os_v3/PR-T54-01.json)
+
+```json
+{
+  "id": "PR-T54-01",
+  "description": "Dual images and static peripheral ownership finite independent example",
+  "oracle": "ranges",
+  "input": {
+    "ranges": [
+      [
+        134217728,
+        134283264
+      ],
+      [
+        135266304,
+        135331840
+      ],
+      [
+        939524096,
+        939528192
+      ]
+    ]
+  },
+  "expected": {
+    "overlap": false,
+    "total_bytes": 135168
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The H745 M7 and M4 run separate images with different core capabilities and memory access paths. Define an address map and a single owner for each peripheral, clock-control operation and shared region. An M7 TCM pointer is not automatically an M4-accessible buffer.",
+  "required_observation": "Cross-build both images with no forbidden dependencies and validate every declared range and owner. Physical boot remains a separate gate with exact board revision recorded."
+}
+```
+
+
+---
+
+<a id="pr-t54-02"></a>
+
+# PR-T54-02 — Dual boot and epoch handshake
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T54](#t54).
+
+**Covered topics:** [T54.02](#t54-02).
+
+## Contract
+
+A boot handshake needs a version, epoch and readiness state so one core does not use stale SRAM left by a previous run. One core owns initialization; the peer acknowledges the same epoch after checking layout and capabilities. A peer may be late or absent.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T54-02.json` contains a finite `ack` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement explicit M7/M4 boot sequencing and a bounded shared-memory handshake using original register code. Clear only owned state and publish readiness after initialization.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+stale ready flag; mismatched protocol version; peer absent; both cores clear shared state; reset during publication; acknowledgment for old epoch.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Capture distinct core start markers and matching epoch agreement. Inject a stale epoch in the model and demonstrate rejection; retain physical boot traces separately.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Reset only one peer and perform a new handshake without corrupting the survivor state. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T54-02.json](fixtures/os_v3/PR-T54-02.json)
+
+```json
+{
+  "id": "PR-T54-02",
+  "description": "Dual boot and epoch handshake finite independent example",
+  "oracle": "ack",
+  "input": {
+    "expected_epoch": 12,
+    "expected_cpus": [
+      4,
+      7
+    ],
+    "acks": [
+      [
+        4,
+        11
+      ],
+      [
+        7,
+        12
+      ]
+    ]
+  },
+  "expected": {
+    "acknowledged": [
+      7
+    ],
+    "missing": [
+      4
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A boot handshake needs a version, epoch and readiness state so one core does not use stale SRAM left by a previous run. One core owns initialization; the peer acknowledges the same epoch after checking layout and capabilities. A peer may be late or absent.",
+  "required_observation": "Capture distinct core start markers and matching epoch agreement. Inject a stale epoch in the model and demonstrate rejection; retain physical boot traces separately."
+}
+```
+
+
+---
+
+<a id="pr-t54-03"></a>
+
+# PR-T54-03 — Shared-SRAM SPSC channel
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T54](#t54).
+
+**Covered topics:** [T54.03](#t54-03).
+
+## Contract
+
+One producer owns head publication and one consumer owns tail publication. The baseline shared region is explicitly noncacheable with aligned indices and bounded payloads. Data publication ordering still matters; volatile alone does not define the required cross-core protocol.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T54-03.json` contains a finite `ring` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement two unidirectional SPSC channels with sequence and epoch fields. Use a fixed power-of-two capacity and explicit full/empty policy, then inspect emitted barriers.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+two producers on SPSC; head published before payload; stale epoch; full overwrite; index wrap confused with empty; shared region wrongly cacheable.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Transfer numbered payloads with no gaps except declared rejection, preserve slot ownership and compare payload checksums across cores. Require a real dual-core run for the physical gate.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Use variable-length messages with a fixed maximum and reject truncation without consuming data. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T54-03.json](fixtures/os_v3/PR-T54-03.json)
+
+```json
+{
+  "id": "PR-T54-03",
+  "description": "Shared-SRAM SPSC channel finite independent example",
+  "oracle": "ring",
+  "input": {
+    "capacity": 8,
+    "bits": 8,
+    "head": 2,
+    "tail": 252
+  },
+  "expected": {
+    "used": 6,
+    "free": 2,
+    "valid": true
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "One producer owns head publication and one consumer owns tail publication. The baseline shared region is explicitly noncacheable with aligned indices and bounded payloads. Data publication ordering still matters; volatile alone does not define the required cross-core protocol.",
+  "required_observation": "Transfer numbered payloads with no gaps except declared rejection, preserve slot ownership and compare payload checksums across cores. Require a real dual-core run for the physical gate."
+}
+```
+
+
+---
+
+<a id="pr-t54-04"></a>
+
+# PR-T54-04 — HSEM and coalesced doorbells
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T54](#t54).
+
+**Covered topics:** [T54.04](#t54-04).
+
+## Contract
+
+A hardware semaphore notification signals that shared state may have changed. Several payload publications may produce one pending interrupt, so the receiver must drain authoritative queue state rather than consume one message per interrupt. HSEM ownership and interrupt clearing follow the selected register contract.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T54-04.json` contains a finite `doorbell` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement original HSEM take/release and notification handling with bounded ISR work. After waking, drain the SPSC channel and recheck the sleep boundary.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+interrupt count used as message count; status cleared in wrong order; data published after doorbell; HSEM ownership mismatch; sleeping with queue nonempty.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Demonstrate a burst of several messages serviced after one coalesced wake and preserve every accepted sequence ID. Record ISR and task responsibilities separately.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Mask notification temporarily, enqueue a burst, then restore it and prove eventual drain. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T54-04.json](fixtures/os_v3/PR-T54-04.json)
+
+```json
+{
+  "id": "PR-T54-04",
+  "description": "HSEM and coalesced doorbells finite independent example",
+  "oracle": "doorbell",
+  "input": {
+    "published": [
+      21,
+      22,
+      23
+    ],
+    "interrupts": 1
+  },
+  "expected": {
+    "drained": [
+      21,
+      22,
+      23
+    ],
+    "required_messages": 3,
+    "notification_count": 1
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A hardware semaphore notification signals that shared state may have changed. Several payload publications may produce one pending interrupt, so the receiver must drain authoritative queue state rather than consume one message per interrupt. HSEM ownership and interrupt clearing follow the selected register contract.",
+  "required_observation": "Demonstrate a burst of several messages serviced after one coalesced wake and preserve every accepted sequence ID. Record ISR and task responsibilities separately."
+}
+```
+
+
+---
+
+<a id="pr-t54-05"></a>
+
+# PR-T54-05 — Cache visibility and cache-line ownership
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T54](#t54).
+
+**Covered topics:** [T54.05](#t54-05).
+
+## Contract
+
+The M7 data cache is not automatically coherent with the M4. Cache maintenance operates on lines and can damage unrelated dirty data sharing a line. Keep control and payload ownership explicit; the baseline noncacheable channel and a cached-buffer experiment are separate variants.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T54-05.json` contains a finite `cache_span` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Create a cached transfer variant with aligned dedicated cache lines, clean before remote reads and invalidate before consuming remote writes as required. Include barriers and retain a cache-operation ledger.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+unaligned maintenance span; dirty unrelated bytes invalidated; clean after notification; stale consumer line; barrier substituted for cache maintenance.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Compute rounded cache-line ranges independently, reproduce stale-data behavior under controlled conditions when observable, and demonstrate corrected payload checksums on hardware.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Place unrelated data beside a buffer and explain why line isolation changes the ownership proof. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T54-05.json](fixtures/os_v3/PR-T54-05.json)
+
+```json
+{
+  "id": "PR-T54-05",
+  "description": "Cache visibility and cache-line ownership finite independent example",
+  "oracle": "cache_span",
+  "input": {
+    "address": 536870947,
+    "length": 40,
+    "line_bytes": 32
+  },
+  "expected": {
+    "start": 536870944,
+    "end": 536871008,
+    "bytes": 64
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The M7 data cache is not automatically coherent with the M4. Cache maintenance operates on lines and can damage unrelated dirty data sharing a line. Keep control and payload ownership explicit; the baseline noncacheable channel and a cached-buffer experiment are separate variants.",
+  "required_observation": "Compute rounded cache-line ranges independently, reproduce stale-data behavior under controlled conditions when observable, and demonstrate corrected payload checksums on hardware."
+}
+```
+
+
+---
+
+<a id="pr-t54-06"></a>
+
+# PR-T54-06 — DMA buffers and CPU ownership transitions
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T54](#t54).
+
+**Covered topics:** [T54.06](#t54-06).
+
+## Contract
+
+A DMA engine is another memory actor. A CPU may not modify a buffer while DMA owns it, and a completion interrupt does not by itself fix cache visibility. Model free, CPU-filling, device-owned, completed and CPU-consuming states explicitly.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T54-06.json` contains a finite `buffer_states` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement one bounded DMA transfer path using statically assigned channels and buffers. Publish completion with request generation and perform the chosen cache protocol before CPU consumption.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+CPU writes device-owned buffer; early reuse; stale completion; inaccessible DMA memory; missing cache clean/invalidate; error completion treated as success.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Reconcile every buffer transition and verify payload bytes after actual DMA completion. Inject cancellation and stale-completion cases in the host model without claiming it simulates the bus.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Use ping-pong buffers and bound the maximum producer overrun burst. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T54-06.json](fixtures/os_v3/PR-T54-06.json)
+
+```json
+{
+  "id": "PR-T54-06",
+  "description": "DMA buffers and CPU ownership transitions finite independent example",
+  "oracle": "buffer_states",
+  "input": {
+    "actions": [
+      "fill",
+      "submit",
+      "complete",
+      "consume",
+      "release"
+    ]
+  },
+  "expected": {
+    "states": [
+      "cpu_filling",
+      "device_owned",
+      "completed",
+      "cpu_consuming",
+      "free"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A DMA engine is another memory actor. A CPU may not modify a buffer while DMA owns it, and a completion interrupt does not by itself fix cache visibility. Model free, CPU-filling, device-owned, completed and CPU-consuming states explicitly.",
+  "required_observation": "Reconcile every buffer transition and verify payload bytes after actual DMA completion. Inject cancellation and stale-completion cases in the host model without claiming it simulates the bus."
+}
+```
+
+
+---
+
+<a id="pr-t54-07"></a>
+
+# PR-T54-07 — Cross-core clocks and latency measurement
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T54](#t54).
+
+**Covered topics:** [T54.07](#t54-07).
+
+## Contract
+
+Independent cycle counters need not share rate, origin or wrap behavior. Subtracting one core timestamp from the other is meaningless without a synchronization model. A shared external GPIO capture provides another observation with its own resolution and probe cost.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T54-07.json` contains a finite `cycles` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Measure request/response latency using same-core round trips and a shared logic-analyzer timebase. Record M7/M4 frequencies, timer widths, calibration and instrumentation overhead.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+cross-counter subtraction; frequency changes; wrap; GPIO overhead omitted; dropped samples; average hides tail latency.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Report distributions and upper observed values with sample count, clock conversion and uncertainty. Distinguish physical measurement from model timing and from an analytical WCET bound.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Change one core frequency and predict which communication components scale. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T54-07.json](fixtures/os_v3/PR-T54-07.json)
+
+```json
+{
+  "id": "PR-T54-07",
+  "description": "Cross-core clocks and latency measurement finite independent example",
+  "oracle": "cycles",
+  "input": {
+    "cycles": 4800,
+    "frequency": 480000000
+  },
+  "expected": {
+    "microseconds": 10.0
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Independent cycle counters need not share rate, origin or wrap behavior. Subtracting one core timestamp from the other is meaningless without a synchronization model. A shared external GPIO capture provides another observation with its own resolution and probe cost.",
+  "required_observation": "Report distributions and upper observed values with sample count, clock conversion and uncertainty. Distinguish physical measurement from model timing and from an analytical WCET bound."
+}
+```
+
+
+---
+
+<a id="pr-t54-08"></a>
+
+# PR-T54-08 — Peer failure and protocol recovery
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T54](#t54).
+
+**Covered topics:** [T54.08](#t54-08).
+
+## Contract
+
+A peer reset invalidates its in-flight operation identities and potentially leaves buffers owned by an absent participant. Recovery must establish a new epoch before reusing shared storage. Exactly-once external effects require application-level deduplication, not merely a transport retry.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T54-08.json` contains a finite `epochs` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement heartbeat/timeout observation and supervisor-driven epoch recovery. Stop a peer after publication and before acknowledgment, then reconcile retained or discarded work.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+old reply accepted after restart; both peers reset shared state; duplicate command effect; ownership leaked forever; timeout interpreted as proof peer executed nothing.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show stale epochs rejected, buffers returned through a defined recovery path and explicit uncertain-result reporting for a request interrupted across reset.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Make one command idempotent by request ID and demonstrate safe replay. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T54-08.json](fixtures/os_v3/PR-T54-08.json)
+
+```json
+{
+  "id": "PR-T54-08",
+  "description": "Peer failure and protocol recovery finite independent example",
+  "oracle": "epochs",
+  "input": {
+    "current": 6,
+    "message_epochs": [
+      5,
+      6,
+      6,
+      4,
+      7
+    ]
+  },
+  "expected": {
+    "accepted_indices": [
+      1,
+      2
+    ],
+    "rejected_indices": [
+      0,
+      3,
+      4
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A peer reset invalidates its in-flight operation identities and potentially leaves buffers owned by an absent participant. Recovery must establish a new epoch before reusing shared storage. Exactly-once external effects require application-level deduplication, not merely a transport retry.",
+  "required_observation": "Show stale epochs rejected, buffers returned through a defined recovery path and explicit uncertain-result reporting for a request interrupted across reset."
+}
+```
+
+
+---
+
+<a id="pr-t54-09"></a>
+
+# PR-T54-09 — Interrupt-to-task pipelines on both cores
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T54](#t54).
+
+**Covered topics:** [T54.09](#t54-09).
+
+## Contract
+
+Each core has its own interrupt/task scheduler boundary; shared transport links them. Keep interrupt handlers bounded and move parsing or long computation to tasks. Priority choices on one core do not automatically bound delay on the other.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T54-09.json` contains a finite `pipeline` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Build acquisition ISR to M4 task to shared queue to M7 worker to response pipeline. Give every hop a bounded queue and overload policy, then trace sequence IDs end to end.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+unbounded ISR parsing; hidden queue growth; downstream stall; mixed epochs; priority inversion on one hop; timestamps use incompatible clocks.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Reconcile accepted, completed and dropped items at every hop and derive an end-to-end latency budget from component observations with stated interference.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Inject a high-priority interrupt burst on only one core and locate the resulting queue growth. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T54-09.json](fixtures/os_v3/PR-T54-09.json)
+
+```json
+{
+  "id": "PR-T54-09",
+  "description": "Interrupt-to-task pipelines on both cores finite independent example",
+  "oracle": "pipeline",
+  "input": {
+    "latencies": [
+      3,
+      2,
+      7,
+      4
+    ],
+    "queues": [
+      2,
+      1,
+      3,
+      1
+    ]
+  },
+  "expected": {
+    "uncontended_latency": 16,
+    "total_queue_slots": 7
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Each core has its own interrupt/task scheduler boundary; shared transport links them. Keep interrupt handlers bounded and move parsing or long computation to tasks. Priority choices on one core do not automatically bound delay on the other.",
+  "required_observation": "Reconcile accepted, completed and dropped items at every hop and derive an end-to-end latency budget from component observations with stated interference."
+}
+```
+
+
+---
+
+<a id="pr-t54-10"></a>
+
+# PR-T54-10 — AMP end-to-end observatory
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | E |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T54](#t54).
+
+**Covered topics:** [T54.10](#t54-10).
+
+## Contract
+
+A complete physical experiment combines independent images, ownership, cache/DMA discipline, notification and recovery. Compilation and a host transport model establish narrower facts than board execution. Keep the original runtime independent of FreeRTOS, HAL and OpenAMP.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T54-10.json` contains a finite `budget` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Package both ELF images, maps, protocol version and board configuration. Run periodic acquisition plus parallel compute, a queue-overload burst and a peer restart with external timing capture.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+wrong flashed image; mismatched shared layout; optimization changes barriers; stale evidence; queue loss hidden in average throughput; unavailable board marked pass.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Provide actual dual-core progress, queue and recovery traces with source/image hashes and a full RAM/CPU/I/O ledger. If hardware is unavailable, leave physical completion explicitly not-run.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Move one service to the other core and re-derive ownership and timing before reflashing. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T54-10.json](fixtures/os_v3/PR-T54-10.json)
+
+```json
+{
+  "id": "PR-T54-10",
+  "description": "AMP end-to-end observatory finite independent example",
+  "oracle": "budget",
+  "input": {
+    "ram_components": [
+      8192,
+      4096,
+      2048,
+      1024
+    ],
+    "ram_limit": 65536,
+    "cycles": [
+      80,
+      120,
+      200
+    ]
+  },
+  "expected": {
+    "ram_used": 15360,
+    "ram_free": 50176,
+    "cycles_total": 400
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A complete physical experiment combines independent images, ownership, cache/DMA discipline, notification and recovery. Compilation and a host transport model establish narrower facts than board execution. Keep the original runtime independent of FreeRTOS, HAL and OpenAMP.",
+  "required_observation": "Provide actual dual-core progress, queue and recovery traces with source/image hashes and a full RAM/CPU/I/O ledger. If hardware is unavailable, leave physical completion explicitly not-run."
+}
+```
+
+
+---
+
+<a id="pr-t55-01"></a>
+
+# PR-T55-01 — SPSC publication and acquire-release ordering
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T55](#t55).
+
+**Covered topics:** [T55.01](#t55-01).
+
+## Contract
+
+In an SPSC ring, payload writes happen before producer publication and consumer observation precedes payload reads. Each index has one writer. Independent head and tail counters need a bounded-distance invariant so wrap does not create false free space.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T55-01.json` contains a finite `ring` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement a fixed-capacity C atomic SPSC queue and a deliberately relaxed-publication model. State the happens-before chain and inspect the selected target instruction sequence.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+payload read before acquire; second producer; unbounded counter distance; false sharing; non-lock-free atomic width; output modified on empty.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Validate sequence preservation and slot ownership under wrap and contention. Explain why failure to observe a relaxed-ordering defect on x86 does not prove portability.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add batching while preserving a single publication point for each accepted batch. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T55-01.json](fixtures/os_v3/PR-T55-01.json)
+
+```json
+{
+  "id": "PR-T55-01",
+  "description": "SPSC publication and acquire-release ordering finite independent example",
+  "oracle": "ring",
+  "input": {
+    "capacity": 8,
+    "bits": 8,
+    "head": 1,
+    "tail": 250
+  },
+  "expected": {
+    "used": 7,
+    "free": 1,
+    "valid": true
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "In an SPSC ring, payload writes happen before producer publication and consumer observation precedes payload reads. Each index has one writer. Independent head and tail counters need a bounded-distance invariant so wrap does not create false free space.",
+  "required_observation": "Validate sequence preservation and slot ownership under wrap and contention. Explain why failure to observe a relaxed-ordering defect on x86 does not prove portability."
+}
+```
+
+
+---
+
+<a id="pr-t55-02"></a>
+
+# PR-T55-02 — Compare-and-swap and progress classifications
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T55](#t55).
+
+**Covered topics:** [T55.02](#t55-02).
+
+## Contract
+
+A CAS operation can fail because another thread changed the value; weak CAS may also fail spuriously. Retry loops need updated observations and a proof of what successful interference means. Lock-free system progress differs from wait-free per-operation bounds and from merely avoiding a mutex API.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T55-02.json` contains a finite `cas` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement an x86 CAS counter and a bounded model of interfering updates. Audit compiler atomic width and emitted instructions; keep allocation, logging and error paths in the progress analysis.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+expected value not refreshed; signed overflow; spurious failure mishandled; hidden libatomic call; unbounded unrelated work inside retry loop.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Classify each operation progress property with explicit assumptions and show a schedule that starves one caller while others progress. Do not label that schedule wait-free.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add exponential backoff and explain which guarantees remain unchanged. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T55-02.json](fixtures/os_v3/PR-T55-02.json)
+
+```json
+{
+  "id": "PR-T55-02",
+  "description": "Compare-and-swap and progress classifications finite independent example",
+  "oracle": "cas",
+  "input": {
+    "initial": 4,
+    "attempts": [
+      [
+        3,
+        9
+      ],
+      [
+        4,
+        5
+      ],
+      [
+        4,
+        6
+      ],
+      [
+        5,
+        7
+      ]
+    ]
+  },
+  "expected": {
+    "results": [
+      false,
+      true,
+      false,
+      true
+    ],
+    "final": 7
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A CAS operation can fail because another thread changed the value; weak CAS may also fail spuriously. Retry loops need updated observations and a proof of what successful interference means. Lock-free system progress differs from wait-free per-operation bounds and from merely avoiding a mutex API.",
+  "required_observation": "Classify each operation progress property with explicit assumptions and show a schedule that starves one caller while others progress. Do not label that schedule wait-free."
+}
+```
+
+
+---
+
+<a id="pr-t55-03"></a>
+
+# PR-T55-03 — ABA and identity reuse
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | F |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T55](#t55).
+
+**Covered topics:** [T55.03](#t55-03).
+
+## Contract
+
+Equality of pointer bits does not establish that the object is the same lifetime. A node removed and reused can return a head pointer to A while the surrounding structure changed. A finite tag only postpones wrap; its correctness needs a reuse bound or another lifetime scheme.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T55-03.json` contains a finite `tag` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Build a deterministic three-step stack model that pauses a reader, removes/reuses nodes and resumes its stale CAS. Compare raw pointers, tagged generations and deferred reuse.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+ABA accepted; tag wraps; node contents changed behind equal address; allocator assumed immutable; stale pointer dereferenced before validation.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show the exact corrupted history for raw-pointer CAS and state which assumption each mitigation adds. Distinguish ABA prevention from general use-after-free prevention.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Reduce the generation width to two bits and construct a wrap counterexample. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T55-03.json](fixtures/os_v3/PR-T55-03.json)
+
+```json
+{
+  "id": "PR-T55-03",
+  "description": "ABA and identity reuse finite independent example",
+  "oracle": "tag",
+  "input": {
+    "bits": 2,
+    "initial": 1,
+    "reuses": 4
+  },
+  "expected": {
+    "final": 1,
+    "wrapped": true,
+    "equal_to_initial": true
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Equality of pointer bits does not establish that the object is the same lifetime. A node removed and reused can return a head pointer to A while the surrounding structure changed. A finite tag only postpones wrap; its correctness needs a reuse bound or another lifetime scheme.",
+  "required_observation": "Show the exact corrupted history for raw-pointer CAS and state which assumption each mitigation adds. Distinguish ABA prevention from general use-after-free prevention."
+}
+```
+
+
+---
+
+<a id="pr-t55-04"></a>
+
+# PR-T55-04 — A bounded pool for concurrent nodes
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T55](#t55).
+
+**Covered topics:** [T55.04](#t55-04).
+
+## Contract
+
+Lock-free queue claims include node acquisition and reclamation. A fixed pool avoids general allocator dependencies but still needs a nonblocking allocation contract, exhaustion result and safe reuse discipline. Pool exhaustion must not silently turn into a blocking wait.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T55-04.json` contains a finite `pool` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement a fixed node arena with explicit free, live and retired states and generation IDs. Integrate a try-allocation result before linking a node into a queue.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+pool allocation blocks; retired node reused early; double retirement; capacity leaked on failed CAS; generation wrap; free-list ABA.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Reconcile all node states under exhaustion and contention, and include the free-list algorithm in the progress argument rather than treating it as magic infrastructure.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Partition the pool per worker and measure capacity imbalance versus contention. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T55-04.json](fixtures/os_v3/PR-T55-04.json)
+
+```json
+{
+  "id": "PR-T55-04",
+  "description": "A bounded pool for concurrent nodes finite independent example",
+  "oracle": "pool",
+  "input": {
+    "capacity": 4,
+    "requests": [
+      2,
+      2,
+      1,
+      -1,
+      1
+    ]
+  },
+  "expected": {
+    "used": [
+      2,
+      4,
+      4,
+      3,
+      4
+    ],
+    "rejected": [
+      2
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Lock-free queue claims include node acquisition and reclamation. A fixed pool avoids general allocator dependencies but still needs a nonblocking allocation contract, exhaustion result and safe reuse discipline. Pool exhaustion must not silently turn into a blocking wait.",
+  "required_observation": "Reconcile all node states under exhaustion and contention, and include the free-list algorithm in the progress argument rather than treating it as magic infrastructure."
+}
+```
+
+
+---
+
+<a id="pr-t55-05"></a>
+
+# PR-T55-05 — Hazard-pointer publication and reclamation
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T55](#t55).
+
+**Covered topics:** [T55.05](#t55-05).
+
+## Contract
+
+A reader publishes a hazard then revalidates the source pointer before dereferencing. Otherwise reclamation can occur between its initial read and publication. Retired nodes become reusable only after a correctly ordered scan finds no protecting hazard; thread registration and stalled readers affect finite memory capacity.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T55-05.json` contains a finite `hazards` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement a bounded hazard domain with fixed participants and retired lists. Enumerate protect-publish-recheck against remove-retire-scan, using conservative ordering before optimization.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+dereference before protection; missing revalidation; hazard cleared too early; scan ignores participant; participant reused with stale hazard; retired list overflows.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Demonstrate safe reuse only after the final hazard clears and report bounded-pool exhaustion when a reader stalls. Separate memory safety from progress and memory-usage guarantees.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Pause a participant indefinitely and explain which operations can still make progress. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T55-05.json](fixtures/os_v3/PR-T55-05.json)
+
+```json
+{
+  "id": "PR-T55-05",
+  "description": "Hazard-pointer publication and reclamation finite independent example",
+  "oracle": "hazards",
+  "input": {
+    "retired": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "protected": [
+      2,
+      4
+    ]
+  },
+  "expected": {
+    "reclaimable": [
+      1,
+      3
+    ],
+    "retained": [
+      2,
+      4
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A reader publishes a hazard then revalidates the source pointer before dereferencing. Otherwise reclamation can occur between its initial read and publication. Retired nodes become reusable only after a correctly ordered scan finds no protecting hazard; thread registration and stalled readers affect finite memory capacity.",
+  "required_observation": "Demonstrate safe reuse only after the final hazard clears and report bounded-pool exhaustion when a reader stalls. Separate memory safety from progress and memory-usage guarantees."
+}
+```
+
+
+---
+
+<a id="pr-t55-06"></a>
+
+# PR-T55-06 — Michael-Scott queue with bounded reclamation
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | F |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T55](#t55).
+
+**Covered topics:** [T55.06](#t55-06).
+
+## Contract
+
+The queue uses a dummy node and helping: a lagging tail may be advanced by another participant. Its linearization points differ between enqueue and dequeue. Original pseudocode allocator assumptions do not authorize ordinary free; use the accepted hazard domain and bounded pool.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T55-06.json` contains a finite `queue` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement the queue on x86 with supported CAS widths, explicit memory orders and protected node reads. Integrate empty, full-pool and help-tail paths and record operation histories.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+missing tail help; dummy node freed early; node protected after dereference; double dequeue; allocator blocks; pair CAS not actually lock-free.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Check finite histories against FIFO semantics and demonstrate delayed-tail helping plus safe reclamation. Audit the entire call path before making a lock-free claim.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Delay an enqueuer after linking but before tail update and verify another participant completes. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T55-06.json](fixtures/os_v3/PR-T55-06.json)
+
+```json
+{
+  "id": "PR-T55-06",
+  "description": "Michael-Scott queue with bounded reclamation finite independent example",
+  "oracle": "queue",
+  "input": {
+    "capacity": 3,
+    "actions": [
+      [
+        "put",
+        7
+      ],
+      [
+        "put",
+        8
+      ],
+      [
+        "get"
+      ],
+      [
+        "put",
+        9
+      ],
+      [
+        "get"
+      ],
+      [
+        "get"
+      ]
+    ]
+  },
+  "expected": {
+    "received": [
+      7,
+      8,
+      9
+    ],
+    "rejected": 0,
+    "remaining": []
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The queue uses a dummy node and helping: a lagging tail may be advanced by another participant. Its linearization points differ between enqueue and dequeue. Original pseudocode allocator assumptions do not authorize ordinary free; use the accepted hazard domain and bounded pool.",
+  "required_observation": "Check finite histories against FIFO semantics and demonstrate delayed-tail helping plus safe reclamation. Audit the entire call path before making a lock-free claim."
+}
+```
+
+
+---
+
+<a id="pr-t55-07"></a>
+
+# PR-T55-07 — Epoch reclamation and quiescent states
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T55](#t55).
+
+**Covered topics:** [T55.07](#t55-07).
+
+## Contract
+
+Epoch schemes delay reuse until every participant that could have seen a retired node passes a quiescent boundary. A stalled participant can retain memory indefinitely. Epoch entry/exit and participant deregistration are part of the safety contract, not optional instrumentation.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T55-07.json` contains a finite `epoch_reclaim` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement a fixed-participant epoch domain for an append/read/remove structure and compare retire-list growth with hazard pointers under a paused reader.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+reader accesses after leaving epoch; epoch advanced too early; deregistered active reader ignored; counter wrap; pool exhaustion hidden.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Identify the earliest safe reuse point for each retired node and show memory retention under a nonquiescent reader. State that bounded storage can force explicit exhaustion despite algorithmic progress.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Introduce periodic quiescent points and measure latency versus retention. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T55-07.json](fixtures/os_v3/PR-T55-07.json)
+
+```json
+{
+  "id": "PR-T55-07",
+  "description": "Epoch reclamation and quiescent states finite independent example",
+  "oracle": "epoch_reclaim",
+  "input": {
+    "retired": [
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        5
+      ],
+      [
+        3,
+        6
+      ]
+    ],
+    "active_epochs": [
+      5,
+      7
+    ]
+  },
+  "expected": {
+    "reclaimable": [
+      1
+    ],
+    "retained": [
+      2,
+      3
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Epoch schemes delay reuse until every participant that could have seen a retired node passes a quiescent boundary. A stalled participant can retain memory indefinitely. Epoch entry/exit and participant deregistration are part of the safety contract, not optional instrumentation.",
+  "required_observation": "Identify the earliest safe reuse point for each retired node and show memory retention under a nonquiescent reader. State that bounded storage can force explicit exhaustion despite algorithmic progress."
+}
+```
+
+
+---
+
+<a id="pr-t55-08"></a>
+
+# PR-T55-08 — Read-copy-update as an ownership protocol
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T55](#t55).
+
+**Covered topics:** [T55.08](#t55-08).
+
+## Contract
+
+RCU readers observe a published immutable version while writers replace it and wait for a grace period before reclamation. Publication, grace-period detection and freeing are separate obligations. A teaching userspace/guest scheme is not automatically equivalent to Linux RCU.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T55-08.json` contains a finite `grace` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement immutable configuration replacement with fixed version slots and a bounded quiescent-state protocol. Keep writer serialization explicit and prevent mutation of published versions.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+writer edits published object; grace period ignores preexisting reader; nested read section mishandled; callback frees current version; stalled reader exhausts versions.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show each reader sees a self-consistent version and old storage remains valid through its final reader. Explain the selected grace-period model and its limits.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Compare copy-on-update cost with a reader-writer lock under read-heavy traffic. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T55-08.json](fixtures/os_v3/PR-T55-08.json)
+
+```json
+{
+  "id": "PR-T55-08",
+  "description": "Read-copy-update as an ownership protocol finite independent example",
+  "oracle": "grace",
+  "input": {
+    "reader_entries": [
+      2,
+      4,
+      7
+    ],
+    "reader_exits": [
+      9,
+      6,
+      10
+    ],
+    "publication_time": 5
+  },
+  "expected": {
+    "grace_end": 9,
+    "preexisting_readers": [
+      0,
+      1
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "RCU readers observe a published immutable version while writers replace it and wait for a grace period before reclamation. Publication, grace-period detection and freeing are separate obligations. A teaching userspace/guest scheme is not automatically equivalent to Linux RCU.",
+  "required_observation": "Show each reader sees a self-consistent version and old storage remains valid through its final reader. Explain the selected grace-period model and its limits."
+}
+```
+
+
+---
+
+<a id="pr-t55-09"></a>
+
+# PR-T55-09 — Concurrent histories and linearizability checking
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | F |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T55](#t55).
+
+**Covered topics:** [T55.09](#t55-09).
+
+## Contract
+
+A history records invocation, response, arguments and result for each operation. A linearization must preserve real-time order of nonoverlapping calls and satisfy the sequential object specification. A checker of small histories is a finite oracle, not proof of every possible execution.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T55-09.json` contains a finite `history` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Write a bounded backtracking checker for queue histories with distinct operation IDs. Feed generated legal histories and hand-designed lost-item, duplicate-item and ordering violations.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+using log order as total execution order; ignoring real-time precedence; pending operation mishandled; duplicate ID; checker accepts empty dequeue while required item exists.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Reject the supplied impossible histories and show a witness sequential order for accepted ones. State the history length/state-space limit and retain the smallest counterexample.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add a stack specification and demonstrate that one history can be legal for one object and illegal for another. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T55-09.json](fixtures/os_v3/PR-T55-09.json)
+
+```json
+{
+  "id": "PR-T55-09",
+  "description": "Concurrent histories and linearizability checking finite independent example",
+  "oracle": "history",
+  "input": {
+    "operations": [
+      [
+        "enq",
+        1,
+        0,
+        1
+      ],
+      [
+        "enq",
+        2,
+        2,
+        3
+      ],
+      [
+        "deq",
+        2,
+        4,
+        5
+      ]
+    ]
+  },
+  "expected": {
+    "linearizable": false
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A history records invocation, response, arguments and result for each operation. A linearization must preserve real-time order of nonoverlapping calls and satisfy the sequential object specification. A checker of small histories is a finite oracle, not proof of every possible execution.",
+  "required_observation": "Reject the supplied impossible histories and show a witness sequential order for accepted ones. State the history length/state-space limit and retain the smallest counterexample."
+}
+```
+
+
+---
+
+<a id="pr-t55-10"></a>
+
+# PR-T55-10 — End-to-end progress and contention audit
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** execution. [Unsolved family scaffold](labs/execution/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T55](#t55).
+
+**Covered topics:** [T55.10](#t55-10).
+
+## Contract
+
+Performance comparisons require equal semantics, payloads, allocation policy and shutdown behavior. A lock-free data path that calls a blocking allocator or logger is not an end-to-end lock-free operation. Retry count, tail latency, fairness, cache traffic and memory retention complement throughput.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T55-10.json` contains a finite `speedup` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `execution` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Compare SPSC, a mutex queue and the reclaimed MPMC queue under uncontended, contended, oversubscribed and paused-participant workloads. Audit all success, failure and reclamation paths.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+unequal capacity; benchmarks optimize away work; hidden allocation; only average latency; sanitizer timing used as performance result; stress success advertised as proof.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Publish correctness evidence separately from performance data, record uncertainty and classify progress for each complete operation. Explain an observed case where locking performs better.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Change message size and CPU affinity to expose bandwidth and cache effects. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T55-10.json](fixtures/os_v3/PR-T55-10.json)
+
+```json
+{
+  "id": "PR-T55-10",
+  "description": "End-to-end progress and contention audit finite independent example",
+  "oracle": "speedup",
+  "input": {
+    "serial": 100,
+    "parallel": 40,
+    "workers": 4
+  },
+  "expected": {
+    "speedup": 2.5,
+    "efficiency": 0.625
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Performance comparisons require equal semantics, payloads, allocation policy and shutdown behavior. A lock-free data path that calls a blocking allocator or logger is not an end-to-end lock-free operation. Retry count, tail latency, fairness, cache traffic and memory retention complement throughput.",
+  "required_observation": "Publish correctness evidence separately from performance data, record uncertainty and classify progress for each complete operation. Explain an observed case where locking performs better."
+}
+```
+
+
+---
+
+<a id="pr-t56-01"></a>
+
+# PR-T56-01 — Process and thread objects as distinct lifetimes
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T56](#t56).
+
+**Covered topics:** [T56.01](#t56-01).
+
+## Contract
+
+A process owns an address space and handle table; its threads own execution contexts and stacks. Removing the last thread triggers process cleanup only after outstanding kernel references drain. Per-process and per-thread IDs need independent generation checks.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T56-01.json` contains a finite `references` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Refactor the existing one-thread process representation into bounded process and thread pools. Preserve old isolation tests and add two threads sharing one process mapping.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+process freed while thread runnable; wrong address space selected; thread handle used as process handle; shared kernel stack; count decremented twice.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Demonstrate shared user state within one process and isolation across two processes, with complete pool/refcount accounting after all threads exit.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Terminate one thread while a peer in the same process is blocked on a channel. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T56-01.json](fixtures/os_v3/PR-T56-01.json)
+
+```json
+{
+  "id": "PR-T56-01",
+  "description": "Process and thread objects as distinct lifetimes finite independent example",
+  "oracle": "references",
+  "input": {
+    "initial": 1,
+    "deltas": [
+      1,
+      1,
+      -1,
+      -1,
+      -1
+    ]
+  },
+  "expected": {
+    "counts": [
+      2,
+      3,
+      2,
+      1,
+      0
+    ],
+    "first_zero_step": 5
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A process owns an address space and handle table; its threads own execution contexts and stacks. Removing the last thread triggers process cleanup only after outstanding kernel references drain. Per-process and per-thread IDs need independent generation checks.",
+  "required_observation": "Demonstrate shared user state within one process and isolation across two processes, with complete pool/refcount accounting after all threads exit."
+}
+```
+
+
+---
+
+<a id="pr-t56-02"></a>
+
+# PR-T56-02 — Spawn, exit, wait and process reaping
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T56](#t56).
+
+**Covered topics:** [T56.02](#t56-02).
+
+## Contract
+
+Spawn loads a checked image into a new process; it is distinct from copying the caller address space. Exit publishes status and closes owned resources; wait consumes a child completion according to a single-parent policy. Partial load failure must roll back frames and handles.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T56-02.json` contains a finite `reap` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement bounded spawn/exit/wait using the existing static ELF profile and boot archive. Test parent wait before and after child exit and define orphan handling.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+malformed image leaks frames; wait on nonchild; child reaped twice; parent exits first; child handle reused; wait blocks while holding global lock.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Run real child programs with distinct exit values and reject foreign/stale waits. Reconcile all resources on load failure and orphan cleanup.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Spawn until capacity exhaustion and verify the next failed attempt leaves existing children unaffected. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T56-02.json](fixtures/os_v3/PR-T56-02.json)
+
+```json
+{
+  "id": "PR-T56-02",
+  "description": "Spawn, exit, wait and process reaping finite independent example",
+  "oracle": "reap",
+  "input": {
+    "children": {
+      "A": 7,
+      "B": 3
+    },
+    "waits": [
+      "A",
+      "A",
+      "C",
+      "B"
+    ]
+  },
+  "expected": {
+    "results": [
+      7,
+      "already_reaped",
+      "not_child",
+      3
+    ],
+    "remaining": []
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Spawn loads a checked image into a new process; it is distinct from copying the caller address space. Exit publishes status and closes owned resources; wait consumes a child completion according to a single-parent policy. Partial load failure must roll back frames and handles.",
+  "required_observation": "Run real child programs with distinct exit values and reject foreign/stale waits. Reconcile all resources on load failure and orphan cleanup."
+}
+```
+
+
+---
+
+<a id="pr-t56-03"></a>
+
+# PR-T56-03 — Demand-zero faults and frame ownership
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T56](#t56).
+
+**Covered topics:** [T56.03](#t56-03).
+
+## Contract
+
+An admitted virtual region can begin without a physical page. A not-present user fault within that region allocates and zeroes a frame; a protection fault or invalid address is a different event. Publish the mapping only after initialization, with rollback on allocation failure.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T56-03.json` contains a finite `pool` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement demand-zero for one bounded heap region using the existing frame allocator. Decode fault cause and retain per-process page ledgers.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+kernel fault treated as user allocation; stale nonzero data exposed; allocating outside region; racing faults allocate twice; out-of-memory loses existing mapping.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Observe real first-touch faults and zero-filled bytes, show invalid accesses terminate the offending process, and verify no frame leaks across exhaustion and exit.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Have two threads fault the same page concurrently and resolve to one owned frame. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T56-03.json](fixtures/os_v3/PR-T56-03.json)
+
+```json
+{
+  "id": "PR-T56-03",
+  "description": "Demand-zero faults and frame ownership finite independent example",
+  "oracle": "pool",
+  "input": {
+    "capacity": 4,
+    "requests": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      -2
+    ]
+  },
+  "expected": {
+    "used": [
+      1,
+      2,
+      3,
+      4,
+      4,
+      2
+    ],
+    "rejected": [
+      4
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "An admitted virtual region can begin without a physical page. A not-present user fault within that region allocates and zeroes a frame; a protection fault or invalid address is a different event. Publish the mapping only after initialization, with rollback on allocation failure.",
+  "required_observation": "Observe real first-touch faults and zero-filled bytes, show invalid accesses terminate the offending process, and verify no frame leaks across exhaustion and exit."
+}
+```
+
+
+---
+
+<a id="pr-t56-04"></a>
+
+# PR-T56-04 — Restricted copy-on-write cloning
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T56](#t56).
+
+**Covered topics:** [T56.04](#t56-04).
+
+## Contract
+
+Restrict COW cloning to a single-threaded process with supported anonymous private pages; reject unsupported shared/device mappings. Mark both mappings read-only, increment frame references and invalidate relevant TLB entries before resuming. A write fault copies only when sharing remains.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T56-04.json` contains a finite `cow` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement the restricted clone and write-fault path with checked frame refcounts and rollback. Test parent and child writing separate values to the same virtual address.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+parent remains writable; reference count wrong; old frame freed before shootdown; out-of-memory corrupts original; unsupported multithreaded clone admitted.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Demonstrate shared physical frames before writes and distinct contents afterward, including a sole-owner optimization and allocation-failure rollback.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Exit the child before either side writes and explain why the parent can regain write permission without copying. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T56-04.json](fixtures/os_v3/PR-T56-04.json)
+
+```json
+{
+  "id": "PR-T56-04",
+  "description": "Restricted copy-on-write cloning finite independent example",
+  "oracle": "cow",
+  "input": {
+    "initial_refs": 2,
+    "free_frames": 1,
+    "write": "child"
+  },
+  "expected": {
+    "original_refs": 1,
+    "child_private": true,
+    "free_frames": 0
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Restrict COW cloning to a single-threaded process with supported anonymous private pages; reject unsupported shared/device mappings. Mark both mappings read-only, increment frame references and invalidate relevant TLB entries before resuming. A write fault copies only when sharing remains.",
+  "required_observation": "Demonstrate shared physical frames before writes and distinct contents afterward, including a sole-owner optimization and allocation-failure rollback."
+}
+```
+
+
+---
+
+<a id="pr-t56-05"></a>
+
+# PR-T56-05 — Bounded process channels
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T56](#t56).
+
+**Covered topics:** [T56.05](#t56-05).
+
+## Contract
+
+A channel crosses a process boundary and therefore validates user spans and owns queued copies. Handles name endpoints, not arbitrary shared pointers. Close semantics distinguish peer shutdown, queued data still available and cancellation of blocked operations.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T56-05.json` contains a finite `span` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Expose bounded send/receive/close syscalls using generation-checked endpoints. Start with fixed maximum message size and explicit directional rights.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+kernel pointer supplied; output crosses unmapped page; oversized payload; endpoint used after close; sender dies with waiter enrolled; message consumed before copy succeeds.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Run isolated client/server processes, reject invalid spans without kernel corruption and preserve queued-message accounting through peer exit.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Connect three processes into a pipeline and impose backpressure at the final receiver. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T56-05.json](fixtures/os_v3/PR-T56-05.json)
+
+```json
+{
+  "id": "PR-T56-05",
+  "description": "Bounded process channels finite independent example",
+  "oracle": "span",
+  "input": {
+    "address": 4090,
+    "length": 16,
+    "allowed_start": 0,
+    "allowed_end": 4096
+  },
+  "expected": {
+    "valid": false,
+    "end": 4106
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A channel crosses a process boundary and therefore validates user spans and owns queued copies. Handles name endpoints, not arbitrary shared pointers. Close semantics distinguish peer shutdown, queued data still available and cancellation of blocked operations.",
+  "required_observation": "Run isolated client/server processes, reject invalid spans without kernel corruption and preserve queued-message accounting through peer exit."
+}
+```
+
+
+---
+
+<a id="pr-t56-06"></a>
+
+# PR-T56-06 — Shared-memory objects and explicit synchronization
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T56](#t56).
+
+**Covered topics:** [T56.06](#t56-06).
+
+## Contract
+
+Shared memory is a separately owned object mapped into admitted processes; mapping it does not synchronize data access. Rights, page lifetime and mapping references must remain explicit. A process exit drops its mappings but must not free storage still mapped elsewhere.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T56-06.json` contains a finite `references` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement bounded shared-memory create/map/unmap handles and one synchronized producer-consumer protocol. Keep executable mappings out of this teaching profile.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+write granted to read-only endpoint; frame freed on first unmap; stale handle; unsynchronized plain-data race; offset/length overflow; mappings overlap protected regions.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Show one physical object visible through two virtual mappings with controlled publication, correct rights and final-reference reclamation.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Kill one process while the other continues using the object and reconcile surviving references. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T56-06.json](fixtures/os_v3/PR-T56-06.json)
+
+```json
+{
+  "id": "PR-T56-06",
+  "description": "Shared-memory objects and explicit synchronization finite independent example",
+  "oracle": "references",
+  "input": {
+    "initial": 1,
+    "deltas": [
+      1,
+      1,
+      -1,
+      -1,
+      -1
+    ]
+  },
+  "expected": {
+    "counts": [
+      2,
+      3,
+      2,
+      1,
+      0
+    ],
+    "first_zero_step": 5
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Shared memory is a separately owned object mapped into admitted processes; mapping it does not synchronize data access. Rights, page lifetime and mapping references must remain explicit. A process exit drops its mappings but must not free storage still mapped elsewhere.",
+  "required_observation": "Show one physical object visible through two virtual mappings with controlled publication, correct rights and final-reference reclamation."
+}
+```
+
+
+---
+
+<a id="pr-t56-07"></a>
+
+# PR-T56-07 — Asynchronous block requests and completion ownership
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T56](#t56).
+
+**Covered topics:** [T56.07](#t56-07).
+
+## Contract
+
+Submission transfers a request buffer to the driver until terminal completion. The kernel may schedule other work while the device owns descriptors. Interrupt arrival is a prompt to consume used-ring state; it is not one completion per interrupt.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T56-07.json` contains a finite `completion` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Extend the original virtio block path with a bounded outstanding-request pool, generation IDs and wait queues. Preserve descriptor/buffer ownership through success, error and timeout observation.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+buffer reused before completion; used index wrap; coalesced interrupt loses completion; stale request ID; device error ignored; timeout frees still-device-owned memory.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Run user work while actual block I/O is outstanding and account for all requests/descriptors. Demonstrate that timeout reports uncertainty without unsafe reuse.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Complete several requests in one interrupt and verify each waiting client gets its own result. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T56-07.json](fixtures/os_v3/PR-T56-07.json)
+
+```json
+{
+  "id": "PR-T56-07",
+  "description": "Asynchronous block requests and completion ownership finite independent example",
+  "oracle": "completion",
+  "input": {
+    "active_generation": 10,
+    "events": [
+      [
+        9,
+        30
+      ],
+      [
+        10,
+        31
+      ],
+      [
+        10,
+        32
+      ]
+    ]
+  },
+  "expected": {
+    "accepted": [
+      31
+    ],
+    "rejected": 2
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Submission transfers a request buffer to the driver until terminal completion. The kernel may schedule other work while the device owns descriptors. Interrupt arrival is a prompt to consume used-ring state; it is not one completion per interrupt.",
+  "required_observation": "Run user work while actual block I/O is outstanding and account for all requests/descriptors. Demonstrate that timeout reports uncertainty without unsafe reuse."
+}
+```
+
+
+---
+
+<a id="pr-t56-08"></a>
+
+# PR-T56-08 — Read-only boot archive as a file service
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T56](#t56).
+
+**Covered topics:** [T56.08](#t56-08).
+
+## Contract
+
+Expose the existing bounded boot archive through open/read/seek/close rather than direct archive pointers. Per-open offsets and rights belong to handles. A read may return fewer bytes at EOF; archive data remains immutable and bounds-checked.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T56-08.json` contains a finite `read` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Implement a minimal read-only namespace and file operations over validated archive entries. Reuse the existing archive parser and reject writes or unsupported path syntax.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+negative/wrapping seek; duplicate names; path traversal accepted; stale file handle; offset shared accidentally between independent opens; read beyond EOF.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Read known file hashes through the actual user syscall path and preserve independent offsets. Reject malformed archives before exposing any entries.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Duplicate one file handle with explicitly shared offset semantics and compare separate opens. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T56-08.json](fixtures/os_v3/PR-T56-08.json)
+
+```json
+{
+  "id": "PR-T56-08",
+  "description": "Read-only boot archive as a file service finite independent example",
+  "oracle": "read",
+  "input": {
+    "file_size": 10,
+    "offset": 7,
+    "requested": 8
+  },
+  "expected": {
+    "returned": 3,
+    "new_offset": 10
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Expose the existing bounded boot archive through open/read/seek/close rather than direct archive pointers. Per-open offsets and rights belong to handles. A read may return fewer bytes at EOF; archive data remains immutable and bounds-checked.",
+  "required_observation": "Read known file hashes through the actual user syscall path and preserve independent offsets. Reject malformed archives before exposing any entries."
+}
+```
+
+
+---
+
+<a id="pr-t56-09"></a>
+
+# PR-T56-09 — VM execution as a bounded service
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T56](#t56).
+
+**Covered topics:** [T56.09](#t56-09).
+
+## Contract
+
+The VM service receives a bounded program/request, verifies it and executes with explicit fuel and object limits. Request identity, caller lifetime and reply ownership are separate from VM internal handles. A service failure must not expose arbitrary kernel state.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T56-09.json` contains a finite `fuel` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Wrap the existing VM in an isolated process service over channels. Add request IDs, bounded program/result messages and a clear cancellation/result-too-large policy.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+unverified bytecode; fuel exhaustion crashes server; client exits before reply; oversized result; duplicate request confused with new work; native pointer sent as guest value.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Run valid and malformed programs from separate clients, preserve process isolation and return explicit resource errors while other clients progress.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Run two VM service instances and dispatch requests without sharing their internal arenas. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T56-09.json](fixtures/os_v3/PR-T56-09.json)
+
+```json
+{
+  "id": "PR-T56-09",
+  "description": "VM execution as a bounded service finite independent example",
+  "oracle": "fuel",
+  "input": {
+    "fuel": 7,
+    "instruction_costs": [
+      1,
+      2,
+      1,
+      3,
+      1
+    ]
+  },
+  "expected": {
+    "completed": 4,
+    "remaining": 0,
+    "terminal": "fuel_exhausted"
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The VM service receives a bounded program/request, verifies it and executes with explicit fuel and object limits. Request identity, caller lifetime and reply ownership are separate from VM internal handles. A service failure must not expose arbitrary kernel state.",
+  "required_observation": "Run valid and malformed programs from separate clients, preserve process isolation and return explicit resource errors while other clients progress."
+}
+```
+
+
+---
+
+<a id="pr-t56-10"></a>
+
+# PR-T56-10 — Single-owner persistent store service
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T56](#t56).
+
+**Covered topics:** [T56.10](#t56-10).
+
+## Contract
+
+The existing persistent store retains one mutation owner. Other processes submit bounded commands and never access its page cache or transaction structures directly. A successful reply requiring durability follows the store commit/flush boundary; transport receipt alone is insufficient.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T56-10.json` contains a finite `durable` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Build a channel-based store service with bounded get/put requests, request IDs and one owner of the block handle. Reuse the existing WAL/checkpoint implementation unchanged behind the adapter.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+two writers mutate cache; acknowledgment before durable commit; client retry duplicates nonidempotent effect; queue full loses ownership; store process exits midtransaction.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Preserve the store regression suite, show concurrent clients serialized through one owner and correlate durable replies with committed log records.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Add read batching while maintaining the specified visibility order for concurrent writes. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T56-10.json](fixtures/os_v3/PR-T56-10.json)
+
+```json
+{
+  "id": "PR-T56-10",
+  "description": "Single-owner persistent store service finite independent example",
+  "oracle": "durable",
+  "input": {
+    "events": [
+      "submit",
+      "wal_write",
+      "flush_complete",
+      "reply"
+    ]
+  },
+  "expected": {
+    "reply_is_durable": true
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The existing persistent store retains one mutation owner. Other processes submit bounded commands and never access its page cache or transaction structures directly. A successful reply requiring durability follows the store commit/flush boundary; transport receipt alone is insufficient.",
+  "required_observation": "Preserve the store regression suite, show concurrent clients serialized through one owner and correlate durable replies with committed log records."
+}
+```
+
+
+---
+
+<a id="pr-t56-11"></a>
+
+# PR-T56-11 — Service restart and reboot recovery
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 8 h | core | F |
+
+**Executable anchors:** kernel_smp. [Unsolved family scaffold](labs/kernel_smp/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T56](#t56).
+
+**Covered topics:** [T56.11](#t56-11).
+
+## Contract
+
+A service crash and a machine reboot have different surviving state. In-flight requests may have uncertain outcomes; a durable operation ID can permit safe deduplication only if stored transactionally with the effect. Restart must revoke stale endpoint generations.
+
+This 8-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T56-11.json` contains a finite `recovery` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Integrate VM and store clients with supervised restart and the existing disk-recovery path. Persist a known value, terminate/restart the service, then reboot the guest and verify recovery.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+stale endpoint still accepted; reply lost after commit; duplicate retry effect; supervisor holds dead process resources; recovery trusts incomplete WAL; fresh disk accidentally used.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Recover the committed value after actual reboot, distinguish uncommitted work, and account for every request as completed, rejected or uncertain. Retain disk/image identities and restart traces.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Crash after commit but before reply and prove the documented retry semantics. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T56-11.json](fixtures/os_v3/PR-T56-11.json)
+
+```json
+{
+  "id": "PR-T56-11",
+  "description": "Service restart and reboot recovery finite independent example",
+  "oracle": "recovery",
+  "input": {
+    "records": [
+      [
+        "put",
+        1,
+        42
+      ],
+      [
+        "commit",
+        1
+      ],
+      [
+        "put",
+        2,
+        99
+      ]
+    ],
+    "key": 1
+  },
+  "expected": {
+    "committed_value": 42,
+    "discarded_transactions": [
+      2
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A service crash and a machine reboot have different surviving state. In-flight requests may have uncertain outcomes; a durable operation ID can permit safe deduplication only if stored transactionally with the effect. Restart must revoke stale endpoint generations.",
+  "required_observation": "Recover the committed value after actual reboot, distinguish uncommitted work, and account for every request as completed, rejected or uncertain. Retain disk/image identities and restart traces."
+}
+```
+
+
+---
+
+<a id="pr-t56-12"></a>
+
+# PR-T56-12 — Physical dual-core application and OS comparison
+
+| Budget | Disposition | Profile |
+| --- | --- | --- |
+| 10 h | core | F |
+
+**Executable anchors:** os_observatory. [Unsolved family scaffold](labs/os_observatory/README.md). Read its family manifest for tested scope and remaining project obligations.
+
+**Teaching module:** [T56](#t56).
+
+**Covered topics:** [T56.12](#t56-12).
+
+## Contract
+
+Transfer the service decomposition to the H745: one core owns acquisition/control and the other owns bounded compute/telemetry. Keep each image freestanding and connect them with the accepted AMP protocol. Compare the same workload structure with the hosted and SMP systems while respecting their different protection and timing properties.
+
+This 10-hour milestone includes implementation and verification. Reading, assessment and delayed retrieval are budgeted separately. Reuse accepted earlier components and record which source files changed. Caller storage, queue limits and task identities must be explicit; failure must preserve the last valid state or enter a documented failed state.
+
+## Inputs and expected results
+
+The supplied `fixtures/os_v3/PR-T56-12.json` contains a finite `pipeline` example with hand-declared expected results. From the curriculum source checkout, run `python research/v3/verify_fixtures.py` to recompute its schedule, arithmetic or state transitions independently. This oracle does not execute your implementation. The implementation lives in the `kernel_smp` learner workspace. Consult that family's manifest for the exact available project-selected tests. A missing mapping, a model-only pass or an unavailable physical target never closes the machine-execution gate.
+
+## Steps
+
+Integrate the accepted dual-core runtime, queues, notifications, cache/DMA rules and peer recovery. Record an end-to-end message ledger, deadline-miss policy and external timing captures.
+
+Before running, draw the transition or ownership diagram and predict the first observable divergence of one faulty variant. Keep the good and faulty traces under identical inputs. Record compiler, options, source/image hashes, queue/task limits and the clock used. Start with one boundary, then combine already accepted mechanisms.
+
+## Failure cases
+
+physical run replaced by host simulation; two peripheral owners; stale epoch accepted; queue overload hidden; mixed clock timestamps; custom firmware links existing OS.
+
+Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
+
+## Acceptance and evidence
+
+Deliver two audited images and actual physical evidence for parallel progress, synchronization, overload and restart. Keep any missing board gate explicitly open while retaining completed build/model evidence.
+
+For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
+
+## Hints and recovery
+
+First identify the invariant violated, then reduce the schedule to the shortest counterexample. Inspect the family's staged hints after recording your attempt. Freeze previously accepted boundaries while repairing this mechanism. Assessor implementations are separate artifacts and cannot be relabeled as learner work.
+
+## Transfer challenge
+
+Change which core owns telemetry and defend the resulting resource and timing budget. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+
+## Supplied fixtures
+
+- [PR-T56-12.json](fixtures/os_v3/PR-T56-12.json)
+
+```json
+{
+  "id": "PR-T56-12",
+  "description": "Physical dual-core application and OS comparison finite independent example",
+  "oracle": "pipeline",
+  "input": {
+    "latencies": [
+      2,
+      3,
+      6,
+      4,
+      2
+    ],
+    "queues": [
+      4,
+      8,
+      8,
+      4,
+      2
+    ]
+  },
+  "expected": {
+    "uncontended_latency": 17,
+    "total_queue_slots": 26
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Transfer the service decomposition to the H745: one core owns acquisition/control and the other owns bounded compute/telemetry. Keep each image freestanding and connect them with the accepted AMP protocol. Compare the same workload structure with the hosted and SMP systems while respecting their different protection and timing properties.",
+  "required_observation": "Deliver two audited images and actual physical evidence for parallel progress, synchronization, overload and restart. Keep any missing board gate explicitly open while retaining completed build/model evidence."
+}
+```
+
+
+---
+
 <a id="r-acsl-124"></a>
 
 # ANSI/ISO C Specification Language
@@ -71350,6 +83807,7 @@ Scheduler interrupt setup, PendSV register/FPU save and restore, FromISR priorit
 
 - [T29](#t29)
 - [T30](#t30)
+- [T50](#t50)
 
 
 ---
@@ -71812,6 +84270,7 @@ Printed pp. 47–49; assumptions A1–A5 and Theorem 1 critical-instant argument
 ## Teaching backlinks
 
 - [T30](#t30)
+- [T52](#t52)
 
 
 ---
@@ -75173,6 +87632,7 @@ Author institution copy: algorithm explanation, queue pseudocode Figure 1 and st
 ## Teaching backlinks
 
 - [T26](#t26)
+- [T55](#t55)
 
 
 ---
@@ -75448,6 +87908,7 @@ Title/imprint and selected printed passages, using physical PDF offset +44; not 
 
 - [T23](#t23)
 - [T25](#t25)
+- [T49](#t49)
 
 
 ---
@@ -77373,6 +89834,7 @@ Modern PCI/split-queue/FLUSH contract; no packed-queue, MSI-X, IOMMU or general-
 ## Teaching backlinks
 
 - [T48](#t48)
+- [T56](#t56)
 
 
 ---
@@ -77487,6 +89949,7 @@ Frames and per-process translation examples; not a complete x86 page-table imple
 ## Teaching backlinks
 
 - [T48](#t48)
+- [T56](#t56)
 
 
 ---
@@ -77527,3 +89990,840 @@ Named small transport/mode boundary only; no copied code or raw copyrighted payl
 ## Teaching backlinks
 
 
+
+
+---
+
+<a id="r-os3-ospp-ii"></a>
+
+# Operating Systems: Principles and Practice, Volume II: Concurrency
+
+**Authors/maintainers:** Thomas Anderson, Michael Dahlin.
+
+**Edition/version:** Second edition, Volume II. **Year:** 2015.
+
+**Role:** primary. **Access:** Held local PDF; selected text passages extracted with pdftotext and inspected; no complete-book review claim.
+
+[Authoritative resource page](https://ospp.cs.washington.edu/).
+
+Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T49](#t49), [T50](#t50), [T51](#t51), [T53](#t53), [T56](#t56).
+
+## Inspected reading locators
+
+- 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching
+- 5.3.1 and 5.4.1: lock and condition-variable definitions
+- 5.7.1 and 5.7.3 introductory paragraphs: uniprocessor and multiprocessor exclusion
+- 7.2 introductory paragraphs: multiprocessor scheduling
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Library filename search, metadata/title/TOC check, actual bounded PDF text extraction and passage inspection.
+
+Actual PDF selected paragraphs: physical pp.37,47-48,89,98; sections5.7.1,5.7.3,7.2 located in full text. TOC independently inspected for chapters4-7; TOC discovery does not assign every subsection.
+
+**Limits:** C++-style teaching pseudocode is translated into original C contracts. Historical Linux2.6 examples are not current implementation authority; only specified paragraphs assigned.
+
+## Teaching backlinks
+
+- [T49](#t49)
+- [T50](#t50)
+- [T51](#t51)
+- [T53](#t53)
+- [T56](#t56)
+
+
+---
+
+<a id="r-os3-buttazzo-2011"></a>
+
+# Hard Real-Time Computing Systems: Predictable Scheduling Algorithms and Applications
+
+**Authors/maintainers:** Giorgio C. Buttazzo.
+
+**Edition/version:** Third edition, 2011. **Year:** 2011.
+
+**Role:** primary. **Access:** Held local PDF; selected text passages extracted with pdftotext and inspected; no complete-book review claim.
+
+[Authoritative resource page](https://doi.org/10.1007/978-1-4614-0676-1).
+
+Bind scheduling implementations to precise task models and include runtime overhead.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T52](#t52).
+
+## Inspected reading locators
+
+- 4.3-4.6 introductory definitions: RM, EDF, DM and processor demand
+- 7.3 Terminology and assumptions; 10.7 System overhead
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Actual library PDF metadata and selected pdftotext passages inspected; local payload SHA256 computed.
+
+Selected introductory paragraphs from4.3,4.4,4.5,4.6 (physical PDFpp.103,117,120,127);7.3 model/notation and10.7 overhead argument. TOC confirms server/resource/kernel chapters; no entire chapter inspection claim.
+
+**Limits:** The held third edition differs from the SWE graph2023 record. Model bounds require all stated assumptions; no measured maximum is silently promoted to WCET.
+
+## Teaching backlinks
+
+- [T52](#t52)
+
+
+---
+
+<a id="r-os3-dijkstra-ewd123"></a>
+
+# Cooperating Sequential Processes
+
+**Authors/maintainers:** Edsger W. Dijkstra.
+
+**Edition/version:** EWD123 manuscript,1965; publication1968. **Year:** 1965.
+
+**Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
+
+[Authoritative resource page](https://www.cs.utexas.edu/~EWD/transcriptions/EWD01xx/EWD123.html).
+
+Foundational source for semaphore accounting and communication invariants.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T51](#t51).
+
+## Inspected reading locators
+
+- 3.2 Synchronizing primitives; 4.3 Bounded buffer
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Primary web text/PDF bounded passages inspected; source identity and applicability checked.
+
+EWD archive transcription sections3.2 and4, semaphore and bounded-buffer discussion; publication identity cross-checked against archive bibliography.
+
+**Limits:** Historical primitive assumptions are not the C memory model. No copying of ALGOL examples into unsynchronized C.
+
+## Teaching backlinks
+
+- [T51](#t51)
+
+
+---
+
+<a id="r-os3-arm-dai0298a"></a>
+
+# Cortex-M4(F) Lazy Stacking and Context Switching
+
+**Authors/maintainers:** Arm.
+
+**Edition/version:** ARM DAI0298A, ID032612. **Year:** 2012.
+
+**Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
+
+[Authoritative resource page](https://documentation-service.arm.com/static/5f0352c0cafe527e86f5bc66?token=).
+
+Ground the integer-versus-FP context split and deferred switching.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T50](#t50).
+
+## Inspected reading locators
+
+- Printed pp.4 and15: FP frame ownership and PendSV
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Official Arm PDF bytes retrieved; bounded extracted text read; no publication payload added to repository.
+
+Actual PDF downloaded in memory and extracted privately with pdftotext; printedp.4 FP register/stack responsibility andp.15 PendSV/context-switch passage inspected.
+
+**Limits:** Selected passages only; not a full architecture-manual or errata audit. Target FPU/compiler/stacking configuration must be recorded.
+
+## Teaching backlinks
+
+- [T50](#t50)
+
+
+---
+
+<a id="r-os3-st-an5617"></a>
+
+# Introduction to inter-processor communications for STM32H745/755 and STM32H747/757 MCUs
+
+**Authors/maintainers:** STMicroelectronics.
+
+**Edition/version:** AN5617 revision2, January2026. **Year:** 2026.
+
+**Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
+
+[Authoritative resource page](https://www.st.com/resource/en/application_note/an5617-introduction-to-interprocessor-communications-for-stm32h745755-and-stm32h747757-mcus-stmicroelectronics.pdf).
+
+Explain separate images, ownership and authoritative queue state versus notifications.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T54](#t54), [T56](#t56).
+
+## Inspected reading locators
+
+- 2.1-2.2 Use cases, shared memory and notification
+- 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Primary web text/PDF bounded passages inspected; source identity and applicability checked.
+
+Official PDF pages3-6 and9-11: functional split, shared SRAM accessibility, cache choices and hardware notification mechanisms.
+
+**Limits:** Middleware examples are comparative context only. Custom images do not link HAL, FreeRTOS or OpenAMP. This application note does not replace exact RM0399 register/errata inspection.
+
+## Teaching backlinks
+
+- [T54](#t54)
+- [T56](#t56)
+
+
+---
+
+<a id="r-os3-st-an4839"></a>
+
+# Level1 cache on STM32F7 Series and STM32H7 Series
+
+**Authors/maintainers:** STMicroelectronics.
+
+**Edition/version:** AN4839 revision2, March2018. **Year:** 2018.
+
+**Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
+
+[Authoritative resource page](https://www.st.com/resource/en/application_note/an4839-level-1-cache-on-stm32f7-series-and-stm32h7-series-stmicroelectronics.pdf).
+
+Separate cache visibility, barriers and DMA ownership.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T54](#t54).
+
+## Inspected reading locators
+
+- 3.1-3.2 Default settings and cache maintenance/data coherency example
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Primary web text/PDF bounded passages inspected; source identity and applicability checked.
+
+Official PDF pages4-8 inspected for32-byte lines, clean/invalidate distinction, write-back DMA example and corrective maintenance.
+
+**Limits:** Example memory paths are device-specific; do not assume every H745 DMA can reach DTCM. Register programming and silicon errata need the exact target manual.
+
+## Teaching backlinks
+
+- [T54](#t54)
+
+
+---
+
+<a id="r-os3-linux-deadline"></a>
+
+# Deadline Task Scheduling
+
+**Authors/maintainers:** Linux kernel community.
+
+**Edition/version:** Online documentation accessed2026-10-10. **Year:** 2026.
+
+**Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
+
+[Authoritative resource page](https://docs.kernel.org/scheduler/sched-deadline.html).
+
+Distinguish reservation deadlines, application deadlines and multicore admission.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T52](#t52).
+
+## Inspected reading locators
+
+- 2.1 Main algorithm; 3.1-3.4 task models and schedulability
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Primary web text/PDF bounded passages inspected; source identity and applicability checked.
+
+EDF/CBS parameters, replenishment, deadline models, single-core assumptions and multiprocessor Dhall-effect example inspected.
+
+**Limits:** Moving documentation must be paired with the actual tested kernel release. Host permissions, cgroups and interference can prevent the declared experiment.
+
+## Teaching backlinks
+
+- [T52](#t52)
+
+
+---
+
+<a id="r-os3-linux-eevdf"></a>
+
+# EEVDF Scheduler
+
+**Authors/maintainers:** Linux kernel community.
+
+**Edition/version:** Online documentation accessed2026-10-10. **Year:** 2026.
+
+**Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
+
+[Authoritative resource page](https://docs.kernel.org/scheduler/sched-eevdf.html).
+
+Avoid presenting historical CFS as the only current fair-scheduling model.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T49](#t49), [T52](#t52).
+
+## Inspected reading locators
+
+- Lag, eligibility and virtual-deadline selection
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Primary web text/PDF bounded passages inspected; source identity and applicability checked.
+
+Whole short scheduler overview, eligibility/lag and virtual-deadline paragraphs inspected.
+
+**Limits:** Introductory policy description only; not a full proof or source-code audit. Pin kernel configuration and release for execution.
+
+## Teaching backlinks
+
+- [T49](#t49)
+- [T52](#t52)
+
+
+---
+
+<a id="r-os3-mcs-1991"></a>
+
+# Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors
+
+**Authors/maintainers:** John M. Mellor-Crummey, Michael L. Scott.
+
+**Edition/version:** Author pseudocode accompanying ACM TOCS1991; page updated2006. **Year:** 1991.
+
+**Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
+
+[Authoritative resource page](https://www.cs.rochester.edu/research/synchronization/pseudocode/ss.html).
+
+Compare contention costs and queue-node ownership across lock designs.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T53](#t53).
+
+## Inspected reading locators
+
+- Pseudocode: test-and-set, ticket and MCS locks
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Primary web text/PDF bounded passages inspected; source identity and applicability checked.
+
+Author-maintained test-and-set, ticket and MCS acquire/release pseudocode plus stated space/spinning properties inspected.
+
+**Limits:** Later CLH/K42 additions are not attributed to1991. Historical pseudocode omits modern C atomics and bounded-counter assumptions; these must be supplied by the implementation.
+
+## Teaching backlinks
+
+- [T53](#t53)
+
+
+---
+
+<a id="r-os3-ms-corrected"></a>
+
+# Corrected pseudocode for Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms
+
+**Authors/maintainers:** Maged M. Michael, Michael L. Scott.
+
+**Edition/version:** PODC1996 pseudocode with corrections; JPDC1998 note. **Year:** 1996.
+
+**Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
+
+[Authoritative resource page](https://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html).
+
+Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T55](#t55).
+
+## Inspected reading locators
+
+- Memory-management assumptions and corrected non-blocking pseudocode
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Primary web text/PDF bounded passages inspected; source identity and applicability checked.
+
+Introductory allocator requirements and enqueue/dequeue pseudocode inspected on author site.
+
+**Limits:** The historical type-preserving allocator assumption is material. C memory orders, bounded pool and chosen reclamation require independent arguments.
+
+## Teaching backlinks
+
+- [T55](#t55)
+
+
+---
+
+<a id="r-os3-hazard-2004"></a>
+
+# Hazard Pointers: Safe Memory Reclamation for Lock-Free Objects
+
+**Authors/maintainers:** Maged M. Michael.
+
+**Edition/version:** IEEE TPDS15(6), June2004. **Year:** 2004.
+
+**Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
+
+[Authoritative resource page](https://research.ibm.com/publications/hazard-pointers-safe-memory-reclamation-for-lock-free-objects).
+
+Introduce reclamation as a separate obligation from a queue linearization argument.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T55](#t55).
+
+## Inspected reading locators
+
+- Printed p.492: hazard ownership and retire/scan methodology
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Primary paper mirror retrieved into memory; selected pdftotext passage read; publisher identity cross-check.
+
+IBM Research identity/abstract and actual paper printedp.492 privately extracted from https://www.cs.otago.ac.nz/cosc440/readings/hazard-pointers.pdf; single-writer hazard ownership, continuous protection, private retire lists and scan conditions inspected.
+
+**Limits:** Bounded methodology passage only, not the complete correctness proof or modern C memory-order derivation. Fixed-pool exhaustion and participant registration require explicit implementation contracts.
+
+## Teaching backlinks
+
+- [T55](#t55)
+
+
+---
+
+<a id="r-os3-sha-pi-1990"></a>
+
+# Priority Inheritance Protocols: An Approach to Real-Time Synchronization
+
+**Authors/maintainers:** Lui Sha, Ragunathan Rajkumar, John P. Lehoczky.
+
+**Edition/version:** IEEE Transactions on Computers39(9), pp.1175-1185. **Year:** 1990.
+
+**Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
+
+[Authoritative resource page](https://doi.org/10.1109/12.57058).
+
+Tie inversion demonstrations to assumptions rather than assuming every mutex fixes timing.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T51](#t51), [T52](#t52).
+
+## Inspected reading locators
+
+- Printed p.1176: inversion example and task/resource assumptions
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Actual primary paper scan text read; author bibliography and institutional DOI metadata cross-checked.
+
+Actual paper p.1176 extracted privately from https://www.math.unipd.it/~tullio/RTS/2009/SRL-1990.pdf; three-job inversion example, fixed priorities, nonsuspending jobs and proper nesting assumptions inspected.
+
+**Limits:** Not a full PCP proof or a bound for arbitrary SMP locking. Immediate ceiling and inheritance are distinct project contracts.
+
+## Teaching backlinks
+
+- [T51](#t51)
+- [T52](#t52)
+
+
+---
+
+<a id="r-os3-herlihy-wing-1990"></a>
+
+# Linearizability: A Correctness Condition for Concurrent Objects
+
+**Authors/maintainers:** Maurice P. Herlihy, Jeannette M. Wing.
+
+**Edition/version:** ACM TOPLAS12(3), pp.463-492. **Year:** 1990.
+
+**Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
+
+[Authoritative resource page](https://www.cs.cmu.edu/~wing/publications/HerlihyWing90.pdf).
+
+Ground the observable history contract and distinguish legal overlap from FIFO violations.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T55](#t55).
+
+## Inspected reading locators
+
+- Printed pp.465-467: FIFO histories and Section2.1 histories
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Primary paper PDF retrieved and selected pages read through pdftotext; no PDF redistribution.
+
+Actual author-hosted PDF pages3-5 extracted in memory; FIFO acceptability examples and formal history vocabulary inspected.
+
+**Limits:** Only selected examples/history definitions inspected, not the complete proof methodology. Finite history checking is explicitly bounded.
+
+## Teaching backlinks
+
+- [T55](#t55)
+
+
+---
+
+<a id="r-os3-freertos-posix-1120"></a>
+
+# FreeRTOS Kernel POSIX port
+
+**Authors/maintainers:** FreeRTOS project.
+
+**Edition/version:** V11.2.0 commit0adc196d4bd52a2d91102b525b0aafc1e14a2386. **Year:** 2025.
+
+**Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
+
+[Authoritative resource page](https://github.com/FreeRTOS/FreeRTOS-Kernel/tree/V11.2.0/portable/ThirdParty/GCC/Posix).
+
+Support a separate pinned reference comparison without importing an RTOS into custom images.
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T52](#t52).
+
+## Inspected reading locators
+
+- port.c scheduler startup/shutdown and POSIX dependencies; portmacro.h types/stack macros
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Delegated root source inspection and pinned repository build; received explicit scope and commit receipt.
+
+Root integration researcher inspected port.c lines270-345 startup/end-scheduler plus malloc/pthread/stdio dependencies and portmacro.h type/stack definitions; actual separate hosted comparison built.
+
+**Limits:** Hosted POSIX port is not the CM4F port and cannot establish MCU latency or original freestanding independence. Exact execution evidence is recorded by the comparison runner.
+
+## Teaching backlinks
+
+- [T52](#t52)
+
+
+---
+
+<a id="r-os3-st-rm0399-r4"></a>
+
+# STM32H745/755 and STM32H747/757 advanced Arm-based 32-bit MCUs
+
+**Authors/maintainers:** STMicroelectronics.
+
+**Edition/version:** RM0399 revision4, June2023. **Year:** 2023.
+
+**Role:** primary. **Access:** Public primary-authored source, bounded actual passages inspected; private hashed copy retained.
+
+[Authoritative resource page](https://www.st.com/resource/en/reference_manual/rm0399-stm32h745755-and-stm32h747757-advanced-armbased-32bit-mcus-stmicroelectronics.pdf).
+
+Architecture or ABI authority for original freestanding execution and H745 AMP boundary
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T50](#t50), [T54](#t54).
+
+## Inspected reading locators
+
+- p.138 table7; pp.142-144 memory/boot; p.362 hold boot
+- p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42
+- pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Actual bounded source text inspection; selected PDF register tables rendered where specified.
+
+Actual revision4 title and selected text read; p.477 and p.563 register layouts rendered and visually inspected. Main ST endpoint failed; official ST Japan revision archive used.
+
+**Limits:** Only listed register/boot passages inspected; no whole-manual, DMA/cache implementation or silicon errata audit. Physical board execution not performed.
+
+## Teaching backlinks
+
+- [T54](#t54)
+
+
+---
+
+<a id="r-os3-st-h745-header"></a>
+
+# STM32H745 device peripheral definitions
+
+**Authors/maintainers:** STMicroelectronics.
+
+**Edition/version:** Commit 81db1ec63cdc191fae1565b772da3ea5aa29a683. **Year:** not established.
+
+**Role:** primary. **Access:** Public primary-authored source, bounded actual passages inspected; private hashed copy retained.
+
+[Authoritative resource page](https://raw.githubusercontent.com/STMicroelectronics/cmsis-device-h7/81db1ec63cdc191fae1565b772da3ea5aa29a683/Include/stm32h745xx.h).
+
+Architecture or ABI authority for original freestanding execution and H745 AMP boundary
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T50](#t50), [T54](#t54).
+
+## Inspected reading locators
+
+- IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs
+- HSEM_COMMON macros; SRAM allocation and HSEM enable bits; BOOT_C2; HSEM_CPU1_COREID/HSEM_CPU2_COREID
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Actual bounded source text inspection; selected PDF register tables rendered where specified.
+
+Actual pinned official header declarations and constants read and matched to original board adapter.
+
+**Limits:** Definitions are inspection authority, not linked runtime code. Complete peripheral driver behavior and silicon errata remain outside this inspection.
+
+## Teaching backlinks
+
+- [T54](#t54)
+
+
+---
+
+<a id="r-os3-st-pm0214-r10"></a>
+
+# STM32 Cortex-M4 MCUs and MPUs programming manual
+
+**Authors/maintainers:** STMicroelectronics.
+
+**Edition/version:** PM0214 revision10, March2020. **Year:** 2020.
+
+**Role:** primary. **Access:** Public primary-authored source, bounded actual passages inspected; private hashed copy retained.
+
+[Authoritative resource page](https://www.st.com/resource/en/programming_manual/dm00046982-stm32-cortexm4-mcus-and-mpus-programming-manual-stmicroelectronics.pdf).
+
+Architecture or ABI authority for original freestanding execution and H745 AMP boundary
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T50](#t50).
+
+## Inspected reading locators
+
+- pp.24-26 mask/CONTROL registers
+- pp.42-44 section2.3.7 exception entry/return and frame
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Actual bounded source text inspection; selected PDF register tables rendered where specified.
+
+Actual ST-authored revision10 mirrored PDF text for masks, PSP/MSP, frame and EXC_RETURN inspected.
+
+**Limits:** Inspected revision is not asserted latest; no whole-core, fault-recovery or all lazy-stacking corner-case proof.
+
+## Teaching backlinks
+
+- [T50](#t50)
+
+
+---
+
+<a id="r-os3-st-pm0253-r5"></a>
+
+# STM32F7 Series and STM32H7 Series Cortex-M7 processor programming manual
+
+**Authors/maintainers:** STMicroelectronics.
+
+**Edition/version:** PM0253 revision5, June2019. **Year:** 2019.
+
+**Role:** primary. **Access:** Public primary-authored source, bounded actual passages inspected; private hashed copy retained.
+
+[Authoritative resource page](https://www.st.com/resource/en/programming_manual/DM00237416.pdf).
+
+Architecture or ABI authority for original freestanding execution and H745 AMP boundary
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T54](#t54).
+
+## Inspected reading locators
+
+- pp.226-230 sections4.6.4-4.6.8, especially table91
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Actual bounded source text inspection; selected PDF register tables rendered where specified.
+
+Actual ST-authored revision5 mirrored PDF text and rendered p.228 attribute table inspected.
+
+**Limits:** Bounded MPU mapping review, not a cache-maintenance or device errata qualification. Cold-reset no-dirty-line prerequisite is material.
+
+## Teaching backlinks
+
+- [T54](#t54)
+
+
+---
+
+<a id="r-os3-arm-aapcs32"></a>
+
+# Procedure Call Standard for the Arm Architecture
+
+**Authors/maintainers:** Arm Limited.
+
+**Edition/version:** Pinned source commit bd017eeca341c06915b9a02ae111b480416d248f. **Year:** not established.
+
+**Role:** primary. **Access:** Public primary-authored source, bounded actual passages inspected; private hashed copy retained.
+
+[Authoritative resource page](https://raw.githubusercontent.com/ARM-software/abi-aa/bd017eeca341c06915b9a02ae111b480416d248f/aapcs32/aapcs32.rst).
+
+Architecture or ABI authority for original freestanding execution and H745 AMP boundary
+
+**Reading foundations:** Selected module entry check
+
+**Domain mapping:** [T50](#t50).
+
+## Inspected reading locators
+
+- VFP register usage conventions: s16-s31
+- Stack constraints at a public interface: SP modulo8
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Actual bounded source text inspection; selected PDF register tables rendered where specified.
+
+Actual source paragraphs for preserved FP registers and eight-byte public-interface stack alignment inspected.
+
+**Limits:** Full ABI not audited. Test FP setter is a deliberate register probe under general-registers-only C compilation.
+
+## Teaching backlinks
+
+- [T50](#t50)
+
+
+---
+
+<a id="r-os3-acpi66-madt"></a>
+
+# ACPI Specification 6.6: MADT
+
+**Authors/maintainers:** UEFI Forum.
+
+**Edition/version:** 6.6. **Year:** 2025.
+
+**Role:** oracle. **Access:** Public primary publisher source; selected passages inspected.
+
+[Authoritative resource page](https://uefi.org/specs/ACPI/6.6/05_ACPI_Software_Programming_Model.html).
+
+Actual HTML paragraphs and layout tables inspected: checksum/length, local APIC address, controller record headers, enabled processor IDs and legacy PIC masking.
+
+**Reading foundations:** x86-64 assembly; bounded binary parsing
+
+**Domain mapping:** [T53](#t53).
+
+## Inspected reading locators
+
+- 5.2.5.3 RSDP; 5.2.6 table header
+- 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Official HTML/PDF text opened and bounded passages inspected.
+
+Actual HTML paragraphs and layout tables inspected: checksum/length, local APIC address, controller record headers, enabled processor IDs and legacy PIC masking.
+
+**Limits:** Only named passages assigned; no complete-document inspection, physical timing, or general hardware compatibility claim.
+
+## Teaching backlinks
+
+- [T53](#t53)
+
+
+---
+
+<a id="r-os3-intel3a-smp060"></a>
+
+# Intel 64 and IA-32 Architectures Software Developer Manual, Volume 3A
+
+**Authors/maintainers:** Intel.
+
+**Edition/version:** 253668-060US, September 2016. **Year:** 2016.
+
+**Role:** oracle. **Access:** Public primary publisher source; selected passages inspected.
+
+[Authoritative resource page](https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.pdf).
+
+Actual bounded PDF text passages inspected; PDF pages145–146,276–277,378–382 (one-based). Historical exact edition, not current processor errata.
+
+**Reading foundations:** x86-64 assembly; bounded binary parsing
+
+**Domain mapping:** [T53](#t53), [T56](#t56).
+
+## Inspected reading locators
+
+- 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG
+- 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI
+- 10.5.4, printed10-16–10-17: APIC timer
+- 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI
+- 4.10.5, printed4-45–4-46: cross-processor shootdown and reuse ordering
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Official HTML/PDF text opened and bounded passages inspected.
+
+Actual bounded PDF text passages inspected; PDF pages145–146,276–277,378–382 (one-based). Historical exact edition, not current processor errata.
+
+**Limits:** Only named passages assigned; no complete-document inspection, physical timing, or general hardware compatibility claim.
+
+## Teaching backlinks
+
+- [T53](#t53)
+
+
+---
+
+<a id="r-os3-virtio12-msix"></a>
+
+# Virtual I/O Device (VIRTIO) Version 1.2
+
+**Authors/maintainers:** OASIS.
+
+**Edition/version:** Committee Specification 01, 1 July 2022. **Year:** 2022.
+
+**Role:** oracle. **Access:** Public primary publisher source; selected passages inspected.
+
+[Authoritative resource page](https://docs.oasis-open.org/virtio/virtio/v1.2/virtio-v1.2.html).
+
+Actual HTML passages inspected. Queue/configuration events map to table entries, mapping readback must succeed, IRQ handler checks used queues. PCI MSI-X table layout itself is outside this bounded excerpt.
+
+**Reading foundations:** x86-64 assembly; bounded binary parsing
+
+**Domain mapping:** [T56](#t56).
+
+## Inspected reading locators
+
+- 4.1.5.1.2–4.1.5.1.3: vector mapping/readback and queue initialization
+- 4.1.5.3–4.1.5.5: used-buffer notification and driver interrupt handling
+
+## Evidence and limits
+
+**Check date:** 2026-10-10. **Method:** Official HTML/PDF text opened and bounded passages inspected.
+
+Actual HTML passages inspected. Queue/configuration events map to table entries, mapping readback must succeed, IRQ handler checks used queues. PCI MSI-X table layout itself is outside this bounded excerpt.
+
+**Limits:** Only named passages assigned; no complete-document inspection, physical timing, or general hardware compatibility claim.
+
+## Teaching backlinks
+
+- [T56](#t56)

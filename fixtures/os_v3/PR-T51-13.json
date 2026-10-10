@@ -1,0 +1,22 @@
+{
+  "id": "PR-T51-13",
+  "description": "Timeout, cancellation and wakeup arbitration finite independent example",
+  "oracle": "winner",
+  "input": {
+    "events": [
+      "timeout",
+      "wake",
+      "cancel"
+    ]
+  },
+  "expected": {
+    "terminal": "timeout",
+    "ignored": [
+      "wake",
+      "cancel"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "An operation can complete, time out or be canceled exactly once. A deadline firing concurrently with resource availability must choose one linearization boundary; cleanup then removes every other registration. The caller must know whether the resource was acquired before cancellation was reported.",
+  "required_observation": "For every finite ordering, record one result and reconcile all queue memberships, timers and permits. Reproduce at least one double-completion defect and its repair."
+}

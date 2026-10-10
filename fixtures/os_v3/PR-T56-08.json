@@ -1,0 +1,17 @@
+{
+  "id": "PR-T56-08",
+  "description": "Read-only boot archive as a file service finite independent example",
+  "oracle": "read",
+  "input": {
+    "file_size": 10,
+    "offset": 7,
+    "requested": 8
+  },
+  "expected": {
+    "returned": 3,
+    "new_offset": 10
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Expose the existing bounded boot archive through open/read/seek/close rather than direct archive pointers. Per-open offsets and rights belong to handles. A read may return fewer bytes at EOF; archive data remains immutable and bounds-checked.",
+  "required_observation": "Read known file hashes through the actual user syscall path and preserve independent offsets. Reject malformed archives before exposing any entries."
+}

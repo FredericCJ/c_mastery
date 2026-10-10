@@ -1,0 +1,20 @@
+{
+  "id": "PR-T51-01",
+  "description": "Atomic wait enrollment and lost-wakeup prevention finite independent example",
+  "oracle": "wait_protocol",
+  "input": {
+    "events": [
+      "check_false",
+      "publish",
+      "enroll",
+      "recheck"
+    ]
+  },
+  "expected": {
+    "sleep": false,
+    "reason": "predicate_true_at_recheck"
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Checking a predicate and joining its wait queue must be one atomic protocol relative to the producer. Otherwise a notification can occur after the check but before sleep, leaving the waiter blocked forever. Notification does not store a Boolean truth on behalf of the caller.",
+  "required_observation": "Reduce a broken implementation to a two-task lost-wakeup trace and show the repair completes every enumerated schedule without duplicating runnable entries."
+}

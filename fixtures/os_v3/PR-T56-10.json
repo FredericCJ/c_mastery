@@ -1,0 +1,19 @@
+{
+  "id": "PR-T56-10",
+  "description": "Single-owner persistent store service finite independent example",
+  "oracle": "durable",
+  "input": {
+    "events": [
+      "submit",
+      "wal_write",
+      "flush_complete",
+      "reply"
+    ]
+  },
+  "expected": {
+    "reply_is_durable": true
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The existing persistent store retains one mutation owner. Other processes submit bounded commands and never access its page cache or transaction structures directly. A successful reply requiring durability follows the store commit/flush boundary; transport receipt alone is insufficient.",
+  "required_observation": "Preserve the store regression suite, show concurrent clients serialized through one owner and correlate durable replies with committed log records."
+}

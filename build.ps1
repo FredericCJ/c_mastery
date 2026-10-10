@@ -1,5 +1,9 @@
 $ErrorActionPreference = 'Stop'
 $taskPython = Join-Path $PSScriptRoot '.venv\Scripts\python.exe'
+if (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'curriculum\v3_taxonomy.json')) {
+    & $taskPython -X utf8 (Join-Path $PSScriptRoot 'tools\build_v3.py')
+    exit $LASTEXITCODE
+}
 if (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'curriculum\edition.json')) {
     & $taskPython -X utf8 (Join-Path $PSScriptRoot 'tools\build_v2.py')
     exit $LASTEXITCODE

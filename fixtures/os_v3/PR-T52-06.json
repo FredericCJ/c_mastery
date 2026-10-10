@@ -1,0 +1,22 @@
+{
+  "id": "PR-T52-06",
+  "description": "Constant-bandwidth-server reservation finite independent example",
+  "oracle": "reservation",
+  "input": {
+    "runtime": 3,
+    "period": 10,
+    "demand": 8
+  },
+  "expected": {
+    "windows": [
+      3,
+      3,
+      2
+    ],
+    "finish_if_start_zero": 22
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "CBS separates an application deadline from its scheduling deadline and remaining budget. The executable anchor implements soft CBS: budget depletion refills the budget and postpones the scheduling deadline; it does not force idling when no competing work is eligible. Implement and label that variant first. Contrast it with the supplied throttled periodic-reservation fixture and the documented Linux SCHED_DEADLINE policy. The fixture with Q=3, P=10 and demand=8 finishes at time22 only under its periodic throttling assumptions; this is not the expected completion time for isolated soft CBS.",
+  "required_observation": "Under an explicitly feasible single-core EDF reservation set, trace budget/deadline updates and competing service. Explain the stated isolation assumptions, scheduling versus application deadlines, and why the periodic fixture does not establish a soft-CBS per-window cap.",
+  "model_scope": "This fixture models fixed-window periodic throttling, not the executable soft-CBS anchor."
+}

@@ -175,3 +175,95 @@ When a project has more than one family, choose the additional workspace explici
 | {ref}`PR-T48-12` | kernel | `kernel_runtime` | Selected tests are immediate anchors; an empty set requires the project-local manual guest trace. deferred_tests are later cumulative regression only. Cross-family variables required for projects 12–13.  |
 | {ref}`PR-T48-13` | kernel | `kernel_integration` | Selected tests are immediate anchors; an empty set requires the project-local manual guest trace. deferred_tests are later cumulative regression only. Cross-family variables required for projects 12–13.  |
 | {ref}`PR-T48-14` | kernel | `kernel_guest` | Selected tests are immediate anchors; an empty set requires the project-local manual guest trace. deferred_tests are later cumulative regression only. Cross-family variables required for projects 12–13.  |
+| {ref}`PR-T49-01` | os_observatory | `os_process` | Real fork/pipe/wait boundary anchor; syscall/disassembly trace and privilege explanation remain required.  |
+| {ref}`PR-T49-02` | os_observatory | `os_process`, `os_thread` | Process-private versus shared state and joined thread lifecycle.  |
+| {ref}`PR-T49-03` | os_observatory | `os_schedulers` | Independent finite FCFS/SJF/SRTF/RR traces; CPU-only integer-tick model.  |
+| {ref}`PR-T49-04` | os_observatory | `os_fairness` | Defined MLFQ/stride traces; Linux EEVDF inspection and changed workloads remain required.  |
+| {ref}`PR-T49-05` | os_observatory | `os_memory` | Actual anonymous-page touches and process fault counters; working-set sweep remains learner evidence.  |
+| {ref}`PR-T49-06` | os_observatory | `os_clock` | CLOCK second-chance mechanism; FIFO anomaly and offline optimal comparison remain learner evidence.  |
+| {ref}`PR-T49-07` | os_observatory | `os_descriptor` | Actual dup offset sharing and unlink/open-file lifetime.  |
+| {ref}`PR-T49-08` | os_observatory | `os_descriptor`, `os_signal` | Readiness notification and object lifetime anchors; namespace and device-completion dossier remains required.  |
+| {ref}`PR-T49-09` | os_observatory | `os_memory`, `os_thread` | Runnable bounded workload; delegated cgroup CPU/memory limit campaign is separate and must actually run.  |
+| {ref}`PR-T49-10` | os_observatory | `os_io` | Exact logical I/O and fsync-return observation; io.max enforcement and physical durability are not established.  |
+| {ref}`PR-T50-01` | execution | `execution.admission` | Original image/initialization gate; stack/handler disassembly and strict no-runtime audit required.  |
+| {ref}`PR-T50-02` | execution | `execution.admission` | Static nonoverlap/alignment/exhaustion contract. Private stack ownership remains target evidence.  |
+| {ref}`PR-T50-03` | execution | `execution.scheduler` | Actual Cortex-M PSP context switching without timer preemption.  |
+| {ref}`PR-T50-04` | execution | `execution.scheduler` | Serialized ready/wait lifecycle; Cortex stage adds real dispatch.  |
+| {ref}`PR-T50-05` | execution | `execution.timers` | Modular deadline and exact-boundary race tests; timer data-structure cost measurements remain required.  |
+| {ref}`PR-T50-06` | execution | `execution.scheduler` | Actual SysTick/PendSV/SVC preemption of nonyielding tasks.  |
+| {ref}`PR-T50-07` | execution | `execution.scheduler` | Saved interrupt-mask nesting and ISR/nested-critical blocking rejection execute in the guest.  |
+| {ref}`PR-T50-08` | execution | `execution.scheduler` | Actual s16 context preservation plus a rejected corrupt-restore mutant.  |
+| {ref}`PR-T50-09` | execution | `execution.lifecycle` | Exit/join/reap slot lifecycle; stack must remain live through switch-out and reap.  |
+| {ref}`PR-T50-10` | execution | `execution.faults` | Cooperative cancellation, owner-exit refusal and lifecycle checks; stack guards are also in target port.  |
+| {ref}`PR-T50-11` | execution | `execution.timers` | Rollover anchor only; implement next-deadline programming and physically measure tickless sleep/wakeup separately.  |
+| {ref}`PR-T50-12` | execution | `execution.comparison` | Hosted logical integration; target integrated stage runs actual preemptive tasks and queue close/drain.  |
+| {ref}`PR-T51-01` | execution | `execution.enrollment` | Latched signal-before/enrollment-after atomicity; one port serialization domain.  |
+| {ref}`PR-T51-02` | execution | `execution.semaphore` | Direct permit handoff, timeout and close.  |
+| {ref}`PR-T51-03` | execution | `execution.mutex` | Owned nonrecursive mutex and wrong-owner/deadlock rejection.  |
+| {ref}`PR-T51-04` | execution | `execution.inheritance` | Transitive donation and withdrawal when a donor times out.  |
+| {ref}`PR-T51-05` | execution | `execution.condition` | Atomic release/enrollment; timeout and cancellation return only after mutex reacquisition.  |
+| {ref}`PR-T51-06` | execution | `execution.queue` | Bounded queue, full/empty wait, drain-close versus discard-abort.  |
+| {ref}`PR-T51-07` | execution | `execution.queue` | Capacity-zero rendezvous and capacity-one mailbox; endpoint ownership remains learner design.  |
+| {ref}`PR-T51-08` | execution | `execution.events` | Any/all masks and FIFO clear-on-consume.  |
+| {ref}`PR-T51-09` | execution | `execution.notification` | Counted delivery and overflow rejection.  |
+| {ref}`PR-T51-10` | execution | `execution.barrier` | Reusable generation and collective break on cancellation/timeout.  |
+| {ref}`PR-T51-11` | execution | `execution.once` | Single owner and retry after failed initialization; RETRY waiters must re-enter.  |
+| {ref}`PR-T51-12` | execution | `execution.rwlock` | Writer preference, upgrade rejection and reader admission after last writer withdraws.  |
+| {ref}`PR-T51-13` | execution | `execution.faults` | Deadline/cancel/close races, blocked reentry and condition reacquisition.  |
+| {ref}`PR-T51-14` | execution | `execution.teardown`, `execution.faults` | Close and join lifetime; owner death refused until cooperative cleanup. Forced recovery remains additional work.  |
+| {ref}`PR-T52-01` | execution | `execution.priorities` | Stable RM/DM ordering; measured WCET and response-time assumptions required.  |
+| {ref}`PR-T52-02` | execution | `execution.edf` | Finite exact demand-bound gate, constrained assumptions and explicit horizon.  |
+| {ref}`PR-T52-03` | execution | `execution.response` | Fixed-priority response time with jitter and blocking; measure/add dispatch and interrupt overhead to cost.  |
+| {ref}`PR-T52-04` | execution | `execution.ceiling` | Immediate priority ceiling, not original priority-ceiling protocol/system-ceiling admission.  |
+| {ref}`PR-T52-05` | execution | `execution.server` | Bounded sporadic-server replenishments; deferrable/polling alternatives remain comparative learner traces.  |
+| {ref}`PR-T52-06` | execution | `execution.cbs` | CBS budget/deadline replenishment model.  |
+| {ref}`PR-T52-07` | execution | `execution.edf` | Admission failures under explicit finite horizon; overload policy dossier remains required.  |
+| {ref}`PR-T52-08` | execution | `execution.timers` | Modular rollover anchor; physical tickless programming remains separate.  |
+| {ref}`PR-T52-09` | execution | `execution.partition` | Finite hyperperiod first-fit partitioning and partitioned EDF simulation.  |
+| {ref}`PR-T52-10` | execution | `execution.partition` | Global-EDF miss counterexample against feasible partition; finite model, no optimality claim.  |
+| {ref}`PR-T52-11` | os_observatory | `os_linux_comparison` | Same bounded eight-slot, 256-item queue workload; use freertos-posix with explicit pinned external source for RTOS comparison. Physical MCU timing and Linux RT policy campaigns remain separate.  |
+| {ref}`PR-T52-12` | os_observatory | `os_linux_comparison` | Same bounded eight-slot, 256-item queue workload; use freertos-posix with explicit pinned external source for RTOS comparison. Physical MCU timing and Linux RT policy campaigns remain separate.  |
+| {ref}`PR-T53-01` | kernel_smp | `kernel_smp_madt`, `kernel_smp_guest_madt` | Bounded MADT parser plus actual guest discovery.  |
+| {ref}`PR-T53-02` | kernel_smp | `kernel_smp_guest_startup` | Real INIT/SIPI AP startup.  |
+| {ref}`PR-T53-03` | kernel_smp | `kernel_smp_guest_startup` | Per-CPU GDT/TSS/IDT and stacks.  |
+| {ref}`PR-T53-04` | kernel_smp | `kernel_smp_guest_apic` | Actual APIC timer and IPI delivery before workload.  |
+| {ref}`PR-T53-05` | kernel_smp | `kernel_smp_guest_threads` | Spinlock-protected original kernel-thread workload.  |
+| {ref}`PR-T53-06` | kernel_smp | `kernel_smp_guest_threads` | Cooperative per-CPU ready queues and assembly context switch.  |
+| {ref}`PR-T53-07` | kernel_smp | `kernel_smp_guest_channel` | Cross-core channel wait/wake and bounded message accounting.  |
+| {ref}`PR-T53-08` | kernel_smp | `kernel_smp_guest_affinity` | SMP ring-3 scheduler migration; bounded shared global run queue.  |
+| {ref}`PR-T53-09` | kernel_smp | `kernel_smp_guest_tlb` | Dedicated IPI/CR3 reload acknowledgement barrier; demand/COW permission transitions tested in T56.  |
+| {ref}`PR-T53-10` | kernel_smp | `kernel_smp_guest_reduction` | Native atomic reduction over 257 integer jobs; sequential oracle and all-CPU execution mask. Requires T56 thread substrate.  |
+| {ref}`PR-T53-11` | kernel_smp | `kernel_smp_guest_pool` | Two dispatch rounds through a reusable pinned bounded user workpool. Requires T56 thread substrate.  |
+| {ref}`PR-T53-12` | kernel_smp | `kernel_smp_guest_dag` | 16-node dependency graph with acquire/release publication and serial oracle. Requires T56 thread substrate; emulator TSC is not physical speedup evidence.  |
+| {ref}`PR-T54-01` | execution | `execution.spsc` | Two private strict images and reserved shared SRAM map; physical boot evidence required.  |
+| {ref}`PR-T54-02` | execution | `execution.spsc` | Cold-global-reset epoch-one release/ack baseline; warm/reset recovery remains separate.  |
+| {ref}`PR-T54-03` | execution | `execution.spsc` | Original shared noncacheable SRAM SPSC packet ownership; board execution required.  |
+| {ref}`PR-T54-04` | execution | `execution.spsc` | Original HSEM release notification/IRQ with coalesced ring-authoritative data path.  |
+| {ref}`PR-T54-05` | execution | `execution.spsc` | Noncacheable MPU baseline only; cached clean/invalidate variant and failure experiment required.  |
+| {ref}`PR-T54-06` | execution | `execution.spsc` | Static CPU ownership baseline only; implement and physically observe DMA ownership and cache transitions.  |
+| {ref}`PR-T54-07` | execution | `execution.spsc` | Per-core logical progress only; implement clock calibration and bound skew physically.  |
+| {ref}`PR-T54-08` | execution | `execution.spsc` | Epoch mismatch fail-stop baseline only; implement independent-peer-reset recovery and stale-message rejection.  |
+| {ref}`PR-T54-09` | execution | `execution.spsc` | Short HSEM ISR records notification and task context drains rings; physical ISR timing required.  |
+| {ref}`PR-T54-10` | execution | `execution.spsc` | Coldboot 1000-packet AMP endpoint plus two local runtimes; physical load/fault dossier required.  |
+| {ref}`PR-T55-01` | execution | `execution.spsc` | Native unsigned acquire/release SPSC, capacity and wrap.  |
+| {ref}`PR-T55-02` | execution | `execution.progress` | Ticket reservation stall counterexample; distinguish reservation from publication.  |
+| {ref}`PR-T55-03` | execution | `execution.identity` | Generation identity ABA/reuse/exhaustion experiment.  |
+| {ref}`PR-T55-04` | execution | `execution.identity` | Bounded slot ownership and nonwrapping generation handles.  |
+| {ref}`PR-T55-05` | execution | `execution.hazard`, `execution.collector_aba` | Hazard publication/revalidation and retirement; tagged concurrent-collector regression.  |
+| {ref}`PR-T55-06` | execution | `execution.hazard`, `execution.parallel` | Original Michael-Scott queue with bounded pool and four exclusive participant slots.  |
+| {ref}`PR-T55-07` | execution | `execution.epoch` | Externally serialized epoch/grace tracker; stalls prevent reclamation.  |
+| {ref}`PR-T55-08` | execution | `execution.rcu` | Coarse immutable-root RCU with active-reader slots and one serialized writer.  |
+| {ref}`PR-T55-09` | execution | `execution.history` | Finite complete-history checker with per-participant and real-time order constraints.  |
+| {ref}`PR-T55-10` | execution | `execution.parallel`, `execution.history` | Four real pthread participants, 40000 unique items; finite stress, no standalone proof.  |
+| {ref}`PR-T56-01` | kernel_smp | `kernel_smp_guest_userthreads` | Separate process address-space and thread execution state.  |
+| {ref}`PR-T56-02` | kernel_smp | `kernel_smp_guest_spawn` | Read-only archive spawn, last-thread process exit and parent wait.  |
+| {ref}`PR-T56-03` | kernel_smp | `kernel_smp_guest_zero` | Actual demand-zero page faults.  |
+| {ref}`PR-T56-04` | kernel_smp | `kernel_smp_guest_cow` | Restricted single-live-thread COW fork and wait.  |
+| {ref}`PR-T56-05` | kernel_smp | `kernel_smp_channel`, `kernel_smp_guest_ipc` | Bounded blocking channels and stale handle rejection.  |
+| {ref}`PR-T56-06` | kernel_smp | `kernel_smp_guest_shared` | Refcounted shared-memory mapping lifetime across process fork.  |
+| {ref}`PR-T56-07` | kernel_smp | `kernel_smp_guest_async` | Real virtio MSI-X completion, bounded submit/wait and poisoned-device deadline.  |
+| {ref}`PR-T56-08` | kernel_smp | `kernel_archive` | Bounded read-only boot archive parser; actual ELF use in guest regression.  |
+| {ref}`PR-T56-09` | kernel_smp | `kernel_integration` | VM client process exchanges requests over channels with store owner; explicit runtime/store dependencies required.  |
+| {ref}`PR-T56-10` | kernel_smp | `kernel_integration` | Separate store owner retains sole disk capability; VM client denied it.  |
+| {ref}`PR-T56-11` | kernel_smp | `kernel_integration` | Commit plus indeterminate reply and next-boot recovery of stored42.  |
+| {ref}`PR-T56-12` | os_observatory | `os_linux_comparison` | Same bounded eight-slot, 256-item queue workload; use freertos-posix with explicit pinned external source for RTOS comparison. Physical MCU timing and Linux RT policy campaigns remain separate.  |

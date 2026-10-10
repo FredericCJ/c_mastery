@@ -20,6 +20,9 @@ def write_zip(path, files, base):
     return entries
 
 def main():
+    if (ROOT/'curriculum/v3_taxonomy.json').exists():
+        from package_v3 import main as v3_main
+        return v3_main()
     if (ROOT/'curriculum/edition.json').exists():
         from package_v2 import main as v2_main
         return v2_main()

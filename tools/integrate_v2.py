@@ -103,6 +103,8 @@ def graph():
         manual=['mechanism explanation','independent changed-condition evidence','delayed transfer']
         if owner in {'T27','T28','T29','T30','T31','T38','T39','T40','T41'}: manual.append('physical observation for every applicable hardware claim')
         if owner in {'T43','T44','T45'}: manual.append('actual tool/measurement dossier under the assigned conditions')
+        if owner in {'T50','T54'} or key=='PR-T56-12': manual.append('independent physical target observations for board claims; image builds alone do not close this gate')
+        if owner=='T52': manual.append('task-model assumptions and independent scheduling argument; measured maxima are not universal WCET bounds')
         candidates=family_map.get(key,[])
         preferred='algorithms' if owner in {'T14','T15','T16','T17','T36','T37'} else 'foundations'
         primary=preferred if preferred in candidates else (candidates[0] if candidates else None)

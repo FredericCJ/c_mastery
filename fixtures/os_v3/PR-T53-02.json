@@ -1,0 +1,45 @@
+{
+  "id": "PR-T53-02",
+  "description": "Secondary-CPU trampoline and startup finite independent example",
+  "oracle": "ack",
+  "input": {
+    "expected_epoch": 4,
+    "expected_cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "acks": [
+      [
+        0,
+        4
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        4
+      ]
+    ]
+  },
+  "expected": {
+    "acknowledged": [
+      0,
+      1,
+      3
+    ],
+    "missing": [
+      2
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A secondary processor does not begin in the bootstrap CPU C environment. Its low-memory trampoline establishes the selected mode transition, page tables and private stack before joining C code. Startup acknowledgment must identify the CPU and boot generation.",
+  "required_observation": "Boot1,2,4 CPUs and retain distinct per-CPU entry markers and stack addresses. An intentionally missing acknowledgment must fail within the declared bound."
+}

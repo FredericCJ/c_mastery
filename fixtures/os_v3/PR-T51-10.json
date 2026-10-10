@@ -1,0 +1,27 @@
+{
+  "id": "PR-T51-10",
+  "description": "Reusable barriers and generations finite independent example",
+  "oracle": "barrier",
+  "input": {
+    "participants": 3,
+    "arrivals": [
+      0,
+      1,
+      2,
+      2,
+      0,
+      1
+    ]
+  },
+  "expected": {
+    "released_generations": [
+      0,
+      1
+    ],
+    "generation": 2,
+    "pending": []
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A reusable barrier separates rounds by generation. Counting arrivals alone allows a fast participant to enter the next round while another still exits the old round. This barrier has a fixed participant set; cancellation breaks the generation and wakes peers with an error.",
+  "required_observation": "Assert no task crosses round k before every participant arrives at k, and show the broken-generation policy releases all affected waiters."
+}

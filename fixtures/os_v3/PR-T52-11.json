@@ -1,0 +1,16 @@
+{
+  "id": "PR-T52-11",
+  "description": "Compare the original runtime with FreeRTOS finite independent example",
+  "oracle": "tick_round",
+  "input": {
+    "delay_ms": 11,
+    "tick_ms": 5
+  },
+  "expected": {
+    "ticks": 3,
+    "realized_ms": 15
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "The original kernel and a pinned FreeRTOS build run the same workload but remain separate artifacts. A similar API name does not promise identical mutex inheritance, notification, timer or ISR semantics. Port assembly and configuration are part of the comparison boundary.",
+  "required_observation": "Explain semantic and timing differences with traces and source locators. Preserve separate linker audits proving that the original implementation remains independent."
+}

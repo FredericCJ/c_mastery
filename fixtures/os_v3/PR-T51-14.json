@@ -1,0 +1,21 @@
+{
+  "id": "PR-T51-14",
+  "description": "Object teardown and owner-death recovery finite independent example",
+  "oracle": "lifetime",
+  "input": {
+    "refs": 2,
+    "events": [
+      "close",
+      "drop",
+      "drop",
+      "destroy"
+    ]
+  },
+  "expected": {
+    "state": "destroyed",
+    "refs": 0
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Destruction is a protocol: close prevents new operations, existing operations finish or receive a terminal error, and storage is reclaimed only after references drain. Owner death can leave protected data inconsistent. A poisoned mutex requires explicit repair and consistency acknowledgment.",
+  "required_observation": "Show no use-after-free through teardown, reject stale handles and demonstrate both successful repair and permanently unrecoverable state."
+}

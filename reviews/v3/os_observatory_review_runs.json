@@ -1,0 +1,94 @@
+{
+  "scope": "Actual hosted comparison and bounded process-local policy probes; unavailable delegation retained",
+  "runs": [
+    {
+      "command": [
+        "cmake",
+        "-S",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/os_observatory",
+        "-B",
+        "/mnt/f/Learning/Curricula/c_mastery/build/observer-review",
+        "-G",
+        "Ninja",
+        "-DCMASTERY_ASSESSOR_ROOT=/mnt/f/Learning/Curricula/c_mastery/assessor/os_observatory",
+        "-DCMASTERY_FREERTOS_ROOT=/mnt/f/Learning/Curricula/c_mastery/build/dependencies/freertos-11.2.0"
+      ],
+      "exit_code": 0,
+      "stdout": "-- The C compiler identification is GNU 15.2.0\n-- Detecting C compiler ABI info\n-- Detecting C compiler ABI info - done\n-- Check for working C compiler: /usr/bin/cc - skipped\n-- Detecting C compile features\n-- Detecting C compile features - done\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n-- Found Threads: TRUE\n-- Found Python3: /usr/bin/python3 (found version \"3.14.4\") found components: Interpreter\n-- Configuring done (6.0s)\n-- Generating done (0.3s)\n-- Build files have been written to: /mnt/f/Learning/Curricula/c_mastery/build/observer-review\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "/mnt/f/Learning/Curricula/c_mastery/build/observer-review"
+      ],
+      "exit_code": 0,
+      "stdout": "[1/15] Building C object CMakeFiles/os_tests.dir/tests/test_os.c.o\n[2/15] Building C object CMakeFiles/os_tests.dir/mnt/f/Learning/Curricula/c_mastery/assessor/os_observatory/oslab.c.o\n[3/15] Building C object CMakeFiles/os_linux_compare.dir/mnt/f/Learning/Curricula/c_mastery/assessor/os_observatory/linux_compare.c.o\n[4/15] Building C object CMakeFiles/os_policy_probe.dir/policy_probe.c.o\n[5/15] Building C object CMakeFiles/os_tests.dir/mnt/f/Learning/Curricula/c_mastery/assessor/os_observatory/platform.c.o\n[6/15] Building C object CMakeFiles/os_freertos_compare.dir/mnt/f/Learning/Curricula/c_mastery/assessor/os_observatory/freertos_compare.c.o\n[7/15] Building C object CMakeFiles/os_freertos_compare.dir/mnt/f/Learning/Curricula/c_mastery/build/dependencies/freertos-11.2.0/list.c.o\n[8/15] Building C object CMakeFiles/os_freertos_compare.dir/mnt/f/Learning/Curricula/c_mastery/build/dependencies/freertos-11.2.0/queue.c.o\n[9/15] Building C object CMakeFiles/os_freertos_compare.dir/mnt/f/Learning/Curricula/c_mastery/build/dependencies/freertos-11.2.0/tasks.c.o\n[10/15] Building C object CMakeFiles/os_freertos_compare.dir/mnt/f/Learning/Curricula/c_mastery/build/dependencies/freertos-11.2.0/portable/ThirdParty/GCC/Posix/utils/wait_for_event.c.o\n[11/15] Linking C executable os_policy_probe\n[12/15] Linking C executable os_linux_compare\n[13/15] Linking C executable os_tests\n[14/15] Building C object CMakeFiles/os_freertos_compare.dir/mnt/f/Learning/Curricula/c_mastery/build/dependencies/freertos-11.2.0/portable/ThirdParty/GCC/Posix/port.c.o\n[15/15] Linking C executable os_freertos_compare\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "ctest",
+        "--test-dir",
+        "/mnt/f/Learning/Curricula/c_mastery/build/observer-review",
+        "-R",
+        "comparison",
+        "--no-tests=error",
+        "--output-on-failure",
+        "-V"
+      ],
+      "exit_code": 0,
+      "stdout": "UpdateCTestConfiguration  from :/mnt/f/Learning/Curricula/c_mastery/build/observer-review/DartConfiguration.tcl\nTest project /mnt/f/Learning/Curricula/c_mastery/build/observer-review\nConstructing a list of tests\nDone constructing a list of tests\nUpdating test list for fixtures\nAdded 0 tests to meet fixture requirements\nChecking test dependency graph...\nChecking test dependency graph end\ntest 10\n    Start 10: os_linux_comparison\n\n10: Test command: /mnt/f/Learning/Curricula/c_mastery/build/observer-review/os_linux_compare\n10: Working Directory: /mnt/f/Learning/Curricula/c_mastery/build/observer-review\n10: Test timeout computed to be: 15\n10: platform=Linux-pthreads count=256 checksum=32640 capacity=8 wall_s=0.000988246 cpu_s=0.000829047\n1/2 Test #10: os_linux_comparison ..............   Passed    0.00 sec\ntest 12\n    Start 12: os_freertos_comparison\n\n12: Test command: /mnt/f/Learning/Curricula/c_mastery/build/observer-review/os_freertos_compare\n12: Working Directory: /mnt/f/Learning/Curricula/c_mastery/build/observer-review\n12: Test timeout computed to be: 15\n12: platform=FreeRTOS-11.2.0-POSIX count=256 checksum=32640 capacity=8 wall_s=0.002324320 cpu_s=0.001766950 physical_timing=unmeasured\n2/2 Test #12: os_freertos_comparison ...........   Passed    0.01 sec\n\nThe following tests passed:\n\tos_linux_comparison\n\tos_freertos_comparison\n\n100% tests passed, 0 tests failed out of 2\n\nTotal Test time (real) =   0.03 sec\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/observer-review/os_policy_probe",
+        "other"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"status\":\"observed\",\"policy\":\"other\",\"actual_policy\":0,\"wall_ns\":100003644,\"cpu_ns\":99971634,\"rounds\":91951,\"checksum\":12609736895551320937,\"involuntary_switches\":1,\"deadline_guarantee\":false}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/observer-review/os_policy_probe",
+        "fifo"
+      ],
+      "exit_code": 77,
+      "stdout": "{\"status\":\"unavailable\",\"policy\":\"fifo\",\"errno\":1}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/observer-review/os_policy_probe",
+        "rr"
+      ],
+      "exit_code": 77,
+      "stdout": "{\"status\":\"unavailable\",\"policy\":\"rr\",\"errno\":1}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/mnt/f/Learning/Curricula/c_mastery/build/observer-review/os_policy_probe",
+        "deadline"
+      ],
+      "exit_code": 77,
+      "stdout": "{\"status\":\"unavailable\",\"policy\":\"deadline\",\"errno\":1}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cgroup_run.py",
+        "--parent",
+        "/sys/fs/cgroup",
+        "--",
+        "true"
+      ],
+      "exit_code": 77,
+      "stdout": "{\n  \"status\": \"unavailable\",\n  \"kernel\": \"6.18.33.1-microsoft-standard-WSL2\",\n  \"command\": [\n    \"true\"\n  ],\n  \"parent\": \"/sys/fs/cgroup\",\n  \"directory\": \"/sys/fs/cgroup/cmastery-e32cdb3492d44d79b83ddddf18e4afbd\",\n  \"evidence_kind\": \"host-cgroup-execution\",\n  \"physical_io\": \"unmeasured\",\n  \"reason\": \"[Errno 13] Permission denied: '/sys/fs/cgroup/cmastery-e32cdb3492d44d79b83ddddf18e4afbd'\"\n}\n",
+      "stderr": ""
+    }
+  ]
+}

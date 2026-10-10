@@ -1,0 +1,19 @@
+{
+  "id": "PR-T51-07",
+  "description": "Mailboxes and synchronous rendezvous finite independent example",
+  "oracle": "rendezvous",
+  "input": {
+    "events": [
+      "send",
+      "cancel_sender",
+      "receive"
+    ]
+  },
+  "expected": {
+    "transferred": false,
+    "sender_result": "canceled"
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A mailbox retains a value; a rendezvous transfers only when sender and receiver meet. Their cancellation and backpressure behavior differ. The chosen one-slot mailbox preserves the previous message on a failed send; rendezvous acknowledges transfer before either side may reuse its buffer.",
+  "required_observation": "Draw the match/commit boundary and show exactly one terminal outcome for each operation under sender and receiver cancellation races."
+}

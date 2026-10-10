@@ -1,0 +1,32 @@
+{
+  "id": "PR-T56-03",
+  "description": "Demand-zero faults and frame ownership finite independent example",
+  "oracle": "pool",
+  "input": {
+    "capacity": 4,
+    "requests": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      -2
+    ]
+  },
+  "expected": {
+    "used": [
+      1,
+      2,
+      3,
+      4,
+      4,
+      2
+    ],
+    "rejected": [
+      4
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "An admitted virtual region can begin without a physical page. A not-present user fault within that region allocates and zeroes a frame; a protection fault or invalid address is a different event. Publish the mapping only after initialization, with rollback on allocation failure.",
+  "required_observation": "Observe real first-touch faults and zero-filled bytes, show invalid accesses terminate the offending process, and verify no frame leaks across exhaustion and exit."
+}

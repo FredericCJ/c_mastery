@@ -1,0 +1,25 @@
+{
+  "id": "PR-T51-12",
+  "description": "Reader-writer locks and admission fairness finite independent example",
+  "oracle": "rw_admit",
+  "input": {
+    "events": [
+      "read_A",
+      "write_B",
+      "read_C",
+      "release_A"
+    ]
+  },
+  "expected": {
+    "admitted": [
+      "A",
+      "B"
+    ],
+    "waiting": [
+      "C"
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Concurrent readers can share access while writers need exclusion. A reader-preferred policy can starve a writer under continuous arrivals. The chosen writer-pending policy stops new readers once a writer waits; this is a policy guarantee with possible reader latency costs.",
+  "required_observation": "Preserve exclusion and show the queued writer progresses after existing readers leave despite new arrivals. Reject unsupported upgrade/downgrade operations explicitly."
+}

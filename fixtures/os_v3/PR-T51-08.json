@@ -1,0 +1,19 @@
+{
+  "id": "PR-T51-08",
+  "description": "Event flags with any/all semantics finite independent example",
+  "oracle": "events",
+  "input": {
+    "bits": 5,
+    "mask": 3,
+    "mode": "any",
+    "clear": true
+  },
+  "expected": {
+    "matched": true,
+    "observed": 1,
+    "remaining": 4
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Event bits represent conditions that may coalesce, not counts. Define wait-any versus wait-all and explicit clear-on-success behavior. With multiple waiters, consuming a bit can change another waiter eligibility, so wakeup order and clearing must be one protected operation.",
+  "required_observation": "Demonstrate the selected any/all and clearing truth tables, including two waiters racing for overlapping masks. Explain why three identical sets need not produce three wakes."
+}

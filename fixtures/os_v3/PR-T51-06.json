@@ -1,0 +1,47 @@
+{
+  "id": "PR-T51-06",
+  "description": "Bounded message queues with copied payloads finite independent example",
+  "oracle": "queue",
+  "input": {
+    "capacity": 2,
+    "actions": [
+      [
+        "put",
+        11
+      ],
+      [
+        "put",
+        12
+      ],
+      [
+        "put",
+        13
+      ],
+      [
+        "get"
+      ],
+      [
+        "put",
+        14
+      ],
+      [
+        "get"
+      ],
+      [
+        "get"
+      ]
+    ]
+  },
+  "expected": {
+    "received": [
+      11,
+      12,
+      14
+    ],
+    "rejected": 1,
+    "remaining": []
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A copied-message queue owns each payload after successful send and releases its slot after receive. The initial API has fixed-size messages and FIFO ordering; it rejects a short output buffer without consuming a message. Full and empty waits use separate predicates over one protected state.",
+  "required_observation": "Account for every accepted message exactly once and preserve per-producer order. Rejected sends preserve occupancy; normal close rejects new sends and drains queued messages, while explicit abort discards queued messages with a recorded cancellation count."
+}

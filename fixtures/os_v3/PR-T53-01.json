@@ -1,0 +1,35 @@
+{
+  "id": "PR-T53-01",
+  "description": "ACPI MADT and processor discovery finite independent example",
+  "oracle": "cpu_inventory",
+  "input": {
+    "entries": [
+      [
+        0,
+        true
+      ],
+      [
+        2,
+        true
+      ],
+      [
+        4,
+        false
+      ],
+      [
+        6,
+        true
+      ]
+    ]
+  },
+  "expected": {
+    "enabled_apic_ids": [
+      0,
+      2,
+      6
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Firmware tables are bounded input, not trusted C structs at arbitrary addresses. Validate signatures, total lengths and checksums before walking MADT records. Distinguish processor IDs from APIC IDs and exclude disabled processors according to the selected table contract.",
+  "required_observation": "Match the accepted CPU inventory with QEMU configurations1,2,4 and reject malformed synthetic tables without reading outside their spans."
+}

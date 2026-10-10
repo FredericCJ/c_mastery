@@ -1,0 +1,31 @@
+{
+  "id": "PR-T49-08",
+  "description": "Namespaces, readiness and device completion finite independent example",
+  "oracle": "completion",
+  "input": {
+    "active_generation": 4,
+    "events": [
+      [
+        3,
+        12
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        4,
+        8
+      ]
+    ]
+  },
+  "expected": {
+    "accepted": [
+      7
+    ],
+    "rejected": 2
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A namespace changes a resource view; it is not the same mechanism as a cgroup resource budget. Readiness means an operation may make progress now, not that all requested work is complete. Completion needs an operation identity and buffer lifetime extending until its terminal result.",
+  "required_observation": "Show a readiness race safely handled by retry/error state and reject a stale synthetic completion. Record unavailable namespace operations honestly rather than weakening the isolation claim."
+}

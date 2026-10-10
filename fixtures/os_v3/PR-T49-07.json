@@ -1,0 +1,49 @@
+{
+  "id": "PR-T49-07",
+  "description": "Descriptors and open-file-description lifetimes finite independent example",
+  "oracle": "offsets",
+  "input": {
+    "actions": [
+      [
+        "open",
+        "a",
+        "x"
+      ],
+      [
+        "dup",
+        "a",
+        "b"
+      ],
+      [
+        "read",
+        "a",
+        3
+      ],
+      [
+        "read",
+        "b",
+        2
+      ],
+      [
+        "open",
+        "c",
+        "y"
+      ],
+      [
+        "read",
+        "c",
+        4
+      ]
+    ]
+  },
+  "expected": {
+    "offsets": {
+      "a": 5,
+      "b": 5,
+      "c": 4
+    }
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A descriptor is a per-process integer referring to an open-file description. dup and inherited descriptors can share an offset, while separate opens ordinarily do not. Closing an integer relinquishes one reference; it does not mean an in-flight operation or a peer descriptor has ended.",
+  "required_observation": "Reconcile every descriptor reference and observed file offset. Show pipe EOF only after all writer references close, including inherited copies."
+}

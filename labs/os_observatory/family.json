@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "family": "os_observatory",
+  "module": "T49",
+  "title": "OS mechanisms and Linux observations",
+  "build_system": "cmake",
+  "default_target": "host",
+  "targets": {
+    "host": {
+      "capabilities": [
+        "cmake",
+        "ninja"
+      ],
+      "evidence_kind": "host"
+    },
+    "freertos-posix": {
+      "projects": ["PR-T52-11", "PR-T52-12", "PR-T56-12"],
+      "capabilities": [
+        "gcc",
+        "cmake",
+        "ninja"
+      ],
+      "evidence_kind": "host-FreeRTOS-POSIX-comparison",
+      "external_dependencies": [
+        "freertos"
+      ],
+      "tests": [
+        "os_linux_comparison",
+        "os_freertos_comparison"
+      ]
+    }
+  },
+  "default": "unsolved learner functions compile; mechanism gates fail",
+  "assessor_root": "assessor/os_observatory",
+  "projects": [
+    {
+      "id": "PR-T49-01",
+      "tests": [
+        "os_process"
+      ],
+      "scope": "Real fork/pipe/wait boundary anchor; syscall/disassembly trace and privilege explanation remain required."
+    },
+    {
+      "id": "PR-T49-02",
+      "tests": [
+        "os_process",
+        "os_thread"
+      ],
+      "scope": "Process-private versus shared state and joined thread lifecycle."
+    },
+    {
+      "id": "PR-T49-03",
+      "tests": [
+        "os_schedulers"
+      ],
+      "scope": "Independent finite FCFS/SJF/SRTF/RR traces; CPU-only integer-tick model."
+    },
+    {
+      "id": "PR-T49-04",
+      "tests": [
+        "os_fairness"
+      ],
+      "scope": "Defined MLFQ/stride traces; Linux EEVDF inspection and changed workloads remain required."
+    },
+    {
+      "id": "PR-T49-05",
+      "tests": [
+        "os_memory"
+      ],
+      "scope": "Actual anonymous-page touches and process fault counters; working-set sweep remains learner evidence."
+    },
+    {
+      "id": "PR-T49-06",
+      "tests": [
+        "os_clock"
+      ],
+      "scope": "CLOCK second-chance mechanism; FIFO anomaly and offline optimal comparison remain learner evidence."
+    },
+    {
+      "id": "PR-T49-07",
+      "tests": [
+        "os_descriptor"
+      ],
+      "scope": "Actual dup offset sharing and unlink/open-file lifetime."
+    },
+    {
+      "id": "PR-T49-08",
+      "tests": [
+        "os_descriptor",
+        "os_signal"
+      ],
+      "scope": "Readiness notification and object lifetime anchors; namespace and device-completion dossier remains required."
+    },
+    {
+      "id": "PR-T49-09",
+      "tests": [
+        "os_memory",
+        "os_thread"
+      ],
+      "scope": "Runnable bounded workload; delegated cgroup CPU/memory limit campaign is separate and must actually run."
+    },
+    {
+      "id": "PR-T49-10",
+      "tests": [
+        "os_io"
+      ],
+      "scope": "Exact logical I/O and fsync-return observation; io.max enforcement and physical durability are not established."
+    },
+    {
+      "id": "PR-T52-11",
+      "tests": [
+        "os_linux_comparison"
+      ],
+      "target_tests": {
+        "freertos-posix": [
+          "os_linux_comparison",
+          "os_freertos_comparison"
+        ]
+      },
+      "scope": "Same bounded eight-slot, 256-item queue workload; use freertos-posix with explicit pinned external source for RTOS comparison. Physical MCU timing and Linux RT policy campaigns remain separate."
+    },
+    {
+      "id": "PR-T52-12",
+      "tests": [
+        "os_linux_comparison"
+      ],
+      "target_tests": {
+        "freertos-posix": [
+          "os_linux_comparison",
+          "os_freertos_comparison"
+        ]
+      },
+      "scope": "Same bounded eight-slot, 256-item queue workload; use freertos-posix with explicit pinned external source for RTOS comparison. Physical MCU timing and Linux RT policy campaigns remain separate."
+    },
+    {
+      "id": "PR-T56-12",
+      "tests": [
+        "os_linux_comparison"
+      ],
+      "target_tests": {
+        "freertos-posix": [
+          "os_linux_comparison",
+          "os_freertos_comparison"
+        ]
+      },
+      "scope": "Same bounded eight-slot, 256-item queue workload; use freertos-posix with explicit pinned external source for RTOS comparison. Physical MCU timing and Linux RT policy campaigns remain separate."
+    }
+  ],
+  "external_dependencies": {
+    "freertos": {
+      "commit": "0adc196d4bd52a2d91102b525b0aafc1e14a2386",
+      "required_files": [
+        "tasks.c",
+        "queue.c",
+        "list.c",
+        "portable/ThirdParty/GCC/Posix/port.c"
+      ]
+    }
+  }
+}

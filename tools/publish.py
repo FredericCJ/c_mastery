@@ -94,7 +94,7 @@ def prepare():
     counts=f"{len(taxonomy)} domains · {sum(len(d['subtopics']) for d in taxonomy)} subtopics · {len(coverage):,} objectives"
     standalone = ['# C Programming Mastery\n', 'Language, algorithms, architecture, systems, firmware, communication, measurement and debugging.\n\n'+counts+'. The original 35 domains and 1,185 objectives are preserved.\n\nStart at [Entry](#guide-entry), follow the [Roadmap](#guide-roadmap), and use [Performance and debugging](#guide-performance-debugging), [Communication stack families](#guide-communication-stacks), [Assessment](#guide-assessment) and [Workload](#guide-workload). The complete source bibliography follows the project catalog.\n']
     guides=[]
-    guide_order=['second-edition','entry','project-route','roadmap','component-contracts','enhancement','communication-stacks','performance-debugging','standards','profiles','inventory','laboratory','assessment','integrations','reading','workload','audit']
+    guide_order=['third-edition','second-edition','entry','project-route','roadmap','component-contracts','concurrent-system-contracts','enhancement','communication-stacks','performance-debugging','standards','profiles','inventory','laboratory','assessment','integrations','reading','workload','audit']
     guide_paths=sorted((ROOT / 'curriculum/guides').glob('*.md'),key=lambda p:(guide_order.index(p.stem) if p.stem in guide_order else 99,p.stem))
     for path in guide_paths:
         content = publication_links(path.read_text(encoding='utf-8'))

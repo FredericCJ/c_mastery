@@ -46,3 +46,22 @@ Handwritten assembly in {ref}`T36` has a chosen ISA/call convention and remains 
 An instrumented investigative variant has its own dependency contract. Sanitizers, profiling hooks and logs can add calls, allocation, code, stack and timing effects. Retain the uninstrumented profile-B/C component or profile-E image audit separately; a diagnostic variant cannot silently stand in for its original dependency or resource promise.
 
 Add named cost units, simultaneous lifetime peaks, completion/reclamation events and observer overhead to the resource ledger. Fixed link sections, whole-path conditional stack estimates, sampled high water, allocator retention, process resident bytes and cgroup accounting are distinct entries. Reuse these ledgers in {ref}`T43`–{ref}`T45`; the directory does not add another implementation budget.
+
+## Strict third-edition E/F variant
+
+T50–T56 custom images select the strict E/F variant in their dependency ledger.
+They retain the existing profile letters for compatibility and add the explicit
+restriction: no linked libc, libgcc, compiler-rt, libatomic, HAL, OpenAMP or existing
+RTOS. Original memory/arithmetic helpers are allowed and need ABI tests. Compiler
+type/limit headers, register definitions and inspected inline intrinsics are
+permitted. The x86 bootloader handoff remains an explicit pre-runtime boundary.
+
+Inspect the final link inputs, symbol ownership, memory map and disassembly.
+An entirely resolved ELF can still contain an unintended statically linked
+library. Ensure memory helpers cannot be optimized into recursive calls to
+themselves; prove supported atomic widths/alignment and reject unsupported helper
+calls. Diagnostic hosted builds and FreeRTOS/Linux comparison applications have
+separate dependency profiles and cannot substitute for a strict-image audit.
+
+See [concurrent-system contracts](concurrent-system-contracts.md) for task/ISR
+legality, wait outcomes, reclamation and the physical evidence requirements.

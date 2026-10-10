@@ -1,0 +1,50 @@
+{
+  "id": "PR-T53-11",
+  "description": "Bounded parallel work pool finite independent example",
+  "oracle": "queue",
+  "input": {
+    "capacity": 3,
+    "actions": [
+      [
+        "put",
+        10
+      ],
+      [
+        "put",
+        20
+      ],
+      [
+        "get"
+      ],
+      [
+        "put",
+        30
+      ],
+      [
+        "put",
+        40
+      ],
+      [
+        "put",
+        50
+      ],
+      [
+        "get"
+      ]
+    ]
+  },
+  "expected": {
+    "received": [
+      10,
+      20
+    ],
+    "rejected": 1,
+    "remaining": [
+      30,
+      40
+    ]
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "A work pool owns accepted jobs until completion or explicit cancellation. Fixed queue capacity creates backpressure, while shutdown needs a clear drain/cancel policy. Worker count and CPU count differ; a blocked worker can reduce effective parallelism.",
+  "required_observation": "Account for every submitted, rejected, completed and canceled job and show real execution on multiple CPUs. Diagnose one nested-submission deadlock."
+}

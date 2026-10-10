@@ -1,0 +1,25 @@
+{
+  "id": "PR-T49-10",
+  "description": "I/O accounting and interference finite independent example",
+  "oracle": "bytes",
+  "input": {
+    "writes": [
+      4096,
+      2048,
+      1024
+    ],
+    "reads": [
+      1024,
+      1024
+    ],
+    "durable_prefix_writes": 2
+  },
+  "expected": {
+    "application_written": 7168,
+    "application_read": 2048,
+    "acknowledged_durable_prefix": 6144
+  },
+  "verification_method": "research/v3/verify_fixtures.py independently recomputes this declared finite example; implementation and hardware evidence remain separate",
+  "mechanism_contract": "Application bytes, page-cache traffic and device bytes are different quantities. Buffered write completion does not establish durability; fsync can shift costs into another phase. A cgroup I/O limit applies to the selected controller/device path, so unsupported or cached operations can evade a naive interpretation.",
+  "required_observation": "Publish a component budget separating data generation, system calls, waiting and completion, with byte ledgers and uncertainty. Explain every difference between application and device accounting."
+}
