@@ -6,7 +6,7 @@ import re
 from urllib.parse import unquote,urlsplit
 from bs4 import BeautifulSoup
 from markdown_it import MarkdownIt
-from common import ROOT, dump, load, read_json
+from common import ROOT, dump, load, read_json, normalize_prose
 
 def norm(value):
     return re.sub(r'\s+',' ',html.unescape(value)).strip()
@@ -62,7 +62,7 @@ def main():
             actual=norm(article.get_text(' '))
             actual_code={tag.get_text().rstrip('\n') for tag in article.find_all('pre')}
             # Compare each complete canonical paragraph and literal code block.
-            expected=BeautifulSoup(renderer.render(record['body']),'html.parser')
+            expected=BeautifulSoup(renderer.render(normalize_prose(record['body'])),'html.parser')
             for tag in expected.find_all(['p','pre','h2','h3','li']):
                 if tag.name=='pre':
                     if tag.get_text().rstrip('\n') not in actual_code:
@@ -84,7 +84,7 @@ def main():
         if soup is None or row['objective'].lower().replace('.','-') not in ids.get(page,set()):
             errors.append(row['objective']+': objective target absent')
         if soup is not None:
-            expected_text=norm(BeautifulSoup(renderer.render(row['text']),'html.parser').get_text(' '))
+            expected_text=norm(BeautifulSoup(renderer.render(normalize_prose(row['text'])),'html.parser').get_text(' '))
             actual_text=norm(soup.select_one('article.bd-article').get_text(' '))
             if expected_text not in actual_text: errors.append(row['objective']+': original objective text absent')
             objective_text_checks+=1

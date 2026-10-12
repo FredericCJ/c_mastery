@@ -3,9 +3,13 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 META = re.compile(r'\A```json\s*\n(.*?)\n```\s*\n', re.S)
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from cmastery.text import normalize_prose, find_glued, strip_bullet  # noqa: E402
 
 def read_json(path):
     return json.loads(Path(path).read_text(encoding='utf-8-sig'))

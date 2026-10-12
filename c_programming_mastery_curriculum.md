@@ -22123,7 +22123,7 @@ Without opening the old implementation, reconstruct Ethernet PHY, RMII and physi
 
 ### trace-or-small-implementation
 
-For Ethernet PHY, RMII and physical readiness: 1. Read the exact Rev8 board Ethernet table and inspected LAN8742A register scope. Compare actual board marking/jumpers; do not assume a newer manual's table was inspected. Predict normal, boundary and failure outcomes before running the code. Invalid ID, reset never clearing, MDIO busy never clearing, missing clock, negotiation incomplete, half duplex and current down each produce a bounded not-ready result. A low first latch read is not erased from diagnostics by the second current-up read. A query fixture cannot prove a physical clock or cable exists.
+For Ethernet PHY, RMII and physical readiness: 1. Read the exact Rev 8 board Ethernet table and inspected LAN8742A register scope. Compare actual board marking/jumpers; do not assume a newer manual's table was inspected. Predict normal, boundary and failure outcomes before running the code. Invalid ID, reset never clearing, MDIO busy never clearing, missing clock, negotiation incomplete, half duplex and current down each produce a bounded not-ready result. A low first latch read is not erased from diagnostics by the second current-up read. A query fixture cannot prove a physical clock or cable exists.
 
 <details><summary>After the attempt: scoring facets</summary>
 
@@ -25920,7 +25920,7 @@ Without opening the old implementation, reconstruct FCFS, SJF, SRTF and round-ro
 
 - Derive and defend the state, ownership and ordering contract for fcfs, sjf, srtf and round-robin scheduling.
 - Implement FCFS, nonpreemptive SJF, SRTF and RR with a configurable positive quantum. Use jobs A=(0,8), B=(1,2), C=(2,1) and derive the complete timeline by hand before executing.
-- Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service.
+- Check service conservation and exact timelines: SRTF completes B at 3, C at 4 and A at 11; explain the tie at 2. Report response, turnaround and waiting time without counting idle time as service.
 
 </details>
 
@@ -25932,7 +25932,7 @@ For FCFS, SJF, SRTF and round-robin scheduling: Implement FCFS, nonpreemptive SJ
 
 - Implement FCFS, nonpreemptive SJF, SRTF and RR with a configurable positive quantum. Use jobs A=(0,8), B=(1,2), C=(2,1) and derive the complete timeline by hand before executing.
 - Show the first divergent transition and justify the independent expectation.
-- Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service.
+- Check service conservation and exact timelines: SRTF completes B at 3, C at 4 and A at 11; explain the tie at 2. Report response, turnaround and waiting time without counting idle time as service.
 
 </details>
 
@@ -26043,7 +26043,7 @@ Without opening the old implementation, reconstruct Page replacement from a refe
 
 - Derive and defend the state, ownership and ordering contract for page replacement from a reference string.
 - Implement the four policies and print each eviction. Use reference string1,2,3,4,1,2,5,1,2,3,4,5 with three and four frames to examine FIFO anomaly.
-- Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
+- Independently derive FIFO fault counts 9 and 10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
 
 </details>
 
@@ -26055,7 +26055,7 @@ For Page replacement from a reference string: Implement the four policies and pr
 
 - Implement the four policies and print each eviction. Use reference string1,2,3,4,1,2,5,1,2,3,4,5 with three and four frames to examine FIFO anomaly.
 - Show the first divergent transition and justify the independent expectation.
-- Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
+- Independently derive FIFO fault counts 9 and 10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
 
 </details>
 
@@ -26421,7 +26421,7 @@ Without opening the old implementation, reconstruct Timers and an absolute-deadl
 
 - Derive and defend the state, ownership and ordering contract for timers and an absolute-deadline queue.
 - Implement a bounded deadline queue with stable equal-deadline ordering and generation-checked cancellation. Compare phase-preserving periodic release with delay-after-work using a fake clock.
-- Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
+- Demonstrate releases at 10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
 
 </details>
 
@@ -26433,7 +26433,7 @@ For Timers and an absolute-deadline queue: Implement a bounded deadline queue wi
 
 - Implement a bounded deadline queue with stable equal-deadline ordering and generation-checked cancellation. Compare phase-preserving periodic release with delay-after-work using a fake clock.
 - Show the first divergent transition and justify the independent expectation.
-- Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
+- Demonstrate releases at 10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
 
 </details>
 
@@ -27646,7 +27646,7 @@ For Tick rollover, phase and tickless timing: Reuse the original timer queue wit
 
 ### changed-condition
 
-For Tick rollover, phase and tickless timing, reconstruct the relevant interface or invariant before consulting earlier source. Change the tick width to16 and keep the same real-time horizon requirement. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+For Tick rollover, phase and tickless timing, reconstruct the relevant interface or invariant before consulting earlier source. Change the tick width to 16 and keep the same real-time horizon requirement. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
 
 <details><summary>After the attempt: scoring facets</summary>
 
@@ -27716,7 +27716,7 @@ Without opening the old implementation, reconstruct Global EDF and multiprocesso
 
 ### trace-or-small-implementation
 
-For Global EDF and multiprocessor counterexamples: Implement a two-core global-EDF model with migration accounting. Use one job requiring its full period and two tiny earlier-deadline jobs that delay its first dispatch. Predict normal, boundary and failure outcomes before running the code. one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most2 treated sufficient; deadline tie hides counterexample.
+For Global EDF and multiprocessor counterexamples: Implement a two-core global-EDF model with migration accounting. Use one job requiring its full period and two tiny earlier-deadline jobs that delay its first dispatch. Predict normal, boundary and failure outcomes before running the code. one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most 2 treated sufficient; deadline tie hides counterexample.
 
 <details><summary>After the attempt: scoring facets</summary>
 
@@ -45680,7 +45680,7 @@ Read the bounded selections before the corresponding project, then annotate one 
 
 **STM32 Nucleo-144 boards (MB1137) — Introduction (1 h):** Identify board applicability.
 
-**Shared scope limit — STM32F405/415, STM32F407/417, STM32F427/437 and STM32F429/439 advanced Arm-based 32-bit MCUs:** Inspected Rev21; newer Rev22 delta uninspected. F439 RCC is chapter6, not earlier-family chapter7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement.
+**Shared scope limit — STM32F405/415, STM32F407/417, STM32F427/437 and STM32F429/439 advanced Arm-based 32-bit MCUs:** Inspected Rev 21; newer Rev 22 delta uninspected. F439 RCC is chapter 6, not earlier-family chapter 7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement.
 
 **Shared scope limit — Procedure Call Standard for the Arm Architecture:** Select the actual ABI variant and floating-point options used by the toolchain; this document does not choose a board memory map or linker layout.
 
@@ -45722,7 +45722,7 @@ Use [T37](#t37) to deepen ISA, clocked-state, bus, memory and exception reasonin
 
 Use [guide-profiles](#guide-profiles) to declare the dependency boundary, [guide-laboratory](#guide-laboratory) for installed tools and hardware, and [guide-audit](#guide-audit) for image/call-graph evidence. Fixtures are original deterministic mathematical or synthetic-protocol data. Run `python tools/verify_embedded_fixtures.py` from the curriculum root to recompute their expectations. This oracle checks fixtures, not learner code.
 
-Host adapters establish only their declared state-machine semantics. QEMU mps2-an386 establishes its Arm FPGA machine behavior; it does not implement STM32F439 registers. Physical-board completion requires the exact board/revision/pin/clock evidence. RM0090 Rev21 and UM1974 Rev8 are the inspected revisions; newer portal revisions require delta review before adopting changed procedures. No simulated timing or analog result is a physical measurement.
+Host adapters establish only their declared state-machine semantics. QEMU mps2-an386 establishes its Arm FPGA machine behavior; it does not implement STM32F439 registers. Physical-board completion requires the exact board/revision/pin/clock evidence. RM0090 Rev 21 and UM1974 Rev 8 are the inspected revisions; newer portal revisions require delta review before adopting changed procedures. No simulated timing or analog result is a physical measurement.
 
 Use [guide-inventory](#guide-inventory) to find supplied data and [guide-integrations](#guide-integrations) for later cross-module work.
 
@@ -46196,7 +46196,7 @@ Read the bounded selections before the corresponding project, then annotate one 
 
 **Test-Driven Development for Embedded C — 5.4 The Embedded TDD Cycle (1 h):** Progress from host to target evidence.
 
-**Shared scope limit — STM32F405/415, STM32F407/417, STM32F427/437 and STM32F429/439 advanced Arm-based 32-bit MCUs:** Inspected Rev21; newer Rev22 delta uninspected. F439 RCC is chapter6, not earlier-family chapter7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement.
+**Shared scope limit — STM32F405/415, STM32F407/417, STM32F427/437 and STM32F429/439 advanced Arm-based 32-bit MCUs:** Inspected Rev 21; newer Rev 22 delta uninspected. F439 RCC is chapter 6, not earlier-family chapter 7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement.
 
 **Shared scope limit — Test-Driven Development for Embedded C:** Host tests and simulator runs do not establish actual peripheral behavior. Historical tooling references require current commands. This inspection supports the strategy passages, not all mock-driver chapters.
 
@@ -46216,7 +46216,7 @@ See [guide-reading](#guide-reading) for access/provenance and [guide-standards](
 
 - [PR-T28-06 — DMA buffer and portable service boundary](#pr-t28-06), 8 h, core, profile C. Implement a caller-storage DMA/service API with explicit CPU/device ownership, accessible-bank validation, width/alignment and partial-completion/cancellation outcomes.
 
-- [PR-T28-07 — Elective Ethernet diagnostic service](#pr-t28-07), 6 h, elective, profile A. Implement a bounded application datagram above a declared Ethernet/IP/UDP adapter:16-bit big-endian sequence,16-bit payload length, then at most32payload bytes.
+- [PR-T28-07 — Elective Ethernet diagnostic service](#pr-t28-07), 6 h, elective, profile A. Implement a bounded application datagram above a declared Ethernet/IP/UDP adapter:16-bit big-endian sequence,16-bit payload length, then at most 32 payload bytes.
 
 Project hours are the implementation plus verification budget, counted once. The optional-project-hour metadata identifies extensions included in this complete-module ledger; consult [guide-workload](#guide-workload) when selecting a core-only route.
 
@@ -46238,7 +46238,7 @@ Carry the MMIO and completion contracts into [T38](#t38) serial interfaces and [
 
 Use [guide-profiles](#guide-profiles) to declare the dependency boundary, [guide-laboratory](#guide-laboratory) for installed tools and hardware, and [guide-audit](#guide-audit) for image/call-graph evidence. Fixtures are original deterministic mathematical or synthetic-protocol data. Run `python tools/verify_embedded_fixtures.py` from the curriculum root to recompute their expectations. This oracle checks fixtures, not learner code.
 
-Host adapters establish only their declared state-machine semantics. QEMU mps2-an386 establishes its Arm FPGA machine behavior; it does not implement STM32F439 registers. Physical-board completion requires the exact board/revision/pin/clock evidence. RM0090 Rev21 and UM1974 Rev8 are the inspected revisions; newer portal revisions require delta review before adopting changed procedures. No simulated timing or analog result is a physical measurement.
+Host adapters establish only their declared state-machine semantics. QEMU mps2-an386 establishes its Arm FPGA machine behavior; it does not implement STM32F439 registers. Physical-board completion requires the exact board/revision/pin/clock evidence. RM0090 Rev 21 and UM1974 Rev 8 are the inspected revisions; newer portal revisions require delta review before adopting changed procedures. No simulated timing or analog result is a physical measurement.
 
 Use [guide-inventory](#guide-inventory) to find supplied data and [guide-integrations](#guide-integrations) for later cross-module work.
 
@@ -46643,7 +46643,7 @@ Read the bounded selections before the corresponding project, then annotate one 
 
 **Shared scope limit — Cortex-M4 Devices Generic User Guide:** Generic core document; optional features and device integration require ST evidence. Publication year is not inferred from copyright or identifier. Read barrier instruction definitions before using the overview as a complete ordering specification.
 
-**Shared scope limit — STM32F405/415, STM32F407/417, STM32F427/437 and STM32F429/439 advanced Arm-based 32-bit MCUs:** Inspected Rev21; newer Rev22 delta uninspected. F439 RCC is chapter6, not earlier-family chapter7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement.
+**Shared scope limit — STM32F405/415, STM32F407/417, STM32F427/437 and STM32F429/439 advanced Arm-based 32-bit MCUs:** Inspected Rev 21; newer Rev 22 delta uninspected. F439 RCC is chapter 6, not earlier-family chapter 7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement.
 
 **Shared scope limit — FreeRTOS Kernel GCC ARM_CM4F port:** Source symbols are locators because this is source code. A particular GCC CM4F port is not a generic RTOS guarantee; no port build or timing experiment was run. Assert checks and configuration assumptions remain essential.
 
@@ -46681,7 +46681,7 @@ Transfer ISR/DMA ownership and ordering evidence to [T39](#t39) and [T41](#t41).
 
 Use [guide-profiles](#guide-profiles) to declare the dependency boundary, [guide-laboratory](#guide-laboratory) for installed tools and hardware, and [guide-audit](#guide-audit) for image/call-graph evidence. Fixtures are original deterministic mathematical or synthetic-protocol data. Run `python tools/verify_embedded_fixtures.py` from the curriculum root to recompute their expectations. This oracle checks fixtures, not learner code.
 
-Host adapters establish only their declared state-machine semantics. QEMU mps2-an386 establishes its Arm FPGA machine behavior; it does not implement STM32F439 registers. Physical-board completion requires the exact board/revision/pin/clock evidence. RM0090 Rev21 and UM1974 Rev8 are the inspected revisions; newer portal revisions require delta review before adopting changed procedures. No simulated timing or analog result is a physical measurement.
+Host adapters establish only their declared state-machine semantics. QEMU mps2-an386 establishes its Arm FPGA machine behavior; it does not implement STM32F439 registers. Physical-board completion requires the exact board/revision/pin/clock evidence. RM0090 Rev 21 and UM1974 Rev 8 are the inspected revisions; newer portal revisions require delta review before adopting changed procedures. No simulated timing or analog result is a physical measurement.
 
 Use [guide-inventory](#guide-inventory) to find supplied data and [guide-integrations](#guide-integrations) for later cross-module work.
 
@@ -47094,7 +47094,7 @@ Read the bounded selections before the corresponding project, then annotate one 
 
 **Shared scope limit — FreeRTOS Kernel GCC ARM_CM4F port:** Source symbols are locators because this is source code. A particular GCC CM4F port is not a generic RTOS guarantee; no port build or timing experiment was run. Assert checks and configuration assumptions remain essential.
 
-**Shared scope limit — STM32F405/415, STM32F407/417, STM32F427/437 and STM32F429/439 advanced Arm-based 32-bit MCUs:** Inspected Rev21; newer Rev22 delta uninspected. F439 RCC is chapter6, not earlier-family chapter7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement.
+**Shared scope limit — STM32F405/415, STM32F407/417, STM32F427/437 and STM32F429/439 advanced Arm-based 32-bit MCUs:** Inspected Rev 21; newer Rev 22 delta uninspected. F439 RCC is chapter 6, not earlier-family chapter 7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement.
 
 See [guide-reading](#guide-reading) for access/provenance and [guide-standards](#guide-standards) for the language baseline.
 
@@ -47126,7 +47126,7 @@ Change one period, one blocking cost and the timer width independently. Predict 
 
 Use [guide-profiles](#guide-profiles) to declare the dependency boundary, [guide-laboratory](#guide-laboratory) for installed tools and hardware, and [guide-audit](#guide-audit) for image/call-graph evidence. Fixtures are original deterministic mathematical or synthetic-protocol data. Run `python tools/verify_embedded_fixtures.py` from the curriculum root to recompute their expectations. This oracle checks fixtures, not learner code.
 
-Host adapters establish only their declared state-machine semantics. QEMU mps2-an386 establishes its Arm FPGA machine behavior; it does not implement STM32F439 registers. Physical-board completion requires the exact board/revision/pin/clock evidence. RM0090 Rev21 and UM1974 Rev8 are the inspected revisions; newer portal revisions require delta review before adopting changed procedures. No simulated timing or analog result is a physical measurement.
+Host adapters establish only their declared state-machine semantics. QEMU mps2-an386 establishes its Arm FPGA machine behavior; it does not implement STM32F439 registers. Physical-board completion requires the exact board/revision/pin/clock evidence. RM0090 Rev 21 and UM1974 Rev 8 are the inspected revisions; newer portal revisions require delta review before adopting changed procedures. No simulated timing or analog result is a physical measurement.
 
 Use [guide-inventory](#guide-inventory) to find supplied data and [guide-integrations](#guide-integrations) for later cross-module work.
 
@@ -47567,7 +47567,7 @@ Investigate the same defect in optimized firmware, then with tracing enabled/dis
 
 Use [guide-profiles](#guide-profiles) to declare the dependency boundary, [guide-laboratory](#guide-laboratory) for installed tools and hardware, and [guide-audit](#guide-audit) for image/call-graph evidence. Fixtures are original deterministic mathematical or synthetic-protocol data. Run `python tools/verify_embedded_fixtures.py` from the curriculum root to recompute their expectations. This oracle checks fixtures, not learner code.
 
-Host adapters establish only their declared state-machine semantics. QEMU mps2-an386 establishes its Arm FPGA machine behavior; it does not implement STM32F439 registers. Physical-board completion requires the exact board/revision/pin/clock evidence. RM0090 Rev21 and UM1974 Rev8 are the inspected revisions; newer portal revisions require delta review before adopting changed procedures. No simulated timing or analog result is a physical measurement.
+Host adapters establish only their declared state-machine semantics. QEMU mps2-an386 establishes its Arm FPGA machine behavior; it does not implement STM32F439 registers. Physical-board completion requires the exact board/revision/pin/clock evidence. RM0090 Rev 21 and UM1974 Rev 8 are the inspected revisions; newer portal revisions require delta review before adopting changed procedures. No simulated timing or analog result is a physical measurement.
 
 Use [guide-inventory](#guide-inventory) to find supplied data and [guide-integrations](#guide-integrations) for later cross-module work.
 
@@ -49490,16 +49490,16 @@ Profile C applies to the component, with a separately declared Profile A harness
 | [Introduction to Algorithms](#r-clrs-4) | 6.2 Maintaining the heap property | Separate intact child subheaps from the single moving sift-down violation. | 0.5 |
 | [Introduction to Algorithms](#r-clrs-4) | 11.4 Open addressing — probe coverage, deletion and independence assumptions | Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions. | 0.5 |
 | [Introduction to Algorithms](#r-clrs-4) | 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3 | Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels. | 0.75 |
-| [Introduction to Algorithms](#r-clrs-4) | 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion | Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images. | 0.25 |
+| [Introduction to Algorithms](#r-clrs-4) | 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion | Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images. | 0.25 |
 | [Introduction to Algorithms](#r-clrs-4) | 32.1 The naive string-matching algorithm | Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher. | 0.5 |
 | [Introduction to Algorithms](#r-clrs-4) | 13.1 Properties of red-black trees | Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation. | 0.25 |
-| [A Note on Two Problems in Connexion with Graphs](#r-enh-dijkstra-graphs-1959) | Problem2 — minimum total length path | Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results. | 0.5 |
-| [A Note on Two Problems in Connexion with Graphs](#r-enh-dijkstra-graphs-1959) | Problem2 Remarks1–2 | Keep spanning-tree and path questions separate and state the modern weight/storage limits. | 0.25 |
+| [A Note on Two Problems in Connexion with Graphs](#r-enh-dijkstra-graphs-1959) | Problem 2 — minimum total length path | Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results. | 0.5 |
+| [A Note on Two Problems in Connexion with Graphs](#r-enh-dijkstra-graphs-1959) | Problem 2 Remarks 1–2 | Keep spanning-tree and path questions separate and state the modern weight/storage limits. | 0.25 |
 | [C Interfaces and Implementations: Techniques for Creating Reusable Software](#r-hanson-cii) | 2.1 Interfaces | Place representation behind a small interface with observable error behavior. | 0.25 |
 | [C Interfaces and Implementations: Techniques for Creating Reusable Software](#r-hanson-cii) | 2.3 Abstract Data Types | Compare a typed value wrapper with an opaque pointer collection and its representation invariant. | 0.5 |
 | [C Interfaces and Implementations: Techniques for Creating Reusable Software](#r-hanson-cii) | 2.4 Client Responsibilities | Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline. | 0.25 |
 | [Open Data Structures (in C++)](#r-morin-ods-0-1f) | 5.2.1 Analysis of Linear Probing | Name the independence/load assumptions behind expected probing costs instead of inferring them from a few examples. | 0.25 |
-| [Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume1: Basic Architecture](#r-enh-intel-sdm1-093) | 3.4.3.1 Status Flags | Map unsigned and signed branch predicates to the flags produced by the actual compare. | 0.25 |
+| [Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume 1: Basic Architecture](#r-enh-intel-sdm1-093) | 3.4.3.1 Status Flags | Map unsigned and signed branch predicates to the flags produced by the actual compare. | 0.25 |
 | [System V Application Binary Interface: AMD64 Architecture Processor Supplement](#r-sys-amd64-abi-0-99-6) | 3.2.1 Registers and the Stack Frame | Record the SysV preserved-register set and distinguish it from Linux kernel and Microsoft calling conventions. | 0.5 |
 | [System V Application Binary Interface: AMD64 Architecture Processor Supplement](#r-sys-amd64-abi-0-99-6) | 3.2.2 The Stack Frame | Derive call-site alignment and nested-call/red-zone limits from this explicitly pinned draft. | 0.5 |
 | [System V Application Binary Interface: AMD64 Architecture Processor Supplement](#r-sys-amd64-abi-0-99-6) | §3.2.3 Parameter Passing, opening classification rules, pp. 17–19 | Use the previously inspected scalar-argument scope for the bounded kernel declarations. | 0.25 |
@@ -49936,19 +49936,19 @@ Follow [guide-performance-debugging](#guide-performance-debugging) for the full 
 
 | Resource | Inspected locator | Purpose | Hours |
 | --- | --- | --- | --- |
-| [Introduction to Computer Organization: ARM](#r-enh-plantz-organization-arm) | Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114 | Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb. | 0.75 |
-| [Introduction to Computer Organization: ARM](#r-enh-plantz-organization-arm) | Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139 | Separate combinational next-state signals from flip-flop state committed at a clock. | 0.75 |
-| [Introduction to Computer Organization: ARM](#r-enh-plantz-organization-arm) | Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172 | Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath. | 0.75 |
+| [Introduction to Computer Organization: ARM](#r-enh-plantz-organization-arm) | Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114 | Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb. | 0.75 |
+| [Introduction to Computer Organization: ARM](#r-enh-plantz-organization-arm) | Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139 | Separate combinational next-state signals from flip-flop state committed at a clock. | 0.75 |
+| [Introduction to Computer Organization: ARM](#r-enh-plantz-organization-arm) | Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172 | Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath. | 0.75 |
 | [Computer Architecture: A Quantitative Approach](#r-enh-hennessy-patterson-6) | 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54 | Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers. | 0.75 |
 | [Computer Architecture: A Quantitative Approach](#r-enh-hennessy-patterson-6) | B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18 | Distinguish AMAT from an explicitly in-order memory-stall estimate. | 0.75 |
 | [Computer Architecture: A Quantitative Approach](#r-enh-hennessy-patterson-6) | C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15 | Construct RAW, forwarding and load-use schedules under a declared pipeline model. | 0.75 |
 | [Computer Architecture: A Quantitative Approach](#r-enh-hennessy-patterson-6) | B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9 | Derive block placement, tag identity and replacement rules before simulating a cache. | 0.75 |
 | [Computer Architecture: A Quantitative Approach](#r-enh-hennessy-patterson-6) | B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23 | Classify misses with compulsory history and a same-capacity fully associative shadow. | 0.75 |
-| [Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume1: Basic Architecture](#r-enh-intel-sdm1-093) | 3.4.1.1 General-Purpose Registers in64-Bit Mode | Explain partial-register preservation versus 32-bit zero extension. | 0.5 |
-| [Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume1: Basic Architecture](#r-enh-intel-sdm1-093) | 3.4.3.1 Status Flags | Interpret carry/borrow and signed-overflow flags against the finite arithmetic model. | 0.25 |
-| [Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume1: Basic Architecture](#r-enh-intel-sdm1-093) | 3.7.5.1 Specifying an Offset in64-Bit Mode | Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints. | 0.25 |
-| [Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume2A: Instruction Set Reference A-L](#r-enh-intel-sdm2a-093) | CMP—Compare Two Operands, printed3-161–3-162 | Decode only the inspected accumulator/immediate CMP forms and their sign extension. | 0.25 |
-| [Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume2A: Instruction Set Reference A-L](#r-enh-intel-sdm2a-093) | Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502 | Compute JA rel8 from the next instruction and the declared unsigned flags. | 0.25 |
+| [Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume 1: Basic Architecture](#r-enh-intel-sdm1-093) | 3.4.1.1 General-Purpose Registers in 64-Bit Mode | Explain partial-register preservation versus 32-bit zero extension. | 0.5 |
+| [Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume 1: Basic Architecture](#r-enh-intel-sdm1-093) | 3.4.3.1 Status Flags | Interpret carry/borrow and signed-overflow flags against the finite arithmetic model. | 0.25 |
+| [Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume 1: Basic Architecture](#r-enh-intel-sdm1-093) | 3.7.5.1 Specifying an Offset in 64-Bit Mode | Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints. | 0.25 |
+| [Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume 2A: Instruction Set Reference A-L](#r-enh-intel-sdm2a-093) | CMP—Compare Two Operands, printed 3-161–3-162 | Decode only the inspected accumulator/immediate CMP forms and their sign extension. | 0.25 |
+| [Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume 2A: Instruction Set Reference A-L](#r-enh-intel-sdm2a-093) | Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502 | Compute JA rel8 from the next instruction and the declared unsigned flags. | 0.25 |
 | [Armv7-M Architecture Reference Manual](#r-enh-armv7m-ddi0403ee) | A5.1 Thumb instruction set encoding — width discriminator and PC reads | Read actual Thumb halfword boundaries and architectural PC rules. | 0.5 |
 | [Armv7-M Architecture Reference Manual](#r-enh-armv7m-ddi0403ee) | A7.7.27 CMP (immediate) — EncodingT1 and Operation | Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope. | 0.5 |
 | [Cortex-M4 Devices Generic User Guide](#r-arm-dui0553b) | 3.5.1 ADD, ADC, SUB, SBC, and RSB | Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics. | 0.25 |
@@ -50924,7 +50924,7 @@ Retain a separate evidence item for each objective below. Meeting one objective 
 
 ## Reading guidance
 
-Read each exact locator before its dependent milestone. The book and ITU model explain boundaries; ST/PHY documents define the selected hardware contract. The CRC appendix supplies declared arithmetic only, not Ethernet normative framing. Reuse previously inspected memory/barrier knowledge, and keep the exact normal-descriptor/stripping policy beside the implementation. No whole current IEEE802.3 standard or Rev 11 board chapter is assigned from a lead/contents page. The merged [guide-reading](#guide-reading) registry supplies edition/access/scope limitations and the complementary T41 primary RFC spine.
+Read each exact locator before its dependent milestone. The book and ITU model explain boundaries; ST/PHY documents define the selected hardware contract. The CRC appendix supplies declared arithmetic only, not Ethernet normative framing. Reuse previously inspected memory/barrier knowledge, and keep the exact normal-descriptor/stripping policy beside the implementation. No whole current IEEE 802.3 standard or Rev 11 board chapter is assigned from a lead/contents page. The merged [guide-reading](#guide-reading) registry supplies edition/access/scope limitations and the complementary T41 primary RFC spine.
 
 ## Implementation projects
 
@@ -51764,7 +51764,7 @@ Before driver work, reconstruct a T29 DMA ownership transition and show which SR
 
 Targeted mathematics covers unsigned modular subtraction with live intervals below 2^31, one's-complement end-around carry, powers/masks, and weighted means for SRTT/RTTVAR. If sequence wrap is unclear, first draw a 16-value ring and compare intervals shorter than eight; then apply the same reasoning to 32 bits. If checksum carry is unclear, add three 16-bit words on paper and repeatedly fold high carries before complementing. These are local repairs, not a prerequisite general mathematics course.
 
-Pin the exact board marking, RM0090 Rev21, UM1974 Rev8, inspected LAN8742A datasheet revision, compiler/linker and host adapter settings using [guide-profiles](#guide-profiles), [guide-inventory](#guide-inventory) and [guide-laboratory](#guide-laboratory). Verify clock and board pin configuration from earlier T27/T28 work rather than guessing from another STM32 board.
+Pin the exact board marking, RM0090 Rev 21, UM1974 Rev 8, inspected LAN8742A datasheet revision, compiler/linker and host adapter settings using [guide-profiles](#guide-profiles), [guide-inventory](#guide-inventory) and [guide-laboratory](#guide-laboratory). Verify clock and board pin configuration from earlier T27/T28 work rather than guessing from another STM32 board.
 
 ## Component progression
 
@@ -52023,7 +52023,7 @@ Retain a separate evidence item for each objective below. Meeting one objective 
 
 Attach the existing T42 portable parser/serializer through a stream adapter. Its byte grammar, Content-Length/chunked rules, Host/target validation, trailer limits and error-close policy stay the same. Configure one connection, queue depth one, one request and Connection: close. GET/HEAD /health uses the three-octet representation hex 6f6b0a; POST /echo preserves bounded binary octets. The shared fixed-order response fixture is an original serializer policy, not a universal RFC field-order rule.
 
-Set the adapter's configured authority to `192.0.2.2:8080`; the hosted profile uses its separately declared loopback authority. This changes configuration and I/O callbacks, not parser grammar or Host validation. The fixed epoch 1672531200 belongs only to deterministic fixtures. Actual cable responses use a recorded reasonable UTC callback or initialized clock for Date, separate from the monotonic TCP clock. If no reasonable UTC is available, omit Date as allowed by the inspected RFC9110 Date rule and record that response variant; do not call the fixture's historical date current.
+Set the adapter's configured authority to `192.0.2.2:8080`; the hosted profile uses its separately declared loopback authority. This changes configuration and I/O callbacks, not parser grammar or Host validation. The fixed epoch 1672531200 belongs only to deterministic fixtures. Actual cable responses use a recorded reasonable UTC callback or initialized clock for Date, separate from the monotonic TCP clock. If no reasonable UTC is available, omit Date as allowed by the inspected RFC 9110 Date rule and record that response variant; do not call the fixture's historical date current.
 
 TCP can ACK bytes retained for the parser before an HTTP request is complete. A callback passes arbitrary accepted prefixes; preserve each consume count and leftover octet. Serialize once, retain immutable response bytes while segmenting at effective MSS/window, and free them only under the declared acknowledgment/completion rules. Send FIN after all response bytes are acknowledged. Error requests close without interpreting optimistic trailing bytes as a second request.
 
@@ -52054,7 +52054,7 @@ Retain a separate evidence item for each objective below. Meeting one objective 
 
 ## Reading guidance
 
-The exact reading locators are in the front matter. Board/manual/PHY readings constrain the chosen physical and driver setup; RFC readings constrain packet/state mathematics. Allocate the remaining reading hour to the original contract and omitted-requirements matrix. RM0090 is the actually inspected English Rev21 and UM1974 the actually inspected English Rev8; later catalog revisions have uninspected deltas. Register scopes cover only the normal polled, untimestamped, software-checksum profile. No whole Ethernet chapter, analog PHY certification or complete TCP event/congestion algorithm is implied.
+The exact reading locators are in the front matter. Board/manual/PHY readings constrain the chosen physical and driver setup; RFC readings constrain packet/state mathematics. Allocate the remaining reading hour to the original contract and omitted-requirements matrix. RM0090 is the actually inspected English Rev 21 and UM1974 the actually inspected English Rev 8; later catalog revisions have uninspected deltas. Register scopes cover only the normal polled, untimestamped, software-checksum profile. No whole Ethernet chapter, analog PHY certification or complete TCP event/congestion algorithm is implied.
 
 Use [guide-reading](#guide-reading) and [guide-standards](#guide-standards) for source access and version records. T42's exact HTTP readings remain attached to the reused parser work; this module does not pretend to inspect or assign an entire HTTP RFC again.
 
@@ -55530,7 +55530,7 @@ Implement a discrete-event policy model with integer arrival and service times. 
 
 Implement FCFS, nonpreemptive SJF, SRTF and RR with a configurable positive quantum. Use jobs A=(0,8), B=(1,2), C=(2,1) and derive the complete timeline by hand before executing.
 
-A discriminating experiment exposes: zero quantum; empty workload; simultaneous arrivals; completion at quantum boundary; idle gap; arithmetic overflow. Required evidence: Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service.
+A discriminating experiment exposes: zero quantum; empty workload; simultaneous arrivals; completion at quantum boundary; idle gap; arithmetic overflow. Required evidence: Check service conservation and exact timelines: SRTF completes B at 3, C at 4 and A at 11; explain the tie at 2. Report response, turnaround and waiting time without counting idle time as service.
 
 Develop this mechanism in [PR-T49-03](#pr-t49-03).
 
@@ -55555,7 +55555,7 @@ Retain a separate evidence item for each objective below. Meeting one objective 
 <a id="t49-03-c"></a>
 
 
-- **T49.03.c** Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service. **Disposition:** core. **Activity:** [PR-T49-03](#pr-t49-03).
+- **T49.03.c** Check service conservation and exact timelines: SRTF completes B at 3, C at 4 and A at 11; explain the tie at 2. Report response, turnaround and waiting time without counting idle time as service. **Disposition:** core. **Activity:** [PR-T49-03](#pr-t49-03).
 
 
 <a id="t49-04"></a>
@@ -55638,7 +55638,7 @@ A replacement simulator knows logical references, not hardware timing. Use FIFO,
 
 Implement the four policies and print each eviction. Use reference string1,2,3,4,1,2,5,1,2,3,4,5 with three and four frames to examine FIFO anomaly.
 
-A discriminating experiment exposes: evicting a free frame; wrong LRU update on hit; CLOCK hand never advancing; capacity zero; using future information in LRU. Required evidence: Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
+A discriminating experiment exposes: evicting a free frame; wrong LRU update on hit; CLOCK hand never advancing; capacity zero; using future information in LRU. Required evidence: Independently derive FIFO fault counts 9 and 10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
 
 Develop this mechanism in [PR-T49-06](#pr-t49-06).
 
@@ -55663,7 +55663,7 @@ Retain a separate evidence item for each objective below. Meeting one objective 
 <a id="t49-06-c"></a>
 
 
-- **T49.06.c** Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO. **Disposition:** core. **Activity:** [PR-T49-06](#pr-t49-06).
+- **T49.06.c** Independently derive FIFO fault counts 9 and 10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO. **Disposition:** core. **Activity:** [PR-T49-06](#pr-t49-06).
 
 
 <a id="t49-07"></a>
@@ -56033,7 +56033,7 @@ Delay-until maintains a release phase; repeated delay-after-work accumulates exe
 
 Implement a bounded deadline queue with stable equal-deadline ordering and generation-checked cancellation. Compare phase-preserving periodic release with delay-after-work using a fake clock.
 
-A discriminating experiment exposes: clock wrap; already-due deadline; simultaneous expiry; canceled timer reused; zero delay; requested distance at or beyond half range. Required evidence: Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
+A discriminating experiment exposes: clock wrap; already-due deadline; simultaneous expiry; canceled timer reused; zero delay; requested distance at or beyond half range. Required evidence: Demonstrate releases at 10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
 
 Develop this mechanism in [PR-T50-05](#pr-t50-05).
 
@@ -56058,7 +56058,7 @@ Retain a separate evidence item for each objective below. Meeting one objective 
 <a id="t50-05-c"></a>
 
 
-- **T50.05.c** Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces. **Disposition:** core. **Activity:** [PR-T50-05](#pr-t50-05).
+- **T50.05.c** Demonstrate releases at 10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces. **Disposition:** core. **Activity:** [PR-T50-05](#pr-t50-05).
 
 
 <a id="t50-06"></a>
@@ -56338,11 +56338,11 @@ Cortex-M4F compiler and emulator Existing F439 board for physical timing; origin
 | --- | --- | --- | --- |
 | [Operating Systems: Principles and Practice, Volume II: Concurrency](#r-os3-ospp-ii) | 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching | Main conceptual spine for execution context, blocking and multicore policy/mechanism separation. | 3 |
 | [FreeRTOS Kernel GCC ARM_CM4F port](#r-freertos-cm4f-1120) | xPortPendSVHandler | Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation. | 2 |
-| [Cortex-M4(F) Lazy Stacking and Context Switching](#r-os3-arm-dai0298a) | Printed pp.4 and15: FP frame ownership and PendSV | Ground the integer-versus-FP context split and deferred switching. | 2 |
+| [Cortex-M4(F) Lazy Stacking and Context Switching](#r-os3-arm-dai0298a) | Printed pp.4 and 15: FP frame ownership and PendSV | Ground the integer-versus-FP context split and deferred switching. | 2 |
 | [STM32 Cortex-M4 MCUs and MPUs programming manual](#r-os3-st-pm0214-r10) | pp.24-26 mask/CONTROL registers | Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards. | 1 |
-| [STM32 Cortex-M4 MCUs and MPUs programming manual](#r-os3-st-pm0214-r10) | pp.42-44 section2.3.7 exception entry/return and frame | Construct and inspect the initial exception frame and restore path. | 1 |
+| [STM32 Cortex-M4 MCUs and MPUs programming manual](#r-os3-st-pm0214-r10) | pp.42-44 section 2.3.7 exception entry/return and frame | Construct and inspect the initial exception frame and restore path. | 1 |
 | [Procedure Call Standard for the Arm Architecture](#r-os3-arm-aapcs32) | VFP register usage conventions: s16-s31 | Derive the floating-point preservation test from the ABI. | 1 |
-| [Procedure Call Standard for the Arm Architecture](#r-os3-arm-aapcs32) | Stack constraints at a public interface: SP modulo8 | Check stack alignment at original assembly/C call boundaries. | 1 |
+| [Procedure Call Standard for the Arm Architecture](#r-os3-arm-aapcs32) | Stack constraints at a public interface: SP modulo 8 | Check stack alignment at original assembly/C call boundaries. | 1 |
 
 ## Project directory
 
@@ -57300,7 +57300,7 @@ Global EDF can migrate jobs and has different schedulability properties from one
 
 Implement a two-core global-EDF model with migration accounting. Use one job requiring its full period and two tiny earlier-deadline jobs that delay its first dispatch.
 
-A discriminating experiment exposes: one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most2 treated sufficient; deadline tie hides counterexample. Required evidence: Derive a concrete miss from the timeline and distinguish partitioned, global and clustered policy assumptions. Include CPU-ownership and service-conservation checks.
+A discriminating experiment exposes: one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most 2 treated sufficient; deadline tie hides counterexample. Required evidence: Derive a concrete miss from the timeline and distinguish partitioned, global and clustered policy assumptions. Include CPU-ownership and service-conservation checks.
 
 Develop this mechanism in [PR-T52-10](#pr-t52-10).
 
@@ -57938,11 +57938,11 @@ QEMU PC with 1, 2 and 4 virtual CPUs Original x86-64 image and AP trampoline Hos
 | [Operating Systems: Principles and Practice, Volume II: Concurrency](#r-os3-ospp-ii) | 7.2 introductory paragraphs: multiprocessor scheduling | Main conceptual spine for execution context, blocking and multicore policy/mechanism separation. | 2 |
 | [Algorithms for Scalable Synchronization on Shared-Memory Multiprocessors](#r-os3-mcs-1991) | Pseudocode: test-and-set, ticket and MCS locks | Compare contention costs and queue-node ownership across lock designs. | 2 |
 | [ACPI Specification 6.6: MADT](#r-os3-acpi66-madt) | 5.2.5.3 RSDP; 5.2.6 table header | Derive safe root/table extent and checksum validation before walking firmware bytes. | 1 |
-| [ACPI Specification 6.6: MADT](#r-os3-acpi66-madt) | 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2 | Decode processor/APIC identities and reject malformed or disabled records. | 1 |
-| [Intel 64 and IA-32 Architectures Software Developer Manual, Volume 3A](#r-os3-intel3a-smp060) | 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI | Justify the low-memory trampoline and BSP/AP startup responsibilities. | 1 |
-| [Intel 64 and IA-32 Architectures Software Developer Manual, Volume 3A](#r-os3-intel3a-smp060) | 10.5.4, printed10-16–10-17: APIC timer | Decode timer fields and distinguish logical interrupts from calibrated time. | 1 |
-| [Intel 64 and IA-32 Architectures Software Developer Manual, Volume 3A](#r-os3-intel3a-smp060) | 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI | Explain IPI destination and delivery before testing remote reschedule. | 1 |
-| [Intel 64 and IA-32 Architectures Software Developer Manual, Volume 3A](#r-os3-intel3a-smp060) | 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG | State the local invalidation boundary and derive the remote acknowledgment requirement. | 1 |
+| [ACPI Specification 6.6: MADT](#r-os3-acpi66-madt) | 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2 | Decode processor/APIC identities and reject malformed or disabled records. | 1 |
+| [Intel 64 and IA-32 Architectures Software Developer Manual, Volume 3A](#r-os3-intel3a-smp060) | 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI | Justify the low-memory trampoline and BSP/AP startup responsibilities. | 1 |
+| [Intel 64 and IA-32 Architectures Software Developer Manual, Volume 3A](#r-os3-intel3a-smp060) | 10.5.4, printed 10-16–10-17: APIC timer | Decode timer fields and distinguish logical interrupts from calibrated time. | 1 |
+| [Intel 64 and IA-32 Architectures Software Developer Manual, Volume 3A](#r-os3-intel3a-smp060) | 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI | Explain IPI destination and delivery before testing remote reschedule. | 1 |
+| [Intel 64 and IA-32 Architectures Software Developer Manual, Volume 3A](#r-os3-intel3a-smp060) | 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG | State the local invalidation boundary and derive the remote acknowledgment requirement. | 1 |
 
 ## Project directory
 
@@ -58375,10 +58375,10 @@ NUCLEO-H745ZI-Q dual-core board with exact board and silicon revisions recorded 
 | [Introduction to inter-processor communications for STM32H745/755 and STM32H747/757 MCUs](#r-os3-st-an5617) | 2.1-2.2 Use cases, shared memory and notification | Explain separate images, ownership and authoritative queue state versus notifications. | 2 |
 | [Introduction to inter-processor communications for STM32H745/755 and STM32H747/757 MCUs](#r-os3-st-an5617) | 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA | Explain separate images, ownership and authoritative queue state versus notifications. | 2 |
 | [Level1 cache on STM32F7 Series and STM32H7 Series](#r-os3-st-an4839) | 3.1-3.2 Default settings and cache maintenance/data coherency example | Separate cache visibility, barriers and DMA ownership. | 2 |
-| [STM32H745/755 and STM32H747/757 advanced Arm-based 32-bit MCUs](#r-os3-st-rm0399-r4) | p.138 table7; pp.142-144 memory/boot; p.362 hold boot | Justify private/shared memory placement and controlled secondary-core boot. | 1 |
-| [STM32H745/755 and STM32H747/757 advanced Arm-based 32-bit MCUs](#r-os3-st-rm0399-r4) | p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42 | Decode boot and SRAM/peripheral allocation registers against the linker/board contract. | 1 |
+| [STM32H745/755 and STM32H747/757 advanced Arm-based 32-bit MCUs](#r-os3-st-rm0399-r4) | p.138 table 7; pp.142-144 memory/boot; p.362 hold boot | Justify private/shared memory placement and controlled secondary-core boot. | 1 |
+| [STM32H745/755 and STM32H747/757 advanced Arm-based 32-bit MCUs](#r-os3-st-rm0399-r4) | p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42 | Decode boot and SRAM/peripheral allocation registers against the linker/board contract. | 1 |
 | [STM32H745/755 and STM32H747/757 advanced Arm-based 32-bit MCUs](#r-os3-st-rm0399-r4) | pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows | Implement owned HSEM release notifications and acknowledge the correct per-core interrupt. | 1 |
-| [STM32F7 Series and STM32H7 Series Cortex-M7 processor programming manual](#r-os3-st-pm0253-r5) | pp.226-230 sections4.6.4-4.6.8, especially table91 | Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions. | 1 |
+| [STM32F7 Series and STM32H7 Series Cortex-M7 processor programming manual](#r-os3-st-pm0253-r5) | pp.226-230 sections 4.6.4-4.6.8, especially table 91 | Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions. | 1 |
 | [STM32H745 device peripheral definitions](#r-os3-st-h745-header) | IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs | Cross-check IRQ numbers and register offsets against pinned primary definitions. | 1 |
 
 ## Project directory
@@ -58810,7 +58810,7 @@ x86-64 lock-free atomic widths audited in disassembly History/interleaving check
 | [Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms](#r-sys-michael-scott-1996) | §3.1 Safety | A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions. | 2 |
 | [Corrected pseudocode for Simple, Fast, and Practical Non-Blocking and Blocking Concurrent Queue Algorithms](#r-os3-ms-corrected) | Memory-management assumptions and corrected non-blocking pseudocode | Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted. | 2 |
 | [Hazard Pointers: Safe Memory Reclamation for Lock-Free Objects](#r-os3-hazard-2004) | Printed p.492: hazard ownership and retire/scan methodology | Introduce reclamation as a separate obligation from a queue linearization argument. | 1 |
-| [Linearizability: A Correctness Condition for Concurrent Objects](#r-os3-herlihy-wing-1990) | Printed pp.465-467: FIFO histories and Section2.1 histories | Ground the observable history contract and distinguish legal overlap from FIFO violations. | 2 |
+| [Linearizability: A Correctness Condition for Concurrent Objects](#r-os3-herlihy-wing-1990) | Printed pp.465-467: FIFO histories and Section 2.1 histories | Ground the observable history contract and distinguish legal overlap from FIFO violations. | 2 |
 
 ## Project directory
 
@@ -69458,7 +69458,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - A diagram names the producer and consumer of each artifact, and the reconstructed binary agrees with the driver build.
-- - Challenge the mistaken claim: Compilation success implies link success. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Compilation success implies link success. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-01](#recall-t07-01).
 
@@ -69496,7 +69496,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A manifest explains each implicit input and rejects an incompatible object before execution.
-- - Challenge the mistaken claim: Compilation success implies link success. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Compilation success implies link success. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-02](#recall-t07-02).
 
@@ -69534,7 +69534,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Versioned logs distinguish the expected diagnostic class from brittle exact wording.
-- - Challenge the mistaken claim: Compilation success implies link success. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Compilation success implies link success. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-01](#recall-t07-01), [recall-t07-02](#recall-t07-02), [recall-t07-03](#recall-t07-03).
 
@@ -69723,7 +69723,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - A table separates stable semantic output from configuration-dependent code and runtime dependencies.
-- - Challenge the mistaken claim: A debug dependency audit also covers release or LTO. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A debug dependency audit also covers release or LTO. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-04](#recall-t07-04).
 
@@ -69761,7 +69761,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Touch and delete inputs in a controlled matrix and predict every rebuild before observing it.
-- - Challenge the mistaken claim: A debug dependency audit also covers release or LTO. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A debug dependency audit also covers release or LTO. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-05](#recall-t07-05).
 
@@ -69799,7 +69799,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Clean and incremental builds record generation order and do not invoke the target during host configuration.
-- - Challenge the mistaken claim: A debug dependency audit also covers release or LTO. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A debug dependency audit also covers release or LTO. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-07](#recall-t07-07).
 
@@ -69837,7 +69837,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A table separates stable semantic output from configuration-dependent code and runtime dependencies.
-- - Challenge the mistaken claim: A debug dependency audit also covers release or LTO. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A debug dependency audit also covers release or LTO. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-04](#recall-t07-04), [recall-t07-05](#recall-t07-05), [recall-t07-07](#recall-t07-07).
 
@@ -70012,7 +70012,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - The consumer builds after moving the install prefix, without references to the original build directory.
-- - Challenge the mistaken claim: Global include directories are a substitute for interface requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Global include directories are a substitute for interface requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-06](#recall-t07-06).
 
@@ -70050,7 +70050,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The replay uses the same directory, defines and include paths, and its object provenance is recorded.
-- - Challenge the mistaken claim: Global include directories are a substitute for interface requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Global include directories are a substitute for interface requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-08](#recall-t07-08).
 
@@ -70088,7 +70088,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The consumer builds after moving the install prefix, without references to the original build directory.
-- - Challenge the mistaken claim: Global include directories are a substitute for interface requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Global include directories are a substitute for interface requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-06](#recall-t07-06).
 
@@ -70126,7 +70126,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The replay uses the same directory, defines and include paths, and its object provenance is recorded.
-- - Challenge the mistaken claim: Global include directories are a substitute for interface requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Global include directories are a substitute for interface requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-06](#recall-t07-06), [recall-t07-08](#recall-t07-08).
 
@@ -70304,7 +70304,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Compile/link probes plus object attributes expose a deliberately mismatched library.
-- - Challenge the mistaken claim: Successful linking proves that all ABI choices agree. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Successful linking proves that all ABI choices agree. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-09](#recall-t07-09).
 
@@ -70342,7 +70342,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Compile/link probes plus object attributes expose a deliberately mismatched library.
-- - Challenge the mistaken claim: Successful linking proves that all ABI choices agree. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Successful linking proves that all ABI choices agree. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-09](#recall-t07-09).
 
@@ -70380,7 +70380,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Compile/link probes plus object attributes expose a deliberately mismatched library.
-- - Challenge the mistaken claim: Successful linking proves that all ABI choices agree. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Successful linking proves that all ABI choices agree. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-09](#recall-t07-09).
 
@@ -70555,7 +70555,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - A clean-room checklist names every external input and fails visibly when one is absent.
-- - Challenge the mistaken claim: A branch name is an integrity identifier. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A branch name is an integrity identifier. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-10](#recall-t07-10).
 
@@ -70593,7 +70593,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - CI artifacts retain the compiler identity, command, failure log and binary for a deliberately broken case.
-- - Challenge the mistaken claim: A branch name is an integrity identifier. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A branch name is an integrity identifier. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-11](#recall-t07-11).
 
@@ -70631,7 +70631,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A clean-room checklist names every external input and fails visibly when one is absent.
-- - Challenge the mistaken claim: A branch name is an integrity identifier. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A branch name is an integrity identifier. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-10](#recall-t07-10), [recall-t07-11](#recall-t07-11).
 
@@ -70808,7 +70808,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - A provenance record and a byte-difference report explain both eliminated and retained variability.
-- - Challenge the mistaken claim: The same source revision necessarily produces the same binary. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The same source revision necessarily produces the same binary. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-12](#recall-t07-12).
 
@@ -70846,7 +70846,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A provenance record and a byte-difference report explain both eliminated and retained variability.
-- - Challenge the mistaken claim: The same source revision necessarily produces the same binary. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The same source revision necessarily produces the same binary. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t07-12](#recall-t07-12).
 
@@ -70996,7 +70996,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - A register/memory trace predicts the result and states which timing claims remain microarchitecture-specific.
-- - Challenge the mistaken claim: One measured cycle count is an ISA guarantee. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One measured cycle count is an ISA guarantee. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t08-01](#recall-t08-01).
 
@@ -71029,7 +71029,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A mechanical harness detects a missing restore and an annotated trace distinguishes the comparison conditions.
-- - Challenge the mistaken claim: One measured cycle count is an ISA guarantee. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One measured cycle count is an ISA guarantee. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t08-02](#recall-t08-02).
 
@@ -71062,7 +71062,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A minimized case first states its language preconditions, then explains one eliminated branch, inline call or spill.
-- - Challenge the mistaken claim: One measured cycle count is an ISA guarantee. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One measured cycle count is an ISA guarantee. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t08-10](#recall-t08-10).
 
@@ -71095,7 +71095,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A register/memory trace predicts the result and states which timing claims remain microarchitecture-specific.
-- - Challenge the mistaken claim: One measured cycle count is an ISA guarantee. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One measured cycle count is an ISA guarantee. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t08-01](#recall-t08-01), [recall-t08-02](#recall-t08-02), [recall-t08-10](#recall-t08-10).
 
@@ -71304,7 +71304,7 @@ python3 -m cmastery check ../lab-mi-01 --unit LAB-MI-01
 **Check and stop:**
 
 - A stack diagram distinguishes observed frames from a conservative bound and names any red-zone assumption.
-- - Challenge the mistaken claim: C source parameter order completely describes the machine call. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: C source parameter order completely describes the machine call. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t08-04](#recall-t08-04).
 
@@ -71337,7 +71337,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Offsets, alignment, widths and symbol-level interface checks identify the intentionally incompatible pair.
-- - Challenge the mistaken claim: C source parameter order completely describes the machine call. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: C source parameter order completely describes the machine call. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t08-05](#recall-t08-05).
 
@@ -71370,7 +71370,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Call-site and callee annotations agree on registers, spill slots, result storage and alignment.
-- - Challenge the mistaken claim: C source parameter order completely describes the machine call. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: C source parameter order completely describes the machine call. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t08-03](#recall-t08-03), [recall-t08-04](#recall-t08-04), [recall-t08-05](#recall-t08-05).
 
@@ -71585,7 +71585,7 @@ python3 -m cmastery check ../lab-mi-02 --unit LAB-MI-02
 **Check and stop:**
 
 - Repeated calls with register sentinels and a debugger/unwind inspection expose the broken variant.
-- - Challenge the mistaken claim: A hardware FPU makes every library ABI compatible. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A hardware FPU makes every library ABI compatible. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t08-07](#recall-t08-07).
 
@@ -71618,7 +71618,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The audit rejects mismatched call conventions and keeps x86-64 observations separate from Arm examples.
-- - Challenge the mistaken claim: A hardware FPU makes every library ABI compatible. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A hardware FPU makes every library ABI compatible. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t08-06](#recall-t08-06).
 
@@ -71651,7 +71651,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Repeated calls with register sentinels and a debugger/unwind inspection expose the broken variant.
-- - Challenge the mistaken claim: A hardware FPU makes every library ABI compatible. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A hardware FPU makes every library ABI compatible. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t08-06](#recall-t08-06), [recall-t08-07](#recall-t08-07).
 
@@ -71804,7 +71804,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - A constraints explanation and generated-code comparison identify the compiler and hardware obligations separately.
-- - Challenge the mistaken claim: volatile asm or a memory clobber automatically acts as a hardware fence. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: volatile asm or a memory clobber automatically acts as a hardware fence. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t08-08](#recall-t08-08).
 
@@ -71837,7 +71837,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The table states privilege, return mechanism and saved-state owner without attempting privileged operations on the host.
-- - Challenge the mistaken claim: volatile asm or a memory clobber automatically acts as a hardware fence. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: volatile asm or a memory clobber automatically acts as a hardware fence. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t08-09](#recall-t08-09).
 
@@ -71870,7 +71870,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A constraints explanation and generated-code comparison identify the compiler and hardware obligations separately.
-- - Challenge the mistaken claim: volatile asm or a memory clobber automatically acts as a hardware fence. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: volatile asm or a memory clobber automatically acts as a hardware fence. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t08-08](#recall-t08-08), [recall-t08-09](#recall-t08-09).
 
@@ -72080,7 +72080,7 @@ python3 -m cmastery check ../lab-mi-03 --unit LAB-MI-03
 **Check and stop:**
 
 - A symbol-resolution ledger explains every chosen definition and every diagnosed conflict.
-- - Challenge the mistaken claim: The section table alone specifies the runtime mappings. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The section table alone specifies the runtime mappings. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t09-02](#recall-t09-02).
 
@@ -72117,7 +72117,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The extracted-member set agrees with a hand-traced unresolved-symbol set.
-- - Challenge the mistaken claim: The section table alone specifies the runtime mappings. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The section table alone specifies the runtime mappings. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t09-03](#recall-t09-03).
 
@@ -72154,7 +72154,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The report separately totals file bytes, load-image bytes and memory bytes.
-- - Challenge the mistaken claim: The section table alone specifies the runtime mappings. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The section table alone specifies the runtime mappings. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t09-01](#recall-t09-01), [recall-t09-02](#recall-t09-02), [recall-t09-03](#recall-t09-03).
 
@@ -72378,7 +72378,7 @@ python3 -m cmastery check ../lab-mi-04 --unit LAB-MI-04
 **Check and stop:**
 
 - Relocations and disassembly explain which addresses remain load-dependent.
-- - Challenge the mistaken claim: A relocation contains only an absolute address. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A relocation contains only an absolute address. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t09-05](#recall-t09-05).
 
@@ -72415,7 +72415,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Hand arithmetic, width checks and the binary report agree; overflow is rejected rather than truncated silently.
-- - Challenge the mistaken claim: A relocation contains only an absolute address. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A relocation contains only an absolute address. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t09-04](#recall-t09-04), [recall-t09-05](#recall-t09-05).
 
@@ -72608,7 +72608,7 @@ python3 -m cmastery check ../lab-mi-05 --unit LAB-MI-05
 **Check and stop:**
 
 - The report identifies producer metadata, runtime consumer and lifetime of each instance.
-- - Challenge the mistaken claim: The first library with a familiar filename is necessarily the selected dependency. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The first library with a familiar filename is necessarily the selected dependency. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t09-07](#recall-t09-07).
 
@@ -72645,7 +72645,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A compatibility matrix distinguishes source rebuild success, binary linkage and semantic agreement.
-- - Challenge the mistaken claim: The first library with a familiar filename is necessarily the selected dependency. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The first library with a familiar filename is necessarily the selected dependency. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t09-11](#recall-t09-11).
 
@@ -72682,7 +72682,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A dependency-search explanation matches the recorded loader paths and binding observations.
-- - Challenge the mistaken claim: The first library with a familiar filename is necessarily the selected dependency. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The first library with a familiar filename is necessarily the selected dependency. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t09-06](#recall-t09-06), [recall-t09-07](#recall-t09-07), [recall-t09-11](#recall-t09-11).
 
@@ -72914,7 +72914,7 @@ python3 -m cmastery check ../lab-mi-06 --unit LAB-MI-06
 **Check and stop:**
 
 - The map shows the expected retained table and excludes a deliberately unused function.
-- - Challenge the mistaken claim: Every object has one address meaningful at every stage. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Every object has one address meaningful at every stage. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t09-09](#recall-t09-09).
 
@@ -72951,7 +72951,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A failing over-budget case is caught at link time and each byte category is attributed.
-- - Challenge the mistaken claim: Every object has one address meaningful at every stage. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Every object has one address meaningful at every stage. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t09-10](#recall-t09-10).
 
@@ -72988,7 +72988,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A region ledger distinguishes VMA, LMA, file offset and initialization responsibility.
-- - Challenge the mistaken claim: Every object has one address meaningful at every stage. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Every object has one address meaningful at every stage. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t09-08](#recall-t09-08), [recall-t09-09](#recall-t09-09), [recall-t09-10](#recall-t09-10).
 
@@ -73196,7 +73196,7 @@ python3 -m cmastery check ../lab-mi-12 --unit LAB-MI-12
 **Check and stop:**
 
 - An address-to-source and checksum ledger explains every post-link transformation.
-- - Challenge the mistaken claim: Stripping is a harmless final cleanup with no traceability effect. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Stripping is a harmless final cleanup with no traceability effect. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t09-12](#recall-t09-12).
 
@@ -73382,7 +73382,7 @@ python3 -m cmastery check ../lab-mi-07 --unit LAB-MI-07
 **Check and stop:**
 
 - Decoded counts, terminators, alignment and auxv entries agree without reading beyond declared bounds.
-- - Challenge the mistaken claim: _start is called exactly like main. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: _start is called exactly like main. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t10-02](#recall-t10-02).
 
@@ -73417,7 +73417,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A manifest associates each object with its provider, mode and observed symbol contribution.
-- - Challenge the mistaken claim: _start is called exactly like main. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: _start is called exactly like main. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t10-01](#recall-t10-01), [recall-t10-02](#recall-t10-02), [recall-t10-03](#recall-t10-03).
 
@@ -73618,7 +73618,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - A dependency ledger follows every retained service to an initialization obligation or explicit exclusion.
-- - Challenge the mistaken claim: Calling a libc symbol from custom startup is safe because it links. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Calling a libc symbol from custom startup is safe because it links. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t10-04](#recall-t10-04).
 
@@ -73653,7 +73653,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The report distinguishes observed cleanup, declared syscall use and behavior of the impossible return path.
-- - Challenge the mistaken claim: Calling a libc symbol from custom startup is safe because it links. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Calling a libc symbol from custom startup is safe because it links. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t10-05](#recall-t10-05).
 
@@ -73688,7 +73688,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A dependency ledger follows every retained service to an initialization obligation or explicit exclusion.
-- - Challenge the mistaken claim: Calling a libc symbol from custom startup is safe because it links. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Calling a libc symbol from custom startup is safe because it links. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t10-04](#recall-t10-04), [recall-t10-05](#recall-t10-05).
 
@@ -73901,7 +73901,7 @@ python3 -m cmastery check ../lab-mi-08 --unit LAB-MI-08
 **Check and stop:**
 
 - Transferred bytes occur exactly once, and zero progress terminates visibly rather than spinning.
-- - Challenge the mistaken claim: C-call register assignments can be reused unchanged for syscalls. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: C-call register assignments can be reused unchanged for syscalls. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t10-07](#recall-t10-07).
 
@@ -73936,7 +73936,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A register/clobber diagram and error table match the declared ABI, not an accidental successful run.
-- - Challenge the mistaken claim: C-call register assignments can be reused unchanged for syscalls. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: C-call register assignments can be reused unchanged for syscalls. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t10-06](#recall-t10-06).
 
@@ -73971,7 +73971,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Transferred bytes occur exactly once, and zero progress terminates visibly rather than spinning.
-- - Challenge the mistaken claim: C-call register assignments can be reused unchanged for syscalls. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: C-call register assignments can be reused unchanged for syscalls. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t10-06](#recall-t10-06), [recall-t10-07](#recall-t10-07).
 
@@ -74127,7 +74127,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Undefined/resolved helpers, relocation records and entry assumptions form a complete declared audit boundary.
-- - Challenge the mistaken claim: No PT_INTERP means the image needs no runtime support. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: No PT_INTERP means the image needs no runtime support. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t10-08](#recall-t10-08).
 
@@ -74162,7 +74162,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Each increment has a dependency diff, storage budget and explicit supported/unsupported behavior.
-- - Challenge the mistaken claim: No PT_INTERP means the image needs no runtime support. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: No PT_INTERP means the image needs no runtime support. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t10-09](#recall-t10-09).
 
@@ -74197,7 +74197,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The minimized reproduction identifies the earliest violated startup contract and the corrected handoff.
-- - Challenge the mistaken claim: No PT_INTERP means the image needs no runtime support. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: No PT_INTERP means the image needs no runtime support. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t10-10](#recall-t10-10).
 
@@ -74232,7 +74232,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Undefined/resolved helpers, relocation records and entry assumptions form a complete declared audit boundary.
-- - Challenge the mistaken claim: No PT_INTERP means the image needs no runtime support. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: No PT_INTERP means the image needs no runtime support. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t10-08](#recall-t10-08), [recall-t10-09](#recall-t10-09), [recall-t10-10](#recall-t10-10).
 
@@ -74418,7 +74418,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - The contract labels every requirement by its exact scope and makes unknown transitive callees explicit.
-- - Challenge the mistaken claim: Omitting stdlib.h removes runtime dependencies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Omitting stdlib.h removes runtime dependencies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t11-01](#recall-t11-01).
 
@@ -74452,7 +74452,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A matrix explains which stage each control affects and retains the actual driver commands.
-- - Challenge the mistaken claim: Omitting stdlib.h removes runtime dependencies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Omitting stdlib.h removes runtime dependencies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t11-02](#recall-t11-02).
 
@@ -74486,7 +74486,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The contract labels every requirement by its exact scope and makes unknown transitive callees explicit.
-- - Challenge the mistaken claim: Omitting stdlib.h removes runtime dependencies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Omitting stdlib.h removes runtime dependencies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t11-01](#recall-t11-01), [recall-t11-02](#recall-t11-02).
 
@@ -74701,7 +74701,7 @@ python3 -m cmastery check ../lab-mi-10 --unit LAB-MI-10
 **Check and stop:**
 
 - Each helper is classified as deliberately linked, implemented under an explicit contract, or excluded from supported operations.
-- - Challenge the mistaken claim: A source-level call census is a complete binary dependency audit. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A source-level call census is a complete binary dependency audit. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t11-04](#recall-t11-04).
 
@@ -74735,7 +74735,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Separate audit reports name helper symbols, alignment and actual lock-free observations without inferring universal support.
-- - Challenge the mistaken claim: A source-level call census is a complete binary dependency audit. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A source-level call census is a complete binary dependency audit. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t11-03](#recall-t11-03), [recall-t11-04](#recall-t11-04), [recall-t11-05](#recall-t11-05).
 
@@ -74961,7 +74961,7 @@ python3 -m cmastery check ../lab-mi-09 --unit LAB-MI-09
 **Check and stop:**
 
 - The component/harness boundary is documented, disagreement is minimized and unsupported targets are listed rather than silently skipped.
-- - Challenge the mistaken claim: A forward copy works for every overlapping range. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A forward copy works for every overlapping range. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t11-10](#recall-t11-10).
 
@@ -74995,7 +74995,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Snapshot-based oracle cases cover both overlap directions; object inspection excludes accidental self-recursive helper calls.
-- - Challenge the mistaken claim: A forward copy works for every overlapping range. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A forward copy works for every overlapping range. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t11-06](#recall-t11-06).
 
@@ -75029,7 +75029,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The component/harness boundary is documented, disagreement is minimized and unsupported targets are listed rather than silently skipped.
-- - Challenge the mistaken claim: A forward copy works for every overlapping range. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A forward copy works for every overlapping range. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t11-06](#recall-t11-06), [recall-t11-10](#recall-t11-10).
 
@@ -75193,7 +75193,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - The adapter reports unsupported operations explicitly and its dependency table distinguishes test backend from board service.
-- - Challenge the mistaken claim: Successful output under a debugger proves the board can print independently. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Successful output under a debugger proves the board can print independently. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t11-07](#recall-t11-07).
 
@@ -75227,7 +75227,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The checklist names each initializer and every hosted facility deliberately unavailable.
-- - Challenge the mistaken claim: Successful output under a debugger proves the board can print independently. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Successful output under a debugger proves the board can print independently. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t11-08](#recall-t11-08).
 
@@ -75261,7 +75261,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The adapter reports unsupported operations explicitly and its dependency table distinguishes test backend from board service.
-- - Challenge the mistaken claim: Successful output under a debugger proves the board can print independently. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Successful output under a debugger proves the board can print independently. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t11-07](#recall-t11-07), [recall-t11-08](#recall-t11-08).
 
@@ -75474,7 +75474,7 @@ python3 -m cmastery check ../lab-mi-11 --unit LAB-MI-11
 **Check and stop:**
 
 - The failing fixture is rejected and statically resolved support is still visible in the final closure report.
-- - Challenge the mistaken claim: No undefined symbols in an executable means no forbidden dependency. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: No undefined symbols in an executable means no forbidden dependency. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t11-09](#recall-t11-09).
 
@@ -75508,7 +75508,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The failing fixture is rejected and statically resolved support is still visible in the final closure report.
-- - Challenge the mistaken claim: No undefined symbols in an executable means no forbidden dependency. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: No undefined symbols in an executable means no forbidden dependency. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t11-09](#recall-t11-09).
 
@@ -77084,7 +77084,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - A component and a transitive ledger distinguish proven restrictions, observed paths and unresolved callees.
-- - Challenge the mistaken claim: A pure-looking API name implies no environmental effects. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A pure-looking API name implies no environmental effects. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t13-01](#recall-t13-01).
 
@@ -77118,7 +77118,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The report states interception coverage and includes a deliberate bypass path.
-- - Challenge the mistaken claim: A pure-looking API name implies no environmental effects. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A pure-looking API name implies no environmental effects. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t13-02](#recall-t13-02).
 
@@ -77152,7 +77152,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A trace interpretation states what the observation excludes and what it cannot see.
-- - Challenge the mistaken claim: A pure-looking API name implies no environmental effects. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A pure-looking API name implies no environmental effects. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t13-01](#recall-t13-01), [recall-t13-02](#recall-t13-02), [recall-t13-06](#recall-t13-06).
 
@@ -77337,7 +77337,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - A conservative path/nesting bound is separated from measured high water and unknown callback frames.
-- - Challenge the mistaken claim: The largest single frame is the whole-program maximum. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The largest single frame is the whole-program maximum. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t13-03](#recall-t13-03).
 
@@ -77371,7 +77371,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Each scenario records synchronization assumptions and distinguishes lock presence from measured waiting.
-- - Challenge the mistaken claim: The largest single frame is the whole-program maximum. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The largest single frame is the whole-program maximum. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t13-04](#recall-t13-04).
 
@@ -77405,7 +77405,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The sample grouping distinguishes process startup, lazy initialization and subsequent calls.
-- - Challenge the mistaken claim: The largest single frame is the whole-program maximum. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The largest single frame is the whole-program maximum. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t13-05](#recall-t13-05).
 
@@ -77439,7 +77439,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A conservative path/nesting bound is separated from measured high water and unknown callback frames.
-- - Challenge the mistaken claim: The largest single frame is the whole-program maximum. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The largest single frame is the whole-program maximum. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t13-03](#recall-t13-03), [recall-t13-04](#recall-t13-04), [recall-t13-05](#recall-t13-05).
 
@@ -77607,7 +77607,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - A two-instance test and state diagram identify every persistent value and its reset/lifetime owner.
-- - Challenge the mistaken claim: Thread-local errno makes the entire API reentrant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Thread-local errno makes the entire API reentrant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t13-07](#recall-t13-07).
 
@@ -77641,7 +77641,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A context suitability matrix separates memory bounds, time bounds, interruption and allowed services.
-- - Challenge the mistaken claim: Thread-local errno makes the entire API reentrant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Thread-local errno makes the entire API reentrant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t13-07](#recall-t13-07), [recall-t13-08](#recall-t13-08).
 
@@ -77800,7 +77800,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - The conclusion labels API guarantees, inspected temporary-buffer/fallback paths and separately measured behavior; equivalent-key order is not presumed stable.
-- - Challenge the mistaken claim: One libc result is a portable C guarantee, or qsort necessarily implements quicksort. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One libc result is a portable C guarantee, or qsort necessarily implements quicksort. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t13-09](#recall-t13-09).
 
@@ -77834,7 +77834,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Empty, duplicate, endpoint, exact-capacity and over-capacity cases plus dependency/effect audit support a bounded decision; a rejected input remains unchanged.
-- - Challenge the mistaken claim: One libc result is a portable C guarantee, or qsort necessarily implements quicksort. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One libc result is a portable C guarantee, or qsort necessarily implements quicksort. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t13-10](#recall-t13-10).
 
@@ -77868,7 +77868,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The conclusion labels API guarantees, inspected temporary-buffer/fallback paths and separately measured behavior; equivalent-key order is not presumed stable.
-- - Challenge the mistaken claim: One libc result is a portable C guarantee, or qsort necessarily implements quicksort. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One libc result is a portable C guarantee, or qsort necessarily implements quicksort. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t13-09](#recall-t13-09).
 
@@ -77902,7 +77902,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Empty, duplicate, endpoint, exact-capacity and over-capacity cases plus dependency/effect audit support a bounded decision; a rejected input remains unchanged.
-- - Challenge the mistaken claim: One libc result is a portable C guarantee, or qsort necessarily implements quicksort. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One libc result is a portable C guarantee, or qsort necessarily implements quicksort. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t13-09](#recall-t13-09), [recall-t13-10](#recall-t13-10).
 
@@ -78157,7 +78157,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Invariant checks distinguish valid empty storage, exhaustion and destroyed handles.
-- - Challenge the mistaken claim: A non-null pointer always denotes a valid live container. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A non-null pointer always denotes a valid live container. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-01](#recall-t14-01).
 
@@ -78191,7 +78191,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Boundary and overlap vectors plus an invalidation table justify every access.
-- - Challenge the mistaken claim: A non-null pointer always denotes a valid live container. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A non-null pointer always denotes a valid live container. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-02](#recall-t14-02).
 
@@ -78225,7 +78225,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Wrap vectors reconstruct logical FIFO order and prove available/free counts at every transition.
-- - Challenge the mistaken claim: A non-null pointer always denotes a valid live container. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A non-null pointer always denotes a valid live container. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-06](#recall-t14-06).
 
@@ -78259,7 +78259,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Invariant checks distinguish valid empty storage, exhaustion and destroyed handles.
-- - Challenge the mistaken claim: A non-null pointer always denotes a valid live container. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A non-null pointer always denotes a valid live container. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-01](#recall-t14-01), [recall-t14-02](#recall-t14-02), [recall-t14-06](#recall-t14-06).
 
@@ -78511,7 +78511,7 @@ python3 -m cmastery check ../lab-ex-01 --unit LAB-EX-01
 **Check and stop:**
 
 - Minimized traces preserve the earliest broken invariant and benchmark setup discloses distributions and instrumentation.
-- - Challenge the mistaken claim: Amortized constant append means every append is constant time. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Amortized constant append means every append is constant time. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-15](#recall-t14-15).
 
@@ -78545,7 +78545,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A growth-cost ledger and failure snapshots preserve ownership and expose invalidated borrows.
-- - Challenge the mistaken claim: Amortized constant append means every append is constant time. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Amortized constant append means every append is constant time. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-03](#recall-t14-03).
 
@@ -78579,7 +78579,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Minimized traces preserve the earliest broken invariant and benchmark setup discloses distributions and instrumentation.
-- - Challenge the mistaken claim: Amortized constant append means every append is constant time. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Amortized constant append means every append is constant time. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-03](#recall-t14-03), [recall-t14-15](#recall-t14-15).
 
@@ -78794,7 +78794,7 @@ python3 -m cmastery check ../lab-ex-02 --unit LAB-EX-02
 **Check and stop:**
 
 - Reference contents and operation counts agree while exhaustion leaves the declared state unchanged.
-- - Challenge the mistaken claim: Unlinking a node automatically destroys its payload. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Unlinking a node automatically destroys its payload. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-05](#recall-t14-05).
 
@@ -78828,7 +78828,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Head/tail and bidirectional link checks cover first, last, singleton and repeated removal cases.
-- - Challenge the mistaken claim: Unlinking a node automatically destroys its payload. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Unlinking a node automatically destroys its payload. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-04](#recall-t14-04).
 
@@ -78862,7 +78862,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Reference contents and operation counts agree while exhaustion leaves the declared state unchanged.
-- - Challenge the mistaken claim: Unlinking a node automatically destroys its payload. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Unlinking a node automatically destroys its payload. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-04](#recall-t14-04), [recall-t14-05](#recall-t14-05).
 
@@ -79055,7 +79055,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Collision/tombstone traces and failure-injected rehashes preserve every remaining key.
-- - Challenge the mistaken claim: Deleting a probed key can turn its slot directly into empty. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Deleting a probed key can turn its slot directly into empty. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-07](#recall-t14-07).
 
@@ -79089,7 +79089,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Collision/tombstone traces and failure-injected rehashes preserve every remaining key.
-- - Challenge the mistaken claim: Deleting a probed key can turn its slot directly into empty. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Deleting a probed key can turn its slot directly into empty. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-07](#recall-t14-07).
 
@@ -79123,7 +79123,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Collision/tombstone traces and failure-injected rehashes preserve every remaining key.
-- - Challenge the mistaken claim: Deleting a probed key can turn its slot directly into empty. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Deleting a probed key can turn its slot directly into empty. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-07](#recall-t14-07).
 
@@ -79157,7 +79157,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Collision/tombstone traces and failure-injected rehashes preserve every remaining key.
-- - Challenge the mistaken claim: Deleting a probed key can turn its slot directly into empty. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Deleting a probed key can turn its slot directly into empty. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-07](#recall-t14-07).
 
@@ -79317,7 +79317,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Parent-child invariants and extraction order match a multiset oracle, including ties.
-- - Challenge the mistaken claim: A heap array is globally sorted. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A heap array is globally sorted. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-08](#recall-t14-08).
 
@@ -79351,7 +79351,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Sorted traversal, reachability and parent-link checks agree after each mutation.
-- - Challenge the mistaken claim: A heap array is globally sorted. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A heap array is globally sorted. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-09](#recall-t14-09).
 
@@ -79385,7 +79385,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Parent-child invariants and extraction order match a multiset oracle, including ties.
-- - Challenge the mistaken claim: A heap array is globally sorted. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A heap array is globally sorted. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-08](#recall-t14-08).
 
@@ -79419,7 +79419,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Sorted traversal, reachability and parent-link checks agree after each mutation.
-- - Challenge the mistaken claim: A heap array is globally sorted. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A heap array is globally sorted. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-08](#recall-t14-08), [recall-t14-09](#recall-t14-09).
 
@@ -79600,7 +79600,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Every node has correct stored height and balance at most one after exhaustive small-key permutations.
-- - Challenge the mistaken claim: Insertion rotations alone complete a balanced-tree implementation. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Insertion rotations alone complete a balanced-tree implementation. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-10](#recall-t14-10).
 
@@ -79634,7 +79634,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Every node has correct stored height and balance at most one after exhaustive small-key permutations.
-- - Challenge the mistaken claim: Insertion rotations alone complete a balanced-tree implementation. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Insertion rotations alone complete a balanced-tree implementation. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-10](#recall-t14-10).
 
@@ -79668,7 +79668,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Every node has correct stored height and balance at most one after exhaustive small-key permutations.
-- - Challenge the mistaken claim: Insertion rotations alone complete a balanced-tree implementation. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Insertion rotations alone complete a balanced-tree implementation. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-10](#recall-t14-10).
 
@@ -79702,7 +79702,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Every node has correct stored height and balance at most one after exhaustive small-key permutations.
-- - Challenge the mistaken claim: Insertion rotations alone complete a balanced-tree implementation. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Insertion rotations alone complete a balanced-tree implementation. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-10](#recall-t14-10).
 
@@ -80063,7 +80063,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Prefix enumeration and exact membership distinguish empty key, prefix-only path and full key.
-- - Challenge the mistaken claim: An internal node automatically denotes a stored key. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: An internal node automatically denotes a stored key. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-11](#recall-t14-11).
 
@@ -80097,7 +80097,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Set-algebra oracles, storage totals and clearing-cost measurements include an explicit wrap/reset policy.
-- - Challenge the mistaken claim: An internal node automatically denotes a stored key. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: An internal node automatically denotes a stored key. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-12](#recall-t14-12).
 
@@ -80131,7 +80131,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Prefix enumeration and exact membership distinguish empty key, prefix-only path and full key.
-- - Challenge the mistaken claim: An internal node automatically denotes a stored key. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: An internal node automatically denotes a stored key. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-11](#recall-t14-11).
 
@@ -80165,7 +80165,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Set-algebra oracles, storage totals and clearing-cost measurements include an explicit wrap/reset policy.
-- - Challenge the mistaken claim: An internal node automatically denotes a stored key. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: An internal node automatically denotes a stored key. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-11](#recall-t14-11), [recall-t14-12](#recall-t14-12).
 
@@ -80337,7 +80337,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Partition checks and normalized edge sets agree after unions and representation conversion.
-- - Challenge the mistaken claim: A union-find parent edge is an original graph edge. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A union-find parent edge is an original graph edge. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-13](#recall-t14-13).
 
@@ -80371,7 +80371,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Partition checks and normalized edge sets agree after unions and representation conversion.
-- - Challenge the mistaken claim: A union-find parent edge is an original graph edge. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A union-find parent edge is an original graph edge. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-13](#recall-t14-13).
 
@@ -80405,7 +80405,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Partition checks and normalized edge sets agree after unions and representation conversion.
-- - Challenge the mistaken claim: A union-find parent edge is an original graph edge. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A union-find parent edge is an original graph edge. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-13](#recall-t14-13).
 
@@ -80571,7 +80571,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - The elective report separates false-positive/ordering guarantees, resource costs and implementation evidence.
-- - Challenge the mistaken claim: A probabilistic membership hit proves the key is present. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A probabilistic membership hit proves the key is present. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-14](#recall-t14-14).
 
@@ -80605,7 +80605,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The elective report separates false-positive/ordering guarantees, resource costs and implementation evidence.
-- - Challenge the mistaken claim: A probabilistic membership hit proves the key is present. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A probabilistic membership hit proves the key is present. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-14](#recall-t14-14).
 
@@ -80639,7 +80639,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The elective report separates false-positive/ordering guarantees, resource costs and implementation evidence.
-- - Challenge the mistaken claim: A probabilistic membership hit proves the key is present. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A probabilistic membership hit proves the key is present. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-14](#recall-t14-14).
 
@@ -80673,7 +80673,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The elective report separates false-positive/ordering guarantees, resource costs and implementation evidence.
-- - Challenge the mistaken claim: A probabilistic membership hit proves the key is present. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A probabilistic membership hit proves the key is present. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t14-14](#recall-t14-14).
 
@@ -80826,7 +80826,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Duplicate and empty-range cases match a linear oracle and each update preserves the stated invariant.
-- - Challenge the mistaken claim: Any matching index is a correct lower bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Any matching index is a correct lower bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-01](#recall-t15-01).
 
@@ -80860,7 +80860,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Results preserve the multiset; labeled ties, comparison counts and scratch-space budgets expose the differences.
-- - Challenge the mistaken claim: Any matching index is a correct lower bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Any matching index is a correct lower bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-02](#recall-t15-02).
 
@@ -80894,7 +80894,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Duplicate and empty-range cases match a linear oracle and each update preserves the stated invariant.
-- - Challenge the mistaken claim: Any matching index is a correct lower bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Any matching index is a correct lower bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-01](#recall-t15-01).
 
@@ -80928,7 +80928,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Results preserve the multiset; labeled ties, comparison counts and scratch-space budgets expose the differences.
-- - Challenge the mistaken claim: Any matching index is a correct lower bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Any matching index is a correct lower bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-01](#recall-t15-01), [recall-t15-02](#recall-t15-02).
 
@@ -81089,7 +81089,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Sorted/reverse/equal-key vectors plus depth and comparison counters exercise the fallback.
-- - Challenge the mistaken claim: Random-looking input proves a worst-case bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Random-looking input proves a worst-case bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-03](#recall-t15-03).
 
@@ -81123,7 +81123,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Every valid rank equals a sorted-reference value, and invalid ranks leave inputs under the declared failure policy.
-- - Challenge the mistaken claim: Random-looking input proves a worst-case bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Random-looking input proves a worst-case bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-05](#recall-t15-05).
 
@@ -81157,7 +81157,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Sorted/reverse/equal-key vectors plus depth and comparison counters exercise the fallback.
-- - Challenge the mistaken claim: Random-looking input proves a worst-case bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Random-looking input proves a worst-case bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-03](#recall-t15-03).
 
@@ -81191,7 +81191,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Every valid rank equals a sorted-reference value, and invalid ranks leave inputs under the declared failure policy.
-- - Challenge the mistaken claim: Random-looking input proves a worst-case bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Random-looking input proves a worst-case bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-03](#recall-t15-03), [recall-t15-05](#recall-t15-05).
 
@@ -81390,7 +81390,7 @@ python3 -m cmastery check ../lab-ex-04 --unit LAB-EX-04
 **Check and stop:**
 
 - Negative/positive endpoints, stability and auxiliary-storage totals agree with a numeric oracle.
-- - Challenge the mistaken claim: Unsigned byte order automatically matches signed numerical order. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Unsigned byte order automatically matches signed numerical order. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-04](#recall-t15-04).
 
@@ -81424,7 +81424,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Negative/positive endpoints, stability and auxiliary-storage totals agree with a numeric oracle.
-- - Challenge the mistaken claim: Unsigned byte order automatically matches signed numerical order. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Unsigned byte order automatically matches signed numerical order. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-04](#recall-t15-04).
 
@@ -81591,7 +81591,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Match offsets agree with direct bounded comparisons and the linear method reports bounded fallback work.
-- - Challenge the mistaken claim: A zero byte necessarily ends the search input. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A zero byte necessarily ends the search input. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-06](#recall-t15-06).
 
@@ -81625,7 +81625,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Match offsets agree with direct bounded comparisons and the linear method reports bounded fallback work.
-- - Challenge the mistaken claim: A zero byte necessarily ends the search input. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A zero byte necessarily ends the search input. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-06](#recall-t15-06).
 
@@ -81659,7 +81659,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Match offsets agree with direct bounded comparisons and the linear method reports bounded fallback work.
-- - Challenge the mistaken claim: A zero byte necessarily ends the search input. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A zero byte necessarily ends the search input. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-06](#recall-t15-06).
 
@@ -81812,7 +81812,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Reachable sets, BFS distances and work-storage bounds agree with an independent edge model.
-- - Challenge the mistaken claim: Marking visited only after popping cannot create redundant work. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Marking visited only after popping cannot create redundant work. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-07](#recall-t15-07).
 
@@ -81846,7 +81846,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Every reported path has valid edges and cost, and violated weight assumptions fail explicitly.
-- - Challenge the mistaken claim: Marking visited only after popping cannot create redundant work. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Marking visited only after popping cannot create redundant work. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-08](#recall-t15-08).
 
@@ -81880,7 +81880,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Reachable sets, BFS distances and work-storage bounds agree with an independent edge model.
-- - Challenge the mistaken claim: Marking visited only after popping cannot create redundant work. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Marking visited only after popping cannot create redundant work. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-07](#recall-t15-07).
 
@@ -81914,7 +81914,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Every reported path has valid edges and cost, and violated weight assumptions fail explicitly.
-- - Challenge the mistaken claim: Marking visited only after popping cannot create redundant work. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Marking visited only after popping cannot create redundant work. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-07](#recall-t15-07), [recall-t15-08](#recall-t15-08).
 
@@ -82141,7 +82141,7 @@ python3 -m cmastery check ../lab-ex-05 --unit LAB-EX-05
 **Check and stop:**
 
 - A brute-force subset oracle checks tiny instances and exposes unintended repeated item use.
-- - Challenge the mistaken claim: An ascending 0/1 knapsack loop preserves the same item-use contract. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: An ascending 0/1 knapsack loop preserves the same item-use contract. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-09](#recall-t15-09).
 
@@ -82175,7 +82175,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A brute-force subset oracle checks tiny instances and exposes unintended repeated item use.
-- - Challenge the mistaken claim: An ascending 0/1 knapsack loop preserves the same item-use contract. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: An ascending 0/1 knapsack loop preserves the same item-use contract. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-09](#recall-t15-09).
 
@@ -82326,7 +82326,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Zero-length, delimiter-only, overlap and exact-capacity vectors check both semantics and dependency closure.
-- - Challenge the mistaken claim: A split operation can retain pointers after backing storage dies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A split operation can retain pointers after backing storage dies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-10](#recall-t15-10).
 
@@ -82360,7 +82360,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Limit−1, limit, limit+1 and minimum-value vectors agree with arbitrary-precision arithmetic.
-- - Challenge the mistaken claim: A split operation can retain pointers after backing storage dies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A split operation can retain pointers after backing storage dies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-11](#recall-t15-11).
 
@@ -82394,7 +82394,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Zero-length, delimiter-only, overlap and exact-capacity vectors check both semantics and dependency closure.
-- - Challenge the mistaken claim: A split operation can retain pointers after backing storage dies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A split operation can retain pointers after backing storage dies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-10](#recall-t15-10).
 
@@ -82428,7 +82428,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Limit−1, limit, limit+1 and minimum-value vectors agree with arbitrary-precision arithmetic.
-- - Challenge the mistaken claim: A split operation can retain pointers after backing storage dies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A split operation can retain pointers after backing storage dies. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-10](#recall-t15-10), [recall-t15-11](#recall-t15-11).
 
@@ -82584,7 +82584,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Known vectors, endian-independent round trips and reserved-bit rejection match a bit-polynomial oracle.
-- - Challenge the mistaken claim: Copying a C structure creates a portable wire format. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Copying a C structure creates a portable wire format. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-12](#recall-t15-12).
 
@@ -82618,7 +82618,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Every possible split of the fixture stream produces the same accepted frames and a bounded rejection trace.
-- - Challenge the mistaken claim: Copying a C structure creates a portable wire format. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Copying a C structure creates a portable wire format. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-13](#recall-t15-13).
 
@@ -82652,7 +82652,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Known vectors, endian-independent round trips and reserved-bit rejection match a bit-polynomial oracle.
-- - Challenge the mistaken claim: Copying a C structure creates a portable wire format. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Copying a C structure creates a portable wire format. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-12](#recall-t15-12).
 
@@ -82686,7 +82686,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Every possible split of the fixture stream produces the same accepted frames and a bounded rejection trace.
-- - Challenge the mistaken claim: Copying a C structure creates a portable wire format. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Copying a C structure creates a portable wire format. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-12](#recall-t15-12), [recall-t15-13](#recall-t15-13).
 
@@ -82868,7 +82868,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Token offsets, malformed-input diagnostics and evaluated small ASTs agree with a separate grammar oracle.
-- - Challenge the mistaken claim: A successful parse implies the expression is semantically valid or safely representable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A successful parse implies the expression is semantically valid or safely representable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-14](#recall-t15-14).
 
@@ -82902,7 +82902,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Token offsets, malformed-input diagnostics and evaluated small ASTs agree with a separate grammar oracle.
-- - Challenge the mistaken claim: A successful parse implies the expression is semantically valid or safely representable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A successful parse implies the expression is semantically valid or safely representable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-14](#recall-t15-14).
 
@@ -82936,7 +82936,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Token offsets, malformed-input diagnostics and evaluated small ASTs agree with a separate grammar oracle.
-- - Challenge the mistaken claim: A successful parse implies the expression is semantically valid or safely representable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A successful parse implies the expression is semantically valid or safely representable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-14](#recall-t15-14).
 
@@ -82970,7 +82970,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Token offsets, malformed-input diagnostics and evaluated small ASTs agree with a separate grammar oracle.
-- - Challenge the mistaken claim: A successful parse implies the expression is semantically valid or safely representable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A successful parse implies the expression is semantically valid or safely representable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-14](#recall-t15-14).
 
@@ -83109,7 +83109,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - The elective report presents correctness coverage, complete workspace costs and workload-specific results.
-- - Challenge the mistaken claim: One fast benchmark makes the method universally preferable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One fast benchmark makes the method universally preferable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-15](#recall-t15-15).
 
@@ -83143,7 +83143,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The elective report presents correctness coverage, complete workspace costs and workload-specific results.
-- - Challenge the mistaken claim: One fast benchmark makes the method universally preferable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One fast benchmark makes the method universally preferable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-15](#recall-t15-15).
 
@@ -83177,7 +83177,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The elective report presents correctness coverage, complete workspace costs and workload-specific results.
-- - Challenge the mistaken claim: One fast benchmark makes the method universally preferable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One fast benchmark makes the method universally preferable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-15](#recall-t15-15).
 
@@ -83211,7 +83211,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The elective report presents correctness coverage, complete workspace costs and workload-specific results.
-- - Challenge the mistaken claim: One fast benchmark makes the method universally preferable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One fast benchmark makes the method universally preferable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t15-15](#recall-t15-15).
 
@@ -83364,7 +83364,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Zero-size and exhaustion cases have one documented result and ownership remains unambiguous.
-- - Challenge the mistaken claim: An allocator return automatically contains a valid initialized object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: An allocator return automatically contains a valid initialized object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-01](#recall-t16-01).
 
@@ -83398,7 +83398,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Payload, padding, headers and remaining capacity reconcile exactly; unsupported alignment fails before mutation.
-- - Challenge the mistaken claim: An allocator return automatically contains a valid initialized object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: An allocator return automatically contains a valid initialized object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-02](#recall-t16-02).
 
@@ -83432,7 +83432,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Allocation traces never overlap, satisfy alignment and identify all invalidated handles after reset.
-- - Challenge the mistaken claim: An allocator return automatically contains a valid initialized object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: An allocator return automatically contains a valid initialized object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-03](#recall-t16-03).
 
@@ -83466,7 +83466,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Zero-size and exhaustion cases have one documented result and ownership remains unambiguous.
-- - Challenge the mistaken claim: An allocator return automatically contains a valid initialized object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: An allocator return automatically contains a valid initialized object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-01](#recall-t16-01), [recall-t16-02](#recall-t16-02), [recall-t16-03](#recall-t16-03).
 
@@ -83654,7 +83654,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Out-of-order rollback is rejected and a lifetime diagram distinguishes surviving and invalidated objects.
-- - Challenge the mistaken claim: Rollback is safe whenever the cursor can be restored numerically. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Rollback is safe whenever the cursor can be restored numerically. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-04](#recall-t16-04).
 
@@ -83688,7 +83688,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Non-top releases fail without state change and exactly-once cleanup evidence is separate from byte accounting.
-- - Challenge the mistaken claim: Rollback is safe whenever the cursor can be restored numerically. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Rollback is safe whenever the cursor can be restored numerically. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-05](#recall-t16-05).
 
@@ -83722,7 +83722,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Out-of-order rollback is rejected and a lifetime diagram distinguishes surviving and invalidated objects.
-- - Challenge the mistaken claim: Rollback is safe whenever the cursor can be restored numerically. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Rollback is safe whenever the cursor can be restored numerically. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-04](#recall-t16-04), [recall-t16-05](#recall-t16-05).
 
@@ -83899,7 +83899,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - The ownership model rejects stale handles and reports a generation-wrap policy.
-- - Challenge the mistaken claim: A reused slot address has the same object identity. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A reused slot address has the same object identity. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-06](#recall-t16-06).
 
@@ -83933,7 +83933,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The ownership model rejects stale handles and reports a generation-wrap policy.
-- - Challenge the mistaken claim: A reused slot address has the same object identity. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A reused slot address has the same object identity. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-06](#recall-t16-06).
 
@@ -83967,7 +83967,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The ownership model rejects stale handles and reports a generation-wrap policy.
-- - Challenge the mistaken claim: A reused slot address has the same object identity. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A reused slot address has the same object identity. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-06](#recall-t16-06).
 
@@ -84220,7 +84220,7 @@ python3 -m cmastery check ../lab-ex-03 --unit LAB-EX-03
 **Check and stop:**
 
 - Ordered block extents, boundary tags and free-list membership agree after all merge orders.
-- - Challenge the mistaken claim: Total free bytes guarantees one request can be served. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Total free bytes guarantees one request can be served. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-08](#recall-t16-08).
 
@@ -84254,7 +84254,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Largest-free-block and search-step evidence explain failures despite adequate total free space.
-- - Challenge the mistaken claim: Total free bytes guarantees one request can be served. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Total free bytes guarantees one request can be served. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-07](#recall-t16-07).
 
@@ -84288,7 +84288,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Ordered block extents, boundary tags and free-list membership agree after all merge orders.
-- - Challenge the mistaken claim: Total free bytes guarantees one request can be served. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Total free bytes guarantees one request can be served. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-07](#recall-t16-07), [recall-t16-08](#recall-t16-08).
 
@@ -84465,7 +84465,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Per-class capacity, retained bytes and reinitialization tests distinguish cache storage from live payload.
-- - Challenge the mistaken claim: Freed cached objects are already initialized for their next owner. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Freed cached objects are already initialized for their next owner. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-09](#recall-t16-09).
 
@@ -84499,7 +84499,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Per-class capacity, retained bytes and reinitialization tests distinguish cache storage from live payload.
-- - Challenge the mistaken claim: Freed cached objects are already initialized for their next owner. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Freed cached objects are already initialized for their next owner. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-09](#recall-t16-09).
 
@@ -84533,7 +84533,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Per-class capacity, retained bytes and reinitialization tests distinguish cache storage from live payload.
-- - Challenge the mistaken claim: Freed cached objects are already initialized for their next owner. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Freed cached objects are already initialized for their next owner. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-09](#recall-t16-09).
 
@@ -84690,7 +84690,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Split/merge traces and a separate hardware-assumption list limit any timing claim.
-- - Challenge the mistaken claim: Constant-time indexing proves a complete hard real-time latency bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Constant-time indexing proves a complete hard real-time latency bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-10](#recall-t16-10).
 
@@ -84724,7 +84724,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Split/merge traces and a separate hardware-assumption list limit any timing claim.
-- - Challenge the mistaken claim: Constant-time indexing proves a complete hard real-time latency bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Constant-time indexing proves a complete hard real-time latency bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-10](#recall-t16-10).
 
@@ -84758,7 +84758,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Split/merge traces and a separate hardware-assumption list limit any timing claim.
-- - Challenge the mistaken claim: Constant-time indexing proves a complete hard real-time latency bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Constant-time indexing proves a complete hard real-time latency bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-10](#recall-t16-10).
 
@@ -84792,7 +84792,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Split/merge traces and a separate hardware-assumption list limit any timing claim.
-- - Challenge the mistaken claim: Constant-time indexing proves a complete hard real-time latency bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Constant-time indexing proves a complete hard real-time latency bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-10](#recall-t16-10).
 
@@ -84959,7 +84959,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Snapshot contents and identity are preserved on failure; successful migration copies only the retained payload.
-- - Challenge the mistaken claim: A failed resize frees the old object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A failed resize frees the old object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-11](#recall-t16-11).
 
@@ -84993,7 +84993,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Snapshot contents and identity are preserved on failure; successful migration copies only the retained payload.
-- - Challenge the mistaken claim: A failed resize frees the old object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A failed resize frees the old object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-11](#recall-t16-11).
 
@@ -85027,7 +85027,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Snapshot contents and identity are preserved on failure; successful migration copies only the retained payload.
-- - Challenge the mistaken claim: A failed resize frees the old object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A failed resize frees the old object. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-11](#recall-t16-11).
 
@@ -85183,7 +85183,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Backend effects and metadata locking are separated from application publication/lifetime arguments.
-- - Challenge the mistaken claim: A thread-safe allocator makes allocated objects thread-safe. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A thread-safe allocator makes allocated objects thread-safe. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-12](#recall-t16-12).
 
@@ -85217,7 +85217,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Peak-live and retained-byte calculations justify the selected regions and the exceptions.
-- - Challenge the mistaken claim: A thread-safe allocator makes allocated objects thread-safe. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A thread-safe allocator makes allocated objects thread-safe. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-13](#recall-t16-13).
 
@@ -85251,7 +85251,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Backend effects and metadata locking are separated from application publication/lifetime arguments.
-- - Challenge the mistaken claim: A thread-safe allocator makes allocated objects thread-safe. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A thread-safe allocator makes allocated objects thread-safe. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-12](#recall-t16-12), [recall-t16-13](#recall-t16-13).
 
@@ -85409,7 +85409,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Minimized corruption traces and separate peak/fragmentation/latency reports support bounded conclusions.
-- - Challenge the mistaken claim: Passing a few throughput runs establishes allocator correctness. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Passing a few throughput runs establishes allocator correctness. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-14](#recall-t16-14).
 
@@ -85443,7 +85443,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Minimized corruption traces and separate peak/fragmentation/latency reports support bounded conclusions.
-- - Challenge the mistaken claim: Passing a few throughput runs establishes allocator correctness. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Passing a few throughput runs establishes allocator correctness. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-14](#recall-t16-14).
 
@@ -85477,7 +85477,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Minimized corruption traces and separate peak/fragmentation/latency reports support bounded conclusions.
-- - Challenge the mistaken claim: Passing a few throughput runs establishes allocator correctness. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Passing a few throughput runs establishes allocator correctness. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-14](#recall-t16-14).
 
@@ -85511,7 +85511,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Minimized corruption traces and separate peak/fragmentation/latency reports support bounded conclusions.
-- - Challenge the mistaken claim: Passing a few throughput runs establishes allocator correctness. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Passing a few throughput runs establishes allocator correctness. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t16-14](#recall-t16-14).
 
@@ -91947,7 +91947,7 @@ python3 -m cmastery check ../lab-hs-04 --unit LAB-HS-04
 **Check and stop:**
 
 - The synthetic ledger and observed positioned/sequential reads distinguish shared offset from handle lifetime.
-- - Challenge the mistaken claim: A process and a thread are interchangeable isolation units. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A process and a thread are interchangeable isolation units. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-03](#recall-t23-03).
 
@@ -91983,7 +91983,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A portability table links each interface to its standard/platform scope and tested failure path.
-- - Challenge the mistaken claim: A process and a thread are interchangeable isolation units. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A process and a thread are interchangeable isolation units. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-01](#recall-t23-01), [recall-t23-02](#recall-t23-02), [recall-t23-03](#recall-t23-03), [recall-t23-14](#recall-t23-14).
 
@@ -92216,7 +92216,7 @@ python3 -m cmastery check ../lab-hs-02 --unit LAB-HS-02
 **Check and stop:**
 
 - An identity/lookup trace states symlink policy and avoids unsupported race-free claims.
-- - Challenge the mistaken claim: read or write either handles the whole buffer or transfers nothing. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: read or write either handles the whole buffer or transfers nothing. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-05](#recall-t23-05).
 
@@ -92252,7 +92252,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Expected bit arithmetic and actual metadata are separated from ownership/ACL/environment effects.
-- - Challenge the mistaken claim: read or write either handles the whole buffer or transfers nothing. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: read or write either handles the whole buffer or transfers nothing. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-06](#recall-t23-06).
 
@@ -92288,7 +92288,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Byte contents, offset state and reported storage quantities are recorded independently.
-- - Challenge the mistaken claim: read or write either handles the whole buffer or transfers nothing. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: read or write either handles the whole buffer or transfers nothing. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-04](#recall-t23-04), [recall-t23-05](#recall-t23-05), [recall-t23-06](#recall-t23-06), [recall-t23-07](#recall-t23-07).
 
@@ -92509,7 +92509,7 @@ python3 -m cmastery check ../lab-hs-05 --unit LAB-HS-05
 **Check and stop:**
 
 - Failure classification, mapping bounds and cleanup ownership are explicit before any access.
-- - Challenge the mistaken claim: mmap success proves every page is physically resident. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: mmap success proves every page is physically resident. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-09](#recall-t23-09).
 
@@ -92545,7 +92545,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Two differently based views decode identical logical contents and an explicit synchronization protocol owns publication.
-- - Challenge the mistaken claim: mmap success proves every page is physically resident. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: mmap success proves every page is physically resident. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-10](#recall-t23-10).
 
@@ -92581,7 +92581,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The report labels virtual extent, fault observations and residency measurements by their limits.
-- - Challenge the mistaken claim: mmap success proves every page is physically resident. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: mmap success proves every page is physically resident. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-08](#recall-t23-08), [recall-t23-09](#recall-t23-09), [recall-t23-10](#recall-t23-10).
 
@@ -92802,7 +92802,7 @@ python3 -m cmastery check ../lab-hs-06 --unit LAB-HS-06
 **Check and stop:**
 
 - Descriptor closure diagrams explain blocking, broken-pipe behavior and terminal-state restoration.
-- - Challenge the mistaken claim: An idle reader always gets EOF when the visible writer exits. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: An idle reader always gets EOF when the visible writer exits. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-11](#recall-t23-11).
 
@@ -92838,7 +92838,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Descriptor closure diagrams explain blocking, broken-pipe behavior and terminal-state restoration.
-- - Challenge the mistaken claim: An idle reader always gets EOF when the visible writer exits. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: An idle reader always gets EOF when the visible writer exits. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-11](#recall-t23-11).
 
@@ -92999,7 +92999,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - A crash-state matrix states old/new/partial possibilities and names unverified filesystem guarantees.
-- - Challenge the mistaken claim: A successful write or rename universally proves durable data. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A successful write or rename universally proves durable data. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-12](#recall-t23-12).
 
@@ -93035,7 +93035,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A crash-state matrix states old/new/partial possibilities and names unverified filesystem guarantees.
-- - Challenge the mistaken claim: A successful write or rename universally proves durable data. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A successful write or rename universally proves durable data. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-12](#recall-t23-12).
 
@@ -93071,7 +93071,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A crash-state matrix states old/new/partial possibilities and names unverified filesystem guarantees.
-- - Challenge the mistaken claim: A successful write or rename universally proves durable data. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A successful write or rename universally proves durable data. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-12](#recall-t23-12).
 
@@ -93107,7 +93107,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A crash-state matrix states old/new/partial possibilities and names unverified filesystem guarantees.
-- - Challenge the mistaken claim: A successful write or rename universally proves durable data. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A successful write or rename universally proves durable data. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-12](#recall-t23-12).
 
@@ -93329,7 +93329,7 @@ python3 -m cmastery check ../lab-hs-12 --unit LAB-HS-12
 **Check and stop:**
 
 - Measurements name clock domain, failures and observed delay without claiming scheduler guarantees.
-- - Challenge the mistaken claim: Setting a priority establishes a hard scheduling bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Setting a priority establishes a hard scheduling bound. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t23-13](#recall-t23-13).
 
@@ -93520,7 +93520,7 @@ python3 -m cmastery check ../lab-hs-07 --unit LAB-HS-07
 **Check and stop:**
 
 - A deterministic schedule demonstrates the broken window and the repaired wakeup/ownership path.
-- - Challenge the mistaken claim: Signal handlers can use ordinary stdio because only one handler runs at a time. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Signal handlers can use ordinary stdio because only one handler runs at a time. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-02](#recall-t24-02).
 
@@ -93554,7 +93554,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A timeline and safety allowlist explain every handler operation and retry decision.
-- - Challenge the mistaken claim: Signal handlers can use ordinary stdio because only one handler runs at a time. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Signal handlers can use ordinary stdio because only one handler runs at a time. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-01](#recall-t24-01).
 
@@ -93588,7 +93588,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A deterministic schedule demonstrates the broken window and the repaired wakeup/ownership path.
-- - Challenge the mistaken claim: Signal handlers can use ordinary stdio because only one handler runs at a time. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Signal handlers can use ordinary stdio because only one handler runs at a time. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-01](#recall-t24-01), [recall-t24-02](#recall-t24-02).
 
@@ -93786,7 +93786,7 @@ python3 -m cmastery check ../lab-hs-08 --unit LAB-HS-08
 **Check and stop:**
 
 - A descriptor ledger and failure injection show exactly one owner for each live handle.
-- - Challenge the mistaken claim: The fastest nominal transport is always the simplest reliable choice. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The fastest nominal transport is always the simplest reliable choice. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-04](#recall-t24-04).
 
@@ -93820,7 +93820,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A selection matrix includes stalled-peer backpressure and ownership after disconnect.
-- - Challenge the mistaken claim: The fastest nominal transport is always the simplest reliable choice. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The fastest nominal transport is always the simplest reliable choice. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-03](#recall-t24-03).
 
@@ -93854,7 +93854,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A descriptor ledger and failure injection show exactly one owner for each live handle.
-- - Challenge the mistaken claim: The fastest nominal transport is always the simplest reliable choice. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: The fastest nominal transport is always the simplest reliable choice. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-03](#recall-t24-03), [recall-t24-04](#recall-t24-04).
 
@@ -94025,7 +94025,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - All chunk splits preserve frames; half-close and stalled peers follow the stated queue bounds.
-- - Challenge the mistaken claim: One send corresponds to one receive. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One send corresponds to one receive. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-05](#recall-t24-05).
 
@@ -94059,7 +94059,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A scripted loss/reorder trace produces the declared acceptance set and visible truncation errors.
-- - Challenge the mistaken claim: One send corresponds to one receive. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One send corresponds to one receive. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-06](#recall-t24-06).
 
@@ -94093,7 +94093,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - All chunk splits preserve frames; half-close and stalled peers follow the stated queue bounds.
-- - Challenge the mistaken claim: One send corresponds to one receive. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One send corresponds to one receive. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-05](#recall-t24-05).
 
@@ -94127,7 +94127,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A scripted loss/reorder trace produces the declared acceptance set and visible truncation errors.
-- - Challenge the mistaken claim: One send corresponds to one receive. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: One send corresponds to one receive. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-05](#recall-t24-05), [recall-t24-06](#recall-t24-06).
 
@@ -94349,7 +94349,7 @@ python3 -m cmastery check ../lab-hs-09 --unit LAB-HS-09
 **Check and stop:**
 
 - The event trace rejects a stale generation and explains every rearm/drain decision.
-- - Challenge the mistaken claim: Readiness guarantees the entire pending operation completes. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Readiness guarantees the entire pending operation completes. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-08](#recall-t24-08).
 
@@ -94383,7 +94383,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A shutdown state trace accounts for every queued item, descriptor and cancellation result.
-- - Challenge the mistaken claim: Readiness guarantees the entire pending operation completes. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Readiness guarantees the entire pending operation completes. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-11](#recall-t24-11).
 
@@ -94417,7 +94417,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The scripted backend verifies bounded turns, exact byte progress and eventual handling of another ready connection.
-- - Challenge the mistaken claim: Readiness guarantees the entire pending operation completes. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Readiness guarantees the entire pending operation completes. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-07](#recall-t24-07), [recall-t24-08](#recall-t24-08), [recall-t24-11](#recall-t24-11).
 
@@ -94663,7 +94663,7 @@ python3 -m cmastery check ../lab-hs-03 --unit LAB-HS-03
 **Check and stop:**
 
 - Deadline, reported expiration count and actual dispatch time are recorded separately under cancellation/reschedule tests.
-- - Challenge the mistaken claim: A callback ran exactly at the expiry timestamp. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A callback ran exactly at the expiry timestamp. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-09](#recall-t24-09).
 
@@ -94697,7 +94697,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Deadline, reported expiration count and actual dispatch time are recorded separately under cancellation/reschedule tests.
-- - Challenge the mistaken claim: A callback ran exactly at the expiry timestamp. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A callback ran exactly at the expiry timestamp. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-09](#recall-t24-09).
 
@@ -94847,7 +94847,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Identical parser vectors pass both backends, while baud/line/CAN assumptions remain separate from protocol logic.
-- - Challenge the mistaken claim: Changing the transport makes parser state and buffer limits irrelevant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Changing the transport makes parser state and buffer limits irrelevant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-10](#recall-t24-10).
 
@@ -94881,7 +94881,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Identical parser vectors pass both backends, while baud/line/CAN assumptions remain separate from protocol logic.
-- - Challenge the mistaken claim: Changing the transport makes parser state and buffer limits irrelevant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Changing the transport makes parser state and buffer limits irrelevant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-10](#recall-t24-10).
 
@@ -94915,7 +94915,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Identical parser vectors pass both backends, while baud/line/CAN assumptions remain separate from protocol logic.
-- - Challenge the mistaken claim: Changing the transport makes parser state and buffer limits irrelevant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Changing the transport makes parser state and buffer limits irrelevant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-10](#recall-t24-10).
 
@@ -95083,7 +95083,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - The elective report names operation lifetime rules, complete-workload measurements and evidence limits; no uninspected operation is implemented.
-- - Challenge the mistaken claim: A newer API is faster for every workload. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A newer API is faster for every workload. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-12](#recall-t24-12).
 
@@ -95117,7 +95117,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The elective report names operation lifetime rules, complete-workload measurements and evidence limits; no uninspected operation is implemented.
-- - Challenge the mistaken claim: A newer API is faster for every workload. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A newer API is faster for every workload. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t24-12](#recall-t24-12).
 
@@ -95303,7 +95303,7 @@ python3 -m cmastery check ../lab-hs-10 --unit LAB-HS-10
 **Check and stop:**
 
 - The shared-state ledger contains only deliberate shared fields and names the last user of each item.
-- - Challenge the mistaken claim: A function argument remains live until any thread using it finishes, or C and POSIX thread APIs are interchangeable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A function argument remains live until any thread using it finishes, or C and POSIX thread APIs are interchangeable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-02](#recall-t25-02).
 
@@ -95343,7 +95343,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A lifetime table and failure paths show every shared argument/handle owner; the separate interface/support table preserves integer versus pointer results, optional C17 facility support and direct POSIX error statuses.
-- - Challenge the mistaken claim: A function argument remains live until any thread using it finishes, or C and POSIX thread APIs are interchangeable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A function argument remains live until any thread using it finishes, or C and POSIX thread APIs are interchangeable. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-01](#recall-t25-01), [recall-t25-02](#recall-t25-02).
 
@@ -95566,7 +95566,7 @@ python3 -m cmastery check ../lab-hs-11 --unit LAB-HS-11
 **Check and stop:**
 
 - Spurious wake and signal-before-wait schedules both preserve progress and shutdown ownership.
-- - Challenge the mistaken claim: Atomic field updates automatically preserve a compound invariant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Atomic field updates automatically preserve a compound invariant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-04](#recall-t25-04).
 
@@ -95606,7 +95606,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A primitive-selection table states required semantics and avoids assuming fairness from mutual exclusion.
-- - Challenge the mistaken claim: Atomic field updates automatically preserve a compound invariant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Atomic field updates automatically preserve a compound invariant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-05](#recall-t25-05).
 
@@ -95646,7 +95646,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A forced interleaving finds the broken split-lock version, and initialization/destruction waits for all users.
-- - Challenge the mistaken claim: Atomic field updates automatically preserve a compound invariant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Atomic field updates automatically preserve a compound invariant. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-03](#recall-t25-03), [recall-t25-04](#recall-t25-04), [recall-t25-05](#recall-t25-05).
 
@@ -95855,7 +95855,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Graph reachability, lifetime annotations and a separate logical invariant support the conclusion.
-- - Challenge the mistaken claim: No detected data race proves the algorithm is correct. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: No detected data race proves the algorithm is correct. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-06](#recall-t25-06).
 
@@ -95895,7 +95895,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A target report states size/alignment, lock-free evidence and any out-of-line support.
-- - Challenge the mistaken claim: No detected data race proves the algorithm is correct. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: No detected data race proves the algorithm is correct. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-07](#recall-t25-07).
 
@@ -95935,7 +95935,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The diagram names the exact read-from and synchronizes-with edge; consume/fence questions remain edition-sensitive.
-- - Challenge the mistaken claim: No detected data race proves the algorithm is correct. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: No detected data race proves the algorithm is correct. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-08](#recall-t25-08).
 
@@ -95975,7 +95975,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Retry traces show expected-value updates, valid order pairs and exactly one ownership transfer.
-- - Challenge the mistaken claim: No detected data race proves the algorithm is correct. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: No detected data race proves the algorithm is correct. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-06](#recall-t25-06), [recall-t25-07](#recall-t25-07), [recall-t25-08](#recall-t25-08), [recall-t25-09](#recall-t25-09).
 
@@ -96178,7 +96178,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - A wait-for graph and participant-level progress accounting distinguish the guarantees actually supplied.
-- - Challenge the mistaken claim: Short critical sections prove fairness or bounded response. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Short critical sections prove fairness or bounded response. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-10](#recall-t25-10).
 
@@ -96218,7 +96218,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The measurement records layout, synchronization work and useful computation separately.
-- - Challenge the mistaken claim: Short critical sections prove fairness or bounded response. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Short critical sections prove fairness or bounded response. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-11](#recall-t25-11).
 
@@ -96258,7 +96258,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A wait-for graph and participant-level progress accounting distinguish the guarantees actually supplied.
-- - Challenge the mistaken claim: Short critical sections prove fairness or bounded response. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Short critical sections prove fairness or bounded response. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-10](#recall-t25-10), [recall-t25-11](#recall-t25-11).
 
@@ -96423,7 +96423,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - The evidence bundle combines explicit invariants, schedule traces and bounded tool claims.
-- - Challenge the mistaken claim: A clean sanitizer run is a proof for all schedules. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A clean sanitizer run is a proof for all schedules. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-12](#recall-t25-12).
 
@@ -96463,7 +96463,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The evidence bundle combines explicit invariants, schedule traces and bounded tool claims.
-- - Challenge the mistaken claim: A clean sanitizer run is a proof for all schedules. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A clean sanitizer run is a proof for all schedules. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-12](#recall-t25-12).
 
@@ -96503,7 +96503,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The evidence bundle combines explicit invariants, schedule traces and bounded tool claims.
-- - Challenge the mistaken claim: A clean sanitizer run is a proof for all schedules. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A clean sanitizer run is a proof for all schedules. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t25-12](#recall-t25-12).
 
@@ -96660,7 +96660,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - A sequential-history witness or contradiction is supplied for each declared fixture.
-- - Challenge the mistaken claim: Memory-model consistency implies FIFO linearizability. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Memory-model consistency implies FIFO linearizability. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-01](#recall-t26-01).
 
@@ -96695,7 +96695,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The claim names participants, steps and external assumptions instead of reporting only aggregate throughput.
-- - Challenge the mistaken claim: Memory-model consistency implies FIFO linearizability. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Memory-model consistency implies FIFO linearizability. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-02](#recall-t26-02).
 
@@ -96730,7 +96730,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The slot state trace and wrap proof identify both publication and reclamation edges.
-- - Challenge the mistaken claim: Memory-model consistency implies FIFO linearizability. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Memory-model consistency implies FIFO linearizability. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-03](#recall-t26-03).
 
@@ -96765,7 +96765,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Every slot/node has a named owner and the trace separates reservation, publication and completion assumptions.
-- - Challenge the mistaken claim: Memory-model consistency implies FIFO linearizability. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Memory-model consistency implies FIFO linearizability. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-01](#recall-t26-01), [recall-t26-02](#recall-t26-02), [recall-t26-03](#recall-t26-03), [recall-t26-04](#recall-t26-04).
 
@@ -96953,7 +96953,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - The trace explicitly names object identities, reuse and tag-wrap limits.
-- - Challenge the mistaken claim: Equal pointer bits prove the same live object remained there. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Equal pointer bits prove the same live object remained there. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-05](#recall-t26-05).
 
@@ -96988,7 +96988,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The timeline identifies each protected interval and retained node; implementation requires an independently inspected complete protocol.
-- - Challenge the mistaken claim: Equal pointer bits prove the same live object remained there. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Equal pointer bits prove the same live object remained there. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-06](#recall-t26-06).
 
@@ -97023,7 +97023,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A reclamation eligibility table and retained-memory calculation include a stalled participant.
-- - Challenge the mistaken claim: Equal pointer bits prove the same live object remained there. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Equal pointer bits prove the same live object remained there. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-07](#recall-t26-07).
 
@@ -97058,7 +97058,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - An object-lifetime diagram names the grace-period owner and refuses to infer one environment’s API rules from another.
-- - Challenge the mistaken claim: Equal pointer bits prove the same live object remained there. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Equal pointer bits prove the same live object remained there. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-05](#recall-t26-05), [recall-t26-06](#recall-t26-06), [recall-t26-07](#recall-t26-07), [recall-t26-08](#recall-t26-08).
 
@@ -97256,7 +97256,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - The dossier names isolation, API/version sources and prohibited operations before any optional implementation.
-- - Challenge the mistaken claim: A userspace pointer or allocator contract can be reused directly in a kernel callback. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A userspace pointer or allocator contract can be reused directly in a kernel callback. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-09](#recall-t26-09).
 
@@ -97291,7 +97291,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Separate ordering and lifetime ledgers identify the drain/grace obligations; kernel experiments remain optional and isolated.
-- - Challenge the mistaken claim: A userspace pointer or allocator contract can be reused directly in a kernel callback. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A userspace pointer or allocator contract can be reused directly in a kernel callback. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-10](#recall-t26-10).
 
@@ -97326,7 +97326,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The dossier names isolation, API/version sources and prohibited operations before any optional implementation.
-- - Challenge the mistaken claim: A userspace pointer or allocator contract can be reused directly in a kernel callback. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: A userspace pointer or allocator contract can be reused directly in a kernel callback. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-09](#recall-t26-09), [recall-t26-10](#recall-t26-10).
 
@@ -97559,7 +97559,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - The slot state trace and wrap proof identify both publication and reclamation edges.
-- - Challenge the mistaken claim: Single producer/consumer removes all ordering requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Single producer/consumer removes all ordering requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-03](#recall-t26-03).
 
@@ -97594,7 +97594,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The slot state trace and wrap proof identify both publication and reclamation edges.
-- - Challenge the mistaken claim: Single producer/consumer removes all ordering requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Single producer/consumer removes all ordering requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-03](#recall-t26-03).
 
@@ -97629,7 +97629,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The slot state trace and wrap proof identify both publication and reclamation edges.
-- - Challenge the mistaken claim: Single producer/consumer removes all ordering requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Single producer/consumer removes all ordering requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-03](#recall-t26-03).
 
@@ -97664,7 +97664,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The slot state trace and wrap proof identify both publication and reclamation edges.
-- - Challenge the mistaken claim: Single producer/consumer removes all ordering requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Single producer/consumer removes all ordering requirements. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-03](#recall-t26-03).
 
@@ -97846,7 +97846,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Every slot/node has a named owner and the trace separates reservation, publication and completion assumptions.
-- - Challenge the mistaken claim: Adding CAS to an SPSC head creates a complete MPMC design. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Adding CAS to an SPSC head creates a complete MPMC design. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-04](#recall-t26-04).
 
@@ -97881,7 +97881,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The trace explicitly names object identities, reuse and tag-wrap limits.
-- - Challenge the mistaken claim: Adding CAS to an SPSC head creates a complete MPMC design. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Adding CAS to an SPSC head creates a complete MPMC design. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-05](#recall-t26-05).
 
@@ -97916,7 +97916,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - The timeline identifies each protected interval and retained node; implementation requires an independently inspected complete protocol.
-- - Challenge the mistaken claim: Adding CAS to an SPSC head creates a complete MPMC design. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Adding CAS to an SPSC head creates a complete MPMC design. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-06](#recall-t26-06).
 
@@ -97951,7 +97951,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - A reclamation eligibility table and retained-memory calculation include a stalled participant.
-- - Challenge the mistaken claim: Adding CAS to an SPSC head creates a complete MPMC design. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Adding CAS to an SPSC head creates a complete MPMC design. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-07](#recall-t26-07).
 
@@ -97986,7 +97986,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - An object-lifetime diagram names the grace-period owner and refuses to infer one environment’s API rules from another.
-- - Challenge the mistaken claim: Adding CAS to an SPSC head creates a complete MPMC design. Preserve a minimal failing trace or explain the valid precondition that excludes it.
+- Challenge the mistaken claim: Adding CAS to an SPSC head creates a complete MPMC design. Preserve a minimal failing trace or explain the valid precondition that excludes it.
 
 **Recall before reopening source:** [recall-t26-04](#recall-t26-04), [recall-t26-05](#recall-t26-05), [recall-t26-06](#recall-t26-06), [recall-t26-07](#recall-t26-07), [recall-t26-08](#recall-t26-08).
 
@@ -100606,7 +100606,7 @@ Use `python -m cmastery init PR-T28-07 <empty-workspace>` to obtain the brief, f
 
 ## Contract
 
-Implement a bounded application datagram above a declared Ethernet/IP/UDP adapter:16-bit big-endian sequence,16-bit payload length, then at most32payload bytes. Inspect controller/PHY/stack prerequisites separately; do not claim controller conformance from host framing.
+Implement a bounded application datagram above a declared Ethernet/IP/UDP adapter:16-bit big-endian sequence,16-bit payload length, then at most 32 payload bytes. Inspect controller/PHY/stack prerequisites separately; do not claim controller conformance from host framing.
 
 Use dependency profile A under [guide-profiles](#guide-profiles). Implement the studied mechanism yourself; a mature library may be a separately declared hosted oracle. This 6-hour milestone includes implementation and verification, with reading/assessment budgeted in the module.
 
@@ -106832,7 +106832,7 @@ Use dependency profile C under [guide-profiles](#guide-profiles). Implement the 
 
 The supplied fixture `fixtures/embedded/PR-T34-03.json` contains concrete inputs and exact expected fields; use the supplied-fixture download below in the local handbook. Five uint32 pairs produce [1,0,9,10,10] modulo 2^32; the wrap case is intentional and valid.
 
-Use exact integer sums reduced modulo2^32; it does not reuse generated C loop/vector instructions.
+Use exact integer sums reduced modulo 2^32; it does not reuse generated C loop/vector instructions.
 
 ## Steps
 
@@ -109024,11 +109024,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -109084,11 +109084,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -109359,11 +109359,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -109421,11 +109421,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -109483,11 +109483,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -109543,11 +109543,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -109821,11 +109821,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -109883,11 +109883,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -109943,11 +109943,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -110189,11 +110189,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -110249,11 +110249,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -110508,11 +110508,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -110568,11 +110568,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -110993,11 +110993,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -111055,11 +111055,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -111115,11 +111115,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -111404,11 +111404,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -111466,11 +111466,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -111526,11 +111526,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -111764,11 +111764,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -111826,11 +111826,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -111888,11 +111888,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-clrs-4](#r-clrs-4): 6.2 Maintaining the heap property. Separate intact child subheaps from the single moving sift-down violation.
 - [R-clrs-4](#r-clrs-4): 11.4 Open addressing — probe coverage, deletion and independence assumptions. Derive probe coverage, stopping rules and deletion effects; expected bounds need named probabilistic assumptions.
 - [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3. Use layer and predecessor arguments to contrast an unweighted frontier with weighted tentative labels.
-- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
+- [R-clrs-4](#r-clrs-4): 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion. Check the readable shortest-hop and predecessor argument, without relying on incompletely extracted formula images.
 - [R-clrs-4](#r-clrs-4): 32.1 The naive string-matching algorithm. Specify explicit byte-span windows and overlapping matches before adapting the earlier matcher.
 - [R-clrs-4](#r-clrs-4): 13.1 Properties of red-black trees. Contrast the already studied balanced-tree policy with the new AVL state certificates; this is not a new red-black implementation.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
-- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem2 Remarks1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 — minimum total length path. Read the original tentative/settled refinement and adapt its connected presentation to explicit disconnected results.
+- [R-ENH-DIJKSTRA-GRAPHS-1959](#r-enh-dijkstra-graphs-1959): Problem 2 Remarks 1–2. Keep spanning-tree and path questions separate and state the modern weight/storage limits.
 - [R-hanson-cii](#r-hanson-cii): 2.1 Interfaces. Place representation behind a small interface with observable error behavior.
 - [R-hanson-cii](#r-hanson-cii): 2.3 Abstract Data Types. Compare a typed value wrapper with an opaque pointer collection and its representation invariant.
 - [R-hanson-cii](#r-hanson-cii): 2.4 Client Responsibilities. Make client ownership, comparator and callback obligations explicit; correct historical arithmetic assumptions to the C17 baseline.
@@ -112159,19 +112159,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -112216,19 +112216,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -112484,19 +112484,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -112543,19 +112543,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -112602,19 +112602,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -112816,19 +112816,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -112875,19 +112875,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -112934,19 +112934,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -113219,19 +113219,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -113278,19 +113278,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -113337,19 +113337,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -113579,19 +113579,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -113638,19 +113638,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -113695,19 +113695,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -113926,19 +113926,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -113985,19 +113985,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -114233,19 +114233,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -114292,19 +114292,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -114349,19 +114349,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -114549,19 +114549,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -114606,19 +114606,19 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Bounded reading:**
 
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
-- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114. Derive a four-bit adder/subtractor from Boolean slices; the book uses AArch64, not Cortex-M Thumb.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139. Separate combinational next-state signals from flip-flop state committed at a clock.
+- [R-ENH-PLANTZ-ORGANIZATION-ARM](#r-enh-plantz-organization-arm): Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172. Use fetch/decode/execute as a conceptual model, without importing the book’s implementation as a real Cortex-M datapath.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): 1.9 Quantitative Principles of Computer Design — Amdahl and The Processor Performance Equation, printed pp.48–54. Check units in CPU-time and Amdahl equations; independently recompute rather than copying inconsistent displayed example numbers.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.2 Cache Performance — AMAT and in-order stall model, printed B-15–B-18. Distinguish AMAT from an explicitly in-order memory-stall estimate.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): C.2 The Major Hurdle of Pipelining—Pipeline Hazards — hazard classes, RAW and forwarding, printed C-10–C-15. Construct RAW, forwarding and load-use schedules under a declared pipeline model.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.1 Introduction — Q1 block placement, Q2 block identification, Q3 replacement, printedB-7–B-9. Derive block placement, tag identity and replacement rules before simulating a cache.
 - [R-ENH-HENNESSY-PATTERSON-6](#r-enh-hennessy-patterson-6): B.3 Six Basic Cache Optimizations — threeC miss categories, printedB-23. Classify misses with compulsory history and a same-capacity fully associative shadow.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.1.1 General-Purpose Registers in 64-Bit Mode. Explain partial-register preservation versus 32-bit zero extension.
 - [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.4.3.1 Status Flags. Interpret carry/borrow and signed-overflow flags against the finite arithmetic model.
-- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
-- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
+- [R-ENH-INTEL-SDM1-093](#r-enh-intel-sdm1-093): 3.7.5.1 Specifying an Offset in 64-Bit Mode. Calculate a bounded base/index/scale/displacement address with the selected 64-bit-mode constraints.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): CMP—Compare Two Operands, printed 3-161–3-162. Decode only the inspected accumulator/immediate CMP forms and their sign extension.
+- [R-ENH-INTEL-SDM2A-093](#r-enh-intel-sdm2a-093): Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502. Compute JA rel8 from the next instruction and the declared unsigned flags.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A5.1 Thumb instruction set encoding — width discriminator and PC reads. Read actual Thumb halfword boundaries and architectural PC rules.
 - [R-ENH-ARMV7M-DDI0403EE](#r-enh-armv7m-ddi0403ee): A7.7.27 CMP (immediate) — EncodingT1 and Operation. Decode the visually inspected CMP immediate T1 bitfield only; modified immediates are outside scope.
 - [R-ARM-DUI0553B](#r-arm-dui0553b): 3.5.1 ADD, ADC, SUB, SBC, and RSB. Map four-bit model conclusions to documented Arm flag behavior, without conflating hardware wrap with C semantics.
@@ -124990,7 +124990,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **New work:**
 
-1. 1. Read the exact Rev8 board Ethernet table and inspected LAN8742A register scope. Compare actual board marking/jumpers; do not assume a newer manual's table was inspected.
+1. 1. Read the exact Rev 8 board Ethernet table and inspected LAN8742A register scope. Compare actual board marking/jumpers; do not assume a newer manual's table was inspected.
 2. Before looking at previous source, predict one boundary transition for Ethernet PHY, RMII and physical readiness.
 3. Produce the smallest independently inspectable implementation or trace for the operation above.
 
@@ -125045,7 +125045,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **New work:**
 
-1. 1. Read the exact Rev8 board Ethernet table and inspected LAN8742A register scope. Compare actual board marking/jumpers; do not assume a newer manual's table was inspected.
+1. 1. Read the exact Rev 8 board Ethernet table and inspected LAN8742A register scope. Compare actual board marking/jumpers; do not assume a newer manual's table was inspected.
 2. Before looking at previous source, predict one boundary transition for Ethernet PHY, RMII and physical readiness.
 3. Produce the smallest independently inspectable implementation or trace for the operation above.
 
@@ -125100,7 +125100,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **New work:**
 
-1. 1. Read the exact Rev8 board Ethernet table and inspected LAN8742A register scope. Compare actual board marking/jumpers; do not assume a newer manual's table was inspected.
+1. 1. Read the exact Rev 8 board Ethernet table and inspected LAN8742A register scope. Compare actual board marking/jumpers; do not assume a newer manual's table was inspected.
 2. Before looking at previous source, predict one boundary transition for Ethernet PHY, RMII and physical readiness.
 3. Connect the new boundary to bytes.cursor, containers.ring, codec.records. Keep the earlier regression and record only changed assumptions.
 
@@ -125176,13 +125176,13 @@ Finite original policies are 10 ms per MDIO transaction,500 ms reset and 5000 ms
 
 ## Inputs and expected results
 
-Fixture PHY ID 2=0x0007 and ID 3=0xc131 match0xc130 under0xfff0. Basic Status first 0x0020 and second0x0024 report historical down and current up, with negotiation bit5. Register31=0x1018 has done bit12 and speed code 110, hence100 full. HCLK 180MHz with divider 102 gives the declared MDIO clock calculation. A synthetic reset/busy deadline failure must never set READY.
+Fixture PHY ID 2=0x0007 and ID 3=0xc131 match 0xc130 under 0xfff0. Basic Status first 0x0020 and second 0x0024 report historical down and current up, with negotiation bit 5. Register 31=0x1018 has done bit 12 and speed code 110, hence 100 full. HCLK 180MHz with divider 102 gives the declared MDIO clock calculation. A synthetic reset/busy deadline failure must never set READY.
 
 Outputs include raw identity/status reads, decoded current/historical state, speed/duplex, deadlines, MAC-mode decision and incremented incarnation after a genuine new bring-up.
 
 ## Steps
 
-1. Read the exact Rev8 board Ethernet table and inspected LAN8742A register scope. Compare actual board marking/jumpers; do not assume a newer manual's table was inspected.
+1. Read the exact Rev 8 board Ethernet table and inspected LAN8742A register scope. Compare actual board marking/jumpers; do not assume a newer manual's table was inspected.
 
 2. Implement bounded query/reset/negotiation sequencing around the reused MDIO service. Keep latch-first and current-second samples separately.
 
@@ -126523,7 +126523,7 @@ Expected accepted stream is the 20 octets abcdefghijklmnopqrst, with exact ACK/s
 
 4. Collect actual handshake/data/close packets from an independent client. Test a split/coalesced stream that crosses the sequence wrap in host fixtures; physical ISNs use recorded isolated-lab incarnation policy.
 
-5. Inspect the state ledger against the selected RFC9293 branches and maintain an omitted-event matrix.
+5. Inspect the state ledger against the selected RFC 9293 branches and maintain an omitted-event matrix.
 
 ## Failure cases
 
@@ -126968,7 +126968,7 @@ Use `python -m cmastery init PR-T41-07 <empty-workspace>` to obtain the brief, f
 
 ## Contract
 
-Implement timers and bounded sending around the established TCP state. Initial/minimum RTO is 1000 ms, maximum cap 60000 ms, estimates follow RFC6298 update order and ambiguous retransmitted RTT samples are ignored. Retransmit earliest unacknowledged segment, double RTO after timeout and abort after three retransmissions under the original resource policy. SYN timeout makes post-handshake initial data RTO at least 3000 ms.
+Implement timers and bounded sending around the established TCP state. Initial/minimum RTO is 1000 ms, maximum cap 60000 ms, estimates follow RFC 6298 update order and ambiguous retransmitted RTT samples are ignored. Retransmit earliest unacknowledged segment, double RTO after timeout and abort after three retransmissions under the original resource policy. SYN timeout makes post-handshake initial data RTO at least 3000 ms.
 
 Keep one unacknowledged segment no larger than effective MSS and usable peer window, with conservative fixed cwnd 1 MSS. Retain immutable TCP bytes after DMA completes. Local RX window follows actual storage and reopens only as parser consumption frees space. Zero-window probes begin at current RTO and back off without duplicating or consuming another application byte.
 
@@ -127390,7 +127390,7 @@ Feed only accepted ordered TCP prefixes; retain unconsumed bytes and output offs
 
 Use this milestone's adapter fixture and shared [fixed-order wire fixture](fixtures/network_http/09_wire.json). Shared epoch 1672531200 gives Sun, 01 Jan 2023 00:00:00 GMT Date in the exact supplied format; field order is an original fixture policy. Expected GET body length 3, HEAD metadata length 3/body 0 and binary echo match T42. Segment/rejoin the exact response at effective MSS/window without changing a byte.
 
-The adapter fixture deliberately provides host traces without measured hardware closure and therefore expects pending physical. Fixed epoch 1672531200 is fixture-only. Actual Date uses a recorded reasonable UTC callback/initialized clock separate from monotonic TCP time; if unavailable, omit Date under RFC9110's inspected rule and disclose that response variant. Compare actual response semantics and its declared Date variant rather than calling the historical golden date current. Output stream/response bytes, packet/ACK/state trace and separate genuine hardware evidence index.
+The adapter fixture deliberately provides host traces without measured hardware closure and therefore expects pending physical. Fixed epoch 1672531200 is fixture-only. Actual Date uses a recorded reasonable UTC callback/initialized clock separate from monotonic TCP time; if unavailable, omit Date under RFC 9110's inspected rule and disclose that response variant. Compare actual response semantics and its declared Date variant rather than calling the historical golden date current. Output stream/response bytes, packet/ACK/state trace and separate genuine hardware evidence index.
 
 ## Steps
 
@@ -142840,7 +142840,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- - [ ] `T46.01.a`: Specify tagged int32, Boolean, nil and generation-checked object references without conflating a language value with C object bytes. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.01.b`: Encode and decode a bounded CVM1 image using explicit little-endian fields and failure-atomic loading. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.01.c`: Reject truncated, unsupported and oversized images and explain which checks belong before execution. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.01.a`: Specify tagged int32, Boolean, nil and generation-checked object references without conflating a language value with C object bytes. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.01.b`: Encode and decode a bounded CVM1 image using explicit little-endian fields and failure-atomic loading. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.01.c`: Reject truncated, unsupported and oversized images and explain which checks belong before execution. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-01](#recall-t46-01).
@@ -142877,7 +142877,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.01.a`: Specify tagged int32, Boolean, nil and generation-checked object references without conflating a language value with C object bytes. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.01.b`: Encode and decode a bounded CVM1 image using explicit little-endian fields and failure-atomic loading. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.01.c`: Reject truncated, unsupported and oversized images and explain which checks belong before execution. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.01.a`: Specify tagged int32, Boolean, nil and generation-checked object references without conflating a language value with C object bytes. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.01.b`: Encode and decode a bounded CVM1 image using explicit little-endian fields and failure-atomic loading. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.01.c`: Reject truncated, unsupported and oversized images and explain which checks belong before execution. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-01](#recall-t46-01).
@@ -143010,7 +143010,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- - [ ] `T46.02.a`: Separate instruction-boundary discovery from control-flow stack analysis over every function. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.b`: Reject malformed operands, interior or cross-function branches, wrong call arity and incompatible stack heights at joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.c`: Explain why accepted structural bytecode still needs runtime type, initialization, resource and termination checks. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.02.a`: Separate instruction-boundary discovery from control-flow stack analysis over every function. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.b`: Reject malformed operands, interior or cross-function branches, wrong call arity and incompatible stack heights at joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.c`: Explain why accepted structural bytecode still needs runtime type, initialization, resource and termination checks. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-02](#recall-t46-02).
@@ -143047,7 +143047,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.02.a`: Separate instruction-boundary discovery from control-flow stack analysis over every function. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.b`: Reject malformed operands, interior or cross-function branches, wrong call arity and incompatible stack heights at joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.c`: Explain why accepted structural bytecode still needs runtime type, initialization, resource and termination checks. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.02.a`: Separate instruction-boundary discovery from control-flow stack analysis over every function. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.b`: Reject malformed operands, interior or cross-function branches, wrong call arity and incompatible stack heights at joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.c`: Explain why accepted structural bytecode still needs runtime type, initialization, resource and termination checks. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-02](#recall-t46-02).
@@ -143084,7 +143084,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.02.a`: Separate instruction-boundary discovery from control-flow stack analysis over every function. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.b`: Reject malformed operands, interior or cross-function branches, wrong call arity and incompatible stack heights at joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.c`: Explain why accepted structural bytecode still needs runtime type, initialization, resource and termination checks. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.02.a`: Separate instruction-boundary discovery from control-flow stack analysis over every function. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.b`: Reject malformed operands, interior or cross-function branches, wrong call arity and incompatible stack heights at joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.c`: Explain why accepted structural bytecode still needs runtime type, initialization, resource and termination checks. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-02](#recall-t46-02).
@@ -143121,7 +143121,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.02.a`: Separate instruction-boundary discovery from control-flow stack analysis over every function. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.b`: Reject malformed operands, interior or cross-function branches, wrong call arity and incompatible stack heights at joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.c`: Explain why accepted structural bytecode still needs runtime type, initialization, resource and termination checks. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.02.a`: Separate instruction-boundary discovery from control-flow stack analysis over every function. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.b`: Reject malformed operands, interior or cross-function branches, wrong call arity and incompatible stack heights at joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.02.c`: Explain why accepted structural bytecode still needs runtime type, initialization, resource and termination checks. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-02](#recall-t46-02).
@@ -143257,7 +143257,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- - [ ] `T46.03.a`: Implement a bounded opcode dispatch loop with explicit stack effects and checked int32 operations. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.03.b`: Distinguish type, range, stack-capacity and bytecode-format errors using deliberate counterexamples. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.03.c`: Preserve a declared result/error boundary and explain why VM arithmetic cannot inherit C signed-overflow behavior. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.03.a`: Implement a bounded opcode dispatch loop with explicit stack effects and checked int32 operations. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.03.b`: Distinguish type, range, stack-capacity and bytecode-format errors using deliberate counterexamples. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.03.c`: Preserve a declared result/error boundary and explain why VM arithmetic cannot inherit C signed-overflow behavior. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-03](#recall-t46-03).
@@ -143294,7 +143294,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.03.a`: Implement a bounded opcode dispatch loop with explicit stack effects and checked int32 operations. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.03.b`: Distinguish type, range, stack-capacity and bytecode-format errors using deliberate counterexamples. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.03.c`: Preserve a declared result/error boundary and explain why VM arithmetic cannot inherit C signed-overflow behavior. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.03.a`: Implement a bounded opcode dispatch loop with explicit stack effects and checked int32 operations. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.03.b`: Distinguish type, range, stack-capacity and bytecode-format errors using deliberate counterexamples. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.03.c`: Preserve a declared result/error boundary and explain why VM arithmetic cannot inherit C signed-overflow behavior. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-03](#recall-t46-03).
@@ -143331,7 +143331,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.03.a`: Implement a bounded opcode dispatch loop with explicit stack effects and checked int32 operations. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.03.b`: Distinguish type, range, stack-capacity and bytecode-format errors using deliberate counterexamples. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.03.c`: Preserve a declared result/error boundary and explain why VM arithmetic cannot inherit C signed-overflow behavior. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.03.a`: Implement a bounded opcode dispatch loop with explicit stack effects and checked int32 operations. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.03.b`: Distinguish type, range, stack-capacity and bytecode-format errors using deliberate counterexamples. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.03.c`: Preserve a declared result/error boundary and explain why VM arithmetic cannot inherit C signed-overflow behavior. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-03](#recall-t46-03).
@@ -143484,7 +143484,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- - [ ] `T46.04.a`: Represent each invocation with an independent instruction position, local slots, initialization state and operand-stack base. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.04.b`: Implement direct calls and returns with checked arity and frame capacity without recursing through the C interpreter. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.04.c`: Explain recursive execution and demonstrate bounded exhaustion distinct from native stack exhaustion. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.04.a`: Represent each invocation with an independent instruction position, local slots, initialization state and operand-stack base. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.04.b`: Implement direct calls and returns with checked arity and frame capacity without recursing through the C interpreter. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.04.c`: Explain recursive execution and demonstrate bounded exhaustion distinct from native stack exhaustion. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-04](#recall-t46-04).
@@ -143521,7 +143521,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.04.a`: Represent each invocation with an independent instruction position, local slots, initialization state and operand-stack base. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.04.b`: Implement direct calls and returns with checked arity and frame capacity without recursing through the C interpreter. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.04.c`: Explain recursive execution and demonstrate bounded exhaustion distinct from native stack exhaustion. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.04.a`: Represent each invocation with an independent instruction position, local slots, initialization state and operand-stack base. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.04.b`: Implement direct calls and returns with checked arity and frame capacity without recursing through the C interpreter. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.04.c`: Explain recursive execution and demonstrate bounded exhaustion distinct from native stack exhaustion. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-04](#recall-t46-04).
@@ -143558,7 +143558,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.04.a`: Represent each invocation with an independent instruction position, local slots, initialization state and operand-stack base. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.04.b`: Implement direct calls and returns with checked arity and frame capacity without recursing through the C interpreter. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.04.c`: Explain recursive execution and demonstrate bounded exhaustion distinct from native stack exhaustion. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.04.a`: Represent each invocation with an independent instruction position, local slots, initialization state and operand-stack base. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.04.b`: Implement direct calls and returns with checked arity and frame capacity without recursing through the C interpreter. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.04.c`: Explain recursive execution and demonstrate bounded exhaustion distinct from native stack exhaustion. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-04](#recall-t46-04).
@@ -143690,7 +143690,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- - [ ] `T46.05.a`: Scan explicit source spans and resolve bounded lexical names while rejecting unknown or duplicate function definitions. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.b`: Compile literals, lexical bindings and arithmetic into the declared bytecode and validate the emitted program. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.c`: Separate hosted compiler limits and source errors from runtime errors and preserve output on failed compilation. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.05.a`: Scan explicit source spans and resolve bounded lexical names while rejecting unknown or duplicate function definitions. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.b`: Compile literals, lexical bindings and arithmetic into the declared bytecode and validate the emitted program. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.c`: Separate hosted compiler limits and source errors from runtime errors and preserve output on failed compilation. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-05](#recall-t46-05).
@@ -143727,7 +143727,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.05.a`: Scan explicit source spans and resolve bounded lexical names while rejecting unknown or duplicate function definitions. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.b`: Compile literals, lexical bindings and arithmetic into the declared bytecode and validate the emitted program. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.c`: Separate hosted compiler limits and source errors from runtime errors and preserve output on failed compilation. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.05.a`: Scan explicit source spans and resolve bounded lexical names while rejecting unknown or duplicate function definitions. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.b`: Compile literals, lexical bindings and arithmetic into the declared bytecode and validate the emitted program. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.c`: Separate hosted compiler limits and source errors from runtime errors and preserve output on failed compilation. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-05](#recall-t46-05).
@@ -143764,7 +143764,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.05.a`: Scan explicit source spans and resolve bounded lexical names while rejecting unknown or duplicate function definitions. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.b`: Compile literals, lexical bindings and arithmetic into the declared bytecode and validate the emitted program. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.c`: Separate hosted compiler limits and source errors from runtime errors and preserve output on failed compilation. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.05.a`: Scan explicit source spans and resolve bounded lexical names while rejecting unknown or duplicate function definitions. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.b`: Compile literals, lexical bindings and arithmetic into the declared bytecode and validate the emitted program. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.c`: Separate hosted compiler limits and source errors from runtime errors and preserve output on failed compilation. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-05](#recall-t46-05).
@@ -143801,7 +143801,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.05.a`: Scan explicit source spans and resolve bounded lexical names while rejecting unknown or duplicate function definitions. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.b`: Compile literals, lexical bindings and arithmetic into the declared bytecode and validate the emitted program. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.c`: Separate hosted compiler limits and source errors from runtime errors and preserve output on failed compilation. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.05.a`: Scan explicit source spans and resolve bounded lexical names while rejecting unknown or duplicate function definitions. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.b`: Compile literals, lexical bindings and arithmetic into the declared bytecode and validate the emitted program. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.05.c`: Separate hosted compiler limits and source errors from runtime errors and preserve output on failed compilation. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-05](#recall-t46-05).
@@ -143924,7 +143924,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- - [ ] `T46.06.a`: Lower Boolean conditionals and loops into patched instruction-boundary branches with compatible stack joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.b`: Define mutable local assignment, sequencing and loop-result semantics without accidental host-language control behavior. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.c`: Demonstrate both a terminating source loop and an infinite guest loop bounded by fuel. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.06.a`: Lower Boolean conditionals and loops into patched instruction-boundary branches with compatible stack joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.b`: Define mutable local assignment, sequencing and loop-result semantics without accidental host-language control behavior. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.c`: Demonstrate both a terminating source loop and an infinite guest loop bounded by fuel. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-06](#recall-t46-06).
@@ -143961,7 +143961,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.06.a`: Lower Boolean conditionals and loops into patched instruction-boundary branches with compatible stack joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.b`: Define mutable local assignment, sequencing and loop-result semantics without accidental host-language control behavior. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.c`: Demonstrate both a terminating source loop and an infinite guest loop bounded by fuel. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.06.a`: Lower Boolean conditionals and loops into patched instruction-boundary branches with compatible stack joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.b`: Define mutable local assignment, sequencing and loop-result semantics without accidental host-language control behavior. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.c`: Demonstrate both a terminating source loop and an infinite guest loop bounded by fuel. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-06](#recall-t46-06).
@@ -143998,7 +143998,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.06.a`: Lower Boolean conditionals and loops into patched instruction-boundary branches with compatible stack joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.b`: Define mutable local assignment, sequencing and loop-result semantics without accidental host-language control behavior. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.c`: Demonstrate both a terminating source loop and an infinite guest loop bounded by fuel. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.06.a`: Lower Boolean conditionals and loops into patched instruction-boundary branches with compatible stack joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.b`: Define mutable local assignment, sequencing and loop-result semantics without accidental host-language control behavior. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.c`: Demonstrate both a terminating source loop and an infinite guest loop bounded by fuel. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-06](#recall-t46-06).
@@ -144035,7 +144035,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.06.a`: Lower Boolean conditionals and loops into patched instruction-boundary branches with compatible stack joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.b`: Define mutable local assignment, sequencing and loop-result semantics without accidental host-language control behavior. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.c`: Demonstrate both a terminating source loop and an infinite guest loop bounded by fuel. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.06.a`: Lower Boolean conditionals and loops into patched instruction-boundary branches with compatible stack joins. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.b`: Define mutable local assignment, sequencing and loop-result semantics without accidental host-language control behavior. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.06.c`: Demonstrate both a terminating source loop and an infinite guest loop bounded by fuel. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-06](#recall-t46-06).
@@ -144159,7 +144159,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- - [ ] `T46.07.a`: Build fixed pair objects in caller-owned storage and distinguish slot identity from generation identity. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.07.b`: Demonstrate arena exhaustion without pretending unreachable objects are reclaimed during that phase. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.07.c`: Specify reset invalidation, reference ownership and the transition to an explicit-root collector. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.07.a`: Build fixed pair objects in caller-owned storage and distinguish slot identity from generation identity. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.07.b`: Demonstrate arena exhaustion without pretending unreachable objects are reclaimed during that phase. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.07.c`: Specify reset invalidation, reference ownership and the transition to an explicit-root collector. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-07](#recall-t46-07).
@@ -144196,7 +144196,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.07.a`: Build fixed pair objects in caller-owned storage and distinguish slot identity from generation identity. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.07.b`: Demonstrate arena exhaustion without pretending unreachable objects are reclaimed during that phase. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.07.c`: Specify reset invalidation, reference ownership and the transition to an explicit-root collector. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.07.a`: Build fixed pair objects in caller-owned storage and distinguish slot identity from generation identity. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.07.b`: Demonstrate arena exhaustion without pretending unreachable objects are reclaimed during that phase. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.07.c`: Specify reset invalidation, reference ownership and the transition to an explicit-root collector. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-07](#recall-t46-07).
@@ -144321,7 +144321,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- - [ ] `T46.08.a`: Trace live operand values, initialized frame locals and explicit temporary roots with a bounded iterative mark worklist. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.b`: Reclaim unreachable cycles while preserving rooted graphs and allocation-time C temporaries. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.c`: Reject stale references and explain collection-budget exhaustion before sweep and remaining stop-the-world limits. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.08.a`: Trace live operand values, initialized frame locals and explicit temporary roots with a bounded iterative mark worklist. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.b`: Reclaim unreachable cycles while preserving rooted graphs and allocation-time C temporaries. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.c`: Reject stale references and explain collection-budget exhaustion before sweep and remaining stop-the-world limits. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-08](#recall-t46-08).
@@ -144358,7 +144358,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.08.a`: Trace live operand values, initialized frame locals and explicit temporary roots with a bounded iterative mark worklist. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.b`: Reclaim unreachable cycles while preserving rooted graphs and allocation-time C temporaries. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.c`: Reject stale references and explain collection-budget exhaustion before sweep and remaining stop-the-world limits. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.08.a`: Trace live operand values, initialized frame locals and explicit temporary roots with a bounded iterative mark worklist. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.b`: Reclaim unreachable cycles while preserving rooted graphs and allocation-time C temporaries. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.c`: Reject stale references and explain collection-budget exhaustion before sweep and remaining stop-the-world limits. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-08](#recall-t46-08).
@@ -144395,7 +144395,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.08.a`: Trace live operand values, initialized frame locals and explicit temporary roots with a bounded iterative mark worklist. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.b`: Reclaim unreachable cycles while preserving rooted graphs and allocation-time C temporaries. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.c`: Reject stale references and explain collection-budget exhaustion before sweep and remaining stop-the-world limits. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.08.a`: Trace live operand values, initialized frame locals and explicit temporary roots with a bounded iterative mark worklist. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.b`: Reclaim unreachable cycles while preserving rooted graphs and allocation-time C temporaries. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.c`: Reject stale references and explain collection-budget exhaustion before sweep and remaining stop-the-world limits. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-08](#recall-t46-08).
@@ -144432,7 +144432,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.08.a`: Trace live operand values, initialized frame locals and explicit temporary roots with a bounded iterative mark worklist. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.b`: Reclaim unreachable cycles while preserving rooted graphs and allocation-time C temporaries. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.c`: Reject stale references and explain collection-budget exhaustion before sweep and remaining stop-the-world limits. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.08.a`: Trace live operand values, initialized frame locals and explicit temporary roots with a bounded iterative mark worklist. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.b`: Reclaim unreachable cycles while preserving rooted graphs and allocation-time C temporaries. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.08.c`: Reject stale references and explain collection-budget exhaustion before sweep and remaining stop-the-world limits. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-08](#recall-t46-08).
@@ -144572,7 +144572,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- - [ ] `T46.09.a`: Maintain separate guest-dispatch, garbage-collection and host-call budgets with explicit units. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.09.b`: Stop infinite guest loops and resource-exhausting programs with observable structured outcomes. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.09.c`: Explain why instruction fuel alone cannot bound verifier cost, compiler cost, GC latency or a blocking host callback. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.09.a`: Maintain separate guest-dispatch, garbage-collection and host-call budgets with explicit units. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.09.b`: Stop infinite guest loops and resource-exhausting programs with observable structured outcomes. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.09.c`: Explain why instruction fuel alone cannot bound verifier cost, compiler cost, GC latency or a blocking host callback. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-09](#recall-t46-09).
@@ -144609,7 +144609,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.09.a`: Maintain separate guest-dispatch, garbage-collection and host-call budgets with explicit units. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.09.b`: Stop infinite guest loops and resource-exhausting programs with observable structured outcomes. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.09.c`: Explain why instruction fuel alone cannot bound verifier cost, compiler cost, GC latency or a blocking host callback. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.09.a`: Maintain separate guest-dispatch, garbage-collection and host-call budgets with explicit units. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.09.b`: Stop infinite guest loops and resource-exhausting programs with observable structured outcomes. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.09.c`: Explain why instruction fuel alone cannot bound verifier cost, compiler cost, GC latency or a blocking host callback. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-09](#recall-t46-09).
@@ -144735,7 +144735,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- - [ ] `T46.10.a`: Embed the VM through a narrow integer service callback with explicit capabilities and failure propagation. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.10.b`: Connect an already accepted store through fixed-key little-endian values without exposing arbitrary native calls. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.10.c`: Distinguish callback failure, uncertain persistence and guest completion when a service performs external work. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.10.a`: Embed the VM through a narrow integer service callback with explicit capabilities and failure propagation. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.10.b`: Connect an already accepted store through fixed-key little-endian values without exposing arbitrary native calls. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.10.c`: Distinguish callback failure, uncertain persistence and guest completion when a service performs external work. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-10](#recall-t46-10).
@@ -144772,7 +144772,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.10.a`: Embed the VM through a narrow integer service callback with explicit capabilities and failure propagation. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.10.b`: Connect an already accepted store through fixed-key little-endian values without exposing arbitrary native calls. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.10.c`: Distinguish callback failure, uncertain persistence and guest completion when a service performs external work. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.10.a`: Embed the VM through a narrow integer service callback with explicit capabilities and failure propagation. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.10.b`: Connect an already accepted store through fixed-key little-endian values without exposing arbitrary native calls. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.10.c`: Distinguish callback failure, uncertain persistence and guest completion when a service performs external work. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-10](#recall-t46-10).
@@ -144900,7 +144900,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- - [ ] `T46.11.a`: Build one VM core for hosted Linux and freestanding Thumb without compiling the source-language compiler into firmware. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.11.b`: Run the same portable bytecode in an emulated Cortex-M target and an independently implemented kernel environment. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.11.c`: Audit compiler helpers, startup, memory placement and host-service adapters while keeping emulator and physical-board claims separate. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.11.a`: Build one VM core for hosted Linux and freestanding Thumb without compiling the source-language compiler into firmware. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.11.b`: Run the same portable bytecode in an emulated Cortex-M target and an independently implemented kernel environment. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.11.c`: Audit compiler helpers, startup, memory placement and host-service adapters while keeping emulator and physical-board claims separate. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-11](#recall-t46-11).
@@ -144937,7 +144937,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.11.a`: Build one VM core for hosted Linux and freestanding Thumb without compiling the source-language compiler into firmware. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.11.b`: Run the same portable bytecode in an emulated Cortex-M target and an independently implemented kernel environment. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.11.c`: Audit compiler helpers, startup, memory placement and host-service adapters while keeping emulator and physical-board claims separate. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.11.a`: Build one VM core for hosted Linux and freestanding Thumb without compiling the source-language compiler into firmware. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.11.b`: Run the same portable bytecode in an emulated Cortex-M target and an independently implemented kernel environment. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.11.c`: Audit compiler helpers, startup, memory placement and host-service adapters while keeping emulator and physical-board claims separate. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-11](#recall-t46-11).
@@ -144974,7 +144974,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.11.a`: Build one VM core for hosted Linux and freestanding Thumb without compiling the source-language compiler into firmware. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.11.b`: Run the same portable bytecode in an emulated Cortex-M target and an independently implemented kernel environment. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.11.c`: Audit compiler helpers, startup, memory placement and host-service adapters while keeping emulator and physical-board claims separate. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.11.a`: Build one VM core for hosted Linux and freestanding Thumb without compiling the source-language compiler into firmware. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.11.b`: Run the same portable bytecode in an emulated Cortex-M target and an independently implemented kernel environment. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.11.c`: Audit compiler helpers, startup, memory placement and host-service adapters while keeping emulator and physical-board claims separate. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-11](#recall-t46-11).
@@ -145099,7 +145099,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- - [ ] `T46.12.a`: Defend the source-to-bytecode-to-execution provenance and distinguish tested anchors from complete runtime mastery. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.12.b`: Use independent malformed programs and fault mutations to challenge verifier, lifetime and resource claims. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.12.c`: Repeat a changed-capacity or changed-host-service task after a delay without consulting the prior implementation. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.12.a`: Defend the source-to-bytecode-to-execution provenance and distinguish tested anchors from complete runtime mastery. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.12.b`: Use independent malformed programs and fault mutations to challenge verifier, lifetime and resource claims. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.12.c`: Repeat a changed-capacity or changed-host-service task after a delay without consulting the prior implementation. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-12](#recall-t46-12).
@@ -145136,7 +145136,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.12.a`: Defend the source-to-bytecode-to-execution provenance and distinguish tested anchors from complete runtime mastery. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.12.b`: Use independent malformed programs and fault mutations to challenge verifier, lifetime and resource claims. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.12.c`: Repeat a changed-capacity or changed-host-service task after a delay without consulting the prior implementation. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.12.a`: Defend the source-to-bytecode-to-execution provenance and distinguish tested anchors from complete runtime mastery. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.12.b`: Use independent malformed programs and fault mutations to challenge verifier, lifetime and resource claims. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.12.c`: Repeat a changed-capacity or changed-host-service task after a delay without consulting the prior implementation. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-12](#recall-t46-12).
@@ -145173,7 +145173,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- - [ ] `T46.12.a`: Defend the source-to-bytecode-to-execution provenance and distinguish tested anchors from complete runtime mastery. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.12.b`: Use independent malformed programs and fault mutations to challenge verifier, lifetime and resource claims. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.12.c`: Repeat a changed-capacity or changed-host-service task after a delay without consulting the prior implementation. Attach the matching implementation, trace, negative case or bounded argument.
+- [ ] `T46.12.a`: Defend the source-to-bytecode-to-execution provenance and distinguish tested anchors from complete runtime mastery. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.12.b`: Use independent malformed programs and fault mutations to challenge verifier, lifetime and resource claims. Attach the matching implementation, trace, negative case or bounded argument. - [ ] `T46.12.c`: Repeat a changed-capacity or changed-host-service task after a delay without consulting the prior implementation. Attach the matching implementation, trace, negative case or bounded argument.
 - Challenge the specific boundary above, then add one independently chosen malformed or exhausted case. Never reinterpret a missing tool, NOT_IMPLEMENTED stub, model replay or timed-out command as success. Keep source errors, rejected bytecode, runtime errors and host failures distinct; the observable failure must identify the responsible layer.
 
 **Recall before reopening source:** [recall-t46-12](#recall-t46-12).
@@ -152070,7 +152070,7 @@ Move a descriptor open before process creation and measure which offset state is
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
-**Engineering question:** Which assumption in FCFS, SJF, SRTF and round-robin scheduling determines the allowed transition, and how will Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service. be demonstrated?
+**Engineering question:** Which assumption in FCFS, SJF, SRTF and round-robin scheduling determines the allowed transition, and how will Check service conservation and exact timelines: SRTF completes B at 3, C at 4 and A at 11; explain the tie at 2. Report response, turnaround and waiting time without counting idle time as service. be demonstrated?
 
 <a id="u-t49-03-01"></a>
 ### U-T49-03-01 — Build and inspect: FCFS, SJF, SRTF and round-robin scheduling
@@ -152089,7 +152089,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service.
+- Check service conservation and exact timelines: SRTF completes B at 3, C at 4 and A at 11; explain the tie at 2. Report response, turnaround and waiting time without counting idle time as service.
 - zero quantum; empty workload; simultaneous arrivals; completion at quantum boundary; idle gap; arithmetic overflow.
 
 **Recall before reopening source:** [recall-t49-03](#recall-t49-03).
@@ -152124,7 +152124,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service.
+- Check service conservation and exact timelines: SRTF completes B at 3, C at 4 and A at 11; explain the tie at 2. Report response, turnaround and waiting time without counting idle time as service.
 - zero quantum; empty workload; simultaneous arrivals; completion at quantum boundary; idle gap; arithmetic overflow.
 
 **Recall before reopening source:** [recall-t49-03](#recall-t49-03).
@@ -152159,7 +152159,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service.
+- Check service conservation and exact timelines: SRTF completes B at 3, C at 4 and A at 11; explain the tie at 2. Report response, turnaround and waiting time without counting idle time as service.
 - zero quantum; empty workload; simultaneous arrivals; completion at quantum boundary; idle gap; arithmetic overflow.
 
 **Recall before reopening source:** [recall-t49-03](#recall-t49-03).
@@ -152194,7 +152194,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service.
+- Check service conservation and exact timelines: SRTF completes B at 3, C at 4 and A at 11; explain the tie at 2. Report response, turnaround and waiting time without counting idle time as service.
 - zero quantum; empty workload; simultaneous arrivals; completion at quantum boundary; idle gap; arithmetic overflow.
 
 **Recall before reopening source:** [recall-t49-03](#recall-t49-03).
@@ -152250,7 +152250,7 @@ Exercise each named case deliberately. A timeout in the harness reports a failur
 
 ## Acceptance and evidence
 
-Check service conservation and exact timelines: SRTF completes B at3, C at4 and A at11; explain the tie at2. Report response, turnaround and waiting time without counting idle time as service.
+Check service conservation and exact timelines: SRTF completes B at 3, C at 4 and A at 11; explain the tie at 2. Report response, turnaround and waiting time without counting idle time as service.
 
 For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
 
@@ -152714,7 +152714,7 @@ Use two interleaved reference windows with identical total bytes and different l
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
-**Engineering question:** Which assumption in Page replacement from a reference string determines the allowed transition, and how will Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO. be demonstrated?
+**Engineering question:** Which assumption in Page replacement from a reference string determines the allowed transition, and how will Independently derive FIFO fault counts 9 and 10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO. be demonstrated?
 
 <a id="u-t49-06-01"></a>
 ### U-T49-06-01 — Build and inspect: Page replacement from a reference string
@@ -152733,7 +152733,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
+- Independently derive FIFO fault counts 9 and 10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
 - evicting a free frame; wrong LRU update on hit; CLOCK hand never advancing; capacity zero; using future information in LRU.
 
 **Recall before reopening source:** [recall-t49-06](#recall-t49-06).
@@ -152768,7 +152768,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
+- Independently derive FIFO fault counts 9 and 10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
 - evicting a free frame; wrong LRU update on hit; CLOCK hand never advancing; capacity zero; using future information in LRU.
 
 **Recall before reopening source:** [recall-t49-06](#recall-t49-06).
@@ -152803,7 +152803,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
+- Independently derive FIFO fault counts 9 and 10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
 - evicting a free frame; wrong LRU update on hit; CLOCK hand never advancing; capacity zero; using future information in LRU.
 
 **Recall before reopening source:** [recall-t49-06](#recall-t49-06).
@@ -152838,7 +152838,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
+- Independently derive FIFO fault counts 9 and 10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
 - evicting a free frame; wrong LRU update on hit; CLOCK hand never advancing; capacity zero; using future information in LRU.
 
 **Recall before reopening source:** [recall-t49-06](#recall-t49-06).
@@ -152894,7 +152894,7 @@ Exercise each named case deliberately. A timeout in the harness reports a failur
 
 ## Acceptance and evidence
 
-Independently derive FIFO fault counts9 and10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
+Independently derive FIFO fault counts 9 and 10 for three and four frames. Verify resident uniqueness and capacity after every step, and explain why more frames need not improve FIFO.
 
 For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
 
@@ -153835,11 +153835,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -153873,11 +153873,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -153909,11 +153909,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154045,11 +154045,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154083,11 +154083,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154119,11 +154119,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154260,11 +154260,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154298,11 +154298,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154336,11 +154336,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154372,11 +154372,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154498,11 +154498,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154536,11 +154536,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154574,11 +154574,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154701,7 +154701,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 
 **Check and stop:**
 
-- Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
+- Demonstrate releases at 10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
 - clock wrap; already-due deadline; simultaneous expiry; canceled timer reused; zero delay; requested distance at or beyond half range.
 
 **Recall before reopening source:** [recall-t50-05](#recall-t50-05).
@@ -154712,11 +154712,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154739,7 +154739,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
+- Demonstrate releases at 10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
 - clock wrap; already-due deadline; simultaneous expiry; canceled timer reused; zero delay; requested distance at or beyond half range.
 
 **Recall before reopening source:** [recall-t50-05](#recall-t50-05).
@@ -154750,11 +154750,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154777,7 +154777,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 **Check and stop:**
 
-- Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
+- Demonstrate releases at 10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
 - clock wrap; already-due deadline; simultaneous expiry; canceled timer reused; zero delay; requested distance at or beyond half range.
 
 **Recall before reopening source:** [recall-t50-05](#recall-t50-05).
@@ -154788,11 +154788,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154838,7 +154838,7 @@ Exercise each named case deliberately. A timeout in the harness reports a failur
 
 ## Acceptance and evidence
 
-Demonstrate releases at10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
+Demonstrate releases at 10,20,30 for phase-preserving scheduling despite varying work duration, and explain drift in the alternative. Preserve rollover and cancellation traces.
 
 For each objective, retain the concrete source location, raw trace, independent expectation and explanation. A reviewer should be able to reproduce the fault and observe its repair without trusting a summary marker. Disassembly and linker evidence accompany freestanding claims; actual board measurements remain separate from host and emulator observations.
 
@@ -154925,11 +154925,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -154963,11 +154963,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155001,11 +155001,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155041,11 +155041,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155167,11 +155167,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155205,11 +155205,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155241,11 +155241,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155375,11 +155375,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155413,11 +155413,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155449,11 +155449,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155575,11 +155575,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155613,11 +155613,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155651,11 +155651,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155687,11 +155687,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155819,11 +155819,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155857,11 +155857,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -155893,11 +155893,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -156023,11 +156023,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -156061,11 +156061,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -156097,11 +156097,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -156222,11 +156222,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -156260,11 +156260,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -156298,11 +156298,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -156338,11 +156338,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 4.4.1 and 4.6.3 introductory paragraphs: TCB and context switching. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-FREERTOS-CM4F-1120](#r-freertos-cm4f-1120): xPortPendSVHandler. Exposes real Cortex-M4F interrupt priority assertions, context-save operations and timer configuration rather than relying on a generic RTOS explanation.
-- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
+- [R-OS3-ARM-DAI0298A](#r-os3-arm-dai0298a): Printed pp.4 and 15: FP frame ownership and PendSV. Ground the integer-versus-FP context split and deferred switching.
 - [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.24-26 mask/CONTROL registers. Explain thread/handler privilege, stack selection and masks before implementing blocking-call guards.
-- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
+- [R-OS3-ST-PM0214-R10](#r-os3-st-pm0214-r10): pp.42-44 section 2.3.7 exception entry/return and frame. Construct and inspect the initial exception frame and restore path.
 - [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): VFP register usage conventions: s16-s31. Derive the floating-point preservation test from the ABI.
-- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo8. Check stack alignment at original assembly/C call boundaries.
+- [R-OS3-ARM-AAPCS32](#r-os3-arm-aapcs32): Stack constraints at a public interface: SP modulo 8. Check stack alignment at original assembly/C call boundaries.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
 
@@ -161132,7 +161132,7 @@ First identify the invariant violated, then reduce the schedule to the shortest 
 
 ## Transfer challenge
 
-Change the tick width to16 and keep the same real-time horizon requirement. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
+Change the tick width to 16 and keep the same real-time horizon requirement. Attempt the variant after at least seven days. Predict the changed result before recompiling and explain whether the original argument still applies.
 
 ## Supplied fixtures
 
@@ -161437,7 +161437,7 @@ The original project is the coverage and budget envelope. Follow these v4 units 
 **Check and stop:**
 
 - Derive a concrete miss from the timeline and distinguish partitioned, global and clustered policy assumptions. Include CPU-ownership and service-conservation checks.
-- one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most2 treated sufficient; deadline tie hides counterexample.
+- one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most 2 treated sufficient; deadline tie hides counterexample.
 
 **Recall before reopening source:** [recall-t52-10](#recall-t52-10).
 
@@ -161476,7 +161476,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Derive a concrete miss from the timeline and distinguish partitioned, global and clustered policy assumptions. Include CPU-ownership and service-conservation checks.
-- one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most2 treated sufficient; deadline tie hides counterexample.
+- one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most 2 treated sufficient; deadline tie hides counterexample.
 
 **Recall before reopening source:** [recall-t52-10](#recall-t52-10).
 
@@ -161515,7 +161515,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 **Check and stop:**
 
 - Derive a concrete miss from the timeline and distinguish partitioned, global and clustered policy assumptions. Include CPU-ownership and service-conservation checks.
-- one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most2 treated sufficient; deadline tie hides counterexample.
+- one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most 2 treated sufficient; deadline tie hides counterexample.
 
 **Recall before reopening source:** [recall-t52-10](#recall-t52-10).
 
@@ -161572,7 +161572,7 @@ Before running, draw the transition or ownership diagram and predict the first o
 
 ## Failure cases
 
-one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most2 treated sufficient; deadline tie hides counterexample.
+one job runs on two CPUs simultaneously; task migration cost ignored; global utilization at most 2 treated sufficient; deadline tie hides counterexample.
 
 Exercise each named case deliberately. A timeout in the harness reports a failure to establish progress, not a successful timeout implementation. Avoid logging inside the measured critical path unless its cost is included.
 
@@ -162100,11 +162100,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -162140,11 +162140,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -162182,11 +162182,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -162327,11 +162327,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -162367,11 +162367,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -162409,11 +162409,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -162564,11 +162564,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -162604,11 +162604,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -162644,11 +162644,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -162686,11 +162686,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -162824,11 +162824,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -162864,11 +162864,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -162906,11 +162906,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163047,11 +163047,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163087,11 +163087,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163129,11 +163129,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163266,11 +163266,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163306,11 +163306,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163346,11 +163346,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163388,11 +163388,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163529,11 +163529,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163569,11 +163569,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163611,11 +163611,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163748,11 +163748,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163788,11 +163788,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163830,11 +163830,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -163963,11 +163963,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164003,11 +164003,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164043,11 +164043,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164085,11 +164085,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164234,11 +164234,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164274,11 +164274,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164316,11 +164316,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164471,11 +164471,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164511,11 +164511,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164553,11 +164553,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164713,11 +164713,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164753,11 +164753,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164793,11 +164793,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164835,11 +164835,11 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-OSPP-II](#r-os3-ospp-ii): 7.2 introductory paragraphs: multiprocessor scheduling. Main conceptual spine for execution context, blocking and multicore policy/mechanism separation.
 - [R-OS3-MCS-1991](#r-os3-mcs-1991): Pseudocode: test-and-set, ticket and MCS locks. Compare contention costs and queue-node ownership across lock designs.
 - [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.5.3 RSDP; 5.2.6 table header. Derive safe root/table extent and checksum validation before walking firmware bytes.
-- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
-- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
+- [R-OS3-ACPI66-MADT](#r-os3-acpi66-madt): 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2. Decode processor/APIC identities and reject malformed or disabled records.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI. Justify the low-memory trampoline and BSP/AP startup responsibilities.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.5.4, printed 10-16–10-17: APIC timer. Decode timer fields and distinguish logical interrupts from calibrated time.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI. Explain IPI destination and delivery before testing remote reschedule.
+- [R-OS3-INTEL3A-SMP060](#r-os3-intel3a-smp060): 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG. State the local invalidation boundary and derive the remote acknowledgment requirement.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -164988,10 +164988,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165027,10 +165027,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165068,10 +165068,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165205,10 +165205,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165244,10 +165244,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165285,10 +165285,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165427,10 +165427,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165466,10 +165466,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165505,10 +165505,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165546,10 +165546,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165674,10 +165674,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165713,10 +165713,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165754,10 +165754,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165888,10 +165888,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165927,10 +165927,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -165968,10 +165968,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166096,10 +166096,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166135,10 +166135,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166174,10 +166174,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166217,10 +166217,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166352,10 +166352,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166391,10 +166391,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166432,10 +166432,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166556,10 +166556,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166595,10 +166595,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166636,10 +166636,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166774,10 +166774,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166813,10 +166813,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166852,10 +166852,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -166893,10 +166893,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -167028,10 +167028,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -167067,10 +167067,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -167108,10 +167108,10 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 2.1-2.2 Use cases, shared memory and notification. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN5617](#r-os3-st-an5617): 3.3.1-3.3.3 HSEM, EXTI/SEV and DMA. Explain separate images, ownership and authoritative queue state versus notifications.
 - [R-OS3-ST-AN4839](#r-os3-st-an4839): 3.1-3.2 Default settings and cache maintenance/data coherency example. Separate cache visibility, barriers and DMA ownership.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
-- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.138 table 7; pp.142-144 memory/boot; p.362 hold boot. Justify private/shared memory placement and controlled secondary-core boot.
+- [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42. Decode boot and SRAM/peripheral allocation registers against the linker/board contract.
 - [R-OS3-ST-RM0399-R4](#r-os3-st-rm0399-r4): pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows. Implement owned HSEM release notifications and acknowledge the correct per-core interrupt.
-- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections4.6.4-4.6.8, especially table91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
+- [R-OS3-ST-PM0253-R5](#r-os3-st-pm0253-r5): pp.226-230 sections 4.6.4-4.6.8, especially table 91. Derive the baseline noncacheable shared-region MPU attributes and cold-reset assumptions.
 - [R-OS3-ST-H745-HEADER](#r-os3-st-h745-header): IRQ enum HSEM1/2; RCC GCR/AHB2ENR/AHB4ENR struct offsets; HSEM R/RLR and common structs. Cross-check IRQ numbers and register offsets against pinned primary definitions.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer; independent physical target observations for board claims; image builds alone do not close this gate.
@@ -167244,7 +167244,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -167279,7 +167279,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -167314,7 +167314,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -167438,7 +167438,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -167473,7 +167473,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -167506,7 +167506,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -167649,7 +167649,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -167684,7 +167684,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -167719,7 +167719,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -167752,7 +167752,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -167875,7 +167875,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -167910,7 +167910,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -167943,7 +167943,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168078,7 +168078,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168113,7 +168113,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168146,7 +168146,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168281,7 +168281,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168316,7 +168316,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168351,7 +168351,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168384,7 +168384,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168532,7 +168532,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168567,7 +168567,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168600,7 +168600,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168742,7 +168742,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168777,7 +168777,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168810,7 +168810,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168943,7 +168943,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -168978,7 +168978,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -169013,7 +169013,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -169046,7 +169046,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -169184,7 +169184,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -169219,7 +169219,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -169252,7 +169252,7 @@ This increment uses the observed trace or artifact checks above. Later family ga
 - [R-SYS-MICHAEL-SCOTT-1996](#r-sys-michael-scott-1996): §3.1 Safety. A compact algorithm case study exposes safety invariants, CAS linearization points, helping and ABA-related assumptions.
 - [R-OS3-MS-CORRECTED](#r-os3-ms-corrected): Memory-management assumptions and corrected non-blocking pseudocode. Prevent unsafe transplantation of an algorithm whose node-lifetime assumptions were omitted.
 - [R-OS3-HAZARD-2004](#r-os3-hazard-2004): Printed p.492: hazard ownership and retire/scan methodology. Introduce reclamation as a separate obligation from a queue linearization argument.
-- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
+- [R-OS3-HERLIHY-WING-1990](#r-os3-herlihy-wing-1990): Printed pp.465-467: FIFO histories and Section 2.1 histories. Ground the observable history contract and distinguish legal overlap from FIFO violations.
 
 **Remaining obligations:** mechanism explanation; independent changed-condition evidence; delayed transfer.
 
@@ -172106,7 +172106,7 @@ Processor-level memory ordering, exception and fault semantics for the Cortex-M4
 
 **Check date:** 2026-10-09. **Method:** Official PDF capture with SHA-256 and bounded passage extraction; Reuse of previously accepted actual bounded inspection; no new assigned source scope.
 
-Printed pp. 2-13–2-15 and 2-30–2-31, plus front matter Authoring addendum inspected printed pp.2-24–2-28: priority convention/grouping and actual basic/extended frame and EXC_RETURN descriptions/table. Enhancement inspection: Exact same hashed DUI0553B; PDF pages 65–67, 71–75, 88–89, 96, 166–167; printed 3-18–3-20, 3-24–3-28, 3-41–3-42, 3-49, 3-119–3-120. PDF68/printed3-21 read for .N/.W selection and assembler errors. Additional independent researcher scope: Printed pp. 2-13–2-15 and 2-30–2-31, plus front matter Authoring addendum inspected printed pp.2-24–2-28: priority convention/grouping and actual basic/extended frame and EXC_RETURN descriptions/table. Additional independent researcher scope: Printed pp. 2-13–2-15 and 2-30–2-31, plus front matter Authoring addendum inspected printed pp.2-24–2-28: priority convention/grouping and actual basic/extended frame and EXC_RETURN descriptions/table. Enhancement inspection: Exact same hashed DUI0553B; PDF pages 65–67, 71–75, 88–89, 96, 166–167; printed 3-18–3-20, 3-24–3-28, 3-41–3-42, 3-49, 3-119–3-120. PDF68/printed3-21 read for .N/.W selection and assembler errors. Additional independent researcher scope: Reused already accepted actual same-hash printed pp. 2-24–2-28 and 2-30–2-31; basic/extended frames, return and fault status/address validity. No new register recipe.
+Printed pp. 2-13–2-15 and 2-30–2-31, plus front matter Authoring addendum inspected printed pp.2-24–2-28: priority convention/grouping and actual basic/extended frame and EXC_RETURN descriptions/table. Enhancement inspection: Exact same hashed DUI0553B; PDF pages 65–67, 71–75, 88–89, 96, 166–167; printed 3-18–3-20, 3-24–3-28, 3-41–3-42, 3-49, 3-119–3-120. PDF 68/printed3-21 read for .N/.W selection and assembler errors. Additional independent researcher scope: Printed pp. 2-13–2-15 and 2-30–2-31, plus front matter Authoring addendum inspected printed pp.2-24–2-28: priority convention/grouping and actual basic/extended frame and EXC_RETURN descriptions/table. Additional independent researcher scope: Printed pp. 2-13–2-15 and 2-30–2-31, plus front matter Authoring addendum inspected printed pp.2-24–2-28: priority convention/grouping and actual basic/extended frame and EXC_RETURN descriptions/table. Enhancement inspection: Exact same hashed DUI0553B; PDF pages 65–67, 71–75, 88–89, 96, 166–167; printed 3-18–3-20, 3-24–3-28, 3-41–3-42, 3-49, 3-119–3-120. PDF 68/printed3-21 read for .N/.W selection and assembler errors. Additional independent researcher scope: Reused already accepted actual same-hash printed pp. 2-24–2-28 and 2-30–2-31; basic/extended frames, return and fault status/address validity. No new register recipe.
 
 **Limits:** Generic core document; optional features and device integration require ST evidence. Publication year is not inferred from copyright or identifier. Read barrier instruction definitions before using the overview as a complete ordering specification. Thumb on Cortex-M4, not AArch64/A32. The x86 borrow CF and Arm no-borrow C have different subtraction meanings. Current device errata and enabled core features remain separate evidence. Additional independent researcher limits: Generic core document; optional features and device integration require ST evidence. Publication year is not inferred from copyright or identifier. Read barrier instruction definitions before using the overview as a complete ordering specification. Additional independent researcher limits: Generic core document; optional features and device integration require ST evidence. Publication year is not inferred from copyright or identifier. Read barrier instruction definitions before using the overview as a complete ordering specification. Thumb on Cortex-M4, not AArch64/A32. The x86 borrow CF and Arm no-borrow C have different subtraction meanings. Current device errata and enabled core features remain separate evidence. Additional independent researcher limits: Core scope only. A damaged frame or imprecise fault can limit causal attribution; current device configuration/errata and physical observations remain separate. No MPU guard configuration is assigned from these passages.
 
@@ -172392,7 +172392,7 @@ Explains why ISO CAN FD changes CRC lengths, dynamic/fixed stuffing and the prot
 
 Actual selected printed pp.2–3, CRC/ACK/stuff-rule/stuff-count descriptions.
 
-**Limits:** Historical paper explaining ISO-standardization changes, subordinate to selected ISO11898-1:2024 clauses. No complete FD encoder assignment or blanket error-detection guarantee derived from a Hamming-distance result; fixed-codeword assumptions matter. Pre-ISO Bosch2013 framing is not the current FD oracle.
+**Limits:** Historical paper explaining ISO-standardization changes, subordinate to selected ISO 11898-1:2024 clauses. No complete FD encoder assignment or blanket error-detection guarantee derived from a Hamming-distance result; fixed-codeword assumptions matter. Pre-ISO Bosch2013 framing is not the current FD oracle.
 
 ## Teaching backlinks
 
@@ -172618,9 +172618,9 @@ Bounded independent reference for the declared reflected CRC-32 recurrence and p
 
 **Check date:** 2026-10-09. **Method:** Actual official RFC web passage inspection during necessary focused authoring follow-up.
 
-Actual section8, printed pp.11–12; polynomial0xedb88320, unsigned shifts, byte update and internal ones-complement conditioning.
+Actual section 8, printed pp.11–12; polynomial 0xedb88320, unsigned shifts, byte update and internal ones-complement conditioning.
 
-**Limits:** Informational gzip appendix is a CRC algorithm reference, not normative Ethernet framing or wire serialization. The original fixture declares its CRC parameters and separately uses the inspected ST frame/FCS coverage boundary. No gzip implementation, full ISO3309/ITU-V42 or IEEE802.3 inspection is claimed.
+**Limits:** Informational gzip appendix is a CRC algorithm reference, not normative Ethernet framing or wire serialization. The original fixture declares its CRC parameters and separately uses the inspected ST frame/FCS coverage boundary. No gzip implementation, full ISO 3309/ITU-V42 or IEEE 802.3 inspection is claimed.
 
 ## Teaching backlinks
 
@@ -172659,7 +172659,7 @@ Current board-document lead for revision comparison; not an assigned board pin o
 
 Actual front/title/Introduction/contents show this revision and included NUCLEO-F439ZI. Ethernet7.11 is a contents lead only, not inspected functional scope.
 
-**Limits:** Deep actual-page opens/downloads timed out; no captured PDF identity/hash. A guessed alternate URL returned HTML and was rejected. Use independently inspected Rev8 Ethernet6.11/Table11 and actual matching board revision for declared physical lab, without claiming Rev11 equivalence.
+**Limits:** Deep actual-page opens/downloads timed out; no captured PDF identity/hash. A guessed alternate URL returned HTML and was rejected. Use independently inspected Rev 8 Ethernet6.11/Table11 and actual matching board revision for declared physical lab, without claiming Rev 11 equivalence.
 
 ## Teaching backlinks
 
@@ -172902,7 +172902,7 @@ Defines integer argument/scratch versus callee-preserved registers and required 
 
 **Check date:** 2026-10-09. **Method:** Pinned primary-source capture with SHA-256 and bounded text inspection.
 
-Pinned release rawRST lines791–892 and1048–1093, registertable/preservation and word/double-word stack alignment.
+Pinned release rawRST lines 791–892 and 1048–1093, registertable/preservation and word/double-word stack alignment.
 
 **Limits:** Use base scalar integer/pointer PCS with compiler flags recorded. FP/VFP and vector variants, aggregates, variadic classification, exception-specific preservation and platforms usingr9 specially are not silently included.
 
@@ -172948,7 +172948,7 @@ Provides the actual Thumb halfword-width discriminator and a bounded compare enc
 
 **Check date:** 2026-10-09. **Method:** Pinned primary-source capture with SHA-256 and bounded text inspection; Actual bounded primary passages inspected; capture or held ordinary PDF bytes SHA-256 pinned privately.
 
-Pinned official PDF; front/change history, PDF/printedA5-126 andA7-223. CMP page rendered locally and bitfield diagram visually inspected. Additional independent researcher scope: Same pinned official DDI0403E.e PDF independently extracted PDF/printed699,706–707 and731–742. Actual DEMCR summary/characteristics/TRCENA field, DWT address summary and printed C1-731, C1-737–C1-739 andC1-741 bodies/fields read. CYCCNT is optional,32-bit, processor-clock-driven, wraps, and pauses in Debug state; enable bits and selected register addresses checked. DWT reads are UNKNOWN while DEMCR.TRCENA is clear. Additional independent researcher scope: New actual same-hash PDF/printed pp. 719 and 730: implemented comparator count/features, address matching, debug enable condition and asynchronous watchpoint event; excerpted pages pinned privately.
+Pinned official PDF; front/change history, PDF/printedA5-126 andA7-223. CMP page rendered locally and bitfield diagram visually inspected. Additional independent researcher scope: Same pinned official DDI0403E.e PDF independently extracted PDF/printed699,706–707 and 731–742. Actual DEMCR summary/characteristics/TRCENA field, DWT address summary and printed C1-731, C1-737–C1-739 andC1-741 bodies/fields read. CYCCNT is optional,32-bit, processor-clock-driven, wraps, and pauses in Debug state; enable bits and selected register addresses checked. DWT reads are UNKNOWN while DEMCR.TRCENA is clear. Additional independent researcher scope: New actual same-hash PDF/printed pp. 719 and 730: implemented comparator count/features, address matching, debug enable condition and asynchronous watchpoint event; excerpted pages pinned privately.
 
 **Limits:** Only T1 immediate compare and width/PC overview are assigned. T2 modified-immediate expansion and other encoding families require further focused inspection; the manual includes optional extensions that are not automatically present in a selected Cortex-M4. Additional independent researcher limits: Core architecture allows optional features. Presence, access permission, MCU clock gating, board clock accuracy, interrupt load and device errata require the selected implementation. A finite wrap worksheet or emulator is not a measured silicon or WCET certificate. Additional independent researcher limits: Bounded two-page scope, not every DWT register. Features are implementation-defined and must be discovered. Independent DMA accesses are outside this assigned core-watch contract; no DMA-detection claim. No direct comparator bit-programming task is assigned.
 
@@ -172980,15 +172980,15 @@ Original paper’s settled/frontier/unseen sets and improving tentative paths su
 
 ## Inspected reading locators
 
-- Problem1 — minimum total length tree
-- Problem2 — minimum total length path
-- Problem2 Remarks1–2
+- Problem 1 — minimum total length tree
+- Problem 2 — minimum total length path
+- Problem 2 Remarks 1–2
 
 ## Evidence and limits
 
 **Check date:** 2026-10-09. **Method:** Pinned primary-source capture with SHA-256 and bounded text inspection.
 
-CWI institutional original scan downloaded/hash pinned; all3pages/printed269–271 text inspected.
+CWI institutional original scan downloaded/hash pinned; all3 pages/printed269–271 text inspected.
 
 **Limits:** Historical connected-graph presentation and tentative-label mechanics, not modern C code or a heap complexity derivation. Educational adaptation must explicitly require nonnegative weights, checked finite-distance addition, deterministic ties and disconnected handling.
 
@@ -173029,9 +173029,9 @@ Connects measured time to instruction counts/CPI, Amdahl limits, cache miss cost
 
 **Check date:** 2026-10-09. **Method:** Held edition identity and bounded private PDF text inspection.
 
-Held edition/front matter verified; PDF80–86,721–724,784–789. PDF713–715 and729–730 read for cache placement/tag/index/LRU and miss categories. Additional independent researcher scope: Reuse of previously actually inspected held PDF80–86 and721–724 with matching stable document ID/hash; existing inspection evidence is retained by the common registry merger.
+Held edition/front matter verified; PDF 80–86,721–724,784–789. PDF 713–715 and 729–730 read for cache placement/tag/index/LRU and miss categories. Additional independent researcher scope: Reuse of previously actually inspected held PDF 80–86 and 721–724 with matching stable document ID/hash; existing inspection evidence is retained by the common registry merger.
 
-**Limits:** Publisher specifies23Nov2017 for thisISBN; held copyright2019 is retained as edition evidence and is not a publication date. Some printed examples have inconsistent numeric inputs (4GHz paired with0.5ns; cache penalty100 then200); use dimensionally checked original fixtures, not those numbers. Simple RISC pipeline/AMAT is not a Cortex-M4 or modern x86 timing specification. Additional independent researcher limits: Same sixth-edition identity; publisher date2017 differs from held copyright2019. Existing numeric inconsistencies (4GHz paired with0.5ns; penalty100 then200) are excluded from original fixtures. Weighted instruction/CPI and simple stall equations do not specify modern x86 or Cortex-M4 execution time.
+**Limits:** Publisher specifies23Nov2017 for thisISBN; held copyright2019 is retained as edition evidence and is not a publication date. Some printed examples have inconsistent numeric inputs (4GHz paired with 0.5ns; cache penalty 100 then 200); use dimensionally checked original fixtures, not those numbers. Simple RISC pipeline/AMAT is not a Cortex-M4 or modern x86 timing specification. Additional independent researcher limits: Same sixth-edition identity; publisher date2017 differs from held copyright2019. Existing numeric inconsistencies (4GHz paired with 0.5ns; penalty 100 then 200) are excluded from original fixtures. Weighted instruction/CPI and simple stall equations do not specify modern x86 or Cortex-M4 execution time.
 
 ## Teaching backlinks
 
@@ -173043,11 +173043,11 @@ Held edition/front matter verified; PDF80–86,721–724,784–789. PDF713–715
 
 <a id="r-enh-intel-sdm1-093"></a>
 
-# Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume1: Basic Architecture
+# Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume 1: Basic Architecture
 
 **Authors/maintainers:** Intel.
 
-**Edition/version:** Order253665, revision093. **Year:** 2026.
+**Edition/version:** Order 253665, revision 093. **Year:** 2026.
 
 **Role:** oracle. **Access:** Public primary source.
 
@@ -173061,16 +173061,16 @@ Defines partial-register effects, status flags and effective addresses for hand-
 
 ## Inspected reading locators
 
-- 3.4.1.1 General-Purpose Registers in64-Bit Mode
+- 3.4.1.1 General-Purpose Registers in 64-Bit Mode
 - 3.4.3.1 Status Flags
 - 3.7.5 Specifying an Offset
-- 3.7.5.1 Specifying an Offset in64-Bit Mode
+- 3.7.5.1 Specifying an Offset in 64-Bit Mode
 
 ## Evidence and limits
 
 **Check date:** 2026-10-09. **Method:** Pinned primary-source capture with SHA-256 and bounded text inspection.
 
-Official Intel page identifies version093; captured volume front and PDF75–81,86–88; assignments limited to named subsections, printed3-12–3-13,3-16–3-17,3-22–3-24.
+Official Intel page identifies version 093; captured volume front and PDF 75–81,86–88; assignments limited to named subsections, printed 3-12–3-13,3-16–3-17,3-22–3-24.
 
 **Limits:** Instruction semantics and address calculation are not timing guarantees or C object permissions. Other processor modes, vector features and privileged operations are outside the kernel scope.
 
@@ -173084,11 +173084,11 @@ Official Intel page identifies version093; captured volume front and PDF75–81,
 
 <a id="r-enh-intel-sdm2a-093"></a>
 
-# Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume2A: Instruction Set Reference A-L
+# Intel 64 and IA-32 Architectures Software Developer’s Manual, Volume 2A: Instruction Set Reference A-L
 
 **Authors/maintainers:** Intel.
 
-**Edition/version:** Order253666, revision093. **Year:** 2026.
+**Edition/version:** Order 253666, revision 093. **Year:** 2026.
 
 **Role:** oracle. **Access:** Public primary source.
 
@@ -173102,14 +173102,14 @@ Makes compare widths, immediate sign extension and signed/unsigned branch predic
 
 ## Inspected reading locators
 
-- CMP—Compare Two Operands, printed3-161–3-162
-- Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed3-499 and3-502
+- CMP—Compare Two Operands, printed 3-161–3-162
+- Jcc—Jump if Condition Is Met — rel8 predicates and Description, printed 3-499 and 3-502
 
 ## Evidence and limits
 
 **Check date:** 2026-10-09. **Method:** Pinned primary-source capture with SHA-256 and bounded text inspection.
 
-Captured official volume; PDF279–280 and617–620, bounded CMP definition and Jcc rel8table/description read.
+Captured official volume; PDF 279–280 and 617–620, bounded CMP definition and Jcc rel8table/description read.
 
 **Limits:** No execution timing claim. No full instruction-set reading; unsupported instruction families require focused inspection. Machine register overflow is not permission for signed overflow in C.
 
@@ -173146,7 +173146,7 @@ Algorithm E supplies a small state transition, gcd-preservation argument and dec
 
 **Check date:** 2026-10-09. **Method:** Held edition identity and bounded private PDF text inspection.
 
-Held title/copyright/CIP identity plus PDF pages24–29 (printed2–7).
+Held title/copyright/CIP identity plus PDF pages 24–29 (printed 2–7).
 
 **Limits:** MIX and later chapters are not assigned or inspected here. Euclid is ancient; Knuth is an inspected exposition and foundational text, not the inventor of gcd. Exact mathematical integers do not supply C overflow semantics.
 
@@ -173177,15 +173177,15 @@ Derives a full adder from truth tables, ripple-carry subtraction and flags, then
 
 ## Inspected reading locators
 
-- Chapter6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed108–114
-- Chapter9 Central Processing Unit — Instruction Execution Cycle, printed170–172
-- Chapter7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed136–139
+- Chapter 6 Combinational Logic Circuits — Half Adder, Full Adder, Full Adder from Two Half Adders, Ripple-Carry Addition and Subtraction Circuits, printed 108–114
+- Chapter 9 Central Processing Unit — Instruction Execution Cycle, printed 170–172
+- Chapter 7 Sequential Logic Circuits — Flip-Flops, Clocks, D Flip-Flop, printed 136–139
 
 ## Evidence and limits
 
 **Check date:** 2026-10-09. **Method:** Held edition identity and bounded private PDF text inspection.
 
-Held PDF136–142 and198–200; front matter title/ISBN/first printing inspected. PDF164–167 read for clocked state, setup/hold and D flip-flop mechanism.
+Held PDF 136–142 and 198–200; front matter title/ISBN/first printing inspected. PDF 164–167 read for clocked state, setup/hold and D flip-flop mechanism.
 
 **Limits:** The book uses AArch64/A64. Its fixed32-bit instructions,31general registers and PC descriptions must not be used as Thumb authority. Publisher specifiesDecember2024; held copyright2025 is not substituted for publication year. Decoder discussion after the assigned adder passage contains a31register/4bit mismatch; derive own widths independently.
 
@@ -173611,7 +173611,7 @@ Gives a concrete host/evaluation-board/target testing progression and explicit d
 
 **Check date:** 2026-10-04. **Method:** Local title/front matter and bounded PDF passage inspection; publisher metadata search; Local title/front matter and bounded PDF passage inspection; publisher metadata search T44 held payload hash independently checked against current metadata..
 
-Printed pp. 108–111; stages, compatibility checks and target acceptance T44 reinspection: held PDF physical pages108–111 contain printed pages108–111 in this exact payload (visible running page numbers independently checked; zero offset for these pages), including 5.4 The Embedded TDD Cycle, plus title/front matter. These coincident page numbers are not assumed for other editions.
+Printed pp. 108–111; stages, compatibility checks and target acceptance T44 reinspection: held PDF physical pages 108–111 contain printed pages 108–111 in this exact payload (visible running page numbers independently checked; zero offset for these pages), including 5.4 The Embedded TDD Cycle, plus title/front matter. These coincident page numbers are not assumed for other editions.
 
 **Limits:** Host tests and simulator runs do not establish actual peripheral behavior. Historical tooling references require current commands. This inspection supports the strategy passages, not all mock-driver chapters.
 
@@ -173910,7 +173910,7 @@ Actual V11.2.0 tasks.c lines 6364–6455, task.h lines 1804–1864 and complete 
 
 **Authors/maintainers:** Linux man-pages project contributors.
 
-**Edition/version:** Linux man-pages6.19; page2026-02-08; HTML capture2026-10-09. **Year:** 2026.
+**Edition/version:** Linux man-pages 6.19; page 2026-02-08; HTML capture 2026-10-09. **Year:** 2026.
 
 **Role:** primary. **Access:** Public primary man-pages rendering.
 
@@ -174174,7 +174174,7 @@ Visual cross-check of MAC service, reconciliation and PHY/media boundary termino
 
 Actual slide 10 architecture and MAC service data fields.
 
-**Limits:** Study-group presentation, not the normative IEEE802.3 standard and not approval of proposed metadata behavior. Used only for architecture terminology; actual F439 frame/PHY contracts come from vendor manuals.
+**Limits:** Study-group presentation, not the normative IEEE 802.3 standard and not approval of proposed metadata behavior. Used only for architecture terminology; actual F439 frame/PHY contracts come from vendor manuals.
 
 ## Teaching backlinks
 
@@ -174267,7 +174267,7 @@ Primary hosted adapter contracts for nonblocking accept/recv/send, EOF, EAGAIN, 
 
 **Check date:** 2026-10-09. **Method:** Actual bounded primary-document passage inspection.
 
-Actual selected passages of four Linux primary manual pages, displayed version6.19. EOF after buffered data, noninheritance of O_NONBLOCK and per-call SIGPIPE suppression inspected.
+Actual selected passages of four Linux primary manual pages, displayed version 6.19. EOF after buffered data, noninheritance of O_NONBLOCK and per-call SIGPIPE suppression inspected.
 
 **Limits:** Linux profile, not a promise across every POSIX implementation. Readiness can race; send success is local acceptance rather than peer application consumption. Real OS execution remains an acceptance activity.
 
@@ -174460,7 +174460,7 @@ Supplies the exact inspected protocol contract or the stated conformance boundar
 
 **Check date:** 2026-10-09. **Method:** Official RFC text capture, exact SHA-256 and bounded actual passage inspection.
 
-Actual SRTT/RTTVAR update order, initial/minimum one second, max cap at least60s, retransmission timer and no ambiguous retransmitted RTT sample.
+Actual SRTT/RTTVAR update order, initial/minimum one second, max cap at least 60s, retransmission timer and no ambiguous retransmitted RTT sample.
 
 **Limits:** Project may abort after a stated resource timeout, but does not silently replace normative timer computation by a small capped fixed timer.
 
@@ -174539,7 +174539,7 @@ Supplies the exact inspected protocol contract or the stated conformance boundar
 
 Actual IPv4 fixed header length/flags/TTL/protocol/header checksum and options implementation requirement.
 
-**Limits:** Old Type-of-Service encoding is not taught as current DSCP/ECN. RFC6864 updates ID semantics. Dropping options/fragments is an explicit restricted lab deviation, not a conforming full Internet host.
+**Limits:** Old Type-of-Service encoding is not taught as current DSCP/ECN. RFC 6864 updates ID semantics. Dropping options/fragments is an explicit restricted lab deviation, not a conforming full Internet host.
 
 ## Teaching backlinks
 
@@ -174713,7 +174713,7 @@ Supplies the exact inspected protocol contract or the stated conformance boundar
 
 Actual octet grammar, request target, complete selected framing/chunking, persistence/order/teardown and smuggling passages.
 
-**Limits:** RFC Editor marks updated by RFC9931 (March2026), separately inspected. Project subset is not a complete proxy, TLS, upgrade or general HTTP implementation.
+**Limits:** RFC Editor marks updated by RFC 9931 (March 2026), separately inspected. Project subset is not a complete proxy, TLS, upgrade or general HTTP implementation.
 
 ## Teaching backlinks
 
@@ -174758,9 +174758,9 @@ Supplies the exact inspected protocol contract or the stated conformance boundar
 
 **Check date:** 2026-10-09. **Method:** Official RFC text capture, exact SHA-256 and bounded actual passage inspection.
 
-Actual TCP header/required checksum, modular ACK/window rules, handshake examples, close/2MSL, MSS and selected flow-state requirements. Added actual section3.10.7.4 sequence acceptability and reset checks; ACK per-state processing through TIME-WAIT; segment-text publication and FIN transitions. Optional exact-sequence reset/challenge behavior is distinguished from cryptographic protection.
+Actual TCP header/required checksum, modular ACK/window rules, handshake examples, close/2MSL, MSS and selected flow-state requirements. Added actual section 3.10.7.4 sequence acceptability and reset checks; ACK per-state processing through TIME-WAIT; segment-text publication and FIN transitions. Optional exact-sequence reset/challenge behavior is distinguished from cryptographic protection.
 
-**Limits:** Controlled passive-open teaching subset omits general-host requirements including simultaneous open and comprehensive event processing. RFC1122 old TCP material is superseded by this consolidated specification. No Internet TCP conformance claim.
+**Limits:** Controlled passive-open teaching subset omits general-host requirements including simultaneous open and comprehensive event processing. RFC 1122 old TCP material is superseded by this consolidated specification. No Internet TCP conformance claim.
 
 ## Teaching backlinks
 
@@ -174797,7 +174797,7 @@ Supplies the exact inspected protocol contract or the stated conformance boundar
 
 **Check date:** 2026-10-09. **Method:** Official RFC text capture, exact SHA-256 and bounded actual passage inspection.
 
-Actual introduction/background and complete CONNECT requirements; March2026 update identity checked.
+Actual introduction/background and complete CONNECT requirements; March 2026 update identity checked.
 
 **Limits:** Normative CONNECT proxy requirements are not mislabeled as universal origin-server requirements. Our unsupported CONNECT/Upgrade close policy is an original conservative origin policy; no tunnel or optimistic transition is implemented.
 
@@ -175257,7 +175257,7 @@ Provides a classic compiler/sampling profiler comparison with explicit attributi
 
 **Check date:** 2026-10-09. **Method:** Official/primary capture, SHA-256, bounded actual text inspection; PDF figures rendered when needed.
 
-Manual version2.47 identified from heading; actual listed compile/link, sampling/counting, caller-cost and output/off-CPU paragraphs read.
+Manual version 2.47 identified from heading; actual listed compile/link, sampling/counting, caller-cost and output/off-CPU paragraphs read.
 
 **Limits:** Historical startup/profiling-library recipes may not exist on a selected system. glibc mcount thread-safety warning is retained; use a bounded single-threaded comparison. Child-time propagation assumes caller-independent callee cost; off-CPU I/O waiting is not sampled execution time.
 
@@ -175274,7 +175274,7 @@ Manual version2.47 identified from heading; actual listed compile/link, sampling
 
 **Authors/maintainers:** Linux man-pages contributors.
 
-**Edition/version:** Linux man-pages6.19; captured2026-10-09. **Year:** not established.
+**Edition/version:** Linux man-pages 6.19; captured2026-10-09. **Year:** not established.
 
 **Role:** oracle. **Access:** Public primary source; exact captured bytes pinned by SHA-256.
 
@@ -175356,7 +175356,7 @@ Actual listed bounded headings/interface bodies read in versioned6.18 manual; in
 
 **Authors/maintainers:** Linux man-pages contributors.
 
-**Edition/version:** Linux man-pages6.19; captured2026-10-09. **Year:** not established.
+**Edition/version:** Linux man-pages 6.19; captured2026-10-09. **Year:** not established.
 
 **Role:** oracle. **Access:** Public primary source; exact captured bytes pinned by SHA-256.
 
@@ -175394,7 +175394,7 @@ Actual resolution and listed clock definitions read; monotonic frequency/suspend
 
 **Authors/maintainers:** Linux man-pages contributors.
 
-**Edition/version:** Linux man-pages6.19; captured2026-10-09. **Year:** not established.
+**Edition/version:** Linux man-pages 6.19; captured2026-10-09. **Year:** not established.
 
 **Role:** oracle. **Access:** Public primary source; exact captured bytes pinned by SHA-256.
 
@@ -175508,7 +175508,7 @@ Pressure interface body read: some/full, avg10/60/300 percentages, total microse
 
 **Authors/maintainers:** Arthur H. Watson, Thomas J. McCabe.
 
-**Edition/version:** NIST SP500-235, August1996; Dolores R. Wallace, editor. **Year:** 1996.
+**Edition/version:** NIST SP500-235, August 1996; Dolores R. Wallace, editor. **Year:** 1996.
 
 **Role:** primary. **Access:** Public primary source; exact captured bytes pinned by SHA-256.
 
@@ -175530,7 +175530,7 @@ Supports a precise static design/test measure and prevents the word complexity f
 
 **Check date:** 2026-10-09. **Method:** Official/primary capture, SHA-256, bounded actual text inspection; PDF figures rendered when needed.
 
-Actual PDF27–32/printed7–12 inspected; definition e−n+2 for the scoped single-entry/exit connected function graph, virtual edge and linear path-vector distinction. PDF31/printed11 figure rendered. Cover/editor and publication year checked against NIST primary record.
+Actual PDF 27–32/printed7–12 inspected; definition e−n+2 for the scoped single-entry/exit connected function graph, virtual edge and linear path-vector distinction. PDF 31/printed11 figure rendered. Cover/editor and publication year checked against NIST primary record.
 
 **Limits:** Static graph metric, not runtime clock cycles or asymptotic cost. Graph paths and feasible executions differ; metric/basis coverage does not establish fault freedom or WCET. Editor is not silently relabeled as a sole technical author.
 
@@ -175547,7 +175547,7 @@ Actual PDF27–32/printed7–12 inspected; definition e−n+2 for the scoped sin
 
 **Authors/maintainers:** Jeffrey Scott Vitter.
 
-**Edition/version:** ACM Computing Surveys33(2), June2001, pp.209–271. **Year:** 2001.
+**Edition/version:** ACM Computing Surveys33(2), June 2001, pp.209–271. **Year:** 2001.
 
 **Role:** primary. **Access:** Public primary source; exact captured bytes pinned by SHA-256.
 
@@ -175568,7 +175568,7 @@ Adds an explicit block-transfer/space cost model and a reason to measure traffic
 
 **Check date:** 2026-10-09. **Method:** Official/primary capture, SHA-256, bounded actual text inspection; PDF figures rendered when needed.
 
-Primary publication mirrored by author institution; front/publisher imprint and actual PDF5–8/printed213–216 inspected: N,M,B,D,P, fixed-size items, block transfers, resource measures and practical synchronous/asynchronous limits.
+Primary publication mirrored by author institution; front/publisher imprint and actual PDF 5–8/printed213–216 inspected: N,M,B,D,P, fixed-size items, block transfers, resource measures and practical synchronous/asynchronous limits.
 
 **Limits:** Historical magnetic-disk magnitudes are not present-day performance inputs. Selected D=P=1 block model is not Linux syscall, page-cache, bus or physical-media accounting. No external-memory sort implementation or full-survey reading is assigned.
 
@@ -175686,7 +175686,7 @@ Identifies the actual device family and memory/bus integration that generic Cort
 
 **Check date:** 2026-10-09. **Method:** Official PDF web passage inspection.
 
-Front features and printed pp. 22–23 memory/bus sections Communications extension: actual front features and printed p.40, section3.31, external PHY requirement and MII/RMII integration.
+Front features and printed pp. 22–23 memory/bus sections Communications extension: actual front features and printed p.40, section 3.31, external PHY requirement and MII/RMII integration.
 
 **Limits:** Family-wide 'up to' feature summaries are not part-specific guarantees. Exact package pins, alternate functions, electrical conditions and target operating point need their own datasheet passages when an exercise selects them. F439 bxCAN is classic CAN 2.0B, not CAN FD. Ethernet MAC/DMA is not an integrated physical transceiver. Board PHY, pin assignment and solder bridges require the exact board manual.
 
@@ -175861,7 +175861,7 @@ Defines memory reachability, boot mapping, clock and sleep controls, GPIO/DMA co
 
 Printed pp. 68–69, 129–131, 156–157, 163–164, 277–278, 309–310, 393, 613–614, 711–712, 843, 849 (master-mode opening), 879–880, 973–974, 1010–1012. Actual functional text/register contracts read; heading lookup used only to locate these passages. Authoring addendum: printed p.394 single conversion; p.400 sampling/trigger; pp.849–852 I2C start/address, transmitter and single-byte receiver closing; pp.885–886 and 888–890 SPI master configuration/full-duplex procedure; p.977 character reception; p.981 baud-generation text/formula. Enhancement inspection: Verified existing SHA e34807b876642b67a6208e6e4071694f2892b5df088ef89f49cdad5cb254165f; Rev 21 PDF/printed pp.59–64, scoped bus-target, CCM restriction, arbitration, bridge and endian text. Additional independent researcher scope: Printed pp. 68–69, 129–131, 156–157, 163–164, 277–278, 309–310, 393, 613–614, 711–712, 843, 849 (master-mode opening), 879–880, 973–974, 1010–1012. Actual functional text/register contracts read; heading lookup used only to locate these passages. Authoring addendum: printed p.394 single conversion; p.400 sampling/trigger; pp.849–852 I2C start/address, transmitter and single-byte receiver closing; pp.885–886 and 888–890 SPI master configuration/full-duplex procedure; p.977 character reception; p.981 baud-generation text/formula. Communications extension: printed pp.59–70 architecture/SRAM; pp.879–890 SPI directions and full-duplex sequence; pp.972–981 USART framing, TXE versus TC, overrun/framing error and baud; pp.997–999 synchronous USART; pp.1079–1098 bxCAN features, mailbox/filter/FIFO handling, fault confinement and timing; pp.1134–1140 RMII and frame format, visual p.1138; pp.1166–1167 DMA initialization, p.1173 normal TX fields, pp.1181–1185 RX operation/normal RDES0. Additional independent researcher scope: Bounded actual pp.1125–1129,1134–1138,1166–1170,1181–1185. Added actual normal Tx control/writeback/length/address pp.1173–1178, normal Rx buffer/ring fields pp.1186–1188, selected complete MAC registers pp.1194–1200 and address0 pp.1208–1209, selected DMA registers pp.1226–1233. Exact ring mode, software checksum, retained-FCS and polling profile; no timestamping or enhanced descriptors. Additional independent researcher scope: Actual printed pp.1129–1131 SMI frame/read/write and clock limits; pp.1199–1200 address/data registers, PA/MR/CR/MW/MB, supported HCLK dividers and data validity. Additional independent researcher scope: Printed pp. 68–69, 129–131, 156–157, 163–164, 277–278, 309–310, 393, 613–614, 711–712, 843, 849 (master-mode opening), 879–880, 973–974, 1010–1012. Actual functional text/register contracts read; heading lookup used only to locate these passages. Authoring addendum: printed p.394 single conversion; p.400 sampling/trigger; pp.849–852 I2C start/address, transmitter and single-byte receiver closing; pp.885–886 and 888–890 SPI master configuration/full-duplex procedure; p.977 character reception; p.981 baud-generation text/formula. Additional independent researcher scope: Printed pp. 68–69, 129–131, 156–157, 163–164, 277–278, 309–310, 393, 613–614, 711–712, 843, 849 (master-mode opening), 879–880, 973–974, 1010–1012. Actual functional text/register contracts read; heading lookup used only to locate these passages. Authoring addendum: printed p.394 single conversion; p.400 sampling/trigger; pp.849–852 I2C start/address, transmitter and single-byte receiver closing; pp.885–886 and 888–890 SPI master configuration/full-duplex procedure; p.977 character reception; p.981 baud-generation text/formula. Enhancement inspection: Verified existing SHA e34807b876642b67a6208e6e4071694f2892b5df088ef89f49cdad5cb254165f; Rev 21 PDF/printed pp.59–64, scoped bus-target, CCM restriction, arbitration, bridge and endian text. Additional independent researcher scope: Printed pp. 68–69, 129–131, 156–157, 163–164, 277–278, 309–310, 393, 613–614, 711–712, 843, 849 (master-mode opening), 879–880, 973–974, 1010–1012. Actual functional text/register contracts read; heading lookup used only to locate these passages. Authoring addendum: printed p.394 single conversion; p.400 sampling/trigger; pp.849–852 I2C start/address, transmitter and single-byte receiver closing; pp.885–886 and 888–890 SPI master configuration/full-duplex procedure; p.977 character reception; p.981 baud-generation text/formula. Communications extension: printed pp.59–70 architecture/SRAM; pp.879–890 SPI directions and full-duplex sequence; pp.972–981 USART framing, TXE versus TC, overrun/framing error and baud; pp.997–999 synchronous USART; pp.1079–1098 bxCAN features, mailbox/filter/FIFO handling, fault confinement and timing; pp.1134–1140 RMII and frame format, visual p.1138; pp.1166–1167 DMA initialization, p.1173 normal TX fields, pp.1181–1185 RX operation/normal RDES0. Additional independent researcher scope: Bounded actual pp.1125–1129,1134–1138,1166–1170,1181–1185. Added actual normal Tx control/writeback/length/address pp.1173–1178, normal Rx buffer/ring fields pp.1186–1188, selected complete MAC registers pp.1194–1200 and address0 pp.1208–1209, selected DMA registers pp.1226–1233. Exact ring mode, software checksum, retained-FCS and polling profile; no timestamping or enhanced descriptors. Additional independent researcher scope: Actual printed pp.1129–1131 SMI frame/read/write and clock limits; pp.1199–1200 address/data registers, PA/MR/CR/MW/MB, supported HCLK dividers and data validity. Additional independent researcher scope: Reused accepted same-hash Rev 21 actual SRAM and DMA transaction passages, printed pp. 68–69 and 309–310; target-specific reachability and transaction ownership. T29 laboratory provides accepted driver foundation.
 
-**Limits:** Inspected Rev21; newer Rev22 delta uninspected. F439 RCC is chapter6, not earlier-family chapter7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement. Historical exact Rev21, not current Rev22. Device-specific memory map and errata apply. No DMA throughput, clock accuracy, electrical timing or physical board result is established by text or emulator. Additional independent researcher limits: Inspected Rev21; newer Rev22 delta uninspected. F439 RCC is chapter6, not earlier-family chapter7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement. Ethernet scope is selected normal descriptors, untagged 10/100 frames and RMII; advanced PTP/offload, full PHY and all error recovery remain uninspected. Two suspicious Rev21 statements are not teaching oracles: the CAN valid-edge direction is checked against ISO 11898-1:2024 7.3.5, and the CRC complement sentence is not used to derive a CRC implementation. F439 CCM is not Ethernet-DMA-accessible; generic M7 cache-maintenance recipes do not apply to this M4 device. Additional independent researcher limits: Rev22 is listed by the newer portal but its changes are uninspected. The normal TDES0 detail places IC at bit30; the earlier generic operation paragraph contains a conflicting TDES1 reference, so assignments use the inspected normal-descriptor detail. No whole chapter/register map inspection claim. F439 has a different DMA-accessible memory map from cached Cortex-M7 targets. Additional independent researcher limits: Same Rev21 identity/hash; no Rev22 update claim. Selected 168-MHz HCLK case uses CR100 and divide102. Address/data must not be rewritten while busy; read data valid only after completion. A timeout does not prove a PHY electrical fault. Complete MAC/PHY/IEEE conformance remains outside scope. Additional independent researcher limits: Inspected Rev21; newer Rev22 delta uninspected. F439 RCC is chapter6, not earlier-family chapter7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement. Additional independent researcher limits: Inspected Rev21; newer Rev22 delta uninspected. F439 RCC is chapter6, not earlier-family chapter7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement. Historical exact Rev21, not current Rev22. Device-specific memory map and errata apply. No DMA throughput, clock accuracy, electrical timing or physical board result is established by text or emulator. Additional independent researcher limits: Inspected Rev21; newer Rev22 delta uninspected. F439 RCC is chapter6, not earlier-family chapter7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement. Ethernet scope is selected normal descriptors, untagged 10/100 frames and RMII; advanced PTP/offload, full PHY and all error recovery remain uninspected. Two suspicious Rev21 statements are not teaching oracles: the CAN valid-edge direction is checked against ISO 11898-1:2024 7.3.5, and the CRC complement sentence is not used to derive a CRC implementation. F439 CCM is not Ethernet-DMA-accessible; generic M7 cache-maintenance recipes do not apply to this M4 device. Additional independent researcher limits: Rev22 is listed by the newer portal but its changes are uninspected. The normal TDES0 detail places IC at bit30; the earlier generic operation paragraph contains a conflicting TDES1 reference, so assignments use the inspected normal-descriptor detail. No whole chapter/register map inspection claim. F439 has a different DMA-accessible memory map from cached Cortex-M7 targets. Additional independent researcher limits: Same Rev21 identity/hash; no Rev22 update claim. Selected 168-MHz HCLK case uses CR100 and divide102. Address/data must not be rewritten while busy; read data valid only after completion. A timeout does not prove a PHY electrical fault. Complete MAC/PHY/IEEE conformance remains outside scope. Additional independent researcher limits: Rev 21, not an inspected update to Rev 22. Not a complete cancellation/error register recipe or all peripheral chapters. SRAM versus CCM reachability and independent-device activity do not follow from hosted atomics or a simulated event trace.
+**Limits:** Inspected Rev 21; newer Rev 22 delta uninspected. F439 RCC is chapter 6, not earlier-family chapter 7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement. Historical exact Rev 21, not current Rev 22. Device-specific memory map and errata apply. No DMA throughput, clock accuracy, electrical timing or physical board result is established by text or emulator. Additional independent researcher limits: Inspected Rev 21; newer Rev 22 delta uninspected. F439 RCC is chapter 6, not earlier-family chapter 7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement. Ethernet scope is selected normal descriptors, untagged 10/100 frames and RMII; advanced PTP/offload, full PHY and all error recovery remain uninspected. Two suspicious Rev 21 statements are not teaching oracles: the CAN valid-edge direction is checked against ISO 11898-1:2024 7.3.5, and the CRC complement sentence is not used to derive a CRC implementation. F439 CCM is not Ethernet-DMA-accessible; generic M7 cache-maintenance recipes do not apply to this M4 device. Additional independent researcher limits: Rev 22 is listed by the newer portal but its changes are uninspected. The normal TDES0 detail places IC at bit 30; the earlier generic operation paragraph contains a conflicting TDES1 reference, so assignments use the inspected normal-descriptor detail. No whole chapter/register map inspection claim. F439 has a different DMA-accessible memory map from cached Cortex-M7 targets. Additional independent researcher limits: Same Rev 21 identity/hash; no Rev 22 update claim. Selected 168-MHz HCLK case uses CR100 and divide102. Address/data must not be rewritten while busy; read data valid only after completion. A timeout does not prove a PHY electrical fault. Complete MAC/PHY/IEEE conformance remains outside scope. Additional independent researcher limits: Inspected Rev 21; newer Rev 22 delta uninspected. F439 RCC is chapter 6, not earlier-family chapter 7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement. Additional independent researcher limits: Inspected Rev 21; newer Rev 22 delta uninspected. F439 RCC is chapter 6, not earlier-family chapter 7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement. Historical exact Rev 21, not current Rev 22. Device-specific memory map and errata apply. No DMA throughput, clock accuracy, electrical timing or physical board result is established by text or emulator. Additional independent researcher limits: Inspected Rev 21; newer Rev 22 delta uninspected. F439 RCC is chapter 6, not earlier-family chapter 7. Additional authoring inspection supports bounded 7-bit I2C transmit/single-byte receive and full-duplex SPI sequencing; optimized I2C multibyte/NACK timing and full error chapters remain outside scope. ADC sampling/trigger/single conversion are inspected, but analog electrical accuracy and Stop/Standby recipes are not. Physical timings, package pins and device electrical conditions need DS/board evidence and measurement. Ethernet scope is selected normal descriptors, untagged 10/100 frames and RMII; advanced PTP/offload, full PHY and all error recovery remain uninspected. Two suspicious Rev 21 statements are not teaching oracles: the CAN valid-edge direction is checked against ISO 11898-1:2024 7.3.5, and the CRC complement sentence is not used to derive a CRC implementation. F439 CCM is not Ethernet-DMA-accessible; generic M7 cache-maintenance recipes do not apply to this M4 device. Additional independent researcher limits: Rev 22 is listed by the newer portal but its changes are uninspected. The normal TDES0 detail places IC at bit 30; the earlier generic operation paragraph contains a conflicting TDES1 reference, so assignments use the inspected normal-descriptor detail. No whole chapter/register map inspection claim. F439 has a different DMA-accessible memory map from cached Cortex-M7 targets. Additional independent researcher limits: Same Rev 21 identity/hash; no Rev 22 update claim. Selected 168-MHz HCLK case uses CR100 and divide102. Address/data must not be rewritten while busy; read data valid only after completion. A timeout does not prove a PHY electrical fault. Complete MAC/PHY/IEEE conformance remains outside scope. Additional independent researcher limits: Rev 21, not an inspected update to Rev 22. Not a complete cancellation/error register recipe or all peripheral chapters. SRAM versus CCM reachability and independent-device activity do not follow from hosted atomics or a simulated event trace.
 
 ## Teaching backlinks
 
@@ -175913,7 +175913,7 @@ Connects F439ZI software bring-up to actual board clock sources and USART3 virtu
 
 Front applicability includes NUCLEO-F439ZI; printed pp. 25–26 clock and USART configuration Additional independent researcher scope: Actual complete section and continued table, printed pp.28–29.
 
-**Limits:** Inspected Rev 8, not current Rev 11. Board revision, actual solder bridges and clock population must be recorded on physical hardware; described defaults are not a measurement of the learner's board. Additional independent researcher limits: Exact English Rev8 inspected. Rev11 August2025 identity/ToC was found but its Ethernet passage is not inspected here. Verify board marking and fitted bridges against the actual board; do not mix revisions.
+**Limits:** Inspected Rev 8, not current Rev 11. Board revision, actual solder bridges and clock population must be recorded on physical hardware; described defaults are not a measurement of the learner's board. Additional independent researcher limits: Exact English Rev 8 inspected. Rev 11 August 2025 identity/ToC was found but its Ethernet passage is not inspected here. Verify board marking and fitted bridges against the actual board; do not mix revisions.
 
 ## Teaching backlinks
 
@@ -176940,7 +176940,7 @@ Checks syscall ABI differences, short I/O, exec state transitions, event readine
 
 **Check date:** 2026-10-09. **Method:** Selected passages read from captured primary HTML, PDF text, or named release source files; bytes hashed.
 
-Selected subsection bodies read; page footer identifies man-pages 6.19 and capture provenance. Snapshot hash in this record belongs to read(2); private manifests contain the other page hashes. Additional independent researcher scope: Actual current6.19 DESCRIPTION/RETURN VALUE bodies and listed error entries read for read/write; write NOTES persistence paragraph read. Captures on9October match the existing read-page byte hash; both URLs are inspection evidence. Additional independent researcher scope: Selected subsection bodies read; page footer identifies man-pages 6.19 and capture provenance. Snapshot hash in this record belongs to read(2); private manifests contain the other page hashes. T44 extension: actual read(2) description/return/error body; write(2) return/error/note body; errno(3) operative opening; close(2) error-return/EINTR notes; open(2) EMFILE/ENFILE definitions.
+Selected subsection bodies read; page footer identifies man-pages 6.19 and capture provenance. Snapshot hash in this record belongs to read(2); private manifests contain the other page hashes. Additional independent researcher scope: Actual current6.19 DESCRIPTION/RETURN VALUE bodies and listed error entries read for read/write; write NOTES persistence paragraph read. Captures on 9 October match the existing read-page byte hash; both URLs are inspection evidence. Additional independent researcher scope: Selected subsection bodies read; page footer identifies man-pages 6.19 and capture provenance. Snapshot hash in this record belongs to read(2); private manifests contain the other page hashes. T44 extension: actual read(2) description/return/error body; write(2) return/error/note body; errno(3) operative opening; close(2) error-return/EINTR notes; open(2) EMFILE/ENFILE definitions.
 
 **Limits:** Moving HTML URLs; snapshot/version must accompany assignments. Pages document Linux/glibc interfaces rather than guaranteeing portable ISO C behavior. No API examples executed. Additional independent researcher limits: Linux interface contract only; filesystem/device and cache behavior are target-dependent. Transferred byte counts do not establish durable media writes, and neither count directly specifies device traffic. Additional independent researcher limits: Moving HTML URLs; snapshot/version must accompany assignments. Pages document Linux/glibc interfaces rather than guaranteeing portable ISO C behavior. No API examples executed. Linux close releases the descriptor early even after many errors; retry can close a reused descriptor. POSIX.1-2024 EINTR differs, so the no-retry exercise is explicitly Linux. EPIPE may terminate via SIGPIPE before C observes errno; positive write is not a durability guarantee. No portable generic descriptor state machine or complete filesystem chapter is claimed.
 
@@ -177649,7 +177649,7 @@ Algorithmic reference for invariants, asymptotic reasoning, sorting, graph algor
 - 11.4 Open addressing — probe coverage, deletion and independence assumptions
 - 20.2 Breadth-first search — algorithm, Analysis and Lemmas 20.1–20.3
 - 32.1 The naive string-matching algorithm
-- 20.2 Breadth-first search — Theorem20.5 and predecessor-tree discussion
+- 20.2 Breadth-first search — Theorem 20.5 and predecessor-tree discussion
 - 3.1 O-notation, Ω-notation, and Θ-notation
 - 3.2 Asymptotic notation: formal definitions — O-notation, Ω-notation, Θ-notation and Asymptotic notation and running times
 - 16.1 Aggregate analysis — Stack operations and Incrementing a binary counter
@@ -177661,7 +177661,7 @@ Algorithmic reference for invariants, asymptotic reasoning, sorting, graph algor
 
 **Check date:** 2026-10-09. **Method:** Held PDF title/contents verification and bounded passage reading; author bibliography; Read-only held ordinary PDF, stable catalog ID and SHA-256; targeted actual passage extraction and formula rendering.
 
-Held front matter; PDF pages 34–37, 43–46, 403–406; author edition listing. Enhancement inspection: Held PDF pages 41–46, 50–53, 211–214, 359–363, 658–665, 1121–1123. PDF666–667 additionally read for Theorem20.5 and predecessor paths; extracted formula images are incomplete, so only the readable argument is claimed. Additional independent researcher scope: Held fourth-edition front matter verified; actual PDF pages79–88 and541–561 read for listed scopes. Reflowed 1527-page PDF: locator sections, not guessed print-page offsets. PDF84 O-definition and551 potential/telescoping equations rendered and inspected; the text extraction omits some formula images.
+Held front matter; PDF pages 34–37, 43–46, 403–406; author edition listing. Enhancement inspection: Held PDF pages 41–46, 50–53, 211–214, 359–363, 658–665, 1121–1123. PDF 666–667 additionally read for Theorem 20.5 and predecessor paths; extracted formula images are incomplete, so only the readable argument is claimed. Additional independent researcher scope: Held fourth-edition front matter verified; actual PDF pages 79–88 and 541–561 read for listed scopes. Reflowed 1527-page PDF: locator sections, not guessed print-page offsets. PDF 84 O-definition and 551 potential/telescoping equations rendered and inspected; the text extraction omits some formula images.
 
 **Limits:** Only selected sections were inspected deeply; contents locate later topics. Pseudocode permits abstractions and indexing conventions that do not establish C memory safety. Advanced proofs need targeted mathematical remediation. RAM constant costs omit the memory hierarchy; translate 1-origin indices, mathematical infinity and allocation/error assumptions explicitly. No claim of reading the entire book or every graph proof. Additional independent researcher limits: RAM primitive costs and elementary-copy costs are declared models, not silicon or allocator-time guarantees. Table contraction and a complete recurrence/master-method chapter are outside this new reading scope. No full-book inspection claim.
 
@@ -179490,7 +179490,7 @@ Ground only the original SPI/register/reset helper; complete controller initiali
 
 ## Evidence and limits
 
-**Check date:** 2026-10-10. **Method:** Official PDF text plus rendered page69/page70/page27 visual inspection.
+**Check date:** 2026-10-10. **Method:** Official PDF text plus rendered page 69/page70/page27 visual inspection.
 
 Named small transport/mode boundary only; no copied code or raw copyrighted payload in published curriculum.
 
@@ -179532,7 +179532,7 @@ Main conceptual spine for execution context, blocking and multicore policy/mecha
 
 **Check date:** 2026-10-10. **Method:** Library filename search, metadata/title/TOC check, actual bounded PDF text extraction and passage inspection.
 
-Actual PDF selected paragraphs: physical pp.37,47-48,89,98; sections5.7.1,5.7.3,7.2 located in full text. TOC independently inspected for chapters4-7; TOC discovery does not assign every subsection.
+Actual PDF selected paragraphs: physical pp.37,47-48,89,98; sections 5.7.1,5.7.3,7.2 located in full text. TOC independently inspected for chapters 4-7; TOC discovery does not assign every subsection.
 
 **Limits:** C++-style teaching pseudocode is translated into original C contracts. Historical Linux2.6 examples are not current implementation authority; only specified paragraphs assigned.
 
@@ -179574,7 +179574,7 @@ Bind scheduling implementations to precise task models and include runtime overh
 
 **Check date:** 2026-10-10. **Method:** Actual library PDF metadata and selected pdftotext passages inspected; local payload SHA256 computed.
 
-Selected introductory paragraphs from4.3,4.4,4.5,4.6 (physical PDFpp.103,117,120,127);7.3 model/notation and10.7 overhead argument. TOC confirms server/resource/kernel chapters; no entire chapter inspection claim.
+Selected introductory paragraphs from 4.3,4.4,4.5,4.6 (physical PDFpp.103,117,120,127);7.3 model/notation and 10.7 overhead argument. TOC confirms server/resource/kernel chapters; no entire chapter inspection claim.
 
 **Limits:** The held third edition differs from the SWE graph2023 record. Model bounds require all stated assumptions; no measured maximum is silently promoted to WCET.
 
@@ -179611,7 +179611,7 @@ Foundational source for semaphore accounting and communication invariants.
 
 **Check date:** 2026-10-10. **Method:** Primary web text/PDF bounded passages inspected; source identity and applicability checked.
 
-EWD archive transcription sections3.2 and4, semaphore and bounded-buffer discussion; publication identity cross-checked against archive bibliography.
+EWD archive transcription sections 3.2 and 4, semaphore and bounded-buffer discussion; publication identity cross-checked against archive bibliography.
 
 **Limits:** Historical primitive assumptions are not the C memory model. No copying of ALGOL examples into unsynchronized C.
 
@@ -179642,7 +179642,7 @@ Ground the integer-versus-FP context split and deferred switching.
 
 ## Inspected reading locators
 
-- Printed pp.4 and15: FP frame ownership and PendSV
+- Printed pp.4 and 15: FP frame ownership and PendSV
 
 ## Evidence and limits
 
@@ -179665,7 +179665,7 @@ Actual PDF downloaded in memory and extracted privately with pdftotext; printedp
 
 **Authors/maintainers:** STMicroelectronics.
 
-**Edition/version:** AN5617 revision2, January2026. **Year:** 2026.
+**Edition/version:** AN5617 revision 2, January 2026. **Year:** 2026.
 
 **Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
 
@@ -179686,7 +179686,7 @@ Explain separate images, ownership and authoritative queue state versus notifica
 
 **Check date:** 2026-10-10. **Method:** Primary web text/PDF bounded passages inspected; source identity and applicability checked.
 
-Official PDF pages3-6 and9-11: functional split, shared SRAM accessibility, cache choices and hardware notification mechanisms.
+Official PDF pages 3-6 and 9-11: functional split, shared SRAM accessibility, cache choices and hardware notification mechanisms.
 
 **Limits:** Middleware examples are comparative context only. Custom images do not link HAL, FreeRTOS or OpenAMP. This application note does not replace exact RM0399 register/errata inspection.
 
@@ -179704,7 +179704,7 @@ Official PDF pages3-6 and9-11: functional split, shared SRAM accessibility, cach
 
 **Authors/maintainers:** STMicroelectronics.
 
-**Edition/version:** AN4839 revision2, March2018. **Year:** 2018.
+**Edition/version:** AN4839 revision 2, March 2018. **Year:** 2018.
 
 **Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
 
@@ -179724,7 +179724,7 @@ Separate cache visibility, barriers and DMA ownership.
 
 **Check date:** 2026-10-10. **Method:** Primary web text/PDF bounded passages inspected; source identity and applicability checked.
 
-Official PDF pages4-8 inspected for32-byte lines, clean/invalidate distinction, write-back DMA example and corrective maintenance.
+Official PDF pages 4-8 inspected for 32-byte lines, clean/invalidate distinction, write-back DMA example and corrective maintenance.
 
 **Limits:** Example memory paths are device-specific; do not assume every H745 DMA can reach DTCM. Register programming and silicon errata need the exact target manual.
 
@@ -179838,7 +179838,7 @@ Compare contention costs and queue-node ownership across lock designs.
 
 Author-maintained test-and-set, ticket and MCS acquire/release pseudocode plus stated space/spinning properties inspected.
 
-**Limits:** Later CLH/K42 additions are not attributed to1991. Historical pseudocode omits modern C atomics and bounded-counter assumptions; these must be supplied by the implementation.
+**Limits:** Later CLH/K42 additions are not attributed to 1991. Historical pseudocode omits modern C atomics and bounded-counter assumptions; these must be supplied by the implementation.
 
 ## Teaching backlinks
 
@@ -179890,7 +179890,7 @@ Introductory allocator requirements and enqueue/dequeue pseudocode inspected on 
 
 **Authors/maintainers:** Maged M. Michael.
 
-**Edition/version:** IEEE TPDS15(6), June2004. **Year:** 2004.
+**Edition/version:** IEEE TPDS15(6), June 2004. **Year:** 2004.
 
 **Role:** primary. **Access:** Primary online source; exact revision or accessed date recorded.
 
@@ -179979,13 +179979,13 @@ Ground the observable history contract and distinguish legal overlap from FIFO v
 
 ## Inspected reading locators
 
-- Printed pp.465-467: FIFO histories and Section2.1 histories
+- Printed pp.465-467: FIFO histories and Section 2.1 histories
 
 ## Evidence and limits
 
 **Check date:** 2026-10-10. **Method:** Primary paper PDF retrieved and selected pages read through pdftotext; no PDF redistribution.
 
-Actual author-hosted PDF pages3-5 extracted in memory; FIFO acceptability examples and formal history vocabulary inspected.
+Actual author-hosted PDF pages 3-5 extracted in memory; FIFO acceptability examples and formal history vocabulary inspected.
 
 **Limits:** Only selected examples/history definitions inspected, not the complete proof methodology. Finite history checking is explicitly bounded.
 
@@ -180022,7 +180022,7 @@ Support a separate pinned reference comparison without importing an RTOS into cu
 
 **Check date:** 2026-10-10. **Method:** Delegated root source inspection and pinned repository build; received explicit scope and commit receipt.
 
-Root integration researcher inspected port.c lines270-345 startup/end-scheduler plus malloc/pthread/stdio dependencies and portmacro.h type/stack definitions; actual separate hosted comparison built.
+Root integration researcher inspected port.c lines 270-345 startup/end-scheduler plus malloc/pthread/stdio dependencies and portmacro.h type/stack definitions; actual separate hosted comparison built.
 
 **Limits:** Hosted POSIX port is not the CM4F port and cannot establish MCU latency or original freestanding independence. Exact execution evidence is recorded by the comparison runner.
 
@@ -180039,7 +180039,7 @@ Root integration researcher inspected port.c lines270-345 startup/end-scheduler 
 
 **Authors/maintainers:** STMicroelectronics.
 
-**Edition/version:** RM0399 revision4, June2023. **Year:** 2023.
+**Edition/version:** RM0399 revision 4, June 2023. **Year:** 2023.
 
 **Role:** primary. **Access:** Public primary-authored source, bounded actual passages inspected; private hashed copy retained.
 
@@ -180053,15 +180053,15 @@ Architecture or ABI authority for original freestanding execution and H745 AMP b
 
 ## Inspected reading locators
 
-- p.138 table7; pp.142-144 memory/boot; p.362 hold boot
-- p.477 section9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section9.7.42
+- p.138 table 7; pp.142-144 memory/boot; p.362 hold boot
+- p.477 section 9.7.36; p.490 SRAM1/2/3 allocation bits; p.492 section 9.7.42
 - pp.555-558 HSEM procedures; pp.561-564 HSEM registers; p.795 HSEM IRQ rows
 
 ## Evidence and limits
 
 **Check date:** 2026-10-10. **Method:** Actual bounded source text inspection; selected PDF register tables rendered where specified.
 
-Actual revision4 title and selected text read; p.477 and p.563 register layouts rendered and visually inspected. Main ST endpoint failed; official ST Japan revision archive used.
+Actual revision 4 title and selected text read; p.477 and p.563 register layouts rendered and visually inspected. Main ST endpoint failed; official ST Japan revision archive used.
 
 **Limits:** Only listed register/boot passages inspected; no whole-manual, DMA/cache implementation or silicon errata audit. Physical board execution not performed.
 
@@ -180116,7 +180116,7 @@ Actual pinned official header declarations and constants read and matched to ori
 
 **Authors/maintainers:** STMicroelectronics.
 
-**Edition/version:** PM0214 revision10, March2020. **Year:** 2020.
+**Edition/version:** PM0214 revision 10, March 2020. **Year:** 2020.
 
 **Role:** primary. **Access:** Public primary-authored source, bounded actual passages inspected; private hashed copy retained.
 
@@ -180131,13 +180131,13 @@ Architecture or ABI authority for original freestanding execution and H745 AMP b
 ## Inspected reading locators
 
 - pp.24-26 mask/CONTROL registers
-- pp.42-44 section2.3.7 exception entry/return and frame
+- pp.42-44 section 2.3.7 exception entry/return and frame
 
 ## Evidence and limits
 
 **Check date:** 2026-10-10. **Method:** Actual bounded source text inspection; selected PDF register tables rendered where specified.
 
-Actual ST-authored revision10 mirrored PDF text for masks, PSP/MSP, frame and EXC_RETURN inspected.
+Actual ST-authored revision 10 mirrored PDF text for masks, PSP/MSP, frame and EXC_RETURN inspected.
 
 **Limits:** Inspected revision is not asserted latest; no whole-core, fault-recovery or all lazy-stacking corner-case proof.
 
@@ -180154,7 +180154,7 @@ Actual ST-authored revision10 mirrored PDF text for masks, PSP/MSP, frame and EX
 
 **Authors/maintainers:** STMicroelectronics.
 
-**Edition/version:** PM0253 revision5, June2019. **Year:** 2019.
+**Edition/version:** PM0253 revision 5, June 2019. **Year:** 2019.
 
 **Role:** primary. **Access:** Public primary-authored source, bounded actual passages inspected; private hashed copy retained.
 
@@ -180168,13 +180168,13 @@ Architecture or ABI authority for original freestanding execution and H745 AMP b
 
 ## Inspected reading locators
 
-- pp.226-230 sections4.6.4-4.6.8, especially table91
+- pp.226-230 sections 4.6.4-4.6.8, especially table 91
 
 ## Evidence and limits
 
 **Check date:** 2026-10-10. **Method:** Actual bounded source text inspection; selected PDF register tables rendered where specified.
 
-Actual ST-authored revision5 mirrored PDF text and rendered p.228 attribute table inspected.
+Actual ST-authored revision 5 mirrored PDF text and rendered p.228 attribute table inspected.
 
 **Limits:** Bounded MPU mapping review, not a cache-maintenance or device errata qualification. Cold-reset no-dirty-line prerequisite is material.
 
@@ -180206,7 +180206,7 @@ Architecture or ABI authority for original freestanding execution and H745 AMP b
 ## Inspected reading locators
 
 - VFP register usage conventions: s16-s31
-- Stack constraints at a public interface: SP modulo8
+- Stack constraints at a public interface: SP modulo 8
 
 ## Evidence and limits
 
@@ -180244,7 +180244,7 @@ Actual HTML paragraphs and layout tables inspected: checksum/length, local APIC 
 ## Inspected reading locators
 
 - 5.2.5.3 RSDP; 5.2.6 table header
-- 5.2.12 MADT, Tables5.19–5.21; 5.2.12.1–5.2.12.2
+- 5.2.12 MADT, Tables 5.19–5.21; 5.2.12.1–5.2.12.2
 
 ## Evidence and limits
 
@@ -180273,7 +180273,7 @@ Actual HTML paragraphs and layout tables inspected: checksum/length, local APIC 
 
 [Authoritative resource page](https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3a-part-1-manual.pdf).
 
-Actual bounded PDF text passages inspected; PDF pages145–146,276–277,378–382 (one-based). Historical exact edition, not current processor errata.
+Actual bounded PDF text passages inspected; PDF pages 145–146,276–277,378–382 (one-based). Historical exact edition, not current processor errata.
 
 **Reading foundations:** x86-64 assembly; bounded binary parsing
 
@@ -180281,17 +180281,17 @@ Actual bounded PDF text passages inspected; PDF pages145–146,276–277,378–3
 
 ## Inspected reading locators
 
-- 4.10.4.1, printed4-41–4-42: MOV CR3 and INVLPG
-- 8.4.4.1, printed8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI
-- 10.5.4, printed10-16–10-17: APIC timer
-- 10.6.1, printed10-18–10-20: ICR destination, delivery, INIT/SIPI
-- 4.10.5, printed4-45–4-46: cross-processor shootdown and reuse ordering
+- 4.10.4.1, printed 4-41–4-42: MOV CR3 and INVLPG
+- 8.4.4.1, printed 8-20–8-21: BSP initialization, low-memory AP startup and INIT/SIPI
+- 10.5.4, printed 10-16–10-17: APIC timer
+- 10.6.1, printed 10-18–10-20: ICR destination, delivery, INIT/SIPI
+- 4.10.5, printed 4-45–4-46: cross-processor shootdown and reuse ordering
 
 ## Evidence and limits
 
 **Check date:** 2026-10-10. **Method:** Official HTML/PDF text opened and bounded passages inspected.
 
-Actual bounded PDF text passages inspected; PDF pages145–146,276–277,378–382 (one-based). Historical exact edition, not current processor errata.
+Actual bounded PDF text passages inspected; PDF pages 145–146,276–277,378–382 (one-based). Historical exact edition, not current processor errata.
 
 **Limits:** Only named passages assigned; no complete-document inspection, physical timing, or general hardware compatibility claim.
 

@@ -527,6 +527,30 @@ class LearningContracts(unittest.TestCase):
         self.assertEqual(cli.read(new / ".cmastery/project.json")["unit"], "U-TWO")
         self.assertTrue(list((new / "evidence/history").glob("*/UNIT.md")))
 
+    def test_family_contracts_file_is_not_overwritten_by_generic_guide(self):
+        cli.save(self.root / "curriculum/project_graph.json", {"projects": [{"id": "PR-T01-01", "title": "Fixture", "module": "T01", "lab_family": None}]})
+        brief = self.root / "curriculum/projects/PR-T01-01.md"
+        brief.parent.mkdir(parents=True); brief.write_text("# Fixture project\n\nSee [contracts](../guides/component-contracts.md).\n")
+        guide = self.root / "curriculum/guides/component-contracts.md"
+        guide.parent.mkdir(parents=True); guide.write_text("# Generic contracts guide\n")
+        cli.save(self.root / "labs/sample/family.json", {"family": "sample", "projects": [],
+            "units": [{"id": u["id"], "project": u["project"], "tests": []} for u in self.units]})
+        (self.root / "labs/sample/CONTRACTS.md").write_text("# Family ownership contracts\n")
+        shipped = self.base / "shipped-contracts-lab"
+        cli.instantiate("PR-T01-01", shipped, unit_id="U-ONE")
+        self.assertEqual((shipped / "CONTRACTS.md").read_text(), "# Family ownership contracts\n")
+        self.assertEqual((shipped / "COMPONENT-CONTRACTS.md").read_text(), "# Generic contracts guide\n")
+        self.assertIn("(COMPONENT-CONTRACTS.md)", (shipped / "PROJECT.md").read_text())
+        cli.advance(shipped, "PR-T01-01", unit_id="U-TWO")
+        self.assertEqual((shipped / "CONTRACTS.md").read_text(), "# Family ownership contracts\n")
+        self.assertIn("(COMPONENT-CONTRACTS.md)", (shipped / "PROJECT.md").read_text())
+        (self.root / "labs/sample/CONTRACTS.md").unlink()
+        plain = self.base / "plain-lab"
+        cli.instantiate("PR-T01-01", plain, unit_id="U-ONE")
+        self.assertEqual((plain / "CONTRACTS.md").read_text(), "# Generic contracts guide\n")
+        self.assertFalse((plain / "COMPONENT-CONTRACTS.md").exists())
+        self.assertIn("(CONTRACTS.md)", (plain / "PROJECT.md").read_text())
+
     def test_physical_capture_closure_is_pinned_by_acceptance(self):
         self.units[0]["claims"] = [{"id": "bounded", "scope": "physical"}]
         self.write_catalog()

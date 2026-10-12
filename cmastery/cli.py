@@ -137,11 +137,14 @@ def instantiate(project, destination, family_name=None, unit_id=None):
                         ignore=shutil.ignore_patterns("build", "__pycache__", "*.pyc"))
     brief = ROOT / "curriculum/projects" / (project + ".md")
     shutil.copy2(brief, destination / "PROJECT.md")
-    # Local contract links resolve in the exported workspace as well.
+    # Local contract links resolve in the exported workspace as well. A family
+    # that ships its own CONTRACTS.md keeps it; the generic guide then lands
+    # beside it as COMPONENT-CONTRACTS.md instead of overwriting it.
     guide = ROOT / 'curriculum/guides/component-contracts.md'
-    shutil.copy2(guide, destination / 'CONTRACTS.md')
+    contracts_name = contracts_guide_name(destination)
+    shutil.copy2(guide, destination / contracts_name)
     text = (destination / 'PROJECT.md').read_text(encoding='utf-8')
-    (destination / 'PROJECT.md').write_text(text.replace('../guides/component-contracts.md', 'CONTRACTS.md'), encoding='utf-8')
+    (destination / 'PROJECT.md').write_text(text.replace('../guides/component-contracts.md', contracts_name), encoding='utf-8')
     for fixture in item.get("fixtures", []):
         source = (ROOT / fixture).resolve()
         if not source.is_relative_to(ROOT / "fixtures"):
@@ -167,12 +170,20 @@ def instantiate(project, destination, family_name=None, unit_id=None):
             "next": "Implement the assigned boundary, then run cmastery check.",
             "limits": "Instantiation does not establish implementation or mastery."}
 
+def contracts_guide_name(workspace):
+    """Name under which the generic component-contracts guide lives in a workspace."""
+    workspace = Path(workspace)
+    if (workspace / 'COMPONENT-CONTRACTS.md').is_file():
+        return 'COMPONENT-CONTRACTS.md'
+    return 'COMPONENT-CONTRACTS.md' if (workspace / 'CONTRACTS.md').is_file() else 'CONTRACTS.md'
+
 def unit_brief(value):
     """Human-readable selection; the canonical record remains machine-readable."""
-    lines = ['# '+value['id']+' — '+value['title'], '',
+    from .text import normalize_prose, strip_bullet
+    lines = ['# '+value['id']+' — '+normalize_prose(value['title']), '',
              'Project: '+value['project']+'; planned hours: '+str(value['hours']), '',
-             '## Steps', ''] + ['- '+str(x) for x in value.get('steps', [])]
-    lines += ['', '## Checks', ''] + ['- '+str(x) for x in value.get('checks', [])]
+             '## Steps', ''] + ['- '+normalize_prose(str(x)) for x in value.get('steps', [])]
+    lines += ['', '## Checks', ''] + ['- '+normalize_prose(strip_bullet(x)) for x in value.get('checks', [])]
     if value.get('decision_required'):
         lines += ['', 'Seal the architecture decision before implementation; compare alternatives using a discriminating experiment.']
     if value.get('decision_before'):
@@ -203,7 +214,7 @@ def advance(workspace, project, unit_id=None):
         raise ValueError('Advance requires a project supported by the same exported laboratory family')
     # Validate incoming assets before archiving or changing selection.
     brief=ROOT/'curriculum/projects'/(project+'.md')
-    text=brief.read_text(encoding='utf-8-sig').replace('../guides/component-contracts.md','CONTRACTS.md')
+    text=brief.read_text(encoding='utf-8-sig').replace('../guides/component-contracts.md',contracts_guide_name(workspace))
     fixtures=[]
     for fixture in item.get('fixtures',[]):
         source=(ROOT/fixture).resolve()

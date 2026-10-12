@@ -3,7 +3,8 @@ from collections import Counter
 from urllib.parse import unquote,urlsplit
 from bs4 import BeautifulSoup
 from markdown_it import MarkdownIt
-from common import ROOT,read_json,dump,anchor
+import re
+from common import ROOT,read_json,dump,anchor,normalize_prose,find_glued
 from check_html import norm
 
 def main():
@@ -25,11 +26,15 @@ def main():
     actual=norm(soup.get_text(' ')); objective_checks=0
     for row in read_json(ROOT/'curriculum/coverage.json')['records']:
         if anchor(row['objective']) not in counts:errors.append('Missing objective anchor '+row['objective'])
-        expected=norm(BeautifulSoup(renderer.render(row['text']),'html.parser').get_text(' '))
+        expected=norm(BeautifulSoup(renderer.render(normalize_prose(row['text'])),'html.parser').get_text(' '))
         if expected not in actual:errors.append('Missing objective text '+row['objective'])
         objective_checks+=1
     if '{ref}`' in text or '{download}`' in text:errors.append('Unconverted publication role')
-    report={'passed':not errors,'local_links':checked,'unique_anchors':len(counts),'objective_checks':objective_checks,'bytes':source.stat().st_size,'errors':errors}
+    doubled=len(re.findall(r'^\s*- - ',text,flags=re.M))+len(re.findall(r'^\s*\d+\. - ',text,flags=re.M))
+    if doubled:errors.append('Doubled list markers rendered: '+str(doubled))
+    glued=sorted(set(find_glued(text)))
+    if glued:errors.append('Glued word/number forms rendered: '+str(glued[:40]))
+    report={'passed':not errors,'local_links':checked,'unique_anchors':len(counts),'objective_checks':objective_checks,'bytes':source.stat().st_size,'doubled_bullets':doubled,'glued_forms':len(glued),'errors':errors}
     dump(ROOT/'reviews/markdown_checks.json',report); print(report)
     if errors:raise SystemExit(1)
 

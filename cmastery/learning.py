@@ -14,6 +14,7 @@ import shutil
 import uuid
 
 from . import cli
+from .text import normalize_prose, strip_bullet
 
 DIMENSIONS = ("mechanism", "correctness", "memory_ownership", "resources_dependencies",
               "failure_diagnosis", "communication_transfer")
@@ -262,7 +263,7 @@ def recall_start(profile, identifier, contract=None):
     variant = value["variants"][len(state["attempts"]) % len(value["variants"])]
     entry = append(profile, "recall-started", set=identifier, variant=variant["id"],
                    objectives=variant["objectives"], prompt=variant["prompt"], contract=contract)
-    return {"attempt": entry["id"], "set": identifier, "variant": variant["id"], "prompt": variant["prompt"],
+    return {"attempt": entry["id"], "set": identifier, "variant": variant["id"], "prompt": normalize_prose(variant["prompt"]),
             "objectives": variant["objectives"], "limits": "Submit your original attempt before viewing feedback."}
 
 
@@ -778,7 +779,7 @@ def acceptance(profile, workspace, identifier, assessment_file):
     previous = [e for e in history if e["kind"] == "unit-accepted" and e["unit"] == identifier]
     source_scope = assessment.get("source_files", [])
     if not source_scope and any(c["scope"] in {"physical", "emulator"} and not c.get("source_units") for c in verified_claims):
-        source_scope = [name for name in cli.snapshot(workspace)["files"] if name not in {"UNIT.md", "PROJECT.md", "CONTRACTS.md"}]
+        source_scope = [name for name in cli.snapshot(workspace)["files"] if name not in {"UNIT.md", "PROJECT.md", "CONTRACTS.md", "COMPONENT-CONTRACTS.md"}]
     revision = retain_revision(profile, workspace, files)
     entry = append(profile, "unit-accepted", unit=identifier, workspace=str(workspace),
         source=cli.snapshot(workspace), unit_contract=digest(value), evidence_files=files,
@@ -837,14 +838,14 @@ def study_sheet(profile, output, identifier=None, assessment_template=None):
     for state in packet["recall"]:
         value = catalog()["sets"][state["set"]]
         variant = value["variants"][len(states[state["set"]]["attempts"]) % len(value["variants"])]
-        lines += ["### " + state["set"] + " / " + variant["id"], "", variant["prompt"], "",
+        lines += ["### " + state["set"] + " / " + variant["id"], "", normalize_prose(variant["prompt"]), "",
                   "Original attempt: __________________________________________________", "",
                   "Assistance used: __________   Scores by objective: __________", "",
                   "Correction and next independent attempt: ___________________________", ""]
     chosen = unit(identifier) if identifier else (unit(packet["available_units"][0]["id"]) if packet["available_units"] else None)
     if chosen:
-        lines += ["## " + chosen["id"] + " — " + chosen["title"], "", "Prediction / invariant: _________________________________", ""]
-        lines += ["- [ ] " + str(step) for step in chosen.get("steps", [])]
+        lines += ["## " + chosen["id"] + " — " + normalize_prose(chosen["title"]), "", "Prediction / invariant: _________________________________", ""]
+        lines += ["- [ ] " + normalize_prose(strip_bullet(step)) for step in chosen.get("steps", [])]
         lines += ["", "Evidence / changed-condition transfer: __________________", "",
                   "Architecture choice, alternatives and reversal condition: __________________", ""]
     lines += ["## Enter this record", "", "Use study next --studied UNIT after study, then recall start / submit / grade.",

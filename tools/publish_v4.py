@@ -5,9 +5,11 @@ import shutil
 import subprocess
 import sys
 import zipfile
-from common import ROOT, anchor, dump, read_json, write
+from common import ROOT, anchor, dump, read_json, strip_bullet
 from v4_common import V4
 import publish as legacy
+
+write = legacy.write
 
 
 def table(headers, rows):return legacy.table(headers, rows)
@@ -20,7 +22,7 @@ def card(u):
         '**Requires:** '+(', '.join('{ref}`'+anchor(d)+'`' for d in u['requires']) or 'Entry knowledge only')+'.',
         '**Imports:** '+(', '.join('`'+a+'`' for a in u['imports']) or 'No implicit code dependency')+'.',
         '**New work:**\n\n'+'\n'.join(f'{i+1}. {s}' for i,s in enumerate(u['steps'])),
-        '**Check and stop:**\n\n'+'\n'.join('- '+s for s in u['checks']),
+        '**Check and stop:**\n\n'+'\n'.join('- '+strip_bullet(s) for s in u['checks']),
         '**Recall before reopening source:** '+', '.join('{ref}`recall-'+anchor(t)+'`' for t in u['recall_sets'])+'.']
     if u['new_executable']:
         out+=['```sh\npython3 -m cmastery init '+u['project']+' ../'+u['id'].lower()+' --unit '+u['id']+'\npython3 -m cmastery check ../'+u['id'].lower()+' --unit '+u['id']+'\n```',

@@ -7,11 +7,15 @@ import shutil
 import subprocess
 import sys
 import zipfile
-from common import ROOT, anchor, dump, load, parse, read_json, total_hours, write, require_research_gates, check_program_order
+from common import ROOT, anchor, dump, load, parse, read_json, total_hours, write as write_raw, require_research_gates, check_program_order, normalize_prose
 from validate import check_data
 
 SOURCE = ROOT / 'build/source'
 HTML = ROOT / 'build/html'
+
+def write(path, text):
+    """Every published page and the standalone edition pass through the prose normalizer."""
+    write_raw(path, normalize_prose(text))
 
 def link(doc, label=None):
     return f'[{label or doc}]({doc}.md)'
