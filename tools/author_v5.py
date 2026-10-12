@@ -7,6 +7,32 @@ every digest against curriculum/v5/baseline.json.
 from copy import deepcopy
 from author_v4 import RULES_V4, author
 from v5_common import V5, baseline, domains_manifest, manifest
+import vocabulary
+
+
+def vocabulary_sets():
+    """One recall set per domain glossary that declares its three prompts; facets are the domain's terms."""
+    entries, documents = vocabulary.load()
+    sets = []
+    for owner, document in sorted(documents.items()):
+        recall = document.get('recall')
+        if owner == 'core' or not recall:
+            continue
+        terms = sorted((e for e in entries if e['owner'] == owner), key=lambda e: e['term'].casefold())
+        if not terms:
+            continue
+        key = 'V-' + owner
+        facets = [key + '-' + e['id'].split('-', 2)[-1] if e['id'].startswith('V-') else key + '-' + e['id'] for e in terms]
+        checklist = [e['term'] + ': ' + e['definition'].split('. ')[0] for e in terms]
+        kinds = [('define', 'mechanism'), ('distinguish', 'trace-or-small-implementation'), ('apply', 'changed-condition')]
+        variants = [{'id': key + '-' + name, 'kind': kind, 'objectives': facets, 'prompt': recall[name], 'checklist': checklist}
+                    for name, kind in kinds]
+        sets.append({'id': key, 'kind': 'vocabulary', 'title': owner + ' vocabulary', 'objectives': facets,
+                     'objective_text': {f: e['term'] for f, e in zip(facets, terms)}, 'projects': [], 'variants': variants,
+                     'resource_ids': sorted({a['resource_id'] for e in terms for a in e.get('authority', [])}),
+                     'elective': False,
+                     'grading': 'Score only the terms actually defined, distinguished or applied; a consulted glossary is assisted practice.'})
+    return sets
 
 
 def rules_v5():
@@ -37,6 +63,7 @@ def rules_v5():
     rules['migration_note'] = ('retained identity and budget; the fifth-edition catalog appends new domains '
                                'without changing accepted units')
     rules['authored_domains'] = sorted(data.get('domains', {}))
+    rules['vocabulary_sets'] = vocabulary_sets()
     return rules
 
 

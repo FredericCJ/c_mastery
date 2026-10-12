@@ -9,13 +9,26 @@ import sys
 import zipfile
 from common import ROOT, anchor, dump, load, parse, read_json, total_hours, write as write_raw, require_research_gates, check_program_order, normalize_prose
 from validate import check_data
+import vocabulary
 
 SOURCE = ROOT / 'build/source'
 HTML = ROOT / 'build/html'
+TERMS = {'index': None}
 
 def write(path, text):
     """Every published page and the standalone edition pass through the prose normalizer."""
     write_raw(path, normalize_prose(text))
+
+def term_index():
+    if TERMS['index'] is None:
+        entries, _ = vocabulary.load()
+        TERMS['index'] = vocabulary.term_index(entries) if entries else []
+    return TERMS['index']
+
+def link_page(text):
+    """Link the first occurrence of each glossary term; the normalizer runs later at write time."""
+    index = term_index()
+    return vocabulary.link_terms(text, index) if index else text
 
 def link(doc, label=None):
     return f'[{label or doc}]({doc}.md)'
@@ -101,7 +114,7 @@ def prepare():
     guide_order=['third-edition','second-edition','entry','project-route','roadmap','component-contracts','concurrent-system-contracts','enhancement','communication-stacks','performance-debugging','standards','profiles','inventory','laboratory','assessment','integrations','reading','workload','audit']
     guide_paths=sorted((ROOT / 'curriculum/guides').glob('*.md'),key=lambda p:(guide_order.index(p.stem) if p.stem in guide_order else 99,p.stem))
     for path in guide_paths:
-        content = publication_links(path.read_text(encoding='utf-8'))
+        content = link_page(publication_links(path.read_text(encoding='utf-8')))
         write(SOURCE / 'guides' / path.name, label('guide-'+path.stem) + content)
         guides.append('guides/'+path.stem)
         standalone.append('<a id="guide-'+path.stem+'"></a>\n\n'+content)
@@ -120,6 +133,7 @@ def prepare():
         body = add_objectives(canonical_body, domain, coverage)
         front += body + '\n## Assigned source passages\n\n' + table(['Resource','Inspected locator','Purpose','Hours'],reading_rows(meta['readings'],resource_map))
         front += '\n## Project directory\n\n' + '\n'.join(f'- [{p}: {projects[p]["meta"]["title"]}](../projects/{p}.md)' for p in meta['projects']) + '\n'
+        front = link_page(front)
         write(SOURCE / 'modules' / (key+'.md'), front)
         standalone.append('<a id="'+anchor(key)+'"></a>\n\n'+front.replace(label(key),''))
         cov=[r for r in coverage if r['domain']==key]
@@ -153,6 +167,7 @@ def prepare():
             content+=f'- {{download}}`{source.name} <../{fixture}>`\n'
             if source.suffix=='.json':
                 content+='\n```json\n'+source.read_text(encoding='utf-8').strip()+'\n```\n'
+        content = link_page(content)
         write(SOURCE / 'projects' / (key+'.md'),content)
         standalone.append('<a id="'+anchor(key)+'"></a>\n\n'+content.replace(label(key),''))
     for r in resources:
@@ -171,6 +186,16 @@ def prepare():
         content+='## Teaching backlinks\n\n'+'\n'.join('- ['+k+'](../modules/'+k+'.md)' for k,m in modules.items() if any(a['resource_id']==r['id'] for a in m['meta']['readings']))+'\n'
         write(SOURCE/'references'/ (r['id']+'.md'),content)
         standalone.append(content.replace(label(r['id']),'<a id="'+anchor(r['id'])+'"></a>\n\n'))
+    glossary_docs=[]
+    entries,documents=vocabulary.load()
+    if entries:
+        owners=['core']+sorted(o for o in documents if o!='core')
+        for owner in owners:
+            title=vocabulary.owner_title(owner,modules)
+            write(SOURCE/'glossary'/(owner+'.md'),vocabulary.glossary_page(owner,entries,resources,title))
+            standalone.append(vocabulary.plain_glossary(owner,entries,resources,title))
+        write(SOURCE/'glossary/index.md',vocabulary.index_page(entries,documents))
+        glossary_docs=['glossary/index']
     for path in sorted((ROOT/'research').glob('*.md')):
         write(SOURCE/'research'/path.name,path.read_text(encoding='utf-8'))
     for path in sorted((ROOT/'research/contributions').glob('*synthesis.md')):
@@ -192,7 +217,7 @@ def prepare():
     write(SOURCE/'research/index.md','# Research and source selection\n\nSearch, reflection and focused follow-up preceded teaching authorship. The reports disclose inspection boundaries and rejected alternatives.\n\n```{toctree}\n:maxdepth: 1\n\n'+'\n'.join(research_docs)+'\n```\n')
     home=(ROOT/'site/index.md').read_text(encoding='utf-8')
     home=home.replace('{{COUNTS}}',counts).replace('{{PROJECTS}}',str(len(projects)))
-    home+='\n```{toctree}\n:hidden:\n:maxdepth: 2\n:caption: Study handbook\n\n'+'\n'.join(guides)+'\nmodules/index\nprojects/index\nreferences/index\ncoverage/index\nresearch/index\n```\n'
+    home+='\n```{toctree}\n:hidden:\n:maxdepth: 2\n:caption: Study handbook\n\n'+'\n'.join(guides+glossary_docs)+'\nmodules/index\nprojects/index\nreferences/index\ncoverage/index\nresearch/index\n```\n'
     write(SOURCE/'index.md',home)
     merged='\n\n---\n\n'.join(standalone)
     merged=re.sub(r'\{ref\}`([^`<>]+) <([^`<>]+)>`',lambda m:f'[{m[1]}](#{anchor(m[2])})',merged)
@@ -205,6 +230,7 @@ def prepare():
     merged=re.sub(r'^\((T\d{2}(?:\.\d{2}(?:\.[a-z][a-z0-9_-]*)?)?)\)=[ \t]*$',lambda m:'\n<a id="'+anchor(m[1])+'"></a>\n',merged,flags=re.M)
     merged=re.sub(r'\{download\}`([^`]+) <\.\./([^>]+)>`',r'[\1](\2)',merged)
     merged=re.sub(r'\[Download unsolved family scaffold\]\(labdownloads/([a-z0-9_-]+)\.zip\)',r'[Unsolved family scaffold](labs/\1/README.md)',merged)
+    merged=vocabulary.plain_terms(merged)
     write(ROOT/'c_programming_mastery_curriculum.md',merged)
     dump(ROOT/'curriculum/coverage.json',{'records':coverage})
     dump(ROOT/'reviews/publication_inventory.json',{'modules':len(modules),'projects':len(projects),'resources':len(resources),'objectives':len(coverage),'canonical_pages':{k:str(v['path'].relative_to(ROOT)) for k,v in {**modules,**projects}.items()}})

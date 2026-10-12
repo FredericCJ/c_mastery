@@ -93,6 +93,13 @@ calibration; emulator receipts are never relabelled as physical.
 
 ## Current status
 
-Mechanics stages complete through the fifth-edition scaffold; the catalog is
-identical to the fourth edition until domain authoring lands. See
+Mechanics stages complete through the fifth-edition scaffold (accepted and
+packaged with no new domain). The vocabulary system is in place: a 120-term
+core glossary, domain glossaries for T09, T23, T25, T29, T30, T44, T45 and T47,
+published glossary pages with term links, `tools/check_vocabulary.py` with a
+recorded ratchet baseline over accepted prose, vocabulary recall sets, the rubric
+criterion and the contract amendment. Authority locators marked pending (126)
+await the fifth-edition research gate; the glossaries for the remaining domains
+and the terminology pass over accepted prose are stage 6 work. The catalog is
+otherwise identical to the fourth edition until domain authoring lands. See
 `reviews/v5/` for current receipts.

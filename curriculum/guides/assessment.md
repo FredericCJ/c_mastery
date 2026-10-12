@@ -13,7 +13,7 @@ Score each dimension 0–3: **0** absent or materially wrong; **1** succeeds on 
 | Memory and ownership | Lifetimes, aliasing, bounds and cleanup are accounted for | Change capacity or ownership policy without losing guarantees |
 | Resources and dependencies | Bounds and permitted dependency closure are recorded | Remove a dependency or tighten a resource limit |
 | Failure and diagnosis | Invalid input/exhaustion follows an explicit policy; failure is minimized | Recover after a new injected failure without corrupting state |
-| Communication and transfer | Another reader can rebuild and assess the result | Defend architecture alternatives and reproduce it after a delay |
+| Communication and transfer | Another reader can rebuild and assess the result; mechanisms are named with the glossary's normative terms and the listed near-synonyms are distinguished | Defend architecture alternatives and reproduce it after a delay |
 
 Core mastery requires all six dimensions at least 2 and at least two at 3. Correctness, memory/ownership, declared dependencies and failure handling are mandatory: a higher performance or documentation score cannot compensate for a failure there. Awareness projects need accurate explanation, one inspected example and a clear limit; they do not claim implementation mastery. Electives have their own declared gates.
 
@@ -36,7 +36,7 @@ Code comments explain local decisions. The dossier explains why the architecture
 
 ## Remediation and delayed retrieval
 
-On failure, name the violated contract and smallest reproducer before editing. Classify the cause: misunderstood semantics, wrong representation, incorrect algorithm, incomplete failure policy, unsuitable tool/environment or invalid oracle. Repair the model, add the reproducer to regression tests, then retest on at least one new case.
+On failure, name the violated contract and smallest reproducer before editing. Classify the cause: misunderstood semantics, wrong representation, incorrect algorithm, incomplete failure policy, unsuitable tool/environment, invalid oracle, or an imprecise or ambiguous term that hid the actual contract. Repair the model, add the reproducer to regression tests, then retest on at least one new case.
 
 Delay retrieval by roughly one to two weeks. Without the old implementation, reproduce a key invariant or rebuild a small variant. Change one parameter: capacity, signedness, allocator, backend, ABI, concurrency strategy or dependency policy. Compare evidence and record which conclusions survive. A delayed failure reopens that gate; it does not erase evidence for unrelated objectives.
 

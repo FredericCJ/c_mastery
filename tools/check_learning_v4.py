@@ -551,6 +551,30 @@ class LearningContracts(unittest.TestCase):
         self.assertFalse((plain / "COMPONENT-CONTRACTS.md").exists())
         self.assertIn("(CONTRACTS.md)", (plain / "PROJECT.md").read_text())
 
+    def test_vocabulary_set_activates_with_the_domain_and_grades_by_term(self):
+        cli.save(self.root / "curriculum/project_graph.json", {"projects": [{"id": "PR-T01-01", "title": "Fixture", "module": "T01", "lab_family": None}]})
+        recall = cli.read(self.root / "curriculum/v4/recall.json")
+        recall["sets"].append({"id": "V-T01", "kind": "vocabulary", "objectives": ["V-T01-object", "V-T01-lvalue"],
+                               "resource_ids": [], "variants": [{"id": "V-T01-" + name, "prompt": "Vocabulary " + name,
+                               "objectives": ["V-T01-object", "V-T01-lvalue"], "checklist": ["object: storage", "lvalue: designates"]}
+                               for name in ("define", "distinguish", "apply")]})
+        cli.save(self.root / "curriculum/v4/recall.json", recall)
+        self.assertEqual(learn.vocabulary_set_for(learn.unit("U-ONE")), "V-T01")
+        learn.mark_studied(self.profile, "U-ONE")
+        states = learn.recall_states(self.profile)
+        self.assertIn("V-T01", states)
+        self.assertIn("TOPIC-1", states)
+        self.time += timedelta(days=1)
+        attempt = learn.recall_start(self.profile, "V-T01")["attempt"]
+        submitted = learn.recall_submit(self.profile, attempt, self.answer)
+        self.assertEqual(set(submitted["objectives"]), {"V-T01-object", "V-T01-lvalue"})
+        cli.save(self.grade, {"scores": {"V-T01-object": 3, "V-T01-lvalue": 1}, "feedback": "lvalue conversion missed"})
+        learn.recall_grade(self.profile, attempt, self.grade)
+        state = learn.recall_states(self.profile)["V-T01"]
+        self.assertEqual(state["last_result"], "correction-and-delayed-retry")
+        cli.save(self.root / "curriculum/project_graph.json", {"projects": [{"id": "PR-T01-01", "title": "Fixture", "module": "INTEGRATION", "lab_family": None}]})
+        self.assertIsNone(learn.vocabulary_set_for(learn.unit("U-ONE")))
+
     def test_physical_capture_closure_is_pinned_by_acceptance(self):
         self.units[0]["claims"] = [{"id": "bounded", "scope": "physical"}]
         self.write_catalog()

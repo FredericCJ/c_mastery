@@ -1,0 +1,269 @@
+{
+ "schema_version": 5,
+ "domain": "T30",
+ "recall": {
+  "define": "Define release time, response time, jitter, worst-case execution time, period and deadline without the glossary and name the source for each.",
+  "distinguish": "Give the distinction and a numeric example for: latency versus response time; measured maximum versus worst-case execution time; period versus deadline; preemptive scheduler versus cooperative scheduler; tick versus tickless timing.",
+  "apply": "A sensor task with a 10 ms period misses its deadline once an hour. Using release time, response time, jitter, interrupt latency and measured maximum, state which measurement separates a scheduling cause from an interrupt-masking cause, why a day of measurements still does not establish a worst-case execution time, and which term names the quantity the watchdog actually bounds."
+ },
+ "entries": [
+  {
+   "id": "V-T30-release-time",
+   "term": "release time",
+   "kind": "hardware",
+   "definition": "The instant at which a job of a periodic or event-driven task becomes ready to run; the reference point from which latency and response time are measured, which a timer-driven system must record independently of when the job actually starts.",
+   "authority": [
+    {
+     "resource_id": "R-FREERTOS-CM4F-1120",
+     "locator": "vTaskDelayUntil and xTaskDelayUntil period accounting",
+     "inspection": "pending"
+    }
+   ],
+   "idiom": [
+    "release latency is start minus release; response is finish minus release"
+   ],
+   "misconception": "A job's release time is when it starts executing."
+  },
+  {
+   "id": "V-T30-response-time",
+   "term": "response time",
+   "kind": "hardware",
+   "definition": "The interval from a job's release to its completion, including waiting for higher-priority work and its own execution; the quantity compared against the deadline in response-time analysis.",
+   "authority": [
+    {
+     "resource_id": "R-FREERTOS-CM4F-1120",
+     "locator": "vTaskDelayUntil and xTaskDelayUntil period accounting",
+     "inspection": "pending"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "interrupt latency",
+     "distinction": "Latency ends when the handler or task starts; response time ends when the required work is finished."
+    }
+   ],
+   "misconception": "Response time equals execution time."
+  },
+  {
+   "id": "V-T30-jitter",
+   "term": "jitter",
+   "kind": "hardware",
+   "definition": "The variation of a timing quantity (release, start or completion) between successive jobs relative to the ideal periodic instants; it is a distribution, reported with its maximum and its source, not a single number.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "C1.8.3 CYCCNT cycle counter and related timers — CYCCNT definition and profiling notes",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Jitter is noise that averages out."
+  },
+  {
+   "id": "V-T30-worst-case-execution-time",
+   "term": "worst-case execution time",
+   "kind": "hardware",
+   "definition": "An upper bound on the execution time of a code path over all inputs and hardware states, established by analysis or exhaustive argument; a measured maximum is a lower bound on it and never a substitute. Written WCET after its first use.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "C1.8.3 CYCCNT cycle counter and related timers — CYCCNT definition and profiling notes",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "WCET"
+   ],
+   "expands": [
+    "WCET"
+   ],
+   "distinguish_from": [
+    {
+     "term": "measured maximum",
+     "distinction": "The largest value seen in a campaign; it depends on the inputs exercised and says nothing about unobserved paths or cache states."
+    }
+   ],
+   "misconception": "Running the task for a day gives its WCET."
+  },
+  {
+   "id": "V-T30-measured-maximum",
+   "term": "measured maximum",
+   "kind": "course",
+   "definition": "The largest value of a timing quantity observed in a recorded campaign, reported with its inputs, clock, build identity and uncertainty; evidence about that campaign only.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "C1.8.8 Cycle Count register, DWT_CYCCNT",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "A measured maximum with a safety margin is a bound."
+  },
+  {
+   "id": "V-T30-period",
+   "term": "period",
+   "kind": "hardware",
+   "definition": "The fixed interval between successive releases of a periodic task; the deadline is often but not necessarily equal to it, and the period, not the execution time, determines how much processor time the task demands.",
+   "authority": [
+    {
+     "resource_id": "R-FREERTOS-CM4F-1120",
+     "locator": "vTaskDelayUntil and xTaskDelayUntil period accounting",
+     "inspection": "pending"
+    }
+   ],
+   "misconception": "Calling delay(10) at the end of the loop gives a 10 ms period (it gives 10 ms plus the execution time)."
+  },
+  {
+   "id": "V-T30-deadline",
+   "term": "deadline",
+   "kind": "hardware",
+   "definition": "The latest acceptable completion time of a job relative to its release; a hard deadline makes a late result worthless or dangerous, a soft one degrades value. Scheduling analysis compares worst-case response time against it.",
+   "authority": [
+    {
+     "resource_id": "R-FREERTOS-CM4F-1120",
+     "locator": "vTaskDelayUntil and xTaskDelayUntil period accounting",
+     "inspection": "pending"
+    }
+   ],
+   "misconception": "Meeting deadlines in testing proves schedulability."
+  },
+  {
+   "id": "V-T30-superloop",
+   "term": "superloop",
+   "kind": "hardware",
+   "definition": "The simplest firmware structure: one infinite loop that polls inputs and runs each activity in turn, with interrupts only setting flags; its response time is bounded by the sum of all activities, which is why it stops scaling.",
+   "authority": [
+    {
+     "resource_id": "R-CMSIS-STARTUP-580",
+     "locator": "startup_Device.c Template File",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "A superloop has no concurrency problems (interrupt handlers still share state with it)."
+  },
+  {
+   "id": "V-T30-cooperative-scheduler",
+   "term": "cooperative scheduler",
+   "kind": "hardware",
+   "definition": "A scheduler in which a task runs until it yields or blocks; switches happen only at known points, which removes most data races between tasks but makes response time depend on the longest run between yields.",
+   "authority": [
+    {
+     "resource_id": "R-FREERTOS-CM4F-1120",
+     "locator": "configUSE_PREEMPTION and taskYIELD",
+     "inspection": "pending"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "preemptive scheduler",
+     "distinction": "A preemptive scheduler switches tasks on timer or interrupt events at arbitrary points, bounding response time but reintroducing shared-state hazards."
+    }
+   ],
+   "misconception": "Cooperative scheduling is always simpler and safer."
+  },
+  {
+   "id": "V-T30-preemptive-scheduler",
+   "term": "preemptive scheduler",
+   "kind": "hardware",
+   "definition": "A scheduler that can suspend the running task at any instruction boundary in favor of a higher-priority ready task, usually from a tick or interrupt handler through PendSV on Cortex-M; every shared datum then needs explicit synchronization.",
+   "authority": [
+    {
+     "resource_id": "R-FREERTOS-CM4F-1120",
+     "locator": "configUSE_PREEMPTION and taskYIELD",
+     "inspection": "pending"
+    }
+   ],
+   "misconception": "Preemption guarantees deadlines."
+  },
+  {
+   "id": "V-T30-context-switch",
+   "term": "context switch",
+   "kind": "hardware",
+   "definition": "Saving the running task's registers and stack pointer and restoring another task's, on Cortex-M split between the hardware exception frame and the software-saved callee registers in PendSV; its cost and its interaction with the floating-point context are measurable dispatch overheads.",
+   "authority": [
+    {
+     "resource_id": "R-FREERTOS-CM4F-1120",
+     "locator": "xPortPendSVHandler",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "A context switch is free on a microcontroller."
+  },
+  {
+   "id": "V-T30-tick",
+   "term": "tick",
+   "kind": "hardware",
+   "definition": "The periodic timer interrupt that advances the scheduler's notion of time and drives time slicing and delays; tick resolution bounds the precision of timeouts, and a tickless mode suppresses ticks during idle to save power at the cost of wakeup bookkeeping.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B3.3 The system timer, SysTick",
+     "inspection": "pending"
+    }
+   ],
+   "aliases": [
+    "tickless"
+   ],
+   "misconception": "Timeouts are accurate to the tick period (they are accurate to within one tick plus jitter)."
+  },
+  {
+   "id": "V-T30-timer-wraparound",
+   "term": "timer wraparound",
+   "kind": "hardware",
+   "definition": "The return of a free-running counter to zero after its maximum; comparisons of absolute timestamps break at the wrap, while unsigned differences modulo the counter width remain correct as long as intervals are shorter than half the range.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "C1.8.8 Cycle Count register, DWT_CYCCNT",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "A 32-bit millisecond counter never wraps in practice (it wraps after about 49.7 days)."
+  },
+  {
+   "id": "V-T30-watchdog",
+   "term": "watchdog",
+   "kind": "hardware",
+   "definition": "A hardware timer that resets the device unless software refreshes it within a window; it bounds the time the system can stay unresponsive, not the correctness of what it does, and a refresh placed in a timer handler defeats it.",
+   "authority": [
+    {
+     "resource_id": "R-ST-RM0090-21",
+     "locator": "21 Independent watchdog (IWDG)",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "IWDG",
+    "WWDG"
+   ],
+   "misconception": "Refreshing the watchdog from an interrupt proves the main loop is alive."
+  },
+  {
+   "id": "V-T30-stack-depth-analysis",
+   "term": "stack depth analysis",
+   "kind": "hardware",
+   "definition": "Establishing the maximum stack use of a task from the call graph and per-function frame sizes (compiler -fstack-usage reports) plus interrupt nesting, rather than from a fill-pattern high-water mark observed in testing.",
+   "authority": [
+    {
+     "resource_id": "R-MEM-FREERTOS-STACK-11-2-0",
+     "locator": "uxTaskGetStackHighWaterMark",
+     "inspection": "pending"
+    }
+   ],
+   "misconception": "The high-water mark after a test run is the stack requirement."
+  },
+  {
+   "id": "V-T30-wakeup-race",
+   "term": "wakeup race",
+   "kind": "hardware",
+   "definition": "The lost-wakeup hazard in which a task checks for pending work, finds none, and enters a low-power wait after the interrupt that would have woken it has already fired; closed by checking the condition with interrupts masked and using an instruction (WFE/WFI) that honors events that arrived during the check.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B1.5.17 Power management — WFE and WFI",
+     "inspection": "pending"
+    }
+   ],
+   "misconception": "WFI cannot miss an interrupt."
+  }
+ ]
+}

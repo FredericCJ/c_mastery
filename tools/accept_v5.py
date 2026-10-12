@@ -41,6 +41,12 @@ def main():
     for key, allowed in LEARNER_STATUS.items():
         if status.get(key) not in allowed:
             raise ValueError('Manifest claims learner evidence that no receipt can establish: ' + key)
+    vocabulary = ROOT / RECEIPTS / 'vocabulary.json'
+    if vocabulary.is_file():
+        record = read_json(vocabulary)
+        if not record.get('passed') or record.get('pending_authorities'):
+            raise ValueError('Vocabulary lint must pass with every authority locator inspected before acceptance')
+        receipts['vocabulary.json'] = sha(vocabulary)
     report = {'schema_version': 5, 'status': 'accepted', 'accepted': True, 'passed': True,
               'recorded_at': datetime.now(timezone.utc).isoformat(), 'input_sha256': identity['sha256'],
               'edition': edition['edition'], 'baseline_commit': edition['edition_baseline_commit'],

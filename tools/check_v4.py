@@ -108,10 +108,14 @@ def inspect(data, artifacts, recall, budget, projects, taxonomy, resources, expe
         if producer:require(set(art['critical_objectives'])<=set(producer['objectives']),art['id']+': critical facet not taught by producer')
         require(set(art['consumers'])=={u['id'] for u in units if art['id'] in u['imports']},art['id']+': lineage differs from real imports')
     sets=recall['sets']
-    require({s['id'] for s in sets}==topics and len(sets)==expected['recall_sets'],'Recall set coverage must be 627 unique topics')
+    vocabulary_ids={s['id'] for s in sets if s.get('kind')=='vocabulary'}
+    require({s['id'] for s in sets}-vocabulary_ids==topics and len(sets)==expected['recall_sets'],'Recall set coverage must be 627 unique topics')
     prompts=set()
     for s in sets:
-        require(set(s['objectives'])=={x for x in objectives if x.rsplit('.',1)[0]==s['id']},s['id']+': recall facets differ')
+        if s.get('kind')=='vocabulary':
+            require(s['id'].startswith('V-') and bool(s['objectives']) and all(o.startswith(s['id']+'-') for o in s['objectives']),s['id']+': vocabulary facets must be term identities')
+        else:
+            require(set(s['objectives'])=={x for x in objectives if x.rsplit('.',1)[0]==s['id']},s['id']+': recall facets differ')
         require(len(s['variants'])==3,s['id']+': missing rotated variants')
         require(len({v['id'] for v in s['variants']})==3,s['id']+': duplicate variant identity')
         for v in s['variants']:

@@ -1,0 +1,291 @@
+{
+ "schema_version": 5,
+ "domain": "T09",
+ "recall": {
+  "define": "Define archive, weak symbol, shared object, dynamic loader, global offset table and load address (LMA) without the glossary and name the source for each.",
+  "distinguish": "Give the distinction and an objdump or readelf observation for: section versus segment; VMA versus LMA; object file versus executable; symbol versus identifier; static library versus shared object.",
+  "apply": "A firmware image boots but global initialized data reads as zero. Using LMA, VMA, startup code and linker script, explain what the startup copy loop must do, which readelf -l fields reveal whether .data has distinct load and virtual addresses, and which term names the section the loop must clear separately."
+ },
+ "entries": [
+  {
+   "id": "V-T09-archive",
+   "term": "archive",
+   "kind": "toolchain",
+   "definition": "A static library: an ar collection of object files with a symbol index from which the linker extracts only the members that resolve currently undefined symbols, in the order the archives appear on the command line; a member needed by a later object is not pulled in unless the archive is repeated or grouped.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "§7.2 Static Linking, pp. 708–709",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "static library"
+   ],
+   "idiom": [
+    "put the archive after the objects that use it"
+   ],
+   "misconception": "Linking an archive links all of it."
+  },
+  {
+   "id": "V-T09-link-order",
+   "term": "link order",
+   "kind": "toolchain",
+   "definition": "The rule that the linker resolves undefined symbols from inputs left to right, extracting archive members only for symbols undefined at the moment the archive is scanned; the reason an unresolved symbol can be fixed by reordering rather than by adding code.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "§7.2 Static Linking, pp. 708–709",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "The order of linker inputs never matters."
+  },
+  {
+   "id": "V-T09-weak-symbol",
+   "term": "weak symbol",
+   "kind": "elf-abi",
+   "definition": "A symbol with weak binding that a global definition of the same name overrides without a duplicate-definition error and that resolves to zero (or a null pointer) if nothing defines it; a toolchain feature with no ISO C counterpart, used for default handlers in vector tables.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-GABI-2001",
+     "locator": "Chapter 4 — Symbol Table, entry fields and Symbol Binding",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "__attribute__((weak))"
+   ],
+   "misconception": "A weak definition in an archive member overrides a strong one (archive extraction rules decide first)."
+  },
+  {
+   "id": "V-T09-shared-object",
+   "term": "shared object",
+   "kind": "elf-abi",
+   "definition": "An ELF file built from position-independent code that the dynamic loader maps into a process at run time and binds through dynamic symbol resolution; it shares code pages across processes and defines an ABI boundary that must stay compatible across versions.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "§7.10 Dynamic Linking with Shared Libraries, pp. 734–737",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "shared library"
+   ],
+   "misconception": "A shared object is linked when the program is linked (it is resolved by the loader at run time)."
+  },
+  {
+   "id": "V-T09-dynamic-loader",
+   "term": "dynamic loader",
+   "kind": "elf-abi",
+   "definition": "The program interpreter (ld.so) named in a dynamically linked executable's PT_INTERP segment, which the kernel starts first; it maps the needed shared objects in search order, applies dynamic relocations and then jumps to the executable's entry point.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "ld.so(8) — DESCRIPTION, dependency search order",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "ld.so",
+    "LD_LIBRARY_PATH",
+    "DT_NEEDED"
+   ],
+   "misconception": "The kernel loads shared libraries."
+  },
+  {
+   "id": "V-T09-global-offset-table",
+   "term": "global offset table",
+   "kind": "elf-abi",
+   "definition": "A per-object table of addresses filled by the loader so that position-independent code can reach global data and functions indirectly; the procedure linkage table pairs with it for lazy function binding.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "§7.10 Dynamic Linking with Shared Libraries, pp. 734–737",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "GOT",
+    "PLT"
+   ],
+   "expands": [
+    "GOT",
+    "PLT"
+   ],
+   "misconception": "The GOT is a security feature (RELRO makes it read-only after binding; the table itself is a relocation mechanism)."
+  },
+  {
+   "id": "V-T09-load-address",
+   "term": "load address",
+   "kind": "toolchain",
+   "definition": "The address at which a section's bytes are placed in the image (LMA), as opposed to the address at which the code expects to find them at run time (VMA); when they differ, as for .data in flash, startup code must copy the section from LMA to VMA before main.",
+   "authority": [
+    {
+     "resource_id": "R-KER-ELF-GABI",
+     "locator": "Program Header",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "LMA",
+    "VMA"
+   ],
+   "expands": [
+    "LMA",
+    "VMA"
+   ],
+   "misconception": "A section has one address."
+  },
+  {
+   "id": "V-T09-entry-symbol",
+   "term": "entry symbol",
+   "kind": "toolchain",
+   "definition": "The symbol the linker records as the program's entry point (ENTRY in a linker script, -e on the command line), which for a hosted program is _start and for Cortex-M firmware is irrelevant because the vector table, not the ELF header, selects the reset handler.",
+   "authority": [
+    {
+     "resource_id": "R-KER-ELF-GABI",
+     "locator": "Program Header",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Setting ENTRY changes where the microcontroller starts."
+  },
+  {
+   "id": "V-T09-section-garbage-collection",
+   "term": "section garbage collection",
+   "kind": "toolchain",
+   "definition": "The linker's removal of unreferenced input sections (--gc-sections with per-function sections) to shrink an image; anything reached only through the vector table or by hardware must be protected with KEEP or it silently disappears.",
+   "authority": [
+    {
+     "resource_id": "R-KER-ELF-GABI",
+     "locator": "Segment Permissions",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "--gc-sections",
+    "KEEP",
+    "-ffunction-sections"
+   ],
+   "misconception": "Garbage collection cannot remove code the program needs."
+  },
+  {
+   "id": "V-T09-map-file",
+   "term": "map file",
+   "kind": "toolchain",
+   "definition": "The linker's report of where every input section and symbol landed, which archive members were pulled in and why, and how much of each memory region is used; the first place to look for an unexpected size or a missing section.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "§7.7 Relocation, pp. 725–730",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "-Wl,-Map=image.map"
+   ],
+   "misconception": "The map file is only for debugging link errors."
+  },
+  {
+   "id": "V-T09-orphan-section",
+   "term": "orphan section",
+   "kind": "toolchain",
+   "definition": "An input section that no SECTIONS rule of the linker script places, which the linker drops into an output section of its own choosing; in firmware it can land outside flash or at the wrong alignment, so scripts should either name every section or make orphans an error.",
+   "authority": [
+    {
+     "resource_id": "R-KER-ELF-GABI",
+     "locator": "Segment Permissions",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "--orphan-handling=error"
+   ],
+   "misconception": "Unplaced sections are discarded."
+  },
+  {
+   "id": "V-T09-symbol-versioning",
+   "term": "symbol versioning",
+   "kind": "elf-abi",
+   "definition": "The ELF mechanism by which a shared object exports several versions of one symbol (memcpy@GLIBC_2.14) so that old programs keep the behavior they were linked against; the reason a binary built against a newer glibc may refuse to load on an older one.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "§7.10 Dynamic Linking with Shared Libraries, pp. 734–737",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "A shared library with the same soname is always compatible."
+  },
+  {
+   "id": "V-T09-tls-segment",
+   "term": "TLS segment (ELF)",
+   "kind": "elf-abi",
+   "definition": "The PT_TLS program header describing the initialization image for thread-local storage, which the loader and libc copy for each thread and address through the thread pointer; the toolchain realization of the C thread storage duration.",
+   "authority": [
+    {
+     "resource_id": "R-KER-ELF-GABI",
+     "locator": "Program Header",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-SYS-GCC-TLS-15-2",
+     "locator": "§6.6 Thread-Local Storage — mechanism, __thread declarations and address lifetime",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "PT_TLS"
+   ],
+   "misconception": "Thread-local variables are stored in the stack."
+  },
+  {
+   "id": "V-T09-relro",
+   "term": "RELRO",
+   "kind": "security",
+   "definition": "Relocation read-only: a linker arrangement (-z relro, full with -z now) that places relocated data such as the global offset table in a segment the loader marks read-only after binding, removing it as an overwrite target.",
+   "authority": [
+    {
+     "resource_id": "R-KER-ELF-GABI",
+     "locator": "Segment Permissions",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "RELRO is on by default everywhere (distributions and toolchains differ)."
+  },
+  {
+   "id": "V-T09-stripping",
+   "term": "stripping",
+   "kind": "toolchain",
+   "definition": "Removing the symbol table, debug information and other non-loadable sections from an ELF file to shrink it; loadable segments are unaffected, so a stripped binary runs identically but backtraces and symbolic debugging need the separately kept debug file.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "§7.3 Object Files, p. 709",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "strip",
+    "objcopy --only-keep-debug"
+   ],
+   "misconception": "Stripping removes dead code."
+  },
+  {
+   "id": "V-T09-relocatable-link",
+   "term": "relocatable link",
+   "kind": "toolchain",
+   "definition": "A link (-r) whose output is another relocatable object file combining the inputs without resolving external references or assigning final addresses; used to build incremental objects or to apply a linker script fragment before the final link.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "§7.4 Relocatable Object Files, pp. 710–711",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "The linker always produces an executable."
+  }
+ ]
+}

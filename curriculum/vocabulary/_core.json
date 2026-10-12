@@ -1,0 +1,2966 @@
+{
+ "schema_version": 5,
+ "domain": "core",
+ "policy": "Cross-domain terms with one precise definition each. Definitions are original wording; authorities name the normative clause or passage. A locator marked pending has not yet been inspected through the research gate and blocks acceptance until it is.",
+ "entries": [
+  {
+   "id": "V-core-object",
+   "term": "object",
+   "kind": "iso-c",
+   "definition": "A region of data storage in the execution environment whose contents can represent values. Every object has a type, a storage duration and a lifetime; it is not a variable name but the storage the name designates.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.15 object",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C11–C23",
+     "note": "Definition unchanged; C23 clarifies representation terms around it (3.19)."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "variable",
+     "distinction": "'Variable' is informal; ISO C speaks of objects and the identifiers that designate them. An object may have no identifier at all (an allocated object, a compound literal, an array element)."
+    },
+    {
+     "term": "object file",
+     "distinction": "An object file is a toolchain artifact (relocatable ELF output); it has nothing to do with the ISO C object model."
+    }
+   ],
+   "avoid": [
+    {
+     "form": "link(s|ed|ing)? (two|three|several|both|the) objects\\b",
+     "replace_with": "object files (relocatable object files)",
+     "when": "",
+     "unless": "object files"
+    }
+   ],
+   "idiom": [
+    "the object designated by *p",
+    "an object of automatic storage duration"
+   ],
+   "misconception": "Reading an object through any pointer type is fine as long as the bytes are there (effective-type rules forbid most such reads)."
+  },
+  {
+   "id": "V-core-lvalue",
+   "term": "lvalue",
+   "kind": "iso-c",
+   "definition": "An expression with an object type other than void that potentially designates an object. Used as an operand it undergoes lvalue conversion to the value stored, except as the operand of sizeof, unary &, ++, --, or the left side of an assignment.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.3.2.1 Lvalues, arrays, and function designators",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged; C23 removes the K&R function definition style but not lvalue rules."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "rvalue",
+     "distinction": "C has no 'rvalue' term; the standard says 'the value of an expression'. Use 'non-lvalue expression' when the distinction matters."
+    }
+   ],
+   "idiom": [
+    "a modifiable lvalue",
+    "lvalue conversion yields the stored value"
+   ],
+   "misconception": "An lvalue is something on the left of an assignment (a const object is an lvalue that cannot be assigned)."
+  },
+  {
+   "id": "V-core-value",
+   "term": "value",
+   "kind": "iso-c",
+   "definition": "The precise meaning of the contents of an object when interpreted as having a specific type. The same object representation can be a different value, or no value at all, under a different type.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.19 value",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "C23 regroups the value subclauses: implementation-defined value, indeterminate representation, non-value representation, perform a trap, unspecified value."
+    }
+   ],
+   "idiom": [
+    "the value stored in the object"
+   ],
+   "misconception": "Bits and values are the same thing (padding bits and non-value representations make them differ)."
+  },
+  {
+   "id": "V-core-object-representation",
+   "term": "object representation",
+   "kind": "iso-c",
+   "definition": "The n × CHAR_BIT bits that occupy an object of size n, copyable as an array of unsigned char; it may include padding bits that do not participate in the value.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.2.6.1 Representations of types — General",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "C23 mandates two's complement for signed integers, which fixes the value bits of signed integer representations but still permits padding bits."
+    }
+   ],
+   "idiom": [
+    "inspect the object representation with memcpy into an unsigned char array"
+   ],
+   "misconception": "Two objects with equal values always have equal representations (padding bits may differ)."
+  },
+  {
+   "id": "V-core-indeterminate-representation",
+   "term": "indeterminate representation",
+   "kind": "iso-c",
+   "definition": "The contents of an object that has not been given a value: either an unspecified value or a non-value representation. Reading such an object has undefined behavior in most contexts; the C17 name is 'indeterminate value'.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.19.2 indeterminate representation",
+     "inspection": "pending"
+    },
+    {
+     "resource_id": "R-effective-c-2",
+     "locator": "Reading Uninitialized Memory",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "indeterminate value"
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17",
+     "note": "Called 'indeterminate value'; a 'trap representation' was the C17 name of a non-value representation."
+    },
+    {
+     "edition": "C23",
+     "note": "Renamed 'indeterminate representation'; the trap-representation term became 'non-value representation'."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "unspecified value",
+     "distinction": "An unspecified value is a valid value of the type chosen in no particular way; an indeterminate representation may additionally be a non-value representation."
+    }
+   ],
+   "avoid": [
+    {
+     "form": "uninitiali[sz]ed value(s)?|garbage value(s)?|random value(s)?",
+     "replace_with": "indeterminate representation (C17: indeterminate value)"
+    }
+   ],
+   "idiom": [
+    "the object holds an indeterminate representation until it is assigned"
+   ],
+   "misconception": "An uninitialized int simply contains whatever was in memory (the read itself may have undefined behavior, and the compiler may assume it never happens)."
+  },
+  {
+   "id": "V-core-non-value-representation",
+   "term": "non-value representation",
+   "kind": "iso-c",
+   "definition": "An object representation that does not represent any value of the object type. Reading it through an lvalue of that type (other than a character type) has undefined behavior; C17 called it a trap representation.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.19.3 non-value representation",
+     "inspection": "pending"
+    }
+   ],
+   "aliases": [
+    "trap representation"
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17",
+     "note": "Named 'trap representation' (3.19.4 in C17)."
+    },
+    {
+     "edition": "C23",
+     "note": "Renamed to avoid implying a hardware trap."
+    }
+   ],
+   "misconception": "'Trap' means the processor raises an exception (the standard only says the behavior is undefined)."
+  },
+  {
+   "id": "V-core-unspecified-value",
+   "term": "unspecified value",
+   "kind": "iso-c",
+   "definition": "A valid value of the relevant type where the standard imposes no requirement on which value is chosen in any instance; the program is well defined but its result may vary.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.19.5 unspecified value",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged apart from renumbering."
+    }
+   ],
+   "misconception": "Unspecified means undefined (an unspecified value never makes the program undefined by itself)."
+  },
+  {
+   "id": "V-core-undefined-behavior",
+   "term": "undefined behavior",
+   "kind": "iso-c",
+   "definition": "Behavior, upon use of a nonportable or erroneous program construct or of erroneous data, for which the standard imposes no requirements. The whole execution becomes unconstrained, not merely the offending operation, and an optimizer may assume it never occurs.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.4.3 undefined behavior",
+     "inspection": "pending"
+    }
+   ],
+   "expands": [
+    "UB"
+   ],
+   "aliases": [
+    "UB"
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Definition unchanged; C23 annex J.2 lists the undefined behaviors."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "implementation-defined behavior",
+     "distinction": "Implementation-defined behavior is unspecified behavior that each implementation documents; it is never undefined."
+    },
+    {
+     "term": "unspecified behavior",
+     "distinction": "Unspecified behavior chooses among possibilities the standard allows; undefined behavior has no allowed outcome at all."
+    }
+   ],
+   "avoid": [
+    {
+     "form": "undefined (expression|program|arithmetic|execution|executions|operation|access|read|write|shift|overflow|result)s?\\b",
+     "replace_with": "'… whose evaluation has undefined behavior' (the behavior is undefined, not the construct)"
+    }
+   ],
+   "idiom": [
+    "signed integer overflow has undefined behavior",
+    "the program's behavior is undefined; nothing that follows is constrained"
+   ],
+   "misconception": "Undefined behavior is a runtime event with a predictable local effect (the compiler may delete or reorder code on the assumption that it cannot happen)."
+  },
+  {
+   "id": "V-core-unspecified-behavior",
+   "term": "unspecified behavior",
+   "kind": "iso-c",
+   "definition": "Behavior that results from the use of an unspecified value, or other behavior where the standard provides two or more possibilities and imposes no further requirement on which is chosen in any instance, such as the order in which function arguments are evaluated.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.4.4 unspecified behavior",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "misconception": "The implementation must document unspecified behavior (only implementation-defined behavior must be documented)."
+  },
+  {
+   "id": "V-core-implementation-defined-behavior",
+   "term": "implementation-defined behavior",
+   "kind": "iso-c",
+   "definition": "Unspecified behavior where each implementation documents how the choice is made, such as the number of bits in a byte or the result of converting an out-of-range value to a signed integer type.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.4.1 implementation-defined behavior",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "Two's complement is mandated, so the signed representation itself is no longer implementation-defined; conversions and padding remain documented choices."
+    }
+   ],
+   "idiom": [
+    "the result is implementation-defined; consult the compiler manual"
+   ],
+   "misconception": "Implementation-defined behavior may change between runs (it is fixed and documented for a given implementation)."
+  },
+  {
+   "id": "V-core-locale-specific-behavior",
+   "term": "locale-specific behavior",
+   "kind": "iso-c",
+   "definition": "Behavior that depends on local conventions of nationality, culture and language that each implementation documents, such as whether islower returns true for characters other than a–z.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.4.2 locale-specific behavior",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "misconception": "Character classification and numeric formatting are fixed by the language (they depend on the current locale)."
+  },
+  {
+   "id": "V-core-constraint",
+   "term": "constraint",
+   "kind": "iso-c",
+   "definition": "A restriction, syntactic or semantic, on how language elements may be used, stated in a Constraints subclause. A conforming implementation must issue at least one diagnostic message for a translation unit that violates one.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.8 constraint",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "undefined behavior",
+     "distinction": "A constraint violation requires a diagnostic; undefined behavior requires nothing and is often undiagnosed."
+    }
+   ],
+   "idiom": [
+    "this is a constraint violation, so the compiler must diagnose it"
+   ],
+   "misconception": "Every error the standard describes produces a compiler diagnostic (only constraint and syntax violations must)."
+  },
+  {
+   "id": "V-core-diagnostic-message",
+   "term": "diagnostic message",
+   "kind": "iso-c",
+   "definition": "A message belonging to an implementation-defined subset of the implementation's output messages; the standard requires one for syntax errors and constraint violations but does not require translation to stop.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.10 diagnostic message",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "misconception": "A warning means the program is valid (a warning may be the required diagnostic for a constraint violation)."
+  },
+  {
+   "id": "V-core-translation-unit",
+   "term": "translation unit",
+   "kind": "iso-c",
+   "definition": "A source file together with everything it includes, after preprocessing: the unit the compiler translates and the boundary within which identifiers with internal linkage are shared.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "5.1.1.1 Program structure",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "source file",
+     "distinction": "A source file is text on disk; the translation unit is what remains after the preprocessor has processed includes and conditional inclusion."
+    }
+   ],
+   "idiom": [
+    "a static function is visible only inside its translation unit"
+   ],
+   "misconception": "A header is a translation unit (a header is text that becomes part of each translation unit that includes it)."
+  },
+  {
+   "id": "V-core-translation-phases",
+   "term": "translation phases",
+   "kind": "iso-c",
+   "definition": "The eight conceptual steps of translation: character mapping, line splicing, decomposition into preprocessing tokens, preprocessing, character-set conversion, string literal concatenation, conversion to tokens and syntactic/semantic analysis, and finally linking into a program image.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "5.1.1.2 Translation phases",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "Phase ordering is unchanged; #embed is processed in phase 4 like #include."
+    }
+   ],
+   "misconception": "The preprocessor is a separate text tool with its own tokenization rules (its tokens become compiler tokens in phase 7)."
+  },
+  {
+   "id": "V-core-preprocessing-token",
+   "term": "preprocessing token",
+   "kind": "iso-c",
+   "definition": "The minimal lexical element in translation phases 3 through 6: header names, identifiers, preprocessing numbers, character constants, string literals, punctuators and other single characters; converted to tokens in phase 7.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.4 Lexical elements",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "idiom": [
+    "token pasting forms one preprocessing token from two"
+   ],
+   "misconception": "1e+ is three tokens for the preprocessor (it is one preprocessing number)."
+  },
+  {
+   "id": "V-core-identifier",
+   "term": "identifier",
+   "kind": "iso-c",
+   "definition": "A sequence of nondigit characters and digits that designates an object, function, tag, member, typedef name, label, macro name or macro parameter; the same spelling may designate different entities in different name spaces or scopes.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.4.2 Identifiers",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "Identifier syntax uses Unicode XID characters; implementation-defined characters are gone."
+    }
+   ],
+   "misconception": "An identifier names a variable (it may name a type, label, member or macro)."
+  },
+  {
+   "id": "V-core-name-space",
+   "term": "name space",
+   "kind": "iso-c",
+   "definition": "One of the four categories in which C classifies identifiers so that the same spelling can denote different things: label names; tags of structures, unions and enumerations; members of each structure or union; and all other identifiers (ordinary identifiers). ISO C spells it as two words.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.2.3 Name spaces of identifiers",
+     "inspection": "registry"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "namespace",
+     "distinction": "A C++ namespace is a named scope; the C term is 'name space' and is not a declared entity. Linux kernel 'namespaces' (PID, mount) are an unrelated OS concept."
+    }
+   ],
+   "avoid": [
+    {
+     "form": "(identifier|tag|member|label|ordinary) namespaces?|namespaces? of identifiers",
+     "replace_with": "name space (ISO C spelling; the C concept, not a C++ or OS namespace)"
+    }
+   ],
+   "idiom": [
+    "struct tags live in their own name space, so a tag may share a spelling with a typedef name"
+   ],
+   "misconception": "C has no notion of namespaces (it has four fixed name spaces)."
+  },
+  {
+   "id": "V-core-scope-c",
+   "term": "scope (C)",
+   "kind": "iso-c",
+   "definition": "The region of program text within which an identifier is visible: file scope, block scope, function scope (labels only) or function prototype scope. Scope is a property of text; lifetime is a property of execution.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.2.1 Scopes of identifiers",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "lifetime",
+     "distinction": "A static-duration object declared in a block has block scope but a lifetime spanning the whole execution; scope and lifetime are independent."
+    },
+    {
+     "term": "scope (evidence)",
+     "distinction": "This curriculum also uses 'scope' for the boundary of an evidence claim (host, model, emulator, physical); write 'block scope' or 'file scope' when the C meaning is intended."
+    }
+   ],
+   "idiom": [
+    "the identifier has block scope",
+    "a file-scope object"
+   ],
+   "misconception": "A variable 'goes out of scope and is destroyed' (its lifetime, not its scope, ends; a static object survives)."
+  },
+  {
+   "id": "V-core-linkage",
+   "term": "linkage",
+   "kind": "iso-c",
+   "definition": "The property that makes an identifier declared in different scopes, or several times in one scope, refer to the same object or function: external linkage across the whole program, internal linkage within one translation unit, or no linkage.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.2.2 Linkages of identifiers",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "symbol binding",
+     "distinction": "ELF symbol binding (local, global, weak) is the toolchain's realization of linkage, with weak binding as a non-ISO extension."
+    }
+   ],
+   "idiom": [
+    "give the helper internal linkage with static",
+    "an identifier with external linkage"
+   ],
+   "misconception": "static only affects storage duration (at file scope it changes linkage, inside a block it changes storage duration)."
+  },
+  {
+   "id": "V-core-storage-duration",
+   "term": "storage duration",
+   "kind": "iso-c",
+   "definition": "The property of an object that determines its lifetime: static, thread, automatic or allocated. It is decided by the declaration or allocation, not by where the object happens to be placed in memory.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.2.4 Storage durations of objects",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-modern-c-3",
+     "locator": "13.2 Storage duration, lifetime, and visibility",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-effective-c-2",
+     "locator": "Storage Duration",
+     "inspection": "registry"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C11",
+     "note": "Thread storage duration added."
+    },
+    {
+     "edition": "C23",
+     "note": "thread_local becomes a keyword."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "the stack",
+     "distinction": "'The stack' and 'the heap' are implementation and ABI mechanisms; ISO C speaks only of automatic and allocated storage duration."
+    }
+   ],
+   "idiom": [
+    "an object with automatic storage duration",
+    "allocated storage lives until free"
+   ],
+   "misconception": "Local variables are on the stack by definition (an implementation may keep them in registers or static storage; the standard defines only when they live)."
+  },
+  {
+   "id": "V-core-lifetime",
+   "term": "lifetime",
+   "kind": "iso-c",
+   "definition": "The portion of program execution during which storage is guaranteed to be reserved for an object with a constant address. After the lifetime ends, any pointer to the object has an indeterminate representation.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.2.4 Storage durations of objects",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-modern-c-3",
+     "locator": "13.2 Storage duration, lifetime, and visibility",
+     "inspection": "registry"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "idiom": [
+    "the pointer outlives the object it points to",
+    "end of lifetime invalidates every pointer to the object"
+   ],
+   "misconception": "Memory that is still mapped keeps the object alive (lifetime ends at the block exit or free call even if the bytes are unchanged)."
+  },
+  {
+   "id": "V-core-declaration",
+   "term": "declaration",
+   "kind": "iso-c",
+   "definition": "A construct that specifies the interpretation and properties of a set of identifiers; it may or may not reserve storage. A declaration that also causes storage to be reserved, or supplies a function body, is a definition.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.7 Declarations",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "auto type inference and constexpr object declarations added."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "definition",
+     "distinction": "Every definition is a declaration; a declaration without storage or body (extern int x; or a prototype) is not a definition."
+    }
+   ],
+   "idiom": [
+    "declare in the header, define in exactly one translation unit"
+   ],
+   "misconception": "int x; in a header is just a declaration (it is a tentative definition in every translation unit that includes it)."
+  },
+  {
+   "id": "V-core-definition",
+   "term": "definition",
+   "kind": "iso-c",
+   "definition": "A declaration that reserves storage for an object or provides the body of a function (or the complete content of a struct, union or enum type). Each object or function with external linkage must have exactly one definition in the program.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.7 Declarations",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "one definition rule",
+     "distinction": "'ODR' is C++ vocabulary; C states the requirement in 6.9 as a semantic rule whose violation has undefined behavior."
+    }
+   ],
+   "idiom": [
+    "the definition lives in exactly one .c file"
+   ],
+   "misconception": "Two definitions of the same external object merge (the behavior is undefined; linkers differ)."
+  },
+  {
+   "id": "V-core-tentative-definition",
+   "term": "tentative definition",
+   "kind": "iso-c",
+   "definition": "A file-scope object declaration without an initializer and without a storage-class specifier (or with static) that becomes a definition initialized to zero if the translation unit contains no other definition of the identifier.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.9.2 External object definitions",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged; -fcommon versus -fno-common defaults in GCC 10+ changed how duplicate tentative definitions link."
+    }
+   ],
+   "idiom": [
+    "int counter; at file scope is a tentative definition"
+   ],
+   "misconception": "Repeating int counter; in two files is portable (it relies on the common-symbol extension)."
+  },
+  {
+   "id": "V-core-declarator",
+   "term": "declarator",
+   "kind": "iso-c",
+   "definition": "The part of a declaration that names the identifier and supplies the pointer, array and function derivations that, combined with the declaration specifiers, give its type; read from the identifier outward following precedence.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.7.6 Declarators",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "Empty parentheses in a declarator now mean no parameters, not an unspecified parameter list."
+    }
+   ],
+   "idiom": [
+    "read the declarator from the inside out"
+   ],
+   "misconception": "int *a, b; declares two pointers (the asterisk belongs to the declarator of a only)."
+  },
+  {
+   "id": "V-core-parameter",
+   "term": "parameter",
+   "kind": "iso-c",
+   "definition": "An object declared as part of a function declaration or definition that acquires a value on entry to the function (also a macro parameter in a function-like macro definition).",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.16 parameter",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "argument",
+     "distinction": "The argument is the expression in the call; the parameter is the object inside the callee that receives its converted value."
+    }
+   ],
+   "idiom": [
+    "an array parameter is adjusted to a pointer parameter"
+   ],
+   "misconception": "Parameters and arguments are interchangeable words."
+  },
+  {
+   "id": "V-core-argument",
+   "term": "argument",
+   "kind": "iso-c",
+   "definition": "The expression in the comma-separated list of a function call (or of a function-like macro invocation) whose value is converted and assigned to the corresponding parameter.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.3 argument",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "idiom": [
+    "default argument promotions apply to the trailing arguments of a variadic call"
+   ],
+   "misconception": "Arguments are evaluated left to right (their evaluation order is unspecified)."
+  },
+  {
+   "id": "V-core-function-prototype",
+   "term": "function prototype",
+   "kind": "iso-c",
+   "definition": "A function declaration that declares the types of its parameters; without one, the call site cannot check or convert arguments beyond the default argument promotions.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.7.6.3 Function declarators (including prototypes)",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "Non-prototype declarations are removed; void f() now means f takes no arguments."
+    }
+   ],
+   "idiom": [
+    "always declare a prototype before the first call"
+   ],
+   "misconception": "int f(); and int f(void); mean the same thing before C23 (the first left the parameters unspecified)."
+  },
+  {
+   "id": "V-core-type",
+   "term": "type",
+   "kind": "iso-c",
+   "definition": "The classification that gives meaning to a value stored in an object or returned by a function: object types, which describe objects, and function types; object types are complete or incomplete depending on whether their size is known.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.2.5 Types",
+     "inspection": "registry"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "Adds bool as a keyword type name, nullptr_t, _BitInt(N) and typeof."
+    }
+   ],
+   "idiom": [
+    "an incomplete type cannot be the type of an lvalue that is read"
+   ],
+   "misconception": "A pointer is just an address with no type (pointer types govern arithmetic, alignment and effective-type rules)."
+  },
+  {
+   "id": "V-core-incomplete-type",
+   "term": "incomplete type",
+   "kind": "iso-c",
+   "definition": "An object type that lacks sufficient information to determine its size, such as a struct declared only by its tag, an array of unknown size, or void. It can be pointed to but not instantiated, which is the basis of the opaque-handle idiom.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.2.5 Types",
+     "inspection": "registry"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "opaque handle",
+     "distinction": "'Opaque' is the idiom; the language mechanism is a pointer to an incomplete structure type whose definition is private to one translation unit."
+    }
+   ],
+   "idiom": [
+    "expose struct store as an incomplete type and hand out pointers only"
+   ],
+   "misconception": "An opaque type is a language feature (it is an incomplete type plus discipline)."
+  },
+  {
+   "id": "V-core-compatible-type",
+   "term": "compatible type",
+   "kind": "iso-c",
+   "definition": "Two types that the standard treats as the same for declarations across translation units and for pointer assignment: identical types, or types related by the compatibility rules for qualifiers, arrays, functions and (across translation units) tagged types with matching members.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.2.7 Compatible type and composite type",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "Tagged types with identical tag and content are now compatible within one translation unit as well."
+    }
+   ],
+   "idiom": [
+    "the two declarations must have compatible types"
+   ],
+   "misconception": "Same size means compatible (long and long long are distinct even when both are 64 bits)."
+  },
+  {
+   "id": "V-core-effective-type",
+   "term": "effective type",
+   "kind": "iso-c",
+   "definition": "The type that governs which lvalue types may access an object: the declared type for declared objects, and for allocated storage the type of the last store (or copy) into it. Accessing an object through an lvalue of an incompatible type has undefined behavior, with exceptions for character types and type punning through unions.",
+   "authority": [
+    {
+     "resource_id": "R-modern-c-3",
+     "locator": "12.6 Effective types",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.5 Expressions — paragraphs 6–7 (effective type)",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged in substance; proposals (N2676, TS 6010) refine provenance, not effective types."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "strict aliasing",
+     "distinction": "'Strict aliasing' is compiler vocabulary (-fstrict-aliasing) for optimizing under the effective-type rules; the rules themselves are ISO C."
+    }
+   ],
+   "idiom": [
+    "memcpy into the object gives it the effective type of the source for that access"
+   ],
+   "misconception": "Casting a pointer changes what you may legally read through it (the effective type of the object, not the cast, decides)."
+  },
+  {
+   "id": "V-core-alignment",
+   "term": "alignment",
+   "kind": "iso-c",
+   "definition": "The requirement that an object of a given type be allocated at an address that is a multiple of a type-specific value, expressed with alignof and controllable with alignas; misaligned access through a pointer has undefined behavior even where hardware tolerates it.",
+   "authority": [
+    {
+     "resource_id": "R-modern-c-3",
+     "locator": "12.7 Alignment",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-wg14-n1570-spelling",
+     "locator": "7.15 Alignment <stdalign.h>",
+     "inspection": "registry"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C11",
+     "note": "_Alignas, _Alignof and max_align_t introduced."
+    },
+    {
+     "edition": "C23",
+     "note": "alignas and alignof become keywords; <stdalign.h> is retained for compatibility."
+    }
+   ],
+   "symbols": [
+    "alignof",
+    "alignas",
+    "max_align_t"
+   ],
+   "distinguish_from": [
+    {
+     "term": "padding",
+     "distinction": "Padding is the storage inserted to satisfy alignment; alignment is the address requirement."
+    }
+   ],
+   "idiom": [
+    "the struct is padded to the alignment of its widest member"
+   ],
+   "misconception": "If the hardware allows unaligned loads the program is correct (the behavior is still undefined, and vectorized code may trap)."
+  },
+  {
+   "id": "V-core-padding",
+   "term": "padding",
+   "kind": "iso-c",
+   "definition": "Unnamed storage within a structure or union, or padding bits within an object representation, whose values are unspecified and do not take part in comparisons or the value; it exists to satisfy alignment and representation requirements.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.7.2.1 Structure and union specifiers",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "idiom": [
+    "never memcmp structs: padding bytes are unspecified"
+   ],
+   "misconception": "sizeof a struct is the sum of its member sizes."
+  },
+  {
+   "id": "V-core-array-to-pointer-conversion",
+   "term": "array-to-pointer conversion",
+   "kind": "iso-c",
+   "definition": "The rule that an expression of array type is converted to a pointer to its first element except as the operand of sizeof, unary & or typeof, or as a string literal initializing an array. Practitioners call this 'array decay'; the array itself is not changed.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.3.2.1 Lvalues, arrays, and function designators",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "typeof joins sizeof and & as a context in which no conversion occurs."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "array parameter adjustment",
+     "distinction": "A parameter declared with array type is adjusted to pointer type in the declaration; the conversion of an array expression at a call site is a separate rule."
+    }
+   ],
+   "idiom": [
+    "the array decays to a pointer when passed to the function"
+   ],
+   "misconception": "Arrays and pointers are the same thing (sizeof and & show the difference)."
+  },
+  {
+   "id": "V-core-pointer",
+   "term": "pointer",
+   "kind": "iso-c",
+   "definition": "A value of a pointer type that refers to an object or function of the referenced type, to one past the end of an array, or is a null pointer. Pointer arithmetic is defined only within an array object and one past its end.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.5.6 Additive operators",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "nullptr and nullptr_t added."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "address",
+     "distinction": "An address is the machine-level location; a pointer value carries type (and, in implementation practice, provenance), so two pointers with equal addresses need not be interchangeable."
+    }
+   ],
+   "idiom": [
+    "a pointer to the first element",
+    "one-past-the-end pointer"
+   ],
+   "misconception": "Any integer can be turned into a usable pointer by a cast (the result is implementation-defined and may be a non-value representation)."
+  },
+  {
+   "id": "V-core-null-pointer",
+   "term": "null pointer",
+   "kind": "iso-c",
+   "definition": "A pointer value, produced from a null pointer constant, that compares unequal to a pointer to any object or function; dereferencing it has undefined behavior.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.3.2.3 Pointers",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "nullptr is a null pointer constant of type nullptr_t."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "null pointer constant",
+     "distinction": "The constant is a source-level expression (0, (void *)0, nullptr); the null pointer is the value it converts to, whose representation need not be all-bits-zero."
+    }
+   ],
+   "avoid": [
+    {
+     "form": "NULL pointer",
+     "replace_with": "null pointer (NULL is the macro, not an adjective)",
+     "ignore_case": false
+    }
+   ],
+   "symbols": [
+    "NULL",
+    "nullptr",
+    "nullptr_t"
+   ],
+   "idiom": [
+    "return a null pointer on failure"
+   ],
+   "misconception": "A null pointer is address zero (its representation is implementation-defined; memset to zero does not portably produce null pointers)."
+  },
+  {
+   "id": "V-core-null-pointer-constant",
+   "term": "null pointer constant",
+   "kind": "iso-c",
+   "definition": "An integer constant expression with the value 0, such an expression cast to void *, or (C23) nullptr; the NULL macro expands to one.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.3.2.3 Pointers",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "nullptr added; NULL may still expand to 0 or (void *)0."
+    }
+   ],
+   "misconception": "NULL is always (void *)0 (it may be a plain 0, which matters for variadic calls)."
+  },
+  {
+   "id": "V-core-one-past-the-end-pointer",
+   "term": "one-past-the-end pointer",
+   "kind": "iso-c",
+   "definition": "The pointer value that points just beyond the last element of an array object; it may be formed and compared but not dereferenced, and it is the only out-of-bounds pointer the standard permits.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.5.6 Additive operators",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "idiom": [
+    "iterate from begin to the one-past-the-end pointer"
+   ],
+   "misconception": "p - 1 before the first element is symmetric with one past the end (it has undefined behavior)."
+  },
+  {
+   "id": "V-core-pointer-provenance",
+   "term": "pointer provenance",
+   "kind": "course",
+   "definition": "The origin an implementation may track for a pointer value to decide which object it may access. ISO C17 and C23 do not define it; WG14 proposals (N2676 and the provenance technical specification) formalize what compilers already assume. Treat provenance reasoning as implementation practice, not an ISO guarantee.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-c23-issues",
+     "locator": "pointer provenance entries",
+     "inspection": "pending"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "effective type",
+     "distinction": "Effective type restricts the lvalue type of an access; provenance restricts which object a pointer may reach even with the right type."
+    }
+   ],
+   "idiom": [
+    "the pointer lost its provenance when it round-tripped through an integer"
+   ],
+   "misconception": "If two pointers compare equal they are interchangeable (an optimizer may distinguish them by provenance)."
+  },
+  {
+   "id": "V-core-sequence-point",
+   "term": "sequence point",
+   "kind": "iso-c",
+   "definition": "A point in execution at which all side effects of previous evaluations are complete and no side effects of subsequent evaluations have taken place; since C11 the standard phrases ordering in terms of sequenced before, with sequence points as the special case.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "Annex C Sequence points",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C11",
+     "note": "The sequenced-before relation replaced sequence points as the primary ordering concept."
+    }
+   ],
+   "idiom": [
+    "there is a sequence point after the evaluation of the first operand of &&"
+   ],
+   "misconception": "The comma in an argument list is a sequence point (only the comma operator is)."
+  },
+  {
+   "id": "V-core-sequenced-before",
+   "term": "sequenced before",
+   "kind": "iso-c",
+   "definition": "The asymmetric, transitive relation between evaluations in a single thread stating that one completes before the other starts; evaluations are unsequenced when neither is sequenced before the other, and modifying an object twice unsequenced has undefined behavior.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "5.1.2.3 Program execution",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C11–C23",
+     "note": "Introduced with the memory model in C11."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "happens before",
+     "distinction": "Sequenced before orders evaluations in one thread; happens before combines it with synchronizes-with to order operations across threads."
+    }
+   ],
+   "idiom": [
+    "i = i++ has undefined behavior because the two modifications are unsequenced"
+   ],
+   "misconception": "Operator precedence determines evaluation order (precedence builds the tree; sequencing orders evaluation)."
+  },
+  {
+   "id": "V-core-side-effect",
+   "term": "side effect",
+   "kind": "iso-c",
+   "definition": "A change in the state of the execution environment: accessing a volatile object, modifying an object or a file, or calling a function that does any of these. Evaluation of an expression may produce a value, a side effect, or both.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "5.1.2.3 Program execution",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "idiom": [
+    "the macro evaluates its argument twice, duplicating its side effects"
+   ],
+   "misconception": "An expression statement with no visible effect is always removable (volatile accesses are side effects)."
+  },
+  {
+   "id": "V-core-full-expression",
+   "term": "full expression",
+   "kind": "iso-c",
+   "definition": "An expression that is not part of another expression nor part of a declarator: an initializer, an expression statement, the controlling expression of a selection or iteration statement, or a return expression. There is a sequence point between the evaluation of a full expression and the next one.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.8 Statements and blocks",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "misconception": "Every semicolon is a sequence point (declarations with several declarators have their own rules)."
+  },
+  {
+   "id": "V-core-integer-promotion",
+   "term": "integer promotion",
+   "kind": "iso-c",
+   "definition": "The conversion applied to operands of small integer types in most expressions: a value of a type whose integer conversion rank is below int becomes int if int can represent all its values, otherwise unsigned int. It explains why arithmetic on unsigned char yields a signed int.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.3.1.1 Boolean, characters, and integers",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "_BitInt types are not promoted."
+    }
+   ],
+   "idiom": [
+    "the operands are promoted to int before the shift"
+   ],
+   "misconception": "uint8_t arithmetic stays 8-bit (it is performed in int, so (uint8_t)a << 24 may be signed overflow)."
+  },
+  {
+   "id": "V-core-usual-arithmetic-conversions",
+   "term": "usual arithmetic conversions",
+   "kind": "iso-c",
+   "definition": "The rules that bring the operands of a binary arithmetic operator to a common type: integer promotions first, then conversion toward the operand of greater rank, with unsigned winning over signed of the same rank. They explain why -1 < 1u is false.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.3.1.8 Usual arithmetic conversions",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "Extended to _BitInt and decimal floating types."
+    }
+   ],
+   "idiom": [
+    "the comparison is done in unsigned because of the usual arithmetic conversions"
+   ],
+   "misconception": "Mixing signed and unsigned is harmless when the values are small."
+  },
+  {
+   "id": "V-core-integer-conversion-rank",
+   "term": "integer conversion rank",
+   "kind": "iso-c",
+   "definition": "The ordering of integer types that drives promotions and conversions: long long above long above int above short above char, with each unsigned type ranking with its signed counterpart and bool lowest.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.3.1.1 Boolean, characters, and integers",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "_BitInt ranks by width relative to standard types."
+    }
+   ],
+   "misconception": "Rank is the same as size (long and int may have equal size but long has higher rank)."
+  },
+  {
+   "id": "V-core-wraparound",
+   "term": "wraparound",
+   "kind": "iso-c",
+   "definition": "The defined modulo-2^N behavior of unsigned integer arithmetic: a result outside the range is reduced modulo one more than the maximum value. Signed arithmetic does not wrap; its overflow has undefined behavior.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.2.5 Types",
+     "inspection": "registry"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "C23 adds a definition of 'wraparound' in clause 3 and the checked-arithmetic functions in <stdckdint.h>."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "signed integer overflow",
+     "distinction": "Overflow of a signed operation has undefined behavior; wraparound is the defined unsigned result."
+    }
+   ],
+   "idiom": [
+    "unsigned counters wrap around; compare differences, not absolute values"
+   ],
+   "misconception": "Signed overflow wraps because two's complement is now mandatory (the representation is fixed, the overflow is still undefined)."
+  },
+  {
+   "id": "V-core-signed-integer-overflow",
+   "term": "signed integer overflow",
+   "kind": "iso-c",
+   "definition": "A signed arithmetic operation whose mathematical result is not representable in the result type; the behavior is undefined, so compilers may assume it never happens when simplifying comparisons and loops.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.5 Expressions — paragraph 5 (exceptional conditions)",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "ckd_add, ckd_sub and ckd_mul report overflow without invoking it."
+    }
+   ],
+   "symbols": [
+    "ckd_add",
+    "ckd_sub",
+    "ckd_mul",
+    "INT_MAX"
+   ],
+   "idiom": [
+    "check for overflow before the addition, not after"
+   ],
+   "misconception": "Testing x + 1 < x detects overflow (the compiler may fold the test to false)."
+  },
+  {
+   "id": "V-core-byte",
+   "term": "byte",
+   "kind": "iso-c",
+   "definition": "The addressable unit of data storage large enough to hold any member of the basic character set; it has CHAR_BIT bits, which is at least 8. An octet is exactly 8 bits and is the unit of network protocols.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.6 byte",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "symbols": [
+    "CHAR_BIT"
+   ],
+   "distinguish_from": [
+    {
+     "term": "octet",
+     "distinction": "Protocol specifications count octets; C counts bytes of CHAR_BIT bits. On every target in this curriculum they coincide."
+    }
+   ],
+   "idiom": [
+    "sizeof yields a size in bytes"
+   ],
+   "misconception": "A byte is always eight bits in C."
+  },
+  {
+   "id": "V-core-character",
+   "term": "character",
+   "kind": "iso-c",
+   "definition": "Abstractly, a member of a set of elements used to organize text; in C also a bit representation that fits in a byte. The type char is a distinct integer type whose signedness is implementation-defined.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.7 character",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "char8_t and UTF-8 literals added."
+    }
+   ],
+   "misconception": "char is signed (it is implementation-defined; Arm targets typically make it unsigned)."
+  },
+  {
+   "id": "V-core-memory-location",
+   "term": "memory location",
+   "kind": "iso-c",
+   "definition": "Either an object of scalar type or a maximal sequence of adjacent bit-fields all having nonzero width; the unit at which the memory model defines conflicting accesses, so two threads writing different bit-fields of the same word may still race.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "3.14 memory location",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C11–C23",
+     "note": "Introduced with the C11 memory model."
+    }
+   ],
+   "misconception": "Distinct struct members never race (adjacent bit-fields share a memory location)."
+  },
+  {
+   "id": "V-core-data-race",
+   "term": "data race",
+   "kind": "concurrency",
+   "definition": "Two conflicting actions in different threads on the same memory location, at least one of which is not atomic and neither of which happens before the other. A C program containing a data race has undefined behavior; POSIX defines the same condition for its threads.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-POSIX-MEMORY-2024",
+     "locator": "§4.15.1.1 Data Races",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "5.1.2.4 Multi-threaded executions and data races",
+     "inspection": "pending"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "race condition",
+     "distinction": "A race condition is any timing-dependent correctness failure; a data race is the specific memory-model condition and is undefined behavior even when the outcome seems benign. Atomics remove the data race, not necessarily the race condition."
+    }
+   ],
+   "avoid": [
+    {
+     "form": "races?",
+     "unless": "data race|race condition|race[- ]free|racy|racing|time-of-check|check-then-act|race freedom|races? for the item|win(s|ning)? the race|lose(s)? the race",
+     "replace_with": "'data race' when the memory-model condition is meant, 'race condition' for a timing-dependent correctness failure"
+    }
+   ],
+   "idiom": [
+    "the increment is a data race on count",
+    "race-free by construction"
+   ],
+   "misconception": "A data race on a single int is harmless because the hardware store is atomic (the behavior is undefined and the compiler may cache the value in a register forever)."
+  },
+  {
+   "id": "V-core-race-condition",
+   "term": "race condition",
+   "kind": "concurrency",
+   "definition": "A correctness failure whose occurrence depends on the relative timing or interleaving of concurrent activities, such as a check-then-act sequence on a file (TOCTOU) or two atomic updates that were meant to be one. It is not necessarily undefined behavior and may exist in programs with no data race.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-POSIX-MEMORY-2024",
+     "locator": "§4.15.1.1 Data Races",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "TOCTOU"
+   ],
+   "expands": [
+    "TOCTOU"
+   ],
+   "idiom": [
+    "a check-then-act race condition",
+    "time-of-check to time-of-use"
+   ],
+   "misconception": "Using atomics everywhere eliminates race conditions."
+  },
+  {
+   "id": "V-core-happens-before",
+   "term": "happens before",
+   "kind": "concurrency",
+   "definition": "The transitive ordering of operations across threads built from sequenced-before within a thread and synchronizes-with between threads; a read observes a write that happens before it unless a later write in the modification order intervenes.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-POSIX-MEMORY-2024",
+     "locator": "§4.15.1.2 Memory Order and Consistency",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "5.1.2.4 Multi-threaded executions and data races",
+     "inspection": "pending"
+    }
+   ],
+   "idiom": [
+    "the release store happens before every operation after the acquire load"
+   ],
+   "misconception": "Wall-clock order is happens-before (two operations can be unordered even if one is observed to finish first)."
+  },
+  {
+   "id": "V-core-synchronizes-with",
+   "term": "synchronizes with",
+   "kind": "concurrency",
+   "definition": "The relation established between a release operation and an acquire operation that reads the value it stored (or a value in its release sequence), between mutex unlock and the next lock, and between thread creation or join and the thread's body; it is the cross-thread ingredient of happens before.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-POSIX-MEMORY-2024",
+     "locator": "§4.15.2 Memory Synchronization",
+     "inspection": "registry"
+    }
+   ],
+   "idiom": [
+    "the unlock synchronizes with the subsequent lock"
+   ],
+   "misconception": "Any atomic store synchronizes with any atomic load (relaxed operations synchronize with nothing)."
+  },
+  {
+   "id": "V-core-modification-order",
+   "term": "modification order",
+   "kind": "concurrency",
+   "definition": "The total order of all modifications of one atomic object that every thread agrees on, even when threads disagree about the relative order of modifications to different objects.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "5.1.2.4 Multi-threaded executions and data races",
+     "inspection": "pending"
+    }
+   ],
+   "idiom": [
+    "the compare-exchange appends to the modification order"
+   ],
+   "misconception": "There is one global order of all atomic operations (only seq_cst operations share a single total order)."
+  },
+  {
+   "id": "V-core-memory-order",
+   "term": "memory order",
+   "kind": "concurrency",
+   "definition": "The constraint attached to an atomic operation or fence that states which synchronizes-with relations it creates: relaxed (none), consume, acquire, release, acquire-release, or sequentially consistent.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-POSIX-MEMORY-2024",
+     "locator": "§4.15.1.2 Memory Order and Consistency",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "memory_order_relaxed",
+    "memory_order_acquire",
+    "memory_order_release",
+    "memory_order_acq_rel",
+    "memory_order_seq_cst"
+   ],
+   "idiom": [
+    "publish with a release store, consume with an acquire load"
+   ],
+   "misconception": "Relaxed atomics are faster versions of ordinary variables (they prevent data races but promise no ordering)."
+  },
+  {
+   "id": "V-core-atomic-operation",
+   "term": "atomic operation",
+   "kind": "concurrency",
+   "definition": "An operation on an atomic object that is indivisible with respect to other atomic operations on the same object: no thread observes it half done. Atomicity says nothing about ordering with respect to other locations; the memory order does.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "7.17 Atomics <stdatomic.h>",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "_Atomic",
+    "atomic_load",
+    "atomic_store",
+    "atomic_fetch_add",
+    "atomic_compare_exchange_strong"
+   ],
+   "idiom": [
+    "an atomic read-modify-write"
+   ],
+   "misconception": "Declaring a variable volatile makes accesses atomic."
+  },
+  {
+   "id": "V-core-lock-free-atomic",
+   "term": "lock-free (atomic property)",
+   "kind": "concurrency",
+   "definition": "The property of an atomic type whose operations are implemented without a lock, reported by atomic_is_lock_free and the ATOMIC_*_LOCK_FREE macros; required for use from signal handlers and the only sense in which ISO C uses the word.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "7.17.5 Lock-free property",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "atomic_is_lock_free",
+    "ATOMIC_INT_LOCK_FREE"
+   ],
+   "distinguish_from": [
+    {
+     "term": "lock-free (progress guarantee)",
+     "distinction": "The ISO property concerns how one atomic operation is implemented; the progress guarantee concerns whether an algorithm makes system-wide progress under contention."
+    }
+   ],
+   "misconception": "All _Atomic types are lock-free (a 16-byte atomic may be implemented with a lock)."
+  },
+  {
+   "id": "V-core-lock-free-progress",
+   "term": "lock-free (progress guarantee)",
+   "kind": "concurrency",
+   "definition": "A nonblocking progress guarantee for a concurrent algorithm: whenever threads keep taking steps, at least one of them completes its operation in a finite number of steps, so the system as a whole progresses even if individual threads starve.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-MICHAEL-SCOTT-1996",
+     "locator": "§2 Algorithms",
+     "inspection": "registry"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "wait-free",
+     "distinction": "Wait-free bounds every thread's steps; lock-free bounds only the system's."
+    },
+    {
+     "term": "obstruction-free",
+     "distinction": "Obstruction-free guarantees completion only when a thread runs in isolation."
+    }
+   ],
+   "idiom": [
+    "the queue is lock-free but not wait-free"
+   ],
+   "misconception": "Lock-free code cannot deadlock or livelock (it cannot deadlock, but threads may retry indefinitely)."
+  },
+  {
+   "id": "V-core-wait-free",
+   "term": "wait-free",
+   "kind": "concurrency",
+   "definition": "The strongest nonblocking progress guarantee: every thread completes each operation in a bounded number of its own steps regardless of other threads' speeds or failures.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-MICHAEL-SCOTT-1996",
+     "locator": "§3.1 Safety",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Wait-free means no waiting in the sense of blocking (it means a per-thread step bound)."
+  },
+  {
+   "id": "V-core-obstruction-free",
+   "term": "obstruction-free",
+   "kind": "concurrency",
+   "definition": "The weakest nonblocking guarantee: a thread completes its operation in a bounded number of steps if it eventually runs without interference from other threads.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-MICHAEL-SCOTT-1996",
+     "locator": "§2 Algorithms",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Obstruction-free algorithms progress under contention."
+  },
+  {
+   "id": "V-core-fence",
+   "term": "fence",
+   "kind": "concurrency",
+   "definition": "An atomic_thread_fence with a memory order: it establishes synchronizes-with relations between fences and atomic operations in other threads without itself accessing memory. A compiler barrier only prevents the compiler from reordering; a hardware barrier instruction orders the processor's accesses; a fence is the language-level concept that an implementation maps onto both.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-BARRIERS-6-12",
+     "locator": "SMP BARRIER PAIRING",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "7.17.4 Fences",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "atomic_thread_fence",
+    "atomic_signal_fence"
+   ],
+   "distinguish_from": [
+    {
+     "term": "barrier (thread)",
+     "distinction": "A thread barrier is a rendezvous that blocks threads until all arrive; a fence orders memory operations and never blocks."
+    }
+   ],
+   "idiom": [
+    "pair a release fence with an acquire fence"
+   ],
+   "misconception": "A fence flushes caches (it orders operations; caches are coherent regardless)."
+  },
+  {
+   "id": "V-core-volatile",
+   "term": "volatile",
+   "kind": "iso-c",
+   "definition": "A type qualifier stating that accesses to the object are part of the observable behavior and must be performed strictly according to the abstract machine, which is what memory-mapped I/O and signal-handler flags need. It provides neither atomicity nor ordering with respect to other threads.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.7.3 Type qualifiers",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "atomic operation",
+     "distinction": "volatile forbids the compiler from eliding or merging accesses; atomics define what concurrent threads observe."
+    }
+   ],
+   "idiom": [
+    "a pointer to a volatile uint32_t names the status register",
+    "a volatile sig_atomic_t flag"
+   ],
+   "misconception": "volatile makes a variable safe to share between threads."
+  },
+  {
+   "id": "V-core-restrict",
+   "term": "restrict",
+   "kind": "iso-c",
+   "definition": "A pointer qualifier by which the programmer promises that, during the lifetime of the pointer, an object accessed through it is accessed only through that pointer; violating the promise has undefined behavior, and the compiler may use it to vectorize or reorder loads and stores.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.7.3.1 Formal definition of restrict",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C99–C23",
+     "note": "Introduced in C99; unchanged."
+    }
+   ],
+   "idiom": [
+    "memcpy's parameters are restrict-qualified because the regions must not overlap"
+   ],
+   "misconception": "restrict is an optimization hint the compiler checks (it is an unchecked promise)."
+  },
+  {
+   "id": "V-core-bit-field",
+   "term": "bit-field",
+   "kind": "iso-c",
+   "definition": "A structure member declared with a width in bits; its allocation order, straddling of units and signedness of plain int bit-fields are implementation-defined, so bit-fields cannot describe hardware registers or wire formats portably.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.7.2.1 Structure and union specifiers",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "Bit-fields of _BitInt types allowed."
+    }
+   ],
+   "idiom": [
+    "use masks and shifts instead of bit-fields for the register layout"
+   ],
+   "misconception": "Bit-field order matches the datasheet's bit numbering."
+  },
+  {
+   "id": "V-core-flexible-array-member",
+   "term": "flexible array member",
+   "kind": "iso-c",
+   "definition": "An array of unspecified size that is the last member of a structure with more than one named member; the structure is allocated with extra storage, and the member behaves as if it had the size that fits the allocation.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.7.2.1 Structure and union specifiers",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C99–C23",
+     "note": "The 'struct hack' with a zero- or one-element array is the nonstandard predecessor."
+    }
+   ],
+   "idiom": [
+    "allocate sizeof *p + n * sizeof p->data[0]"
+   ],
+   "misconception": "A flexible array member adds a pointer to the struct (it adds no storage of its own)."
+  },
+  {
+   "id": "V-core-variable-length-array",
+   "term": "variable length array",
+   "kind": "iso-c",
+   "definition": "An array whose size is not an integer constant expression; its size is fixed at the point of declaration for its lifetime. Support is optional since C11 (__STDC_NO_VLA__), and C23 requires only variably modified types, not VLA objects with automatic storage.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.7.6.2 Array declarators",
+     "inspection": "pending"
+    }
+   ],
+   "aliases": [
+    "VLA"
+   ],
+   "expands": [
+    "VLA"
+   ],
+   "edition_notes": [
+    {
+     "edition": "C11",
+     "note": "Made optional."
+    },
+    {
+     "edition": "C23",
+     "note": "Variably modified types mandatory again; automatic VLA objects remain optional."
+    }
+   ],
+   "idiom": [
+    "never size a VLA from untrusted input"
+   ],
+   "misconception": "A VLA can be resized after declaration."
+  },
+  {
+   "id": "V-core-compound-literal",
+   "term": "compound literal",
+   "kind": "iso-c",
+   "definition": "A postfix expression of the form (type){ initializer-list } that creates an unnamed object with automatic storage duration (static at file scope) and yields an lvalue designating it.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.5.2.5 Compound literals",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "Storage-class specifiers such as static and constexpr may now be given."
+    }
+   ],
+   "idiom": [
+    "pass (struct config){ .timeout = 5 } directly"
+   ],
+   "misconception": "A compound literal is a constant (its lifetime ends with the enclosing block)."
+  },
+  {
+   "id": "V-core-designated-initializer",
+   "term": "designated initializer",
+   "kind": "iso-c",
+   "definition": "An initializer element preceded by .member or [index] designators that names which subobject it initializes; unnamed subobjects are zero-initialized, which makes designated initialization the robust way to fill configuration structs.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.7.10 Initialization",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "Empty initializer {} allowed."
+    }
+   ],
+   "idiom": [
+    "use designated initializers so adding a member cannot silently shift values"
+   ],
+   "misconception": "Order of designated initializers must match declaration order."
+  },
+  {
+   "id": "V-core-generic-selection",
+   "term": "generic selection",
+   "kind": "iso-c",
+   "definition": "The _Generic primary expression that selects one of several expressions according to the type of a controlling expression at translation time; the C mechanism behind type-generic macros such as those in <tgmath.h>.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.5.1.1 Generic selection",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "_Generic"
+   ],
+   "edition_notes": [
+    {
+     "edition": "C11–C23",
+     "note": "C23 allows a type name as the controlling operand."
+    }
+   ],
+   "idiom": [
+    "dispatch on the argument type with _Generic"
+   ],
+   "misconception": "_Generic is function overloading (it selects at translation time by type without name lookup)."
+  },
+  {
+   "id": "V-core-static-assertion",
+   "term": "static assertion",
+   "kind": "iso-c",
+   "definition": "A declaration (static_assert) that makes translation fail with a diagnostic if a constant expression is false; used to pin representation and size assumptions at translation time.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n1570-spelling",
+     "locator": "7.2 Diagnostics <assert.h>",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "static_assert",
+    "_Static_assert"
+   ],
+   "edition_notes": [
+    {
+     "edition": "C11",
+     "note": "_Static_assert introduced."
+    },
+    {
+     "edition": "C23",
+     "note": "static_assert is a keyword and the message is optional."
+    }
+   ],
+   "idiom": [
+    "static_assert(sizeof(struct frame) == 16, \"wire layout\")"
+   ],
+   "misconception": "assert and static_assert are the same check at different times (assert may be compiled out; static_assert stops translation)."
+  },
+  {
+   "id": "V-core-inline-function",
+   "term": "inline function",
+   "kind": "iso-c",
+   "definition": "A function declared with the inline specifier, which suggests fast calls and, in C (unlike C++), creates an inline definition that does not provide an external definition unless one translation unit also declares it extern; the linkage rules differ from GNU89 inline.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "6.7.4 Function specifiers",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C99–C23",
+     "note": "ISO semantics since C99; GCC's gnu89 inline differs."
+    }
+   ],
+   "idiom": [
+    "static inline in a header avoids the external-definition rules"
+   ],
+   "misconception": "inline forces inlining (it is a hint with linkage consequences)."
+  },
+  {
+   "id": "V-core-string",
+   "term": "string",
+   "kind": "iso-c",
+   "definition": "A contiguous sequence of characters terminated by and including the first null character; a string literal is the source-level token that initializes a static array holding one, and modifying that array has undefined behavior.",
+   "authority": [
+    {
+     "resource_id": "R-effective-c-2",
+     "locator": "Strings",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "7.1.1 Definitions of terms",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "UTF-8 string literals have type array of char8_t."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "byte sequence",
+     "distinction": "A buffer with an explicit length may contain null bytes and is not a string; strlen and the str* functions require the terminator."
+    }
+   ],
+   "idiom": [
+    "a null-terminated string",
+    "the buffer is not NUL-terminated, so it is not a string"
+   ],
+   "misconception": "A char array is a string (only if it contains a terminating null character within its bounds)."
+  },
+  {
+   "id": "V-core-errno",
+   "term": "errno",
+   "kind": "posix",
+   "definition": "A thread-local, modifiable lvalue of type int that library functions set to a positive error number on failure; its value is meaningful only immediately after a call that reported failure, and successful calls may leave it nonzero.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "errno(3) — DESCRIPTION: error indication, thread-local errno and success caveats",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "errno",
+    "EINTR",
+    "EAGAIN",
+    "EBUSY"
+   ],
+   "idiom": [
+    "save errno before calling anything else",
+    "check the return value first, then read errno"
+   ],
+   "misconception": "errno == 0 means the last call succeeded."
+  },
+  {
+   "id": "V-core-async-signal-safe",
+   "term": "async-signal-safe",
+   "kind": "posix",
+   "definition": "A function that may be called safely from within a signal handler that interrupted arbitrary code; POSIX lists the guaranteed functions, and anything else (including malloc and printf) may deadlock or corrupt state.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "signal-safety(7) — DESCRIPTION, opening safety discussion",
+     "inspection": "registry"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "thread-safe",
+     "distinction": "Thread safety concerns concurrent calls from several threads; async-signal safety concerns reentry from a handler within one thread, a stricter property."
+    },
+    {
+     "term": "reentrant",
+     "distinction": "Reentrant means safe to re-enter from any context; many thread-safe functions (using locks) are not reentrant."
+    }
+   ],
+   "idiom": [
+    "only write to a self-pipe from the handler"
+   ],
+   "misconception": "A function that takes no lock is async-signal-safe."
+  },
+  {
+   "id": "V-core-thread-safe",
+   "term": "thread-safe",
+   "kind": "concurrency",
+   "definition": "A function or component that behaves correctly when called concurrently from several threads, usually by avoiding shared mutable state or guarding it with synchronization; the term describes a contract, not an implementation.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-POSIX-THREAD-LIFECYCLE-2024",
+     "locator": "pthread_create — SYNOPSIS, DESCRIPTION, RETURN VALUE and ERRORS",
+     "inspection": "registry"
+    }
+   ],
+   "idiom": [
+    "document whether the API is thread-safe, reentrant and async-signal-safe as separate properties"
+   ],
+   "misconception": "Thread-safe implies lock-free or reentrant."
+  },
+  {
+   "id": "V-core-reentrant",
+   "term": "reentrant",
+   "kind": "concurrency",
+   "definition": "A function that can be interrupted and safely re-entered before the first activation completes, from a signal handler or a nested call, because it keeps no state outside its stack frame and takes no lock that the interrupted activation may hold.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "signal-safety(7) — DESCRIPTION, opening safety discussion",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Reentrant and thread-safe are synonyms."
+  },
+  {
+   "id": "V-core-freestanding-implementation",
+   "term": "freestanding implementation",
+   "kind": "iso-c",
+   "definition": "A conforming implementation that need not provide the hosted library: only a small set of headers (such as <stddef.h>, <stdint.h>, <limits.h>, <stdarg.h> and since C23 a few more) and whatever startup and entry conventions it documents; the environment of firmware and kernels.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "4. Conformance",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C23",
+     "note": "The freestanding header set grows (<string.h> subset, <stdbit.h>, <stdckdint.h>)."
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "hosted implementation",
+     "distinction": "A hosted implementation provides the full library and starts the program at main; -ffreestanding asks the compiler to assume the freestanding rules."
+    }
+   ],
+   "idiom": [
+    "build the image with -ffreestanding -nostdlib and audit what the compiler still calls"
+   ],
+   "misconception": "-ffreestanding removes all runtime dependencies (the compiler may still emit calls to memcpy or libgcc helpers)."
+  },
+  {
+   "id": "V-core-hosted-implementation",
+   "term": "hosted implementation",
+   "kind": "iso-c",
+   "definition": "A conforming implementation that provides the complete standard library and the hosted environment rules: program startup through main, a defined meaning for program termination and exit status.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "5.1.2.2 Hosted environment",
+     "inspection": "pending"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "misconception": "Linux userspace programs are always hosted (a custom-entry executable without libc runs under freestanding assumptions)."
+  },
+  {
+   "id": "V-core-library-function",
+   "term": "library function",
+   "kind": "iso-c",
+   "definition": "A function the standard library specifies with a contract on arguments, return value and side effects; calling it with invalid arguments has undefined behavior, and an implementation may provide it as a macro as well as a function.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "7.1.4 Use of library functions",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "§3.3 The Standard C Library; The GNU C Library (glibc), p. 47",
+     "inspection": "registry"
+    }
+   ],
+   "edition_notes": [
+    {
+     "edition": "C17–C23",
+     "note": "Unchanged."
+    }
+   ],
+   "idiom": [
+    "the library function's contract forbids overlapping regions"
+   ],
+   "misconception": "Library functions validate their arguments (most make invalid arguments undefined)."
+  },
+  {
+   "id": "V-core-process",
+   "term": "process",
+   "kind": "posix",
+   "definition": "An address space together with the execution contexts, descriptor table, credentials and signal dispositions managed by the kernel for one program instance; created by fork or posix_spawn, replaced by exec, reaped by wait.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "execve(2) — Effect on process attributes",
+     "inspection": "registry"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "thread (POSIX)",
+     "distinction": "Threads share the address space and descriptors of one process; the Linux kernel schedules both as tasks, which is kernel vocabulary, not POSIX vocabulary."
+    }
+   ],
+   "idiom": [
+    "the child process inherits the open file descriptions"
+   ],
+   "misconception": "fork copies memory immediately (copy-on-write defers the copy)."
+  },
+  {
+   "id": "V-core-thread-posix",
+   "term": "thread (POSIX)",
+   "kind": "posix",
+   "definition": "A single flow of control within a process, created by pthread_create, sharing the process address space and file descriptors while owning its stack, registers, signal mask and errno; joinable until pthread_join or detached.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-POSIX-THREAD-LIFECYCLE-2024",
+     "locator": "pthread_create — SYNOPSIS, DESCRIPTION, RETURN VALUE and ERRORS",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-SYS-C-THREADS-N3096",
+     "locator": "7.28.1 Introduction — paragraphs 1–2 and thrd_t/thrd_start_t definitions",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "pthread_create",
+    "pthread_join",
+    "thrd_create"
+   ],
+   "misconception": "Threads have separate copies of global variables (only thread_local objects are per-thread)."
+  },
+  {
+   "id": "V-core-file-descriptor",
+   "term": "file descriptor",
+   "kind": "posix",
+   "definition": "A per-process non-negative integer that indexes the process's descriptor table and refers to an open file description; returned by open, socket, pipe and dup, inherited across fork and (unless close-on-exec) across exec.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "open(2) — ERRORS: EMFILE and ENFILE",
+     "inspection": "registry"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "open file description",
+     "distinction": "Several descriptors (after dup or fork) may refer to one open file description, which holds the offset and status flags; the descriptor is only the handle."
+    },
+    {
+     "term": "DMA descriptor",
+     "distinction": "A DMA or Ethernet descriptor is a hardware-defined memory record that tells a bus master what to transfer; it shares only the word."
+    }
+   ],
+   "avoid": [
+    {
+     "form": "descriptors?",
+     "unless": "file descriptor|open file description|descriptor table|DMA descriptor|descriptor ring|descriptor chain|descriptor list|(transmit|receive|Tx|Rx|TDES|RDES|buffer|segment|TSS|GDT|IDT|interrupt|socket|message|channel|request|completion|task) descriptors?|descriptors? (ring|chain|table|list|pool|owned|ownership|format|field)",
+     "replace_with": "'file descriptor' or 'DMA descriptor' (say which)"
+    }
+   ],
+   "idiom": [
+    "dup the descriptor; both share the file offset"
+   ],
+   "misconception": "Closing a descriptor closes the file (the open file description lives until its last descriptor closes)."
+  },
+  {
+   "id": "V-core-open-file-description",
+   "term": "open file description",
+   "kind": "posix",
+   "definition": "The kernel object created by open that records the file offset, status flags and access mode for an open file; shared by every descriptor duplicated from the original, which is why a child process writing after fork advances the parent's offset.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "execve(2) — Effect on process attributes",
+     "inspection": "registry"
+    }
+   ],
+   "idiom": [
+    "the two descriptors share one open file description"
+   ],
+   "misconception": "Each descriptor has its own file offset."
+  },
+  {
+   "id": "V-core-system-call",
+   "term": "system call",
+   "kind": "linux",
+   "definition": "A request to the kernel made through the architecture's trap instruction with a numbered service and register-passed arguments, returning a negative error number on failure; the libc wrapper of the same name converts that into -1 plus errno and may add behavior such as restarting after a signal.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "syscall(2) — Architecture calling conventions, first ABI table",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "§3.4 Handling Errors from System Calls and Library Functions, pp. 48–55",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "syscall"
+   ],
+   "distinguish_from": [
+    {
+     "term": "libc wrapper",
+     "distinction": "The wrapper is a function in the C library; the system call is the kernel entry. Their error conventions differ (-ERRNO versus -1/errno), and some wrappers call a different kernel service."
+    }
+   ],
+   "idiom": [
+    "read(2) is a thin wrapper around the read system call"
+   ],
+   "misconception": "Every libc function is a system call (most library functions never enter the kernel)."
+  },
+  {
+   "id": "V-core-short-read",
+   "term": "short read",
+   "kind": "posix",
+   "definition": "A read that transfers fewer bytes than requested without error, which is a normal outcome for pipes, sockets, terminals and files near end-of-file; correct code loops until it has the bytes it needs or sees 0 (end of file) or an error.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "read(2) — DESCRIPTION, RETURN VALUE and ERRORS: short reads, EOF, EINTR and EAGAIN/EWOULDBLOCK",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "partial read",
+    "partial write"
+   ],
+   "idiom": [
+    "handle the short read by looping",
+    "a partial write is not an error"
+   ],
+   "misconception": "read returns exactly the requested count unless it fails."
+  },
+  {
+   "id": "V-core-blocking-operation",
+   "term": "blocking operation",
+   "kind": "posix",
+   "definition": "A call that suspends the calling thread until it can make progress (data available, space free, child exited); in nonblocking mode the same call returns immediately with EAGAIN or EWOULDBLOCK, and readiness notification tells the caller when to retry.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "read(2) — DESCRIPTION, RETURN VALUE and ERRORS: short reads, EOF, EINTR and EAGAIN/EWOULDBLOCK",
+     "inspection": "registry"
+    }
+   ],
+   "avoid": [
+    {
+     "form": "non-blocking",
+     "replace_with": "nonblocking (one word, as in POSIX O_NONBLOCK)"
+    }
+   ],
+   "idiom": [
+    "set O_NONBLOCK and wait for readiness"
+   ],
+   "misconception": "A readiness notification guarantees that the next read will not block (it can still return EAGAIN)."
+  },
+  {
+   "id": "V-core-readiness-notification",
+   "term": "readiness notification",
+   "kind": "linux",
+   "definition": "A report from poll, select or epoll that an operation on a descriptor would not block. Level-triggered notification repeats while the condition holds; edge-triggered notification fires once per state change, so the consumer must drain until EAGAIN.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "epoll(7) — Level-triggered and edge-triggered",
+     "inspection": "registry"
+    }
+   ],
+   "idiom": [
+    "edge-triggered epoll requires draining the socket"
+   ],
+   "misconception": "Edge-triggered means faster (it means a different contract with a starvation hazard)."
+  },
+  {
+   "id": "V-core-durability-boundary",
+   "term": "durability boundary",
+   "kind": "linux",
+   "definition": "The point after which a write survives a crash: write(2) returning success means the kernel accepted the data into the page cache, not that it reached stable storage; fsync or fdatasync on the file (and on the directory for new names) establishes durability.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "write(2) — RETURN VALUE, ERRORS and NOTES: partial progress, EINTR, EPIPE/SIGPIPE and durability boundary",
+     "inspection": "registry"
+    }
+   ],
+   "idiom": [
+    "fsync the file, then rename, then fsync the directory"
+   ],
+   "misconception": "A successful write is durable."
+  },
+  {
+   "id": "V-core-signal",
+   "term": "signal",
+   "kind": "posix",
+   "definition": "An asynchronous notification delivered to a process or thread that either terminates it, stops it, is ignored, or runs a handler at an arbitrary point in its execution; delivery is masked per thread and pending signals of the same number do not queue.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "signal-safety(7) — DESCRIPTION, opening safety discussion",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "SIGSEGV",
+    "SIGBUS",
+    "SIGABRT",
+    "SIGINT",
+    "sigaction",
+    "pthread_sigmask"
+   ],
+   "distinguish_from": [
+    {
+     "term": "exception (Arm)",
+     "distinction": "A Cortex-M exception is a hardware control transfer; a POSIX signal is a kernel-delivered software notification."
+    }
+   ],
+   "idiom": [
+    "SIGSEGV was delivered on the invalid access"
+   ],
+   "misconception": "Signals are reliable queued messages."
+  },
+  {
+   "id": "V-core-abnormal-termination",
+   "term": "abnormal termination",
+   "kind": "posix",
+   "definition": "Process termination caused by a signal whose default action is to terminate (SIGSEGV on an invalid memory access, SIGBUS, SIGABRT from abort, SIGFPE) or by a deliberate abort; the precise signal, fault address and the faulting instruction are the observable facts, 'crash' is only their colloquial name.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "Chapter 20: Signals: Fundamental Concepts",
+     "inspection": "pending"
+    }
+   ],
+   "avoid": [
+    {
+     "form": "crash(es|ed|ing)?",
+     "unless": "crash[- ]consisten|crash[- ]stop|crash[- ]only|crash[- ]safe|crash[- ]record|crash[- ]dossier|crash[- ]recovery|crash[- ]during|crash[- ]before|crash[- ]after|crash[- ]injection|crash[- ]point|crash[- ]boundary|crash[- ]tolerant|crash[- ]test|crash[- ]schedule|crash[- ]model|crash[- ]simulat|(power|simulated|injected|unclean|node|host|kernel|peer|guest|process) crash|crash of the|crash (the|a) (peer|process|guest|host|node)",
+     "replace_with": "the fault or signal observed (SIGSEGV, SIGABRT, HardFault, BusFault) or 'abnormal termination'"
+    },
+    {
+     "form": "segfault|seg fault|segmentation fault",
+     "replace_with": "SIGSEGV (the segmentation-violation signal delivered on an invalid access)"
+    }
+   ],
+   "idiom": [
+    "the process terminated abnormally with SIGSEGV",
+    "a HardFault on the MCU"
+   ],
+   "misconception": "A crash is a single phenomenon (it is a signal, a fault or an abort, each with its own evidence)."
+  },
+  {
+   "id": "V-core-page-fault",
+   "term": "page fault",
+   "kind": "linux",
+   "definition": "The hardware exception raised when an access touches a virtual page that is not present or not permitted; the kernel resolves it by mapping, copying (copy-on-write) or loading the page, or delivers SIGSEGV or SIGBUS if the access is invalid.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "9.6 Address Translation",
+     "inspection": "pending"
+    }
+   ],
+   "idiom": [
+    "the first touch takes a minor page fault"
+   ],
+   "misconception": "A page fault is an error (most are the normal mechanism of demand paging)."
+  },
+  {
+   "id": "V-core-copy-on-write",
+   "term": "copy-on-write",
+   "kind": "linux",
+   "definition": "The technique of sharing physical pages between address spaces, marked read-only, until one side writes, at which point the page fault handler copies the page for the writer; used by fork and by private file mappings.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "9.8.2 Fork Function Revisited",
+     "inspection": "pending"
+    }
+   ],
+   "aliases": [
+    "COW"
+   ],
+   "expands": [
+    "COW"
+   ],
+   "misconception": "fork is expensive because it copies the whole address space."
+  },
+  {
+   "id": "V-core-object-file",
+   "term": "object file",
+   "kind": "elf-abi",
+   "definition": "A relocatable ELF file produced by compiling one translation unit: sections with code and data, a symbol table and relocations, but no final addresses. The linker combines object files and archives into an executable or shared object.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "§7.4 Relocatable Object Files, pp. 710–711",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-SYS-GABI-2001",
+     "locator": "Chapter 4 — Symbol Table, entry fields and Symbol Binding",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "relocatable object file"
+   ],
+   "distinguish_from": [
+    {
+     "term": "object",
+     "distinction": "Unrelated to the ISO C object model; always write 'object file' to avoid the collision."
+    }
+   ],
+   "idiom": [
+    "link the two object files and the archive"
+   ],
+   "misconception": "An object file contains machine addresses (it contains relocations the linker resolves)."
+  },
+  {
+   "id": "V-core-section",
+   "term": "section",
+   "kind": "elf-abi",
+   "definition": "A named region of an object file (.text, .data, .bss, .rodata) that the linker places and merges; sections are the link-time view of an ELF file.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-GABI-2001",
+     "locator": "Chapter 5 — Program Header, entry fields and Segment Types",
+     "inspection": "registry"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "segment",
+     "distinction": "A segment (program header entry such as PT_LOAD) is the load-time view the loader maps; one segment usually spans several sections."
+    }
+   ],
+   "idiom": [
+    "place the vector table in its own section and KEEP it"
+   ],
+   "misconception": "The loader maps sections (it maps segments; section headers may be stripped)."
+  },
+  {
+   "id": "V-core-segment",
+   "term": "segment",
+   "kind": "elf-abi",
+   "definition": "A program-header entry describing a contiguous range of the file to be mapped at a virtual address with given permissions (PT_LOAD), or other load-time information such as the interpreter or dynamic section.",
+   "authority": [
+    {
+     "resource_id": "R-KER-ELF-GABI",
+     "locator": "PT_LOAD",
+     "inspection": "registry"
+    }
+   ],
+   "idiom": [
+    "two PT_LOAD segments: one executable, one writable"
+   ],
+   "misconception": "Segment and section are synonyms."
+  },
+  {
+   "id": "V-core-symbol",
+   "term": "symbol",
+   "kind": "elf-abi",
+   "definition": "A symbol-table entry associating a name with a value (an address or constant), a size, a type and a binding (local, global or weak); the toolchain's representation of the identifiers with linkage.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-GABI-2001",
+     "locator": "Chapter 4 — Symbol Table, entry fields and Symbol Binding",
+     "inspection": "registry"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "identifier",
+     "distinction": "An identifier is a C source construct; a symbol is the toolchain record that may carry a mangled or prefixed spelling and a binding C does not define (weak)."
+    }
+   ],
+   "idiom": [
+    "an undefined symbol reported by the linker"
+   ],
+   "misconception": "A weak symbol is an ISO C feature."
+  },
+  {
+   "id": "V-core-relocation",
+   "term": "relocation",
+   "kind": "elf-abi",
+   "definition": "An entry telling the linker or loader how to patch a location once the referenced symbol's address is known; relocatable object files carry them for the linker, position-independent executables carry dynamic relocations for the loader.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "§7.7 Relocation, pp. 725–730",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-SYS-LINUX-ELF-6-12",
+     "locator": "fs/binfmt_elf.c — load_elf_binary, header/interpreter checks",
+     "inspection": "registry"
+    }
+   ],
+   "idiom": [
+    "the linker applies the relocation against the final symbol address"
+   ],
+   "misconception": "Position-independent code needs no relocations (it needs fewer, applied through the GOT)."
+  },
+  {
+   "id": "V-core-linker-script",
+   "term": "linker script",
+   "kind": "toolchain",
+   "definition": "The GNU ld control file that declares memory regions and assigns input sections to output sections with load (LMA) and virtual (VMA) addresses; the place where a firmware image's flash and RAM layout, stack top and section symbols are defined.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-GABI-2001",
+     "locator": "Chapter 5 — Program Header, entry fields and Segment Types",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "MEMORY",
+    "SECTIONS",
+    "KEEP",
+    "AT"
+   ],
+   "idiom": [
+    "the .data section has an LMA in flash and a VMA in RAM"
+   ],
+   "misconception": "A linker script is part of ISO C (it is a toolchain convention)."
+  },
+  {
+   "id": "V-core-entry-point",
+   "term": "entry point",
+   "kind": "elf-abi",
+   "definition": "The address at which execution starts after loading: _start in a hosted program, which runs the C runtime startup and then calls main; the reset handler in Cortex-M firmware, selected through the vector table.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-GLIBC-START-2-41",
+     "locator": "sysdeps/x86_64/start.S — ENTRY (_start)",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-CMSIS-STARTUP-580",
+     "locator": "Startup File startup_<device>.c",
+     "inspection": "registry"
+    }
+   ],
+   "idiom": [
+    "main is not the entry point; _start is"
+   ],
+   "misconception": "A C program starts at main."
+  },
+  {
+   "id": "V-core-calling-convention",
+   "term": "calling convention",
+   "kind": "elf-abi",
+   "definition": "The ABI rules for passing arguments and results, preserving registers, aligning the stack and laying out frames so that separately compiled code can call each other; AAPCS32 for Arm, the System V psABI for x86-64.",
+   "authority": [
+    {
+     "resource_id": "R-ARM-AAPCS32-2025Q4",
+     "locator": "6.5 Parameter Passing",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "ABI"
+   ],
+   "expands": [
+    "ABI"
+   ],
+   "idiom": [
+    "r0–r3 carry the first arguments under AAPCS32"
+   ],
+   "misconception": "The calling convention is part of the C language."
+  },
+  {
+   "id": "V-core-stack-frame",
+   "term": "stack frame",
+   "kind": "elf-abi",
+   "definition": "The region of the machine stack a function activation owns under the calling convention: saved return address and callee-saved registers, spilled locals and outgoing argument space; its layout is ABI- and compiler-specific, not an ISO C concept.",
+   "authority": [
+    {
+     "resource_id": "R-ARM-AAPCS32-2025Q4",
+     "locator": "6.2.1.1 Universal stack constraints",
+     "inspection": "registry"
+    }
+   ],
+   "idiom": [
+    "the frame pointer chain walks the stack frames"
+   ],
+   "misconception": "Local variables live in the stack frame in a fixed order."
+  },
+  {
+   "id": "V-core-position-independent-code",
+   "term": "position-independent code",
+   "kind": "elf-abi",
+   "definition": "Code that executes correctly at any load address because it references data through PC-relative addressing and the global offset table rather than absolute addresses; required for shared objects and for PIE executables that ASLR relocates.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "§7.10 Dynamic Linking with Shared Libraries, pp. 734–737",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-LINUX-ASLR",
+     "locator": "/proc/sys/kernel/randomize_va_space",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "PIC",
+    "PIE"
+   ],
+   "expands": [
+    "PIC",
+    "PIE"
+   ],
+   "misconception": "PIE binaries are slower on x86-64 (RIP-relative addressing makes the cost small)."
+  },
+  {
+   "id": "V-core-startup-code",
+   "term": "startup code",
+   "kind": "toolchain",
+   "definition": "The code that runs between the entry point and main: crt1/crti/crtbegin objects and libc initialization on Linux; the reset handler that copies .data, zeroes .bss and sets up the stack on Cortex-M. Its responsibilities are toolchain and board conventions, not ISO requirements.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-GLIBC-START-2-41",
+     "locator": "csu/libc-start.c — LIBC_START_MAIN",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-CMSIS-STARTUP-580",
+     "locator": "startup_Device.c Template File",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "crt0"
+   ],
+   "misconception": "Startup code is part of the C standard library."
+  },
+  {
+   "id": "V-core-memory-mapped-io",
+   "term": "memory-mapped I/O",
+   "kind": "hardware",
+   "definition": "Peripheral registers placed in the address space so that loads and stores to specific addresses control hardware; accesses must be volatile, of the register's width, and may have side effects (read-to-clear, write-one-to-clear) that ordinary memory never has.",
+   "authority": [
+    {
+     "resource_id": "R-ST-RM0090-21",
+     "locator": "2.3 Memory map",
+     "inspection": "pending"
+    }
+   ],
+   "aliases": [
+    "MMIO"
+   ],
+   "expands": [
+    "MMIO"
+   ],
+   "idiom": [
+    "a volatile pointer to the memory-mapped register"
+   ],
+   "misconception": "Reading a status register is free of side effects."
+  },
+  {
+   "id": "V-core-claim-scope",
+   "term": "claim scope",
+   "kind": "course",
+   "definition": "The evidence kind a curriculum claim rests on: host (a hosted test), model (a software model of hardware), emulator (a QEMU guest run) or physical (a capture from the real board). A claim never upgrades its scope by relabeling; only new evidence can.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "Preface: scope and approach",
+     "inspection": "pending"
+    }
+   ],
+   "aliases": [
+    "scope (evidence)",
+    "evidence boundary"
+   ],
+   "link": false,
+   "idiom": [
+    "the claim's scope is emulator, not physical"
+   ],
+   "misconception": "Passing a host test closes a physical gate."
+  },
+  {
+   "id": "V-core-working-unit",
+   "term": "working unit",
+   "kind": "course",
+   "definition": "A one-to-four-hour increment of a project with its own steps, checks, recall sets and, when executable, a rejecting test gate; the catalog's unit of study since the fourth edition. A project is the coverage and budget envelope that groups units.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "Preface: scope and approach",
+     "inspection": "pending"
+    }
+   ],
+   "link": false,
+   "misconception": "Completing a unit accepts the project (acceptance needs the milestone rubric and evidence)."
+  },
+  {
+   "id": "V-core-artifact-contract",
+   "term": "artifact contract",
+   "kind": "course",
+   "definition": "The public interface, ownership rules and target scope of a learner component exported from one laboratory family and imported by another, pinned by source and contract fingerprints; reuse transfers only claims whose assumptions still hold.",
+   "authority": [
+    {
+     "resource_id": "R-modern-c-3",
+     "locator": "10.1 Interface documentation",
+     "inspection": "registry"
+    }
+   ],
+   "link": false,
+   "misconception": "A linked artifact is accepted on the consuming target automatically."
+  },
+  {
+   "id": "V-core-negative-control",
+   "term": "negative control",
+   "kind": "course",
+   "definition": "A deliberately faulty but buildable implementation (a mutant) that the family's tests must reject; it establishes that a passing test can discriminate, which a green run alone cannot show.",
+   "authority": [
+    {
+     "resource_id": "R-modern-c-3",
+     "locator": "10.1 Interface documentation",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "mutant"
+   ],
+   "link": false,
+   "misconception": "A test suite that passes on the reference implementation is sound."
+  },
+  {
+   "id": "V-core-receipt",
+   "term": "receipt",
+   "kind": "course",
+   "definition": "A JSON record of an executed check or campaign bound to the SHA-256 of every inspected input; it is current only while those hashes match and is never relabeled as evidence of anything beyond its recorded scope.",
+   "authority": [
+    {
+     "resource_id": "R-modern-c-3",
+     "locator": "10.1 Interface documentation",
+     "inspection": "registry"
+    }
+   ],
+   "link": false,
+   "misconception": "An old passing receipt accepts the current source."
+  },
+  {
+   "id": "V-core-out-of-bounds-access",
+   "term": "out-of-bounds access",
+   "kind": "security",
+   "definition": "A read or write through a pointer or index outside the array object it derives from (other than forming a one-past-the-end pointer); it has undefined behavior, and a write that overruns a buffer is the classic buffer overflow.",
+   "authority": [
+    {
+     "resource_id": "R-effective-c-2",
+     "locator": "String-Handling Functions",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "buffer overflow",
+    "buffer overrun"
+   ],
+   "idiom": [
+    "the parser wrote one byte past the end of the buffer"
+   ],
+   "misconception": "A read one element past an array is harmless (it is undefined behavior; only forming the pointer is allowed)."
+  },
+  {
+   "id": "V-core-use-after-free",
+   "term": "use-after-free",
+   "kind": "security",
+   "definition": "An access through a pointer to an object whose lifetime has ended, typically after free; the pointer has an indeterminate representation and the behavior is undefined, often exploitable when the storage is reused.",
+   "authority": [
+    {
+     "resource_id": "R-effective-c-2",
+     "locator": "Dealing with Dangling Pointers",
+     "inspection": "registry"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "dangling pointer",
+     "distinction": "The dangling pointer is the stale value; use-after-free is the access through it."
+    }
+   ],
+   "misconception": "Memory freed and not yet reused can still be read safely."
+  },
+  {
+   "id": "V-core-dangling-pointer",
+   "term": "dangling pointer",
+   "kind": "security",
+   "definition": "A pointer whose referent's lifetime has ended, whether by free, by block exit for automatic storage or by reallocation; merely holding it is already an indeterminate representation, and any use (including comparison) has undefined behavior.",
+   "authority": [
+    {
+     "resource_id": "R-effective-c-2",
+     "locator": "Dealing with Dangling Pointers",
+     "inspection": "registry"
+    }
+   ],
+   "idiom": [
+    "set the pointer to a null pointer after free so it cannot dangle"
+   ],
+   "misconception": "A dangling pointer is only dangerous when dereferenced."
+  },
+  {
+   "id": "V-core-memory-leak",
+   "term": "memory leak",
+   "kind": "security",
+   "definition": "Allocated storage that the program can no longer release because every pointer to it has been lost or overwritten; a resource-exhaustion defect rather than undefined behavior.",
+   "authority": [
+    {
+     "resource_id": "R-effective-c-2",
+     "locator": "Avoiding Memory Leaks",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "A leak is memory that is never freed (storage still reachable at exit is not a leak by this definition)."
+  },
+  {
+   "id": "V-core-uninitialized-read",
+   "term": "uninitialized read",
+   "kind": "security",
+   "definition": "A read of an object before any value has been stored in it; the object holds an indeterminate representation, so the read may yield an unspecified value or have undefined behavior, and it can leak stale data.",
+   "authority": [
+    {
+     "resource_id": "R-effective-c-2",
+     "locator": "Reading Uninitialized Memory",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Uninitialized memory is zero."
+  },
+  {
+   "id": "V-core-address-space-layout-randomization",
+   "term": "address space layout randomization",
+   "kind": "security",
+   "definition": "A kernel policy that randomizes the load addresses of the stack, heap, shared objects and (for PIE executables) the program itself, so that an attacker cannot rely on fixed addresses; controlled by the randomize_va_space setting on Linux.",
+   "authority": [
+    {
+     "resource_id": "R-LINUX-ASLR",
+     "locator": "/proc/sys/kernel/randomize_va_space",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "ASLR"
+   ],
+   "expands": [
+    "ASLR"
+   ],
+   "misconception": "ASLR makes memory-safety bugs unexploitable."
+  },
+  {
+   "id": "V-core-stack-protector",
+   "term": "stack protector",
+   "kind": "security",
+   "definition": "A compiler mitigation that stores a canary value between local buffers and the saved return address and checks it before returning, aborting the process when a sequential overflow has overwritten it; it does not detect non-sequential corruption or reads.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "§3.10.4 Thwarting Buffer Overflow Attacks",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "-fstack-protector-strong",
+    "__stack_chk_fail"
+   ],
+   "misconception": "The stack protector prevents buffer overflows (it detects one class of them after the fact)."
+  }
+ ]
+}

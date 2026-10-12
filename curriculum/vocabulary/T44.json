@@ -1,0 +1,290 @@
+{
+ "schema_version": 5,
+ "domain": "T44",
+ "recall": {
+  "define": "Define symptom, first divergence, minimal reproducer, invariant, bisection and core dump without the glossary and name the reading that defines each.",
+  "distinguish": "Give the distinction and an example for: symptom versus cause; breakpoint versus watchpoint; abnormal termination versus HardFault; optimized-out versus uninitialized; deterministic replay versus repeated stress run.",
+  "apply": "A service terminates abnormally with SIGSEGV once per day. Using symptom, competing hypothesis, discriminating test, minimal reproducer and regression test, lay out the diagnosis sequence, say which observation would separate a use-after-free from an out-of-bounds write, and which term names the evidence a sanitizer run adds."
+ },
+ "entries": [
+  {
+   "id": "V-T44-symptom",
+   "term": "symptom",
+   "kind": "course",
+   "definition": "The observable deviation from the contract (a wrong output, a signal, a hang, a timing miss) that starts a diagnosis; it is evidence about the failure's effect, not its cause, and the same symptom can arise from many causes.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "8.5 Signals",
+     "inspection": "pending"
+    }
+   ],
+   "misconception": "The line where the program stopped is where the bug is."
+  },
+  {
+   "id": "V-T44-cause",
+   "term": "cause",
+   "kind": "course",
+   "definition": "The earliest invalid state transition in the execution history that, had it not occurred, would have prevented the symptom; established by observation and a discriminating test, never by the symptom alone.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "8.5 Signals",
+     "inspection": "pending"
+    }
+   ],
+   "aliases": [
+    "root cause"
+   ],
+   "misconception": "Making the symptom disappear proves the cause was found."
+  },
+  {
+   "id": "V-T44-first-divergence",
+   "term": "first divergence",
+   "kind": "course",
+   "definition": "The earliest point at which an execution's observed state differs from the independently predicted state; locating it, rather than the point of failure, is the goal of stepping, logging and watchpoints.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "8.5 Signals",
+     "inspection": "pending"
+    }
+   ],
+   "idiom": [
+    "find the first divergence before editing anything"
+   ],
+   "misconception": "Debugging starts at the failure and works forward."
+  },
+  {
+   "id": "V-T44-competing-hypothesis",
+   "term": "competing hypothesis",
+   "kind": "course",
+   "definition": "An alternative explanation of the symptom that fits the same evidence; a discriminating test is an observation or experiment whose outcome differs under the two hypotheses, and diagnosis proceeds by eliminating hypotheses, not by confirming the favorite.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "8.5 Signals",
+     "inspection": "pending"
+    }
+   ],
+   "aliases": [
+    "discriminating test"
+   ],
+   "misconception": "One consistent explanation is enough."
+  },
+  {
+   "id": "V-T44-minimal-reproducer",
+   "term": "minimal reproducer",
+   "kind": "course",
+   "definition": "The smallest input, configuration and program fragment that still produces the symptom, obtained by systematic reduction (delta debugging); it is the artifact that makes a defect reportable, bisectable and testable.",
+   "authority": [
+    {
+     "resource_id": "R-PD-DDMIN-ISSTA2000",
+     "locator": "Section 4 A Minimizing Algorithm — Figure 1 and reduction rules (PDF pp.3–4)",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "reduced trigger",
+    "delta debugging"
+   ],
+   "misconception": "A reproducer must be a whole program."
+  },
+  {
+   "id": "V-T44-invariant",
+   "term": "invariant",
+   "kind": "course",
+   "definition": "A property of program state that must hold at specified points (between operations on a data structure, at loop heads); checking invariants converts a vague symptom into the first operation that broke one, and repairing the invariant, not the symptom, is the fix.",
+   "authority": [
+    {
+     "resource_id": "R-modern-c-3",
+     "locator": "10.1 Interface documentation",
+     "inspection": "registry"
+    }
+   ],
+   "idiom": [
+    "assert the ring invariant after every push and pop"
+   ],
+   "misconception": "An invariant is a comment."
+  },
+  {
+   "id": "V-T44-bisection",
+   "term": "bisection",
+   "kind": "toolchain",
+   "definition": "Binary search over an ordered set of candidates (commits, inputs, build flags, code regions) for the first one that exhibits the symptom; git bisect automates it over history, and the same idea reduces inputs and configurations.",
+   "authority": [
+    {
+     "resource_id": "R-PD-DDMIN-ISSTA2000",
+     "locator": "Sections 2–3 — Configurations and Tests; Minimality of Test Cases (PDF pp.2–3)",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Bisection finds the cause (it finds the first bad candidate, which must still be diagnosed)."
+  },
+  {
+   "id": "V-T44-core-dump",
+   "term": "core dump",
+   "kind": "linux",
+   "definition": "The kernel's snapshot of a process's memory and registers at abnormal termination, written when the RLIMIT_CORE limit and core_pattern allow; loaded into GDB it shows the stopped state, which is evidence about the end of the history, not the history itself.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "Chapter 22: Signals: Advanced Features",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "ulimit -c",
+    "core_pattern",
+    "gdb program core"
+   ],
+   "misconception": "A core dump shows what the program did (it shows only the final state)."
+  },
+  {
+   "id": "V-T44-breakpoint",
+   "term": "breakpoint",
+   "kind": "toolchain",
+   "definition": "A debugger-inserted stop at a code address (software breakpoint, by patching an instruction) or on an address match in a hardware comparator; stopping changes timing, which matters for interrupt-driven and concurrent code.",
+   "authority": [
+    {
+     "resource_id": "R-PD-GDB-20261009",
+     "locator": "5.1.1 Setting Breakpoints — break locspec and multiple locations",
+     "inspection": "registry"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "watchpoint",
+     "distinction": "A watchpoint stops on a data access rather than on reaching an instruction; hardware watchpoints are scarce and their width is limited."
+    }
+   ],
+   "misconception": "Breakpoints are free of side effects."
+  },
+  {
+   "id": "V-T44-watchpoint",
+   "term": "watchpoint",
+   "kind": "toolchain",
+   "definition": "A stop triggered by a read or write of a memory location, implemented by hardware comparators (DWT on Cortex-M, debug registers on x86) or, far more slowly, by single-stepping; the tool for finding who corrupts a variable.",
+   "authority": [
+    {
+     "resource_id": "R-PD-GDB-20261009",
+     "locator": "5.1.2 Setting Watchpoints — hardware/software limits and watched-object scope",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "C1.8.1 The DWT comparators — opening overview and watchpoint timing (C1-719, C1-730)",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "A watchpoint on a struct watches every member (hardware watchpoints have a maximum width)."
+  },
+  {
+   "id": "V-T44-optimized-out",
+   "term": "optimized out",
+   "kind": "toolchain",
+   "definition": "A variable or frame the debugger cannot show because optimization eliminated or relocated it; the program is correct, the debug information is incomplete. It is distinct from an uninitialized or corrupted value and is the usual reason to debug at -Og or read the disassembly.",
+   "authority": [
+    {
+     "resource_id": "R-PD-GDB-20261009",
+     "locator": "10.3 Program Variables — selected-frame scope and incomplete or optimized state",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Optimized-out values are garbage."
+  },
+  {
+   "id": "V-T44-fault-status-decoding",
+   "term": "fault status decoding",
+   "kind": "arm",
+   "definition": "Reading the Cortex-M fault status registers (CFSR with its memory-management, bus and usage subfields, HFSR, BFAR, MMFAR) and the stacked frame to establish which access faulted, why and from where; the first evidence after any HardFault.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B3.2 System Control Space — fault status registers",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "CFSR",
+    "HFSR",
+    "BFAR",
+    "MMFAR"
+   ],
+   "misconception": "A HardFault handler that blinks an LED is diagnosis."
+  },
+  {
+   "id": "V-T44-backtrace",
+   "term": "backtrace",
+   "kind": "toolchain",
+   "definition": "The chain of stack frames from the current function to the entry point, reconstructed from frame pointers or unwind tables; a corrupted stack or omitted frame pointers produce a misleading backtrace, which is itself a symptom.",
+   "authority": [
+    {
+     "resource_id": "R-PD-GDB-20261009",
+     "locator": "8.2 Backtraces — selected-thread frames, bt full and optimized-out arguments",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "stack trace"
+   ],
+   "misconception": "The backtrace is always trustworthy."
+  },
+  {
+   "id": "V-T44-deterministic-replay",
+   "term": "deterministic replay",
+   "kind": "course",
+   "definition": "Re-executing a failure with recorded inputs, schedules and timing so that it recurs on demand; a replay establishes causality where a repeated stress run only establishes frequency.",
+   "authority": [
+    {
+     "resource_id": "R-PD-DDMIN-ISSTA2000",
+     "locator": "Sections 2–3 — Configurations and Tests; Minimality of Test Cases (PDF pp.2–3)",
+     "inspection": "registry"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "stress run",
+     "distinction": "A stress run shows that a failure occurs under load; it is neither a reproducer nor a proof of its absence."
+    }
+   ],
+   "misconception": "Running the test a thousand times is a diagnosis."
+  },
+  {
+   "id": "V-T44-regression-test",
+   "term": "regression test",
+   "kind": "course",
+   "definition": "The minimal reproducer turned into a permanent automated check that fails if the defect returns; the last step of every diagnosis, and the evidence that the repair addressed the cause rather than the symptom.",
+   "authority": [
+    {
+     "resource_id": "R-modern-c-3",
+     "locator": "10.1 Interface documentation",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "A fix is complete when the symptom is gone."
+  },
+  {
+   "id": "V-T44-sanitizer",
+   "term": "sanitizer",
+   "kind": "toolchain",
+   "definition": "Compiler instrumentation (AddressSanitizer, UndefinedBehaviorSanitizer, ThreadSanitizer) that checks memory accesses, undefined operations or data races at run time and reports the first violation with a stack trace; it observes only executed paths and changes layout and timing.",
+   "authority": [
+    {
+     "resource_id": "R-PD-GDB-20261009",
+     "locator": "5.2 Continuing and Stepping — continue, step, next, finish, until, stepi and nexti",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "UBSan",
+    "TSan"
+   ],
+   "expands": [
+    "UBSAN",
+    "TSAN"
+   ],
+   "misconception": "A clean sanitizer run proves the absence of undefined behavior."
+  }
+ ]
+}

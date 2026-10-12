@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from markdown_it import MarkdownIt
 import re
 from common import ROOT,read_json,dump,anchor,normalize_prose,find_glued
-from check_html import norm
+from check_html import norm, compact
 
 def main():
     source=ROOT/'c_programming_mastery_curriculum.md'; text=source.read_text(encoding='utf-8')
@@ -23,13 +23,13 @@ def main():
             target=(ROOT/unquote(parts.path)).resolve()
             if not target.is_relative_to(ROOT.resolve()) or not target.is_file():errors.append('Missing/escaping file '+tag['href'])
         checked+=1
-    actual=norm(soup.get_text(' ')); objective_checks=0
+    actual=compact(soup.get_text(' ')); objective_checks=0
     for row in read_json(ROOT/'curriculum/coverage.json')['records']:
         if anchor(row['objective']) not in counts:errors.append('Missing objective anchor '+row['objective'])
-        expected=norm(BeautifulSoup(renderer.render(normalize_prose(row['text'])),'html.parser').get_text(' '))
+        expected=compact(BeautifulSoup(renderer.render(normalize_prose(row['text'])),'html.parser').get_text(' '))
         if expected not in actual:errors.append('Missing objective text '+row['objective'])
         objective_checks+=1
-    if '{ref}`' in text or '{download}`' in text:errors.append('Unconverted publication role')
+    if '{ref}`' in text or '{download}`' in text or '{term}`' in text:errors.append('Unconverted publication role')
     doubled=len(re.findall(r'^\s*- - ',text,flags=re.M))+len(re.findall(r'^\s*\d+\. - ',text,flags=re.M))
     if doubled:errors.append('Doubled list markers rendered: '+str(doubled))
     glued=sorted(set(find_glued(text)))

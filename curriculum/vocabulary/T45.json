@@ -1,0 +1,256 @@
+{
+ "schema_version": 5,
+ "domain": "T45",
+ "recall": {
+  "define": "Define heap corruption, double free, stack exhaustion, off-by-one error, allocation failure and asynchronous lifetime without the glossary and name the source behind each.",
+  "distinguish": "Give the distinction and a four-line C example for: use-after-free versus double free; stack exhaustion versus stack corruption; out-of-bounds access versus off-by-one error; memory leak versus retention; indeterminate representation versus heap corruption.",
+  "apply": "A ring buffer of records is resized with realloc while a DMA transfer still targets the old block. Name every term that applies (resize invalidation, asynchronous lifetime, use-after-free, heap corruption), say which tool observation (AddressSanitizer report, Valgrind memcheck, fixed-region collision at startup) would reveal it first, and which repair restores the ownership invariant."
+ },
+ "entries": [
+  {
+   "id": "V-T45-heap-corruption",
+   "term": "heap corruption",
+   "kind": "security",
+   "definition": "Damage to the allocator's own bookkeeping (chunk headers, free lists) or to a neighboring allocation caused by an out-of-bounds write, a double free or an invalid free; the symptom usually appears later, inside malloc or free, far from the cause.",
+   "authority": [
+    {
+     "resource_id": "R-effective-c-2",
+     "locator": "Chapter 6: Dynamically Allocated Memory",
+     "inspection": "registry"
+    }
+   ],
+   "idiom": [
+    "the abort inside free is the symptom of earlier heap corruption"
+   ],
+   "misconception": "A crash in malloc means the allocator is broken."
+  },
+  {
+   "id": "V-T45-double-free",
+   "term": "double free",
+   "kind": "security",
+   "definition": "Passing the same pointer to free twice without an intervening allocation of the same address; the behavior is undefined, and allocators may silently corrupt their free lists or abort. The curriculum also calls the generic case a double release when the resource is not heap memory.",
+   "authority": [
+    {
+     "resource_id": "R-effective-c-2",
+     "locator": "Chapter 6: Dynamically Allocated Memory",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "double release"
+   ],
+   "misconception": "free(p); free(p); is harmless if nothing was allocated in between."
+  },
+  {
+   "id": "V-T45-invalid-free",
+   "term": "invalid free",
+   "kind": "security",
+   "definition": "Calling free on a pointer that did not come from malloc, calloc, realloc or aligned_alloc, such as an interior pointer, a stack address or a pointer from another allocator; undefined behavior that typically corrupts the heap.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "7.24.3 Memory management functions",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Freeing a pointer to the middle of a block frees the tail."
+  },
+  {
+   "id": "V-T45-stack-exhaustion",
+   "term": "stack exhaustion",
+   "kind": "security",
+   "definition": "Running out of stack space through deep recursion, large automatic arrays or a too-small configured stack; on Linux it ends in SIGSEGV on the guard page, on a Cortex-M it overruns into whatever lies below the stack unless an MPU guard or stack limit register catches it.",
+   "authority": [
+    {
+     "resource_id": "R-MEM-FREERTOS-STACK-11-2-0",
+     "locator": "vTaskSetApplicationStackOverflowHook and stack checking",
+     "inspection": "pending"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "stack corruption",
+     "distinction": "Exhaustion is running past the end of the stack; corruption is an out-of-bounds write inside a frame that damages saved registers or the return address."
+    }
+   ],
+   "misconception": "Stack overflow always produces an immediate fault."
+  },
+  {
+   "id": "V-T45-stack-corruption",
+   "term": "stack corruption",
+   "kind": "security",
+   "definition": "Overwriting data in a stack frame (saved return address, saved registers, neighboring locals) through an out-of-bounds write into an automatic array; the stack protector detects the sequential case, the symptom is often a return to a wrong address.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "§3.10.3 Buffer Overflow",
+     "inspection": "pending"
+    }
+   ],
+   "misconception": "Stack corruption and stack exhaustion are the same failure."
+  },
+  {
+   "id": "V-T45-off-by-one-error",
+   "term": "off-by-one error",
+   "kind": "security",
+   "definition": "A bound computed one element too far or too short, typically from confusing a count with the last valid index or forgetting the terminating null character; the most common source of a one-byte out-of-bounds write.",
+   "authority": [
+    {
+     "resource_id": "R-effective-c-2",
+     "locator": "String-Handling Functions",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "A one-byte overrun past an array is too small to matter."
+  },
+  {
+   "id": "V-T45-null-termination-defect",
+   "term": "null-termination defect",
+   "kind": "security",
+   "definition": "A buffer treated as a string although no null character lies within its bounds, often after strncpy filled it completely or a length-limited read stopped early; every subsequent str* call reads out of bounds.",
+   "authority": [
+    {
+     "resource_id": "R-effective-c-2",
+     "locator": "Strings",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "strncpy produces a string."
+  },
+  {
+   "id": "V-T45-resize-invalidation",
+   "term": "resize invalidation",
+   "kind": "security",
+   "definition": "The invalidation of every pointer into a block when realloc moves it; the old pointers become dangling even though the bytes were copied, and the old block must not be freed or used.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "7.24.3.7 The realloc function",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "realloc grows the block in place."
+  },
+  {
+   "id": "V-T45-allocation-failure",
+   "term": "allocation failure",
+   "kind": "security",
+   "definition": "A null pointer returned by malloc, calloc or realloc because the request cannot be satisfied; code that assumes success dereferences a null pointer, and code that writes p = realloc(p, n) loses the original block on failure.",
+   "authority": [
+    {
+     "resource_id": "R-wg14-n3096",
+     "locator": "7.24.3 Memory management functions",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "exhaustion"
+   ],
+   "misconception": "malloc never fails on Linux (overcommit only delays the failure to the first touch)."
+  },
+  {
+   "id": "V-T45-retention",
+   "term": "retention",
+   "kind": "course",
+   "definition": "Storage that is still reachable and still allocated but no longer needed, such as a cache that never evicts; unlike a memory leak it can be released, yet it exhausts memory just the same.",
+   "authority": [
+    {
+     "resource_id": "R-effective-c-2",
+     "locator": "Avoiding Memory Leaks",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "A leak checker that reports nothing means memory use is bounded."
+  },
+  {
+   "id": "V-T45-fixed-region-collision",
+   "term": "fixed-region collision",
+   "kind": "hardware",
+   "definition": "Overlap between statically placed regions of a firmware image (stack, heap, .data, .bss, retained sections) caused by a linker-script or startup error, so that one region's growth silently overwrites another; detected by linker assertions, map-file inspection and fill-pattern checks, not by tests alone.",
+   "authority": [
+    {
+     "resource_id": "R-ST-RM0090-21",
+     "locator": "2.3.1 Embedded SRAM",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "A successful link proves the memory layout is consistent."
+  },
+  {
+   "id": "V-T45-asynchronous-lifetime",
+   "term": "asynchronous lifetime",
+   "kind": "course",
+   "definition": "An object whose lifetime must outlast the function that created it because a DMA controller, a completion callback or another thread still refers to it; freeing or reusing it before the asynchronous consumer finishes is a use-after-free that no single-threaded test shows.",
+   "authority": [
+    {
+     "resource_id": "R-ST-RM0090-21",
+     "locator": "10 DMA controller (DMA)",
+     "inspection": "pending"
+    }
+   ],
+   "misconception": "The buffer can be freed once the submit call returns."
+  },
+  {
+   "id": "V-T45-addresssanitizer",
+   "term": "AddressSanitizer",
+   "kind": "toolchain",
+   "definition": "Compiler instrumentation (-fsanitize=address) that surrounds allocations with redzones and tracks freed memory in quarantine so that out-of-bounds accesses, use-after-free, double free and some stack errors abort with a diagnosed stack trace; it observes only executed paths and roughly doubles memory and time.",
+   "authority": [
+    {
+     "resource_id": "R-PD-GDB-20261009",
+     "locator": "5.2 Continuing and Stepping — continue, step, next, finish, until, stepi and nexti",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "ASan"
+   ],
+   "misconception": "AddressSanitizer finds all memory errors (uninitialized reads need MemorySanitizer or Valgrind, and unexecuted paths are never checked)."
+  },
+  {
+   "id": "V-T45-memcheck",
+   "term": "Memcheck",
+   "kind": "toolchain",
+   "definition": "Valgrind's default tool, which runs an uninstrumented binary under dynamic translation and tracks definedness bit by bit, reporting uninitialized reads, invalid accesses, invalid frees and leaks at a large slowdown; complementary to AddressSanitizer rather than redundant with it.",
+   "authority": [
+    {
+     "resource_id": "R-PD-GDB-20261009",
+     "locator": "5.2 Continuing and Stepping — continue, step, next, finish, until, stepi and nexti",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "Valgrind"
+   ],
+   "misconception": "Valgrind and AddressSanitizer report the same defects."
+  },
+  {
+   "id": "V-T45-generation-handle",
+   "term": "generation-checked handle",
+   "kind": "course",
+   "definition": "A handle that pairs a slot index with a generation counter incremented on every release of the slot, so that a stale handle to a reused slot is rejected instead of aliasing the new occupant; the curriculum's standard defense against stale-identity reuse in pools.",
+   "authority": [
+    {
+     "resource_id": "R-modern-c-3",
+     "locator": "10.1 Interface documentation",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Reusing a freed slot index is safe once the slot is reinitialized."
+  },
+  {
+   "id": "V-T45-fault-injection",
+   "term": "fault injection",
+   "kind": "course",
+   "definition": "Deliberately making an allocation, I/O or backend operation fail at a scheduled point to exercise the error path; a memory-failure drill injects allocation failure and truncation and checks that invariants, cleanup and reporting survive.",
+   "authority": [
+    {
+     "resource_id": "R-modern-c-3",
+     "locator": "10.1 Interface documentation",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Error paths that are never executed are correct because they are simple."
+  }
+ ]
+}

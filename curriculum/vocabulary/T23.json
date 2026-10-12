@@ -1,0 +1,304 @@
+{
+ "schema_version": 5,
+ "domain": "T23",
+ "recall": {
+  "define": "Define process, file descriptor, open file description, zombie process, memory mapping and durability boundary without the glossary, naming the man page or POSIX section that defines each.",
+  "distinguish": "Give the distinction and a one-line shell or C example for: file descriptor versus open file description; zombie versus orphan; short read versus end of file; exec versus fork; virtual memory versus resident memory.",
+  "apply": "A parent forks a child after opening a log file, then both write. Using file offset, open file description, close-on-exec and rename-based update, explain why their lines interleave but never overwrite, what changes if the child execs a program that keeps the descriptor, and how to publish a complete replacement of the log atomically."
+ },
+ "entries": [
+  {
+   "id": "V-T23-fork",
+   "term": "fork",
+   "kind": "posix",
+   "definition": "The system call that creates a child process as a copy of the caller: same code, copy-on-write memory, duplicated descriptors sharing the parent's open file descriptions, and a return value that is 0 in the child and the child's process ID in the parent.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "Chapter 24: Process Creation",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "fork",
+    "posix_spawn"
+   ],
+   "misconception": "fork copies the file descriptors as independent files (they share offsets through the open file description)."
+  },
+  {
+   "id": "V-T23-exec",
+   "term": "exec",
+   "kind": "posix",
+   "definition": "Replacing the calling process's program image with a new one while keeping the process identity, open descriptors (unless close-on-exec), working directory and signal mask; a successful exec never returns.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "execve(2) — Effect on process attributes",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "execve",
+    "execvp"
+   ],
+   "misconception": "exec starts a new process (it reuses the existing one)."
+  },
+  {
+   "id": "V-T23-wait-reaping",
+   "term": "reaping",
+   "kind": "posix",
+   "definition": "Collecting a terminated child's exit status with wait or waitpid, which releases its process-table entry; until reaped, the terminated child remains a zombie.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "Chapter 26: Monitoring Child Processes",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "wait",
+    "waitpid",
+    "SIGCHLD",
+    "WEXITSTATUS"
+   ],
+   "misconception": "A terminated child disappears on its own (it must be reaped or re-parented to a reaper)."
+  },
+  {
+   "id": "V-T23-zombie-process",
+   "term": "zombie process",
+   "kind": "posix",
+   "definition": "A process that has terminated but whose exit status has not yet been collected by its parent; it holds no memory, only a process-table entry, and accumulates when a parent never waits.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "Chapter 26: Monitoring Child Processes",
+     "inspection": "pending"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "orphan process",
+     "distinction": "An orphan is a running child whose parent has exited; it is re-parented to a reaper process. A zombie has exited and awaits reaping."
+    }
+   ],
+   "misconception": "Zombies consume memory."
+  },
+  {
+   "id": "V-T23-orphan-process",
+   "term": "orphan process",
+   "kind": "posix",
+   "definition": "A process whose parent has terminated before it; the kernel re-parents it to init or a subreaper, which will reap it when it terminates.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "Chapter 26: Monitoring Child Processes",
+     "inspection": "pending"
+    }
+   ],
+   "misconception": "Killing a parent kills its children."
+  },
+  {
+   "id": "V-T23-file-offset",
+   "term": "file offset",
+   "kind": "posix",
+   "definition": "The position in a file at which the next read or write occurs, stored in the open file description and therefore shared by every descriptor duplicated from the same open; pread and pwrite take an explicit offset and leave it unchanged.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-POSIX-READ-2024",
+     "locator": "DESCRIPTION, opening byte-transfer/offset/EOF and nonblocking rules",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "lseek",
+    "pread",
+    "pwrite"
+   ],
+   "misconception": "The file offset belongs to the file descriptor."
+  },
+  {
+   "id": "V-T23-close-on-exec",
+   "term": "close-on-exec",
+   "kind": "posix",
+   "definition": "A descriptor flag (FD_CLOEXEC, set atomically with O_CLOEXEC or SOCK_CLOEXEC) that makes the kernel close the descriptor during exec, preventing leaks of files and sockets into child programs; the flag belongs to the descriptor, not the open file description.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "execve(2) — Effect on process attributes",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "O_CLOEXEC",
+    "FD_CLOEXEC"
+   ],
+   "misconception": "Setting FD_CLOEXEC after open is race-free in a multithreaded program (another thread may fork in between)."
+  },
+  {
+   "id": "V-T23-pipe",
+   "term": "pipe",
+   "kind": "posix",
+   "definition": "A unidirectional byte-stream channel with a bounded kernel buffer, exposed as a read descriptor and a write descriptor; writes of at most PIPE_BUF bytes are atomic, reads return whatever is available, and a read on a pipe with no writers returns end of file.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "Chapter 44: Pipes and FIFOs",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "pipe",
+    "PIPE_BUF",
+    "SIGPIPE"
+   ],
+   "misconception": "A pipe preserves message boundaries."
+  },
+  {
+   "id": "V-T23-redirection",
+   "term": "redirection",
+   "kind": "posix",
+   "definition": "Making a standard descriptor refer to a different open file description, done with dup2 before exec so that the child program reads or writes a file or pipe without knowing it; the shell's < and > operators do exactly this.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "Chapter 5: File I/O: Further Details",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "dup2"
+   ],
+   "misconception": "Redirection is a shell feature (it is a descriptor-table operation any program can perform)."
+  },
+  {
+   "id": "V-T23-memory-mapping",
+   "term": "memory mapping",
+   "kind": "posix",
+   "definition": "Making a region of a file, or anonymous zero-filled memory, appear in the address space with mmap, so that loads and stores replace read and write; a shared mapping writes through to the file and to other processes, a private mapping is copy-on-write.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "§49.2 Creating a Mapping: mmap(), pp. 1020–1023",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "mmap",
+    "munmap",
+    "msync",
+    "MAP_SHARED",
+    "MAP_PRIVATE"
+   ],
+   "misconception": "A mapped file is loaded into memory by mmap (pages are faulted in on demand)."
+  },
+  {
+   "id": "V-T23-shared-memory",
+   "term": "shared memory",
+   "kind": "posix",
+   "definition": "Physical pages mapped into more than one address space, created with a shared file mapping, shm_open or anonymous shared mappings inherited across fork; the fastest IPC and the only one that reintroduces the memory model across processes.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "Chapter 54: POSIX Shared Memory",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "shm_open",
+    "memfd_create"
+   ],
+   "misconception": "Shared memory is synchronized by the kernel (the processes must synchronize it themselves)."
+  },
+  {
+   "id": "V-T23-file-locking",
+   "term": "file locking",
+   "kind": "posix",
+   "definition": "Advisory record locks (fcntl F_SETLK) or whole-file locks (flock) that cooperating processes consult before accessing a file; advisory means the kernel does not stop a process that ignores them, and the two lock families do not see each other.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-TLPI-2010",
+     "locator": "Chapter 55: File Locking",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "fcntl",
+    "flock",
+    "F_SETLKW"
+   ],
+   "misconception": "A file lock prevents other processes from writing."
+  },
+  {
+   "id": "V-T23-rename-based-update",
+   "term": "rename-based update",
+   "kind": "posix",
+   "definition": "Replacing a file's contents atomically by writing a temporary file in the same directory, fsyncing it, renaming it over the target and fsyncing the directory; readers see either the old or the new file, never a mixture.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "write(2) — RETURN VALUE, ERRORS and NOTES: partial progress, EINTR, EPIPE/SIGPIPE and durability boundary",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "rename",
+    "fsync",
+    "O_TMPFILE"
+   ],
+   "misconception": "rename is durable by itself (the directory entry needs its own fsync)."
+  },
+  {
+   "id": "V-T23-virtual-memory",
+   "term": "virtual memory",
+   "kind": "linux",
+   "definition": "The per-process address space the processor translates through page tables, letting the kernel map, protect, share and lazily back pages; the virtual size of a process says nothing about the physical memory it is using (its resident set).",
+   "authority": [
+    {
+     "resource_id": "R-SYS-CSAPP-GLOBAL-3E",
+     "locator": "9.6 Address Translation",
+     "inspection": "pending"
+    }
+   ],
+   "aliases": [
+    "resident set"
+   ],
+   "misconception": "A process that mapped 1 GiB uses 1 GiB of RAM."
+  },
+  {
+   "id": "V-T23-resource-limit",
+   "term": "resource limit",
+   "kind": "posix",
+   "definition": "A per-process soft and hard ceiling (RLIMIT_NOFILE, RLIMIT_STACK, RLIMIT_AS and others) enforced by the kernel; exceeding one turns a normally successful call into an error such as EMFILE, which robust programs must handle.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "open(2) — ERRORS: EMFILE and ENFILE",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "getrlimit",
+    "setrlimit",
+    "EMFILE"
+   ],
+   "misconception": "Descriptor exhaustion is a bug in the program (it may be the configured limit)."
+  },
+  {
+   "id": "V-T23-eintr",
+   "term": "interrupted system call",
+   "kind": "posix",
+   "definition": "A blocking call that returns -1 with errno set to EINTR because a signal handler ran; the operation did not complete and must be retried, unless the handler was installed with SA_RESTART and the call is one the kernel restarts automatically.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-MAN-6-19",
+     "locator": "close(2) — NOTES: Dealing with error returns from close() and Linux/POSIX.1-2024 EINTR difference",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "EINTR"
+   ],
+   "misconception": "Retrying close after EINTR is safe (on Linux the descriptor is already closed)."
+  }
+ ]
+}

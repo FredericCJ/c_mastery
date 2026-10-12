@@ -452,6 +452,7 @@ def author(rules=RULES_V4, catalog=V4, baseline=None):
         sets.append({'id':tid,'title':topic['title'],'objectives':objectives,'objective_text':objective_text,
             'projects':owning,'variants':variants,'resource_ids':[r['resource_id'] for r in modules[tid.split('.')[0]]['meta']['readings']],
             'elective':bool(topic.get('elective')),'grading':'Score only demonstrated objectives. Hints or consulted code remain assisted practice; no automatic whole-topic mastery.'})
+    sets+=list(rules.get('vocabulary_sets',[]))
     categories=Counter()
     for m in modules.values():categories.update(m['meta']['workload'])
     integrations=read_json(ROOT/'curriculum/integration_families.json')['families']

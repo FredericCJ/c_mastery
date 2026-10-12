@@ -232,11 +232,22 @@ def recall_states(profile):
     return states
 
 
+def vocabulary_set_for(value):
+    """The owning domain's vocabulary recall set, when the catalog has one."""
+    owner = next((p.get("module") for p in cli.catalog() if p["id"] == value["project"]), None)
+    key = "V-" + str(owner)
+    return key if owner and key in catalog()["sets"] else None
+
+
 def mark_studied(profile, identifier):
     value = unit(identifier)
     record = append(profile, "unit-studied", unit=identifier, objectives=value["objectives"])
     existing = recall_states(profile)
-    for key in value.get("recall_sets", []):
+    keys = list(value.get("recall_sets", []))
+    vocabulary = vocabulary_set_for(value)
+    if vocabulary:
+        keys.append(vocabulary)
+    for key in keys:
         if key not in catalog()["sets"]:
             raise ValueError("Unit references missing recall set: " + key)
         if key not in existing:

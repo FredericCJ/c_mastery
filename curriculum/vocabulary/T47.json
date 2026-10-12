@@ -1,0 +1,166 @@
+{
+ "schema_version": 5,
+ "domain": "T47",
+ "recall": {
+  "define": "Define durable commit, redo log, checkpoint, torn write and crash consistency without the glossary and name the source for each.",
+  "distinguish": "Give the distinction and a concrete store operation for: durable commit versus publication (memory ordering); redo log versus undo log; checkpoint versus commit; torn write versus lost write; durability boundary versus persistence of the directory entry.",
+  "apply": "A client acknowledges a write as soon as write(2) returns. Using durability boundary, durable commit, redo log and idempotent redo, explain what a power loss between the write and the fsync can produce, how recovery decides which records to replay, and why the page format must detect a torn write before any record is trusted."
+ },
+ "entries": [
+  {
+   "id": "V-T47-durable-commit",
+   "term": "durable commit",
+   "kind": "course",
+   "definition": "The point at which a store guarantees that a committed transaction's effects will survive a crash: its log records have reached stable storage (fsync or fdatasync completed) in an order that recovery can replay. Reporting success earlier is a durability lie.",
+   "authority": [
+    {
+     "resource_id": "R-SYS-LINUX-FSYNC-6-19",
+     "locator": "fsync(2) — DESCRIPTION",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-V2-STORAGE-SQLITE-ATOMIC",
+     "locator": "3.7. Flushing The Rollback Journal File To Mass Storage",
+     "inspection": "registry"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "publication (memory ordering)",
+     "distinction": "Publication makes data visible to other threads in memory now; a durable commit makes it survive a crash later. The curriculum says 'publish' only for the first."
+    }
+   ],
+   "avoid": [
+    {
+     "form": "publish(ed|es|ing)? (the )?(record|page|transaction|commit|checkpoint)s? (to|onto) (disk|storage|stable storage|the device)",
+     "replace_with": "'commit durably' or 'make durable' (publication is the memory-ordering term)"
+    }
+   ],
+   "idiom": [
+    "the commit is durable once the log fsync returns"
+   ],
+   "misconception": "A successful write makes the record durable."
+  },
+  {
+   "id": "V-T47-redo-log",
+   "term": "redo log",
+   "kind": "course",
+   "definition": "An append-only sequence of records describing changes to pages, written and made durable before the pages themselves (write-ahead), so that recovery can reapply changes that reached the log but not the data pages. An undo log instead records the previous contents to roll back.",
+   "authority": [
+    {
+     "resource_id": "R-V2-STORAGE-OSPP2-IV",
+     "locator": "Chapter 14: Redo Logging",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-V2-STORAGE-SQLITE-WAL",
+     "locator": "2. How WAL Works",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "write-ahead log"
+   ],
+   "misconception": "The log can be truncated as soon as the transaction commits (only after the pages are checkpointed)."
+  },
+  {
+   "id": "V-T47-checkpoint",
+   "term": "checkpoint",
+   "kind": "course",
+   "definition": "A recorded point in the log at which all page updates before it have been made durable, so recovery may start replay there instead of at the beginning; it bounds recovery time and permits log truncation.",
+   "authority": [
+    {
+     "resource_id": "R-V2-STORAGE-SQLITE-WAL",
+     "locator": "2.1. Checkpointing",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-V2-STORAGE-OSPP2-IV",
+     "locator": "Chapter 14: Garbage collection constraints and Ordering is essential",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "A checkpoint is a backup copy of the data."
+  },
+  {
+   "id": "V-T47-torn-write",
+   "term": "torn write",
+   "kind": "course",
+   "definition": "A multi-sector page write of which only part reached the device before a crash, leaving a page that is neither the old nor the new contents; detected by a per-page checksum or a trailer that must match the header, and the reason page formats carry one.",
+   "authority": [
+    {
+     "resource_id": "R-V2-STORAGE-SQLITE-ATOMIC",
+     "locator": "2. Hardware Assumptions",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Sector writes are atomic, so a 4 KiB page write is atomic."
+  },
+  {
+   "id": "V-T47-crash-consistency",
+   "term": "crash consistency",
+   "kind": "course",
+   "definition": "The property that after a crash at any instant the recovered store is a prefix of the committed history (no committed transaction lost, no uncommitted effect visible); achieved by write ordering, durable commit points and recovery, and tested by injecting crashes at every write boundary.",
+   "authority": [
+    {
+     "resource_id": "R-V2-STORAGE-SQLITE-TEST",
+     "locator": "3.3. Crash Testing",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-V2-STORAGE-OSPP2-IV",
+     "locator": "Chapter 14: Garbage collection constraints and Ordering is essential",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Crash consistency follows from using fsync."
+  },
+  {
+   "id": "V-T47-idempotent-redo",
+   "term": "idempotent redo",
+   "kind": "course",
+   "definition": "The property that applying a log record to a page that already reflects it changes nothing, obtained by recording the page's log sequence number and skipping older records; it lets recovery replay from a checkpoint without knowing exactly where the crash struck.",
+   "authority": [
+    {
+     "resource_id": "R-V2-STORAGE-OSPP2-IV",
+     "locator": "Chapter 14: Redo Logging",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Replaying a redo log twice is always safe."
+  },
+  {
+   "id": "V-T47-page-format",
+   "term": "page format",
+   "kind": "course",
+   "definition": "The byte-exact layout of a store page: header with type, identity and log sequence number, slot directory or records, and a checksum or trailer that reveals a torn write; it is a contract independent of the host's struct layout and endianness.",
+   "authority": [
+    {
+     "resource_id": "R-V2-STORAGE-SQLITE-ATOMIC",
+     "locator": "2. Hardware Assumptions",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Writing a C struct to the file defines the page format."
+  },
+  {
+   "id": "V-T47-recovery",
+   "term": "recovery",
+   "kind": "course",
+   "definition": "The procedure run at startup after an unclean shutdown that analyzes the log from the last checkpoint, redoes committed changes missing from the pages and undoes or ignores uncommitted ones, leaving a crash-consistent store before any client is served.",
+   "authority": [
+    {
+     "resource_id": "R-V2-STORAGE-OSPP2-IV",
+     "locator": "Chapter 14: Redo Logging",
+     "inspection": "registry"
+    },
+    {
+     "resource_id": "R-V2-STORAGE-SQLITE-WAL",
+     "locator": "2. How WAL Works",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Recovery is only needed if the file looks damaged."
+  }
+ ]
+}

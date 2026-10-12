@@ -11,6 +11,10 @@ from common import ROOT, dump, load, read_json, normalize_prose
 def norm(value):
     return re.sub(r'\s+',' ',html.unescape(value)).strip()
 
+def compact(value):
+    """Whitespace-free comparison form: inline links add spaces at tag boundaries, never words."""
+    return re.sub(r'\s+','',html.unescape(value))
+
 def main():
     base=ROOT/'build/html'
     # Theme Jinja macro files copied into _static are build assets, not rendered
@@ -59,7 +63,7 @@ def main():
             if path not in parsed:
                 errors.append(key+': missing rendered page');continue
             article=parsed[path].select_one('article.bd-article')
-            actual=norm(article.get_text(' '))
+            actual=compact(article.get_text(' '))
             actual_code={tag.get_text().rstrip('\n') for tag in article.find_all('pre')}
             # Compare each complete canonical paragraph and literal code block.
             expected=BeautifulSoup(renderer.render(normalize_prose(record['body'])),'html.parser')
@@ -70,12 +74,12 @@ def main():
                     prose_checks+=1; literal_code_checks+=1
                     continue
                 text=norm(tag.get_text(' '))
-                if not text or '$' in text or '{ref}' in text or '{download}' in text: continue
-                if text not in actual:
+                if not text or '$' in text or '{ref}' in text or '{download}' in text or '{term}' in text: continue
+                if compact(text) not in actual:
                     errors.append(key+': canonical prose/code absent: '+text[:110])
                 prose_checks+=1
             meta=record['meta']
-            if folder=='projects' and str(meta['hours'])+' h' not in actual:
+            if folder=='projects' and compact(str(meta['hours'])+' h') not in actual:
                 errors.append(key+': budget absent')
     objective_text_checks=0
     for row in read_json(ROOT/'curriculum/coverage.json')['records']:
@@ -84,8 +88,8 @@ def main():
         if soup is None or row['objective'].lower().replace('.','-') not in ids.get(page,set()):
             errors.append(row['objective']+': objective target absent')
         if soup is not None:
-            expected_text=norm(BeautifulSoup(renderer.render(normalize_prose(row['text'])),'html.parser').get_text(' '))
-            actual_text=norm(soup.select_one('article.bd-article').get_text(' '))
+            expected_text=compact(BeautifulSoup(renderer.render(normalize_prose(row['text'])),'html.parser').get_text(' '))
+            actual_text=compact(soup.select_one('article.bd-article').get_text(' '))
             if expected_text not in actual_text: errors.append(row['objective']+': original objective text absent')
             objective_text_checks+=1
     if remote_assets: errors.append('Remote required assets: '+str(sorted(set(remote_assets))))

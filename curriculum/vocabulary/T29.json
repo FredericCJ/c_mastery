@@ -1,0 +1,471 @@
+{
+ "schema_version": 5,
+ "domain": "T29",
+ "recall": {
+  "define": "Without the glossary, define exception (Arm), interrupt (Arm), interrupt handler, NVIC, Thread mode, Handler mode and exception priority, and say which document defines each.",
+  "distinguish": "State the difference and the observable consequence for each pair: exception versus interrupt; preemption priority versus subpriority; tail-chaining versus late arrival; interrupt latency versus response time; hardware barrier versus compiler barrier.",
+  "apply": "A DMA completion handler hands a buffer to a thread through a ring. Using the terms exception entry and return, interrupt latency, DMA transfer and cache maintenance, explain which events bound the time from the hardware event to the thread's read, where PRIMASK masking would lengthen it, and which term names the hazard if the Cortex-M7 data cache is not cleaned before the DMA starts."
+ },
+ "entries": [
+  {
+   "id": "V-T29-exception-arm",
+   "term": "exception (Arm)",
+   "kind": "arm",
+   "definition": "Any event on an Armv7-M processor that changes the flow of execution to a handler through the vector table: reset, NMI, faults, SVCall, PendSV, SysTick and the external interrupts. Interrupts are the subset raised by peripherals through the NVIC; every interrupt is an exception but not every exception is an interrupt.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B1.5 ARMv7-M exception model",
+     "inspection": "pending"
+    },
+    {
+     "resource_id": "R-OS3-ST-PM0214-R10",
+     "locator": "pp.42-44 section2.3.7 exception entry/return and frame",
+     "inspection": "registry"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "signal",
+     "distinction": "A POSIX signal is software delivered by the kernel; an Arm exception is a hardware control transfer with its own stacking and priority rules."
+    }
+   ],
+   "idiom": [
+    "the exception number indexes the vector table",
+    "a fault exception escalates to HardFault"
+   ],
+   "misconception": "Exceptions on Cortex-M are error conditions (SysTick and PendSV are ordinary exceptions)."
+  },
+  {
+   "id": "V-T29-interrupt-arm",
+   "term": "interrupt (Arm)",
+   "kind": "arm",
+   "definition": "An exception requested by a peripheral or software through the Nested Vectored Interrupt Controller, numbered from 16 upward in the vector table, with a programmable priority that decides preemption among active handlers.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B1.5 ARMv7-M exception model",
+     "inspection": "pending"
+    }
+   ],
+   "idiom": [
+    "enable the interrupt in the NVIC and in the peripheral"
+   ],
+   "misconception": "Enabling the peripheral's interrupt bit is enough (the NVIC enable and priority are separate)."
+  },
+  {
+   "id": "V-T29-interrupt-handler",
+   "term": "interrupt handler",
+   "kind": "arm",
+   "definition": "The function whose address sits in the vector table entry for an interrupt and that the processor enters in Handler mode, with the AAPCS caller-saved registers stacked by hardware; written as an ordinary C function. 'ISR' is the common abbreviation (interrupt service routine).",
+   "authority": [
+    {
+     "resource_id": "R-OS3-ST-PM0214-R10",
+     "locator": "pp.42-44 section2.3.7 exception entry/return and frame",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "ISR",
+    "interrupt service routine"
+   ],
+   "expands": [
+    "ISR"
+   ],
+   "distinguish_from": [
+    {
+     "term": "exception handler",
+     "distinction": "An exception handler serves any exception, including faults and SysTick; an interrupt handler serves a peripheral interrupt. The hardware treats them identically."
+    }
+   ],
+   "idiom": [
+    "keep the handler short and defer work to a thread"
+   ],
+   "misconception": "An interrupt handler needs a special calling convention or assembly wrapper on Cortex-M (hardware stacking makes it an ordinary function)."
+  },
+  {
+   "id": "V-T29-nvic",
+   "term": "NVIC",
+   "kind": "arm",
+   "definition": "The Nested Vectored Interrupt Controller: the processor block that holds per-interrupt enable, pending and priority registers, arbitrates among pending interrupts, and performs nesting according to priority; configured through its memory-mapped registers or the CMSIS NVIC_* functions.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B3.4 Nested Vectored Interrupt Controller, NVIC",
+     "inspection": "pending"
+    }
+   ],
+   "aliases": [
+    "Nested Vectored Interrupt Controller"
+   ],
+   "expands": [
+    "NVIC"
+   ],
+   "symbols": [
+    "NVIC_EnableIRQ",
+    "NVIC_SetPriority",
+    "NVIC_ISER",
+    "NVIC_IPR"
+   ],
+   "misconception": "The NVIC is part of the peripheral (it is part of the processor core)."
+  },
+  {
+   "id": "V-T29-vector-table",
+   "term": "vector table",
+   "kind": "arm",
+   "definition": "The array of handler addresses, beginning with the initial main stack pointer value and the reset handler, that the processor indexes by exception number; its location is set by the VTOR register and is the first thing a startup file or linker script must place correctly.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B1.5.3 The vector table",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "VTOR",
+    "Reset_Handler"
+   ],
+   "misconception": "The vector table must be at address zero (it must be where VTOR points; zero is only the reset default alias)."
+  },
+  {
+   "id": "V-T29-thread-mode",
+   "term": "Thread mode",
+   "kind": "arm",
+   "definition": "The processor mode in which application code runs, entered at reset and on return from the last active exception; it can use either stack pointer and may be privileged or unprivileged according to the CONTROL register.",
+   "authority": [
+    {
+     "resource_id": "R-OS3-ST-PM0214-R10",
+     "locator": "pp.24-26 mask/CONTROL registers",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "Thread mode means an RTOS thread is running (it is a hardware mode, present without any operating system)."
+  },
+  {
+   "id": "V-T29-handler-mode",
+   "term": "Handler mode",
+   "kind": "arm",
+   "definition": "The processor mode entered when an exception is taken; it is always privileged and always uses the main stack pointer, and the IPSR holds the active exception number.",
+   "authority": [
+    {
+     "resource_id": "R-OS3-ST-PM0214-R10",
+     "locator": "pp.24-26 mask/CONTROL registers",
+     "inspection": "registry"
+    }
+   ],
+   "misconception": "A handler can run on the process stack (it always uses MSP)."
+  },
+  {
+   "id": "V-T29-exception-priority",
+   "term": "exception priority",
+   "kind": "arm",
+   "definition": "The number, lower meaning more urgent, that decides whether a pending exception preempts the running one; only the implemented high-order bits of the priority field matter, and reset, NMI and HardFault have fixed negative priorities above all configurable ones.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B1.5.4 Exception priorities and preemption",
+     "inspection": "pending"
+    }
+   ],
+   "idiom": [
+    "lower numeric priority value means higher urgency"
+   ],
+   "misconception": "Priority 255 is the most urgent."
+  },
+  {
+   "id": "V-T29-preemption-priority",
+   "term": "preemption priority",
+   "kind": "arm",
+   "definition": "The group of priority bits, selected by the priority grouping field, that decides whether one exception can preempt another; the remaining bits form the subpriority, which only orders exceptions that are pending simultaneously and never causes preemption.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B1.5.4 Exception priorities and preemption",
+     "inspection": "pending"
+    }
+   ],
+   "aliases": [
+    "group priority",
+    "subpriority"
+   ],
+   "symbols": [
+    "AIRCR.PRIGROUP",
+    "NVIC_SetPriorityGrouping"
+   ],
+   "misconception": "Any difference in priority allows preemption (only a difference in the preemption bits does)."
+  },
+  {
+   "id": "V-T29-pendsv",
+   "term": "PendSV",
+   "kind": "arm",
+   "definition": "A software-triggered, lowest-priority exception that runs after all other handlers have finished; the conventional place for an RTOS context switch because it never interrupts another handler.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B1.5 ARMv7-M exception model",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "ICSR.PENDSVSET",
+    "PendSV_Handler"
+   ],
+   "misconception": "PendSV switches context by itself (it only provides the safe place to do so)."
+  },
+  {
+   "id": "V-T29-systick",
+   "term": "SysTick",
+   "kind": "arm",
+   "definition": "The 24-bit down-counting timer inside the processor that raises the SysTick exception on reload; the usual source of the scheduler tick, independent of any vendor peripheral timer.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B3.3 The system timer, SysTick",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "SysTick_Config",
+    "SysTick_Handler"
+   ],
+   "misconception": "SysTick is an STM32 peripheral (it is an Arm core feature)."
+  },
+  {
+   "id": "V-T29-svcall",
+   "term": "SVCall",
+   "kind": "arm",
+   "definition": "The supervisor-call exception raised synchronously by the SVC instruction, used by an operating system as the entry from unprivileged Thread mode into privileged service code; its immediate value selects the service.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B1.5 ARMv7-M exception model",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "SVC",
+    "SVC_Handler"
+   ],
+   "misconception": "SVC is an interrupt (it is a synchronous exception)."
+  },
+  {
+   "id": "V-T29-hardfault",
+   "term": "HardFault",
+   "kind": "arm",
+   "definition": "The fault exception with the highest configurable precedence, taken when a fault cannot be handled by its own handler or that handler is disabled; the fault status registers (HFSR, CFSR, BFAR, MMFAR) record why, and decoding them is the first step of any fault diagnosis.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B3.2 System Control Space — fault status registers",
+     "inspection": "pending"
+    }
+   ],
+   "symbols": [
+    "HFSR",
+    "CFSR",
+    "BFAR",
+    "MMFAR",
+    "HardFault_Handler"
+   ],
+   "distinguish_from": [
+    {
+     "term": "abnormal termination",
+     "distinction": "On Linux the kernel converts the fault into a signal; on the bare-metal board the handler is the final observer and must record the fault itself."
+    }
+   ],
+   "misconception": "A HardFault means a hardware defect."
+  },
+  {
+   "id": "V-T29-exception-entry-and-return",
+   "term": "exception entry and return",
+   "kind": "arm",
+   "definition": "The hardware sequence that stacks r0–r3, r12, lr, pc and xPSR (plus floating-point registers when lazy stacking is not used), loads lr with an EXC_RETURN value encoding the stack and mode to resume, and restores the frame when the handler returns through that value.",
+   "authority": [
+    {
+     "resource_id": "R-OS3-ST-PM0214-R10",
+     "locator": "pp.42-44 section2.3.7 exception entry/return and frame",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "EXC_RETURN"
+   ],
+   "misconception": "The handler must save all registers (the hardware saves the caller-saved set; the handler, as a C function, saves what it uses)."
+  },
+  {
+   "id": "V-T29-tail-chaining",
+   "term": "tail-chaining",
+   "kind": "arm",
+   "definition": "The optimization by which the processor enters a pending exception directly from the returning handler without unstacking and restacking the frame, shortening back-to-back handler latency.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B1.5.12 Tail-chaining",
+     "inspection": "pending"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "late arrival",
+     "distinction": "Late arrival lets a higher-priority exception that arrives during stacking take precedence before the first handler starts; tail-chaining joins handlers at return."
+    }
+   ],
+   "misconception": "Tail-chaining changes the priority order (it only removes redundant stacking)."
+  },
+  {
+   "id": "V-T29-late-arrival",
+   "term": "late arrival",
+   "kind": "arm",
+   "definition": "The behavior by which a higher-priority exception arriving while the processor is still stacking for a lower-priority one is taken first, reusing the stacking already done.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "B1.5.12 Tail-chaining",
+     "inspection": "pending"
+    }
+   ],
+   "misconception": "Once stacking has begun the first exception always runs first."
+  },
+  {
+   "id": "V-T29-interrupt-latency",
+   "term": "interrupt latency",
+   "kind": "hardware",
+   "definition": "The time from the interrupt request being asserted to the first instruction of its handler; it includes the hardware stacking cycles, any time the interrupt is masked (PRIMASK, BASEPRI, FAULTMASK) and any higher-priority handler already running. Response time adds the handler's own work.",
+   "authority": [
+    {
+     "resource_id": "R-ENH-ARMV7M-DDI0403EE",
+     "locator": "C1.8.3 CYCCNT cycle counter and related timers — CYCCNT definition and profiling notes",
+     "inspection": "registry"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "response time",
+     "distinction": "Latency ends when the handler starts; response time ends when the required reaction is complete."
+    }
+   ],
+   "idiom": [
+    "measure interrupt latency with a GPIO toggle on the logic analyzer"
+   ],
+   "misconception": "Interrupt latency is a fixed number from the datasheet (masking and nesting make it workload-dependent)."
+  },
+  {
+   "id": "V-T29-interrupt-masking",
+   "term": "interrupt masking",
+   "kind": "arm",
+   "definition": "Temporarily preventing exception entry: PRIMASK blocks all configurable exceptions, BASEPRI blocks those at or below a priority, FAULTMASK blocks everything but NMI. A critical section built this way lengthens interrupt latency by its duration.",
+   "authority": [
+    {
+     "resource_id": "R-OS3-ST-PM0214-R10",
+     "locator": "pp.24-26 mask/CONTROL registers",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "PRIMASK",
+    "BASEPRI",
+    "FAULTMASK",
+    "__disable_irq",
+    "__set_BASEPRI"
+   ],
+   "misconception": "Disabling interrupts makes shared data safe on a multicore device (masking is per core)."
+  },
+  {
+   "id": "V-T29-stack-pointers",
+   "term": "main and process stack pointers",
+   "kind": "arm",
+   "definition": "The two banked stack pointers of Armv7-M: the main stack pointer used by handlers and by Thread mode at reset, and the process stack pointer an operating system gives to threads so that handler stacking never overruns a thread's stack. CONTROL.SPSEL selects which one Thread mode uses.",
+   "authority": [
+    {
+     "resource_id": "R-OS3-ST-PM0214-R10",
+     "locator": "pp.24-26 mask/CONTROL registers",
+     "inspection": "registry"
+    }
+   ],
+   "aliases": [
+    "MSP",
+    "PSP"
+   ],
+   "expands": [
+    "MSP",
+    "PSP"
+   ],
+   "misconception": "There is one stack on a Cortex-M."
+  },
+  {
+   "id": "V-T29-dma-transfer",
+   "term": "DMA transfer",
+   "kind": "hardware",
+   "definition": "A data movement performed by a direct-memory-access controller acting as a bus master independently of the processor; while it is in flight the processor must not touch the buffer, and on processors with data caches the buffer must be cleaned or invalidated at the right moments.",
+   "authority": [
+    {
+     "resource_id": "R-ST-RM0090-21",
+     "locator": "10 DMA controller (DMA)",
+     "inspection": "pending"
+    }
+   ],
+   "aliases": [
+    "DMA"
+   ],
+   "expands": [
+    "DMA"
+   ],
+   "misconception": "A DMA completion flag means the data is visible to the processor (on a cached core the cache may still hold stale lines)."
+  },
+  {
+   "id": "V-T29-dma-descriptor",
+   "term": "DMA descriptor",
+   "kind": "hardware",
+   "definition": "A memory record in a hardware-defined format that tells a bus-master controller (DMA, Ethernet MAC) where a buffer is, how long it is and who owns it; the controller and the software hand ownership back and forth through a flag in the descriptor. Unrelated to a POSIX file descriptor.",
+   "authority": [
+    {
+     "resource_id": "R-ST-RM0090-21",
+     "locator": "33 Ethernet (ETH): DMA descriptors",
+     "inspection": "pending"
+    }
+   ],
+   "distinguish_from": [
+    {
+     "term": "file descriptor",
+     "distinction": "Same word, different world: the file descriptor is a kernel handle; the DMA descriptor is a hardware-owned memory record."
+    }
+   ],
+   "misconception": "The descriptor can be modified while the controller owns it."
+  },
+  {
+   "id": "V-T29-cache-maintenance",
+   "term": "cache maintenance",
+   "kind": "hardware",
+   "definition": "The explicit clean (write back) and invalidate operations a Cortex-M7 program must issue on the data cache around DMA transfers and shared-memory handoffs, because the cache is not coherent with bus masters or the other core; done per cache line, which makes buffer alignment part of the contract.",
+   "authority": [
+    {
+     "resource_id": "R-OS3-ST-PM0253-R5",
+     "locator": "pp.226-230 sections4.6.4-4.6.8, especially table91",
+     "inspection": "registry"
+    }
+   ],
+   "symbols": [
+    "SCB_CleanDCache_by_Addr",
+    "SCB_InvalidateDCache_by_Addr"
+   ],
+   "misconception": "A memory barrier substitutes for cache maintenance."
+  },
+  {
+   "id": "V-T29-read-modify-write-hazard",
+   "term": "read-modify-write hazard",
+   "kind": "hardware",
+   "definition": "The loss of an update when two contexts (a handler and the foreground, or two cores) each read a register or variable, modify a bit and write it back, so the later write discards the earlier change; set/clear registers, atomic operations or masking remove it.",
+   "authority": [
+    {
+     "resource_id": "R-ST-RM0090-21",
+     "locator": "8 General-purpose I/Os (GPIO): BSRR",
+     "inspection": "pending"
+    }
+   ],
+   "idiom": [
+    "use the BSRR set/clear register instead of a read-modify-write of ODR"
+   ],
+   "misconception": "A single C statement like reg |= bit is atomic."
+  }
+ ]
+}

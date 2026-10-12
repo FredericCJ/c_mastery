@@ -8,8 +8,10 @@ import zipfile
 from common import ROOT, anchor, dump, read_json, strip_bullet, write as write_raw
 from v4_common import V4
 import publish as legacy
+import vocabulary
 
 write = legacy.write
+link_page = legacy.link_page
 
 
 def table(headers, rows):return legacy.table(headers, rows)
@@ -49,7 +51,7 @@ def plain_roles(text):
     text=re.sub(r'\{ref\}`([^`]+)`',lambda m:'['+m[1]+'](#'+anchor(m[1])+')',text)
     text=re.sub(r'\{download\}`([^`]+) <\.\./labdownloads/([^>]+)\.zip>`',lambda m:'['+m[1]+'](labs/'+m[2]+'/README.md)',text)
     text=re.sub(r'\[([^\]]+)\]\((?:\.\./)?(?:modules|projects)/([^/)]+)\.md\)',lambda m:'['+m[1]+'](#'+anchor(m[2])+')',text)
-    return text
+    return vocabulary.plain_terms(text)
 
 
 def prepare(edition=4):
@@ -84,7 +86,7 @@ def prepare(edition=4):
     for name in ['guide','architecture','reuse','retrieval','budgets','workflow']:
         value=(guides/(name+'.md')).read_text(encoding='utf-8')
         if guides is V4 and edition!=4:value=value.replace('# C Mastery 4',f'# C Mastery {edition}',1)
-        value='('+tag+'-'+name+')=\n'+value
+        value='('+tag+'-'+name+')=\n'+link_page(value)
         write(source/'learning'/(name+'.md'),value);docs.append('learning/'+name);supplements.append(value)
     for phase in data['phases']:
         selected=[units[k] for k in data['order'] if units[k]['phase']==phase['id']]
@@ -110,6 +112,7 @@ def prepare(edition=4):
                 body+='### '+v['kind']+'\n\n'+v['prompt']+'\n\n'
                 body+='<details><summary>After the attempt: scoring facets</summary>\n\n'+'\n'.join('- '+x for x in v['checklist'])+'\n\n</details>\n\n'
             body+='**Objectives:** '+', '.join('{ref}`'+o+' <'+o+'>`' for o in s['objectives'])+'.\n\n'
+        body=link_page(body)
         write(source/'learning'/('recall-'+domain+'.md'),body);docs.append('learning/recall-'+domain);supplements.append(body)
     # The overlay is visible first. The legacy working card is retained as an
     # explicitly historical, collapsed record for unchanged prose verification.
@@ -119,6 +122,7 @@ def prepare(edition=4):
         original=re.sub(r'^## Working card\n.*?(?=^## |\Z)',historical,original,flags=re.M|re.S)
         block=f'## V{edition} working units\n\n'+overlay['legacy_notice']+'\n\n**Engineering question:** '+overlay['engineering_question']+'\n\n'
         block+='\n'.join(card(units[uid]) for uid in overlay['units'])+'\n## Retained full project contract\n\n'
+        block=link_page(block)
         # Keep the historical title and budget, then the new normative unit route.
         pos=original.find('\n\n',original.find('# '))+2
         write(path,original[:pos]+block+original[pos:])
@@ -139,7 +143,8 @@ def prepare(edition=4):
     expansion_text=f"{summary['new_executable_units']} new units in {summary['families']} total families"
     recall_text=f"{summary['recall_sets']} sets / {summary['recall_variants']:,} variants"
     hours_text=f"{budget['catalog_hours']:,}"
-    toctree='```{toctree}\n:hidden:\n:maxdepth: 2\n\nlearning/index\n'+ '\n'.join('guides/'+p.stem for p in sorted((ROOT/'curriculum/guides').glob('*.md')))+'\nmodules/index\nprojects/index\nreferences/index\ncoverage/index\nresearch/index\n```\n'
+    glossary_entry='glossary/index\n' if (source/'glossary/index.md').is_file() else ''
+    toctree='```{toctree}\n:hidden:\n:maxdepth: 2\n\nlearning/index\n'+ '\n'.join('guides/'+p.stem for p in sorted((ROOT/'curriculum/guides').glob('*.md')))+'\n'+glossary_entry+'modules/index\nprojects/index\nreferences/index\ncoverage/index\nresearch/index\n```\n'
     if edition==4:
         home='# C Programming Mastery 4\n\nBuild small components, explain their mechanisms and reuse them across useful systems.\n\n'
         home+='Start with {ref}`v4-guide` and {ref}`v4-workflow`. Follow {ref}`v4-route`; domain numbers organize the reference catalog.\n\n'
