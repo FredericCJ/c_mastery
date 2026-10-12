@@ -4,7 +4,7 @@ Run in WSL from the repository root. Assessor dependencies are explicitly
 supplied even while testing integration stubs, isolating the unsolved unit.
 """
 import argparse,datetime,hashlib,json,pathlib,subprocess,sys
-p=argparse.ArgumentParser();p.add_argument('--compiler',default='gcc');p.add_argument('--profile',choices=['debug','release','asan'],default='debug');p.add_argument('--family',action='append');p.add_argument('--learner-only',action='store_true');p.add_argument('--report',action='store_true');a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--compiler',default='gcc');p.add_argument('--profile',choices=['debug','release','asan'],default='debug');p.add_argument('--family',action='append');p.add_argument('--learner-only',action='store_true');p.add_argument('--report',action='store_true');p.add_argument('--receipts-dir',default='reviews/v4');a=p.parse_args()
 root=pathlib.Path(__file__).resolve().parents[1]
 families=a.family or ['algorithms','communications','foundations','firmware_io','integration']
 report={'schema_version':1,'kind':'v4-executable-unit-verification','compiler':a.compiler,'profile':a.profile,'generated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'scope':'32 new unit gates, explicit mutations, two P1 architectures and Cortex-M4/M7 compilation. No physical hardware evidence.','runs':[]}
@@ -51,5 +51,5 @@ if a.report:
    paths.update((root/'assessor'/dep).glob('*.c'));paths.update((root/'labs'/dep/'include').glob('*.h'))
  paths.update([pathlib.Path(__file__),root/'tools/v4_lab_assets.py'])
  report['inspected_paths']=[{'path':p.relative_to(root).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in sorted(paths)]
- destination=root/'reviews/v4'/f'labs32-{a.compiler}-{a.profile}.json';destination.parent.mkdir(parents=True,exist_ok=True);destination.write_text(json.dumps(report,indent=2)+'\n')
+ destination=root/a.receipts_dir/f'labs32-{a.compiler}-{a.profile}.json';destination.parent.mkdir(parents=True,exist_ok=True);destination.write_text(json.dumps(report,indent=2)+'\n')
  print('Evidence report: '+str(destination.relative_to(root)))

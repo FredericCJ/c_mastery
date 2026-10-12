@@ -67,4 +67,4 @@ Resolve every core objective's evidence checklist, defend both capstones, repeat
 The independent content reviews and publishing receipts accept the curriculum and finite supplied-data checks. They do not claim that learner C, actual profiling/debugger/tool runs, child exhaustion or target hardware tests have been performed. Unavailable observations keep their associated claims open.
 
 
-Current edition receipts live in reviews/v2 and bind to current source hashes. The v1 final_acceptance.json is historical and cannot accept changed v2 files. Project-to-family links name scoped executable support; a whole-family pass does not automatically accept every linked project or objective.
+Current edition receipts live in the reviews directory named by `curriculum/edition.json` (`reviews/v5` for the fifth edition) and bind to current source hashes. Earlier acceptance records under `reviews/`, `reviews/v2`, `reviews/v3` and `reviews/v4` are historical and cannot accept changed files. Project-to-family links name scoped executable support; a whole-family pass does not automatically accept every linked project or objective.

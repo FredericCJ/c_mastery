@@ -1,0 +1,355 @@
+{
+  "schema_version": 5,
+  "families": [
+    "machine_image",
+    "hosted_systems"
+  ],
+  "profiles": [
+    {
+      "family": "machine_image",
+      "profile": "gcc-debug",
+      "status": "passed",
+      "seconds": 4.401
+    },
+    {
+      "family": "machine_image",
+      "profile": "gcc-release",
+      "status": "passed",
+      "seconds": 5.036
+    },
+    {
+      "family": "machine_image",
+      "profile": "clang-debug",
+      "status": "passed",
+      "seconds": 3.496
+    },
+    {
+      "family": "machine_image",
+      "profile": "clang-release",
+      "status": "passed",
+      "seconds": 3.543
+    },
+    {
+      "family": "machine_image",
+      "profile": "clang-asan",
+      "status": "passed",
+      "seconds": 3.371
+    },
+    {
+      "family": "hosted_systems",
+      "profile": "gcc-debug",
+      "status": "passed",
+      "seconds": 0.207
+    },
+    {
+      "family": "hosted_systems",
+      "profile": "gcc-release",
+      "status": "passed",
+      "seconds": 0.2
+    },
+    {
+      "family": "hosted_systems",
+      "profile": "clang-debug",
+      "status": "passed",
+      "seconds": 0.199
+    },
+    {
+      "family": "hosted_systems",
+      "profile": "clang-release",
+      "status": "passed",
+      "seconds": 0.202
+    },
+    {
+      "family": "hosted_systems",
+      "profile": "clang-asan",
+      "status": "passed",
+      "seconds": 0.346
+    }
+  ],
+  "learners": [
+    {
+      "family": "machine_image",
+      "build": "passed",
+      "rejected_units": [
+        "LAB-MI-01",
+        "LAB-MI-02",
+        "LAB-MI-03",
+        "LAB-MI-04",
+        "LAB-MI-05",
+        "LAB-MI-06",
+        "LAB-MI-07",
+        "LAB-MI-08",
+        "LAB-MI-09",
+        "LAB-MI-10",
+        "LAB-MI-11",
+        "LAB-MI-12"
+      ]
+    },
+    {
+      "family": "hosted_systems",
+      "build": "passed",
+      "rejected_units": [
+        "LAB-HS-01",
+        "LAB-HS-02",
+        "LAB-HS-03",
+        "LAB-HS-04",
+        "LAB-HS-05",
+        "LAB-HS-06",
+        "LAB-HS-07",
+        "LAB-HS-08",
+        "LAB-HS-09",
+        "LAB-HS-10",
+        "LAB-HS-11",
+        "LAB-HS-12"
+      ]
+    }
+  ],
+  "mutations": [
+    {
+      "family": "machine_image",
+      "case": "abi",
+      "status": "rejected",
+      "fault": "+8*h => +7*h"
+    },
+    {
+      "family": "machine_image",
+      "case": "hostile",
+      "status": "rejected",
+      "fault": "mi_asm_sum:\n => mi_asm_sum:\n movq $99,%rbx\n"
+    },
+    {
+      "family": "machine_image",
+      "case": "archive",
+      "status": "rejected",
+      "fault": "return 42 => return 41"
+    },
+    {
+      "family": "machine_image",
+      "case": "relocation",
+      "status": "rejected",
+      "fault": "mi_pointer=mi_message => mi_pointer=mi_message+1"
+    },
+    {
+      "family": "machine_image",
+      "case": "tls",
+      "status": "rejected",
+      "fault": "static _Thread_local => static"
+    },
+    {
+      "family": "machine_image",
+      "case": "budget",
+      "status": "rejected",
+      "fault": "<= 64 => <= 256"
+    },
+    {
+      "family": "machine_image",
+      "case": "entry",
+      "status": "rejected",
+      "fault": "sp[0]!=3 => sp[0]!=2"
+    },
+    {
+      "family": "machine_image",
+      "case": "syscall",
+      "status": "rejected",
+      "fault": "return (long)done; => return (long)done-1;"
+    },
+    {
+      "family": "machine_image",
+      "case": "bytes",
+      "status": "rejected",
+      "fault": "(uintptr_t)a<(uintptr_t)b => 1"
+    },
+    {
+      "family": "machine_image",
+      "case": "wide",
+      "status": "rejected",
+      "fault": "return q; => return q+1;"
+    },
+    {
+      "family": "machine_image",
+      "case": "closure",
+      "status": "rejected",
+      "fault": "return 1; => return 0;"
+    },
+    {
+      "family": "machine_image",
+      "case": "image",
+      "status": "rejected",
+      "fault": "0xfe => 0xfd"
+    },
+    {
+      "family": "hosted_systems",
+      "case": "descriptor",
+      "status": "rejected",
+      "fault": "return fcntl(fd,F_DUPFD_CLOEXEC,0); => return dup(fd);"
+    },
+    {
+      "family": "hosted_systems",
+      "case": "copy",
+      "status": "rejected",
+      "fault": "*moved+=done; => *moved+=done+1;"
+    },
+    {
+      "family": "hosted_systems",
+      "case": "deadline",
+      "status": "rejected",
+      "fault": "return -3; => return -2;"
+    },
+    {
+      "family": "hosted_systems",
+      "case": "process",
+      "status": "rejected",
+      "fault": "*observed=WEXITSTATUS(status); => *observed=status;"
+    },
+    {
+      "family": "hosted_systems",
+      "case": "mapping",
+      "status": "rejected",
+      "fault": "offset=off; => offset=0;"
+    },
+    {
+      "family": "hosted_systems",
+      "case": "frame",
+      "status": "rejected",
+      "fault": "head[0]<<8)|head[1] => head[1]<<8)|head[0]"
+    },
+    {
+      "family": "hosted_systems",
+      "case": "signal",
+      "status": "rejected",
+      "fault": "SIG_SETMASK,&old => SIG_BLOCK,&old"
+    },
+    {
+      "family": "hosted_systems",
+      "case": "ipc",
+      "status": "rejected",
+      "fault": "i<r/2 => i<0"
+    },
+    {
+      "family": "hosted_systems",
+      "case": "reactor",
+      "status": "rejected",
+      "fault": "total+=x; => total+=x+1;"
+    },
+    {
+      "family": "hosted_systems",
+      "case": "pool",
+      "status": "rejected",
+      "fault": "*sum=total; => *sum=total+1;"
+    },
+    {
+      "family": "hosted_systems",
+      "case": "queue",
+      "status": "rejected",
+      "fault": "]=value; => ]=value+1;"
+    },
+    {
+      "family": "hosted_systems",
+      "case": "clocks",
+      "status": "rejected",
+      "fault": "(rlim_t)limit,(rlim_t)limit => (rlim_t)limit+1,(rlim_t)limit+1"
+    }
+  ],
+  "claims": "Finite executable mechanism gates; no learner mastery or physical evidence",
+  "failures": [],
+  "status": "passed",
+  "passed": true,
+  "execution": {
+    "command": [
+      "wsl",
+      "--exec",
+      "python3",
+      "/mnt/f/Learning/Curricula/c_mastery/tools/check_machine_hosted_v4.py",
+      "--work",
+      "build/v5-machine-hosted"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 231.983,
+    "log": "build/v5-machine-hosted/campaign.log",
+    "log_sha256": "800dbeb30ee3a5bcff7298d7d7b42dac31f22d1b08dd0dce8c6eb383aa04a84f"
+  },
+  "reproduction_command": [
+    "python",
+    "tools/run_unit_campaigns_v5.py",
+    "machine-hosted"
+  ],
+  "counts": {
+    "new_units": 24,
+    "assessor_family_profile_combinations": 10,
+    "unimplemented_units_rejected": 24,
+    "compiled_mutants_rejected": 24
+  },
+  "inspected_paths": {
+    "assessor/hosted_systems/clocks.c": "7995d09dd69acb601027dc98f9bb4667bd2d7bee753965e305b5b2acf43dfe52",
+    "assessor/hosted_systems/common.h": "bbc17e5588fc90305448f6e42854dbbdfe25d282ccce98fcf7be76dd4bcf727f",
+    "assessor/hosted_systems/copy.c": "34803a9489c7965114d210944a92cf24d49cb57232120b21ec5df4e97afb9230",
+    "assessor/hosted_systems/deadline.c": "3e614c1f5c6e99b401a1a4fecc0c5fbd51f3338d1e99e53d8daa0976d0b78a3c",
+    "assessor/hosted_systems/descriptor.c": "077cea526d1c837d62b1b9d29573848841634ebef2bcee50aba7179b3fa1b02f",
+    "assessor/hosted_systems/frame.c": "a19111c280a271c6e8aa105cae23f314c5908319734620f2ec018334162feee5",
+    "assessor/hosted_systems/ipc.c": "d8c91acc5c048aad7f633b22da15412515141e7f76b8d1ac0de22091e4a2f988",
+    "assessor/hosted_systems/mapping.c": "9ab725bb2473778ed9ba238db3d81fa0269c4916048bf2d6ad69f4fd183c429f",
+    "assessor/hosted_systems/pool.c": "58558e45a4d43290509c0beb2c1450d32a4dfacafefcb9e65eb9bd27992794d0",
+    "assessor/hosted_systems/process.c": "cb82cdcde59a73463c60a5b92368396dde2c71e32da8ad94c5b67a788172c9b7",
+    "assessor/hosted_systems/queue.c": "9976659b86169d0334f3a8b8135d8e318fab6b01c8e0c8fc6e0ae4d17f81eb89",
+    "assessor/hosted_systems/reactor.c": "ddb6bc15521f1588262af75d8d2b1397949a5ff37ef58a249220be0422ccb72a",
+    "assessor/hosted_systems/signal.c": "4748e422bc61f9512291e5da3d78dd42246aa12d5f0066e46cea68f26fff789f",
+    "assessor/machine_image/abi.c": "d5774716a0420d082822751002cb0cb490e53fad6db817bd583184f5903f7704",
+    "assessor/machine_image/archive.c": "e5a3889e69f3dde4ba810c394cda7bbc2c2b9b4eabdcc4953e77db7116864132",
+    "assessor/machine_image/audit.c": "46047ed22a61610763dcee41a43386ec01bb40a85f815a89f25b642d7ff366c1",
+    "assessor/machine_image/bytes.c": "2cdf5573df3e357179a48bf5f240edb99fc6e55ca97909b9d81ad115f05c9e7d",
+    "assessor/machine_image/entry.c": "54278647eceabd50713f69fb3fa40ab18fd7040d67c52ea8f7ca04738004ebe3",
+    "assessor/machine_image/image.c": "bc9373f7ae95a0961eda23c68716da65b18669c075d010a4bd822f66519a2f9b",
+    "assessor/machine_image/layout.ld": "a5b484bc2e5fb412c458b18bcc4d236cafe72686bb24469a8e918e6bd9b282a5",
+    "assessor/machine_image/relocation.c": "d1627db9a16a6d4ff3e65fe3a80b4685321cd87e5da81c3fbb964f71c0ac7791",
+    "assessor/machine_image/sum.S": "688c05267c6bd08b56ee43d3d970ba65dd45cd76dbd92ab5e192c34f98dfa55a",
+    "assessor/machine_image/syscall.c": "39c80bec4e6c5190d833ad1f4a06da2513db21e38e721702bfd72365ff3bee05",
+    "assessor/machine_image/tls.c": "a37941cc76194fe82ac1bd0b7fc59753af23eda5fd3293c042587bec569b9796",
+    "assessor/machine_image/wide.c": "60d8e3e6e8f77834b2bce4b9b20c8ee92445556ebade002f9353c2cb74b5112f",
+    "labs/hosted_systems/CMakeLists.txt": "67d9ed689bd1ca45070b3926edc57568c581c4aa3b646a1835c2d4fde0bcafd7",
+    "labs/hosted_systems/CONTRACTS.md": "37b5c55cf0473e98071ee1221cf5667e739923b227f22ccec6b80a49797d10c5",
+    "labs/hosted_systems/family.json": "2174fc7eac1a2a06a202a0cdf261ef4401f22973582c23c5757346ffeabcc9c1",
+    "labs/hosted_systems/include/hosted.h": "b12266f9fd9e98f617872b700105e631bba0189d6e0abe083fc175bb1e7a9abd",
+    "labs/hosted_systems/README.md": "ea69b7b3b3fc358afd7cc62e4f64c8e4eb68e07a1a8cb58e4b8e117ba3bcf580",
+    "labs/hosted_systems/src/clocks.c": "8ae38c671735992afb513da285e83ba7c468f6040331a14c5376f7d6cace33ed",
+    "labs/hosted_systems/src/common.h": "736388aaac6bf5288af9a47c750559da20a6d19901bb9684e0bd6d308607a307",
+    "labs/hosted_systems/src/copy.c": "7c613fdbab716a5d33890a62f128c41d9af86fbb08fd03667d7fa1820c87645d",
+    "labs/hosted_systems/src/deadline.c": "de2fa7de6d86b32e09c41d19b5df3ff791d72ff920c67e16cf42701be9289c80",
+    "labs/hosted_systems/src/descriptor.c": "549b4870bd4cef1476741f077091a46cc70ecd9f61724dcf7ca697414b7e9201",
+    "labs/hosted_systems/src/frame.c": "3c74f818d4514b4dffe8dabd874e5b80120a861ff5b75fe30b27b76ab3920ffd",
+    "labs/hosted_systems/src/ipc.c": "320211501f387d7c4d1af8e21402c351813566cfe63d93dcd934e88922440865",
+    "labs/hosted_systems/src/mapping.c": "db86c4fb514a64231fa193846058ffd456e6fa8f4f2acda8a936d5d53592bdf7",
+    "labs/hosted_systems/src/pool.c": "553082618c458a2ddbb3f1fc2c05a5b36438b4e8bbbde1e0c6a83a497f689ea7",
+    "labs/hosted_systems/src/process.c": "902238d6830fe44c469d4ee341d6ec6979e58e866b67cb39d6ed098ab4275d8a",
+    "labs/hosted_systems/src/queue.c": "d6b1d0842d9883ab095751ab7e9985bd0be41cdeb0422759a5525b4fa2f94b6e",
+    "labs/hosted_systems/src/reactor.c": "1487286e0ab2d2cfd05f0508855cdaec3808e9af3f42ef2f7c6a4d3af8725167",
+    "labs/hosted_systems/src/signal.c": "b33c13c04ba384b07e9609cc4e37c74bbf5dfbd6d60b2540c9c9d4076f2362d1",
+    "labs/hosted_systems/tests/tests.c": "c1d9034ec39eb40f8bc828c86d169a4672f6d28f4b6348fe538586940c25c27a",
+    "labs/machine_image/CMakeLists.txt": "84e9e0e4b2b1a4b9e18a39e90d5969c320bb138d96204c82fbd2714c8721bbb0",
+    "labs/machine_image/CONTRACTS.md": "94096f26a0ee37828742d2a2110d8b0eb95ba3bf570da41fc4f05b3a539f2281",
+    "labs/machine_image/family.json": "b70a2b14ede8ea0d8aec024cfe5951909051473d28a9f69fa0b91e15c3d2a5a8",
+    "labs/machine_image/include/machine.h": "f1a28682239799b1e7d653de5f5b4a78a1afb606e76b049deef0ca6f8f69167b",
+    "labs/machine_image/README.md": "0472b1599c030ab1240c22633db3da5e60a0363607ec1e366dbe13f4ef90f7e2",
+    "labs/machine_image/src/abi.c": "61346ad3b156f082132a0a5934b1736312124854bdd0381655a5f2f4b0fa4834",
+    "labs/machine_image/src/archive.c": "d4d5af9bf75e562a28d934ca1686e121033f96a5ddabfa2e3d5cd66e9e34b881",
+    "labs/machine_image/src/audit.c": "a1e7bf9b230ce27b1e9b803fd877fff3d2c52b56cda4f5efdaa57ae9c0a81477",
+    "labs/machine_image/src/bytes.c": "a0fd919117c31fae8269a93b30a7f68ae59bd6d79139afa44514bb53bd37e3fb",
+    "labs/machine_image/src/entry.c": "47180f2d6576eca913afed73b920e687a92a74a851fccab17bdfb4a78c31bf7e",
+    "labs/machine_image/src/image.c": "2631ff0ad401ec32a3c8f65c4851039e250c7b5ce8b6e0dfbc62ccea7d80c9db",
+    "labs/machine_image/src/layout.ld": "d354092cf5e082284536a7b7c22a99f1a30c2ebde01ceab7b5a266ff587f6000",
+    "labs/machine_image/src/relocation.c": "4b902db2b2cc29e43d1102f39cbb0044c552933e7126216a37c5e6f63dcc95a0",
+    "labs/machine_image/src/sum.S": "ca1d2b71a2838bd38db44abd097860c147d58326cb7cce07ea8bd1fc71a6d4b3",
+    "labs/machine_image/src/syscall.c": "d7dde0c3cd5d459a3be1456a7495a9f2942621b36ff3cc7c22b7cac281a4d55a",
+    "labs/machine_image/src/tls.c": "11910d71c0473305c5db0a449551a6523eca733a05e6187d23f2b91270cfddb2",
+    "labs/machine_image/src/wide.c": "1595f6f09a346f5bd4808ef06a78d1164bc96183a29920f3af13889a96ba5080",
+    "labs/machine_image/tests/artifacts.py": "f74dd8b6944dff1f9e36f6d870e3ae83c183db5f8cbc1bda28db14383bbb97ff",
+    "labs/machine_image/tests/hostile.S": "4213dcd5c2b6490c823805b17a123a22e5e8bbdbe512a6312b8f43ba95fc5cb4",
+    "labs/machine_image/tests/runtime.c": "2cd3dc97c292cc6e5ed2f3b867b2f32bdd0f7fbc3c1c1aa38ebdaf93f17d66b2",
+    "labs/machine_image/tests/start.S": "2bf4f3ac19de3ad754764d5f5481efb11267bcaf9bf944e716160e7e88b3a692",
+    "tools/check_machine_hosted_v4.py": "237c9bd4ac92eca90e1b26d90e814385539e5297864adf5d2d96cfd85ec0bc4c",
+    "tools/run_unit_campaigns_v5.py": "8299e767e29950bc79570c90e434af63de748c79ee07cd1b74ecdf4459a05458"
+  },
+  "input_sha256": "b4b73f9154dbd079577e3982067ec49f7da65f854c3283cd0458dd92d626efc9",
+  "recorded_at": "2026-10-12T08:03:09.744207+00:00",
+  "source_changed_during_run": false,
+  "physical_observations": "not-run"
+}

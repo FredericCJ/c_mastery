@@ -1,16 +1,16 @@
-# C Programming Mastery 4
+# C Programming Mastery 5
 
-<a id="v4-index"></a>
-# C Mastery 4
+<a id="v5-index"></a>
+# C Mastery 5
 
 56 domains · 429 projects · 1357 working units · 56 new executable units · 627 recall sets.
 
-Start with [v4-guide](#v4-guide), use [v4-workflow](#v4-workflow), and follow [v4-route](#v4-route). Grow a shared toolbox, Linux telemetry/service, firmware gateway and VM/store kernel appliance.
+Start with [v5-guide](#v5-guide), use [v5-workflow](#v5-workflow), and follow [v5-route](#v5-route). Grow a shared toolbox, Linux telemetry/service, firmware gateway and VM/store kernel appliance.
 
 
 
-<a id="v4-guide"></a>
-# C Mastery 4: learn by growing useful systems
+<a id="v5-guide"></a>
+# C Mastery 5: learn by growing useful systems
 
 Start with a three-hour entry diagnostic, then grow a bounded record tool. The
 curriculum assumes that you can already write elementary C; targeted remediation
@@ -118,7 +118,7 @@ source, interface, target or recall failure reopens a particular claim.
 
 ---
 
-<a id="v4-architecture"></a>
+<a id="v5-architecture"></a>
 # Decisions before implementation, revision after evidence
 
 An architecture decision is required when a component becomes reusable, an
@@ -172,7 +172,7 @@ lightweight evidence until that boundary is ready for review.
 
 ---
 
-<a id="v4-reuse"></a>
+<a id="v5-reuse"></a>
 # Reuse source, contracts and evidence deliberately
 
 The artifact registry identifies actual components. An import records a contract
@@ -231,7 +231,7 @@ it does not erase historical learning or unrelated components.
 
 ---
 
-<a id="v4-retrieval"></a>
+<a id="v5-retrieval"></a>
 # Recall, spacing and transfer during real project work
 
 There is one scheduled set per micro-topic, with mechanism, trace/implementation
@@ -304,7 +304,7 @@ practice design; they do not establish this curriculum's effectiveness or durati
 
 ---
 
-<a id="v4-budgets"></a>
+<a id="v5-budgets"></a>
 # Workload conservation and a sustainable rhythm
 
 Keep the full catalog at 4,879 planned hours and the conservative core at 4,799.
@@ -345,7 +345,7 @@ reusable component or project boundary instead.
 
 ---
 
-<a id="v4-workflow"></a>
+<a id="v5-workflow"></a>
 # Offline learner workflow
 
 Use one study profile for your progress and separate workspaces for implementations. All commands run locally. Python manages the learning records; execute the C laboratories in Linux or WSL with the tools described by their family.
@@ -544,7 +544,7 @@ Printable sheets use the same unit, set, variant, and objective identifiers. Wri
 
 ---
 
-<a id="v4-phase-1"></a>
+<a id="v5-phase-1"></a>
 # Phase 1: Trustworthy small tools
 
 Bounded record tool, checked input, explicit errors and repaired regressions.
@@ -726,7 +726,7 @@ These are capability groupings, not serial blocks. Follow actual prerequisites a
 
 ---
 
-<a id="v4-phase-2"></a>
+<a id="v5-phase-2"></a>
 # Phase 2: A portable toolbox
 
 Bytes, containers, parsers, storage policies and algorithms shared by two consumers.
@@ -1063,7 +1063,7 @@ These are capability groupings, not serial blocks. Follow actual prerequisites a
 
 ---
 
-<a id="v4-phase-3"></a>
+<a id="v5-phase-3"></a>
 # Phase 3: Crossing execution boundaries
 
 Actual files, pipes, processes and reset/UART adapters explain machine and OS boundaries.
@@ -1279,7 +1279,7 @@ These are capability groupings, not serial blocks. Follow actual prerequisites a
 
 ---
 
-<a id="v4-phase-4"></a>
+<a id="v5-phase-4"></a>
 # Phase 4: Responsive communicating systems
 
 Telemetry and HTTP tolerate segmentation, overload, deadlines and shutdown.
@@ -1469,7 +1469,7 @@ These are capability groupings, not serial blocks. Follow actual prerequisites a
 
 ---
 
-<a id="v4-phase-5"></a>
+<a id="v5-phase-5"></a>
 # Phase 5: Original concurrent execution
 
 Cooperative contexts, preemption, synchronization, scheduling and early protected execution.
@@ -1693,7 +1693,7 @@ These are capability groupings, not serial blocks. Follow actual prerequisites a
 
 ---
 
-<a id="v4-phase-6"></a>
+<a id="v5-phase-6"></a>
 # Phase 6: Programmable and durable components
 
 Hosted VM and recoverable store reuse representations, allocation and fault harnesses.
@@ -1780,7 +1780,7 @@ These are capability groupings, not serial blocks. Follow actual prerequisites a
 
 ---
 
-<a id="v4-phase-7"></a>
+<a id="v5-phase-7"></a>
 # Phase 7: Multiple processors and ownership
 
 SMP and AMP revalidate publication, cache/DMA visibility and reclamation separately.
@@ -1916,7 +1916,7 @@ These are capability groupings, not serial blocks. Follow actual prerequisites a
 
 ---
 
-<a id="v4-phase-8"></a>
+<a id="v5-phase-8"></a>
 # Phase 8: Composed protected systems
 
 The same VM/store and protocol components operate across process and target boundaries.
@@ -1981,7 +1981,7 @@ These are capability groupings, not serial blocks. Follow actual prerequisites a
 
 ---
 
-<a id="v4-phase-9"></a>
+<a id="v5-phase-9"></a>
 # Phase 9: Architectural revision and defense
 
 Changed requirements force a justified migration and new independent evidence.
@@ -2018,7 +2018,7 @@ These are capability groupings, not serial blocks. Follow actual prerequisites a
 
 ---
 
-<a id="v4-route"></a>
+<a id="v5-route"></a>
 # The working-unit route
 
 1357 working units preserve 429 project envelopes. Exactly 56 units have newly supplied executable gates. Recall variants are counted separately. The first three-hour diagnostic can identify conditional remediation; do not claim that diagnosis alone accepts every foundation.
@@ -3386,7 +3386,7 @@ These are capability groupings, not serial blocks. Follow actual prerequisites a
 
 ---
 
-<a id="v4-artifacts"></a>
+<a id="v5-artifacts"></a>
 # Component lineage registry
 
 Export only accepted claims and declared source/header interfaces. A named artifact is not automatically qualified for every target.
@@ -3455,7 +3455,7 @@ Export only accepted claims and declared source/header interfaces. A named artif
 
 ---
 
-<a id="v4-recall-t01"></a>
+<a id="v5-recall-t01"></a>
 # T01 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -3710,7 +3710,7 @@ For Specification and test habits, reconstruct the relevant interface or invaria
 
 ---
 
-<a id="v4-recall-t02"></a>
+<a id="v5-recall-t02"></a>
 # T02 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -4211,7 +4211,7 @@ For Constraints and diagnostics, reconstruct the relevant interface or invariant
 
 ---
 
-<a id="v4-recall-t03"></a>
+<a id="v5-recall-t03"></a>
 # T03 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -4794,7 +4794,7 @@ For Memory correctness case studies, reconstruct the relevant interface or invar
 
 ---
 
-<a id="v4-recall-t04"></a>
+<a id="v5-recall-t04"></a>
 # T04 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -5295,7 +5295,7 @@ For Numerical boundary testing, reconstruct the relevant interface or invariant 
 
 ---
 
-<a id="v4-recall-t05"></a>
+<a id="v5-recall-t05"></a>
 # T05 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -5714,7 +5714,7 @@ For Beyond-base-standard mechanisms, reconstruct the relevant interface or invar
 
 ---
 
-<a id="v4-recall-t06"></a>
+<a id="v5-recall-t06"></a>
 # T06 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -6092,7 +6092,7 @@ For External code generation, reconstruct the relevant interface or invariant be
 
 ---
 
-<a id="v4-recall-t07"></a>
+<a id="v5-recall-t07"></a>
 # T07 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -6593,7 +6593,7 @@ For Reproducible artifacts, reconstruct the relevant interface or invariant befo
 
 ---
 
-<a id="v4-recall-t08"></a>
+<a id="v5-recall-t08"></a>
 # T08 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -7012,7 +7012,7 @@ For Compiler-to-machine reasoning, reconstruct the relevant interface or invaria
 
 ---
 
-<a id="v4-recall-t09"></a>
+<a id="v5-recall-t09"></a>
 # T09 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -7513,7 +7513,7 @@ For Binary transformations, reconstruct the relevant interface or invariant befo
 
 ---
 
-<a id="v4-recall-t10"></a>
+<a id="v5-recall-t10"></a>
 # T10 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -7932,7 +7932,7 @@ For Startup failure diagnosis, reconstruct the relevant interface or invariant b
 
 ---
 
-<a id="v4-recall-t11"></a>
+<a id="v5-recall-t11"></a>
 # T11 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -8351,7 +8351,7 @@ For Runtime validation, reconstruct the relevant interface or invariant before c
 
 ---
 
-<a id="v4-recall-t12"></a>
+<a id="v5-recall-t12"></a>
 # T12 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -9016,7 +9016,7 @@ For Implementation source literacy, reconstruct the relevant interface or invari
 
 ---
 
-<a id="v4-recall-t13"></a>
+<a id="v5-recall-t13"></a>
 # T13 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -9435,7 +9435,7 @@ For Replacement decisions, reconstruct the relevant interface or invariant befor
 
 ---
 
-<a id="v4-recall-t14"></a>
+<a id="v5-recall-t14"></a>
 # T14 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -10059,7 +10059,7 @@ For Container verification, reconstruct the relevant interface or invariant befo
 
 ---
 
-<a id="v4-recall-t15"></a>
+<a id="v5-recall-t15"></a>
 # T15 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -10683,7 +10683,7 @@ For Advanced algorithm engineering, reconstruct the relevant interface or invari
 
 ---
 
-<a id="v4-recall-t16"></a>
+<a id="v5-recall-t16"></a>
 # T16 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -11266,7 +11266,7 @@ For Allocator verification, reconstruct the relevant interface or invariant befo
 
 ---
 
-<a id="v4-recall-t17"></a>
+<a id="v5-recall-t17"></a>
 # T17 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -11685,7 +11685,7 @@ For Reproducibility and reference testing, reconstruct the relevant interface or
 
 ---
 
-<a id="v4-recall-t18"></a>
+<a id="v5-recall-t18"></a>
 # T18 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -12104,7 +12104,7 @@ For API evolution, reconstruct the relevant interface or invariant before consul
 
 ---
 
-<a id="v4-recall-t19"></a>
+<a id="v5-recall-t19"></a>
 # T19 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -12523,7 +12523,7 @@ For Abstraction cost analysis, reconstruct the relevant interface or invariant b
 
 ---
 
-<a id="v4-recall-t20"></a>
+<a id="v5-recall-t20"></a>
 # T20 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -12942,7 +12942,7 @@ For Architecture evaluation, reconstruct the relevant interface or invariant bef
 
 ---
 
-<a id="v4-recall-t21"></a>
+<a id="v5-recall-t21"></a>
 # T21 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -13361,7 +13361,7 @@ For Crash evidence and recovery, reconstruct the relevant interface or invariant
 
 ---
 
-<a id="v4-recall-t22"></a>
+<a id="v5-recall-t22"></a>
 # T22 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -13780,7 +13780,7 @@ For Release engineering, reconstruct the relevant interface or invariant before 
 
 ---
 
-<a id="v4-recall-t23"></a>
+<a id="v5-recall-t23"></a>
 # T23 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -14363,7 +14363,7 @@ For POSIX/Linux boundary, reconstruct the relevant interface or invariant before
 
 ---
 
-<a id="v4-recall-t24"></a>
+<a id="v5-recall-t24"></a>
 # T24 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -14864,7 +14864,7 @@ For Advanced I/O, reconstruct the relevant interface or invariant before consult
 
 ---
 
-<a id="v4-recall-t25"></a>
+<a id="v5-recall-t25"></a>
 # T25 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -15365,7 +15365,7 @@ For Concurrency validation, reconstruct the relevant interface or invariant befo
 
 ---
 
-<a id="v4-recall-t26"></a>
+<a id="v5-recall-t26"></a>
 # T26 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -15784,7 +15784,7 @@ For Kernel memory and lifetime models, reconstruct the relevant interface or inv
 
 ---
 
-<a id="v4-recall-t27"></a>
+<a id="v5-recall-t27"></a>
 # T27 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -16203,7 +16203,7 @@ For Bring-up verification, reconstruct the relevant interface or invariant befor
 
 ---
 
-<a id="v4-recall-t28"></a>
+<a id="v5-recall-t28"></a>
 # T28 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -16704,7 +16704,7 @@ For CAN, USB, and Ethernet, reconstruct the relevant interface or invariant befo
 
 ---
 
-<a id="v4-recall-t29"></a>
+<a id="v5-recall-t29"></a>
 # T29 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -17123,7 +17123,7 @@ For Race and latency validation, reconstruct the relevant interface or invariant
 
 ---
 
-<a id="v4-recall-t30"></a>
+<a id="v5-recall-t30"></a>
 # T30 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -17542,7 +17542,7 @@ For Real-time evidence, reconstruct the relevant interface or invariant before c
 
 ---
 
-<a id="v4-recall-t31"></a>
+<a id="v5-recall-t31"></a>
 # T31 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -17961,7 +17961,7 @@ For Fault injection and recovery, reconstruct the relevant interface or invarian
 
 ---
 
-<a id="v4-recall-t32"></a>
+<a id="v5-recall-t32"></a>
 # T32 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -18544,7 +18544,7 @@ For Regression and reproducibility, reconstruct the relevant interface or invari
 
 ---
 
-<a id="v4-recall-t33"></a>
+<a id="v5-recall-t33"></a>
 # T33 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -18963,7 +18963,7 @@ For Evidence composition, reconstruct the relevant interface or invariant before
 
 ---
 
-<a id="v4-recall-t34"></a>
+<a id="v5-recall-t34"></a>
 # T34 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -19464,7 +19464,7 @@ For Embedded optimization, reconstruct the relevant interface or invariant befor
 
 ---
 
-<a id="v4-recall-t35"></a>
+<a id="v5-recall-t35"></a>
 # T35 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -19965,7 +19965,7 @@ For Security review and limits, reconstruct the relevant interface or invariant 
 
 ---
 
-<a id="v4-recall-t36"></a>
+<a id="v5-recall-t36"></a>
 # T36 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -20384,7 +20384,7 @@ For Higher C abstractions over invariant-preserving kernels, reconstruct the rel
 
 ---
 
-<a id="v4-recall-t37"></a>
+<a id="v5-recall-t37"></a>
 # T37 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -20803,7 +20803,7 @@ For Performance equations and credible experiments, reconstruct the relevant int
 
 ---
 
-<a id="v4-recall-t38"></a>
+<a id="v5-recall-t38"></a>
 # T38 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -21304,7 +21304,7 @@ For CAN FD ISO format, dual bitrate and external-controller boundary, reconstruc
 
 ---
 
-<a id="v4-recall-t39"></a>
+<a id="v5-recall-t39"></a>
 # T39 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -21723,7 +21723,7 @@ For Cross-layer timing, fault localization and evidence, reconstruct the relevan
 
 ---
 
-<a id="v4-recall-t40"></a>
+<a id="v5-recall-t40"></a>
 # T40 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -22060,7 +22060,7 @@ For Application exchange and seven-layer acceptance, reconstruct the relevant in
 
 ---
 
-<a id="v4-recall-t41"></a>
+<a id="v5-recall-t41"></a>
 # T41 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -22397,7 +22397,7 @@ For HTTP reuse, independent interoperability and physical closure, reconstruct t
 
 ---
 
-<a id="v4-recall-t42"></a>
+<a id="v5-recall-t42"></a>
 # T42 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -22734,7 +22734,7 @@ For Parsing security and independent interoperability, reconstruct the relevant 
 
 ---
 
-<a id="v4-recall-t43"></a>
+<a id="v5-recall-t43"></a>
 # T43 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -23317,7 +23317,7 @@ For Choosing useful measures and making a performance decision, reconstruct the 
 
 ---
 
-<a id="v4-recall-t44"></a>
+<a id="v5-recall-t44"></a>
 # T44 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -23818,7 +23818,7 @@ For Causal repair, regression and delayed blind transfer, reconstruct the releva
 
 ---
 
-<a id="v4-recall-t45"></a>
+<a id="v5-recall-t45"></a>
 # T45 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -24237,7 +24237,7 @@ For Causal repair, prevention and transfer, reconstruct the relevant interface o
 
 ---
 
-<a id="v4-recall-t46"></a>
+<a id="v5-recall-t46"></a>
 # T46 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -24738,7 +24738,7 @@ For Runtime defense, mutation and delayed transfer, reconstruct the relevant int
 
 ---
 
-<a id="v4-recall-t47"></a>
+<a id="v5-recall-t47"></a>
 # T47 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -25239,7 +25239,7 @@ For VM and kernel storage boundaries, reconstruct the relevant interface or inva
 
 ---
 
-<a id="v4-recall-t48"></a>
+<a id="v5-recall-t48"></a>
 # T48 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -25822,7 +25822,7 @@ For Kernel diagnosis, negative controls and delayed transfer, reconstruct the re
 
 ---
 
-<a id="v4-recall-t49"></a>
+<a id="v5-recall-t49"></a>
 # T49 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -26241,7 +26241,7 @@ For I/O accounting and interference, reconstruct the relevant interface or invar
 
 ---
 
-<a id="v4-recall-t50"></a>
+<a id="v5-recall-t50"></a>
 # T50 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -26742,7 +26742,7 @@ For Integrated original MCU runtime, reconstruct the relevant interface or invar
 
 ---
 
-<a id="v4-recall-t51"></a>
+<a id="v5-recall-t51"></a>
 # T51 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -27325,7 +27325,7 @@ For Object teardown and owner-death recovery, reconstruct the relevant interface
 
 ---
 
-<a id="v4-recall-t52"></a>
+<a id="v5-recall-t52"></a>
 # T52 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -27826,7 +27826,7 @@ For Linux fair and real-time scheduling comparison, reconstruct the relevant int
 
 ---
 
-<a id="v4-recall-t53"></a>
+<a id="v5-recall-t53"></a>
 # T53 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -28327,7 +28327,7 @@ For Dependency DAG execution and scaling limits, reconstruct the relevant interf
 
 ---
 
-<a id="v4-recall-t54"></a>
+<a id="v5-recall-t54"></a>
 # T54 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -28746,7 +28746,7 @@ For AMP end-to-end observatory, reconstruct the relevant interface or invariant 
 
 ---
 
-<a id="v4-recall-t55"></a>
+<a id="v5-recall-t55"></a>
 # T55 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -29165,7 +29165,7 @@ For End-to-end progress and contention audit, reconstruct the relevant interface
 
 ---
 
-<a id="v4-recall-t56"></a>
+<a id="v5-recall-t56"></a>
 # T56 recall sets
 
 One queue entry per set; rotate variants. Attempt before feedback and score only the objectives actually demonstrated.
@@ -29666,7 +29666,7 @@ For Physical dual-core application and OS comparison, reconstruct the relevant i
 
 ---
 
-<a id="v4-executable"></a>
+<a id="v5-executable"></a>
 # Newly executable units
 
 A lab is an implementation increment with its own rejecting gate. Shared mappings, fixture replays and recall questions are not additional executable units.
@@ -29733,7 +29733,7 @@ A lab is an implementation increment with its own rejecting gate. Shared mapping
 
 ---
 
-<a id="v4-research"></a>
+<a id="v5-research"></a>
 # Search, reflection, and design decisions for C Mastery 4
 
 Baseline: v3 commit `4f3e3a2`. The work starts from the existing source catalog and
@@ -31814,7 +31814,7 @@ Resolve every core objective's evidence checklist, defend both capstones, repeat
 The independent content reviews and publishing receipts accept the curriculum and finite supplied-data checks. They do not claim that learner C, actual profiling/debugger/tool runs, child exhaustion or target hardware tests have been performed. Unavailable observations keep their associated claims open.
 
 
-Current edition receipts live in reviews/v2 and bind to current source hashes. The v1 final_acceptance.json is historical and cannot accept changed v2 files. Project-to-family links name scoped executable support; a whole-family pass does not automatically accept every linked project or objective.
+Current edition receipts live in the reviews directory named by `curriculum/edition.json` (`reviews/v5` for the fifth edition) and bind to current source hashes. Earlier acceptance records under `reviews/`, `reviews/v2`, `reviews/v3` and `reviews/v4` are historical and cannot accept changed files. Project-to-family links name scoped executable support; a whole-family pass does not automatically accept every linked project or objective.
 
 
 ---
@@ -59339,7 +59339,7 @@ Original SMP kernel and isolated user processes Disposable virtio disk image H74
 
 <a id="pr-cap-linux-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -59548,7 +59548,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-cap-linux-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -59805,7 +59805,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-cap-linux-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -60068,7 +60068,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-cap-linux-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -60281,7 +60281,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-cap-mcu-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -60500,7 +60500,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-cap-mcu-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -60710,7 +60710,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-cap-mcu-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -60926,7 +60926,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-cap-mcu-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -61159,7 +61159,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-p1-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -61447,7 +61447,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-p1-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -61704,7 +61704,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-p2-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -61942,7 +61942,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-p2-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -62173,7 +62173,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-p3-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -62376,7 +62376,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-p3-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -62587,7 +62587,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-p4-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -62797,7 +62797,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-p4-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -63010,7 +63010,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-p5-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -63268,7 +63268,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-p5-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -63529,7 +63529,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-p6-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -63752,7 +63752,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-p6-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -63977,7 +63977,7 @@ Change one declared capacity, backend or environment assumption. Predict the sur
 
 <a id="pr-t01-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -64231,7 +64231,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t01-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -64414,7 +64414,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t01-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -64628,7 +64628,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t02-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -64940,7 +64940,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t02-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -65146,7 +65146,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t02-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -65322,7 +65322,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t02-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -65506,7 +65506,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t03-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -65729,7 +65729,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t03-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -65970,7 +65970,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t03-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -66253,7 +66253,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t03-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -66475,7 +66475,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t03-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -66671,7 +66671,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t04-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -66967,7 +66967,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t04-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -67182,7 +67182,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t04-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -67378,7 +67378,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t04-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -67626,7 +67626,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t05-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -67845,7 +67845,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t05-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -68078,7 +68078,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t05-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -68264,7 +68264,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t05-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -68503,7 +68503,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t05-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -68689,7 +68689,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t06-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -68972,7 +68972,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t06-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -69197,7 +69197,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t06-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -69434,7 +69434,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t07-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -69699,7 +69699,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t07-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -69988,7 +69988,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t07-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -70280,7 +70280,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t07-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -70531,7 +70531,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t07-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -70784,7 +70784,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t07-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -70972,7 +70972,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t08-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -71244,7 +71244,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t08-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -71523,7 +71523,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t08-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -71780,7 +71780,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t08-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -72018,7 +72018,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t09-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -72316,7 +72316,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t09-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -72545,7 +72545,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t09-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -72853,7 +72853,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t09-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -73133,7 +73133,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t09-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -73320,7 +73320,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t10-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -73594,7 +73594,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t10-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -73838,7 +73838,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t10-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -74103,7 +74103,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t10-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -74394,7 +74394,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t11-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -74635,7 +74635,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t11-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -74894,7 +74894,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t11-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -75169,7 +75169,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t11-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -75411,7 +75411,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t11-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -75643,7 +75643,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t12-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -75897,7 +75897,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t12-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -76203,7 +76203,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t12-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -76496,7 +76496,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t12-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -76775,7 +76775,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t12-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -77060,7 +77060,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t13-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -77313,7 +77313,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t13-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -77583,7 +77583,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t13-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -77776,7 +77776,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t13-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -78132,7 +78132,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t14-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -78446,7 +78446,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t14-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -78729,7 +78729,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t14-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -79031,7 +79031,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t14-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -79293,7 +79293,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t14-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -79576,7 +79576,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t14-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -80039,7 +80039,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t14-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -80313,7 +80313,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t14-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -80547,7 +80547,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t14-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -80802,7 +80802,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t15-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -81065,7 +81065,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t15-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -81325,7 +81325,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t15-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -81567,7 +81567,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t15-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -81788,7 +81788,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t15-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -82076,7 +82076,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t15-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -82302,7 +82302,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t15-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -82560,7 +82560,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t15-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -82844,7 +82844,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t15-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -83085,7 +83085,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t15-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -83340,7 +83340,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t16-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -83630,7 +83630,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t16-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -83874,7 +83874,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t16-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -84155,7 +84155,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t16-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -84441,7 +84441,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t16-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -84666,7 +84666,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t16-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -84935,7 +84935,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t16-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -85159,7 +85159,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t16-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -85385,7 +85385,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t16-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -85654,7 +85654,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t17-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -85857,7 +85857,7 @@ Change measurement units by a factor of 1000 and predict the absolute/relative e
 
 <a id="pr-t17-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -86053,7 +86053,7 @@ Move to Q11 and derive new product and accumulation bounds without copying the Q
 
 <a id="pr-t17-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -86283,7 +86283,7 @@ Add a padded 3x1 right-hand matrix and predict useful/touched byte counts.
 
 <a id="pr-t17-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -86474,7 +86474,7 @@ Change clamping to explicit out-of-range rejection and revise tests/API before i
 
 <a id="pr-t17-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -86705,7 +86705,7 @@ Change sample period and explain why physical filter requirements may force coef
 
 <a id="pr-t17-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -86914,7 +86914,7 @@ Reuse the layout interface for a 3x3 solver only after deriving its new bounds; 
 
 <a id="pr-t17-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -87095,7 +87095,7 @@ Change the decay rate to two and rederive the stability interval before changing
 
 <a id="pr-t18-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -87368,7 +87368,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t18-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -87550,7 +87550,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t18-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -87773,7 +87773,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t18-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -87999,7 +87999,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t19-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -88248,7 +88248,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t19-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -88477,7 +88477,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t19-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -88691,7 +88691,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t19-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -88959,7 +88959,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t20-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -89231,7 +89231,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t20-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -89406,7 +89406,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t20-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -89661,7 +89661,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t20-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -89878,7 +89878,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t21-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -90130,7 +90130,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t21-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -90392,7 +90392,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t21-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -90641,7 +90641,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t21-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -90828,7 +90828,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t22-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -91053,7 +91053,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t22-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -91317,7 +91317,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t22-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -91587,7 +91587,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t22-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -91845,7 +91845,7 @@ Attempt the changed condition after a delay without copying the prior solution. 
 
 <a id="pr-t23-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -92151,7 +92151,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t23-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -92445,7 +92445,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t23-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -92737,7 +92737,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t23-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -92975,7 +92975,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t23-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -93266,7 +93266,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t23-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -93457,7 +93457,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t24-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -93721,7 +93721,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t24-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -94001,7 +94001,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t24-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -94283,7 +94283,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t24-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -94598,7 +94598,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t24-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -94823,7 +94823,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t24-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -95059,7 +95059,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t24-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -95237,7 +95237,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t25-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -95498,7 +95498,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t25-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -95831,7 +95831,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t25-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -96154,7 +96154,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t25-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -96399,7 +96399,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t25-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -96636,7 +96636,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t26-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -96929,7 +96929,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t26-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -97232,7 +97232,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t26-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -97535,7 +97535,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t26-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -97822,7 +97822,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t26-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -98162,7 +98162,7 @@ Change one declared constraint—capacity, target, key distribution, configurati
 
 <a id="pr-t27-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -98348,7 +98348,7 @@ Describe the ledger changes required for a bootloader-offset application without
 
 <a id="pr-t27-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -98519,7 +98519,7 @@ Deliberately move the vector section and show the independent checker catches th
 
 <a id="pr-t27-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -98755,7 +98755,7 @@ Add a second execution bank with a distinct load image and preserve one retained
 
 <a id="pr-t27-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -98965,7 +98965,7 @@ Remove one vendor runtime dependency and show both the source and final-image ev
 
 <a id="pr-t27-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -99166,7 +99166,7 @@ Change the record version and demonstrate that a previous firmware's valid bytes
 
 <a id="pr-t28-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -99386,7 +99386,7 @@ Swap the pin service to a second documented GPIO while preserving portable debou
 
 <a id="pr-t28-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -99613,7 +99613,7 @@ Replace polling with an ISR adapter and prove the service's overflow/API behavio
 
 <a id="pr-t28-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -99791,7 +99791,7 @@ Retarget the same1kHz signal after a clock change and show which configuration m
 
 <a id="pr-t28-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -100076,7 +100076,7 @@ Change the device register byte while preserving bus phases; a multi-byte read r
 
 <a id="pr-t28-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -100258,7 +100258,7 @@ Change source resistance in the synthetic front-end and derive the new sample-ti
 
 <a id="pr-t28-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -100492,7 +100492,7 @@ Reuse the service with an ADC or UART DMA adapter, adding only inspected request
 
 <a id="pr-t28-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -100672,7 +100672,7 @@ Change the payload interpretation while retaining the same transport framing and
 
 <a id="pr-t29-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -100868,7 +100868,7 @@ Add one extended-frame case only after checking the corresponding stack layout a
 
 <a id="pr-t29-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -101037,7 +101037,7 @@ Raise one interrupt above the threshold and explain which invariant must be rede
 
 <a id="pr-t29-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -101279,7 +101279,7 @@ Change drop-newest to overwrite-oldest only after redesigning index ownership an
 
 <a id="pr-t29-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -101498,7 +101498,7 @@ Move the buffer to another documented bank and re-evaluate reachability/order as
 
 <a id="pr-t29-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -101673,7 +101673,7 @@ Reduce counter width and predict which comparison intervals become ambiguous.
 
 <a id="pr-t30-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -101849,7 +101849,7 @@ Change an event source from periodic to burst-driven and revise admission/servic
 
 <a id="pr-t30-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -102058,7 +102058,7 @@ Add a bounded third task and rederive storage/priority/blocking assumptions.
 
 <a id="pr-t30-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -102232,7 +102232,7 @@ Use16-bit ticks and predict which previously ambiguous intervals become valid.
 
 <a id="pr-t30-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -102451,7 +102451,7 @@ Add one blocking tick and predict which response/deadline changes before checkin
 
 <a id="pr-t30-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -102679,7 +102679,7 @@ Supervise one additional task and demonstrate that its stall correctly withholds
 
 <a id="pr-t31-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -102860,7 +102860,7 @@ Repeat one observation with release optimization and predict the variable/step d
 
 <a id="pr-t31-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -103071,7 +103071,7 @@ Change the crash-record version and demonstrate safe rejection by the old decode
 
 <a id="pr-t31-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -103252,7 +103252,7 @@ Reproduce the ownership defect with a different adapter and explain which tests 
 
 <a id="pr-t31-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -103459,7 +103459,7 @@ Change link layout and demonstrate that old symbol/offset artifacts are rejected
 
 <a id="pr-t31-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -103678,7 +103678,7 @@ Add a rollback-policy analysis and show why checksum-only selection is insuffici
 
 <a id="pr-t32-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -103910,7 +103910,7 @@ Replace the implementation layout without changing public tests, then identify a
 
 <a id="pr-t32-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -104097,7 +104097,7 @@ Introduce a new stateful operation and derive a model/property before expanding 
 
 <a id="pr-t32-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -104292,7 +104292,7 @@ Add one optional packet field and revise the grammar/oracle before increasing th
 
 <a id="pr-t32-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -104482,7 +104482,7 @@ Insert a fourth acquisition between existing ones and demonstrate the new rollba
 
 <a id="pr-t32-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -104675,7 +104675,7 @@ Move the component back to profile C and explain which verification runtimes bel
 
 <a id="pr-t32-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -104869,7 +104869,7 @@ Change the decision to (A&&B)||C and derive new independent-effect pairs before 
 
 <a id="pr-t32-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -105091,7 +105091,7 @@ Substitute an adapter and predict which replay artifacts stay valid versus needi
 
 <a id="pr-t33-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -105273,7 +105273,7 @@ Raise maximum length/value and determine exactly which integer-range obligations
 
 <a id="pr-t33-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -105446,7 +105446,7 @@ Allow output aliasing only after revising the frame and representation proof.
 
 <a id="pr-t33-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -105668,7 +105668,7 @@ Add one environmental failure outcome and show whether the old proof still cover
 
 <a id="pr-t33-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -105884,7 +105884,7 @@ Change a range or frame condition and predict the new failing obligation before 
 
 <a id="pr-t33-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -106070,7 +106070,7 @@ Widen an environment interval and identify which prior claim no longer follows.
 
 <a id="pr-t33-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -106252,7 +106252,7 @@ Add a second publication epoch and analyze stale-generation observations under a
 
 <a id="pr-t34-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -106432,7 +106432,7 @@ Double result width and predict the intensity/ceiling changes before remeasureme
 
 <a id="pr-t34-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -106672,7 +106672,7 @@ Change stride/working set and predict whether the previous cache/branch hypothes
 
 <a id="pr-t34-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -106903,7 +106903,7 @@ Change the loop to permit exact in-place output and redesign the alias contract 
 
 <a id="pr-t34-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -107174,7 +107174,7 @@ Add a different supported ISA specialization only after supplying its OS-state a
 
 <a id="pr-t34-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -107400,7 +107400,7 @@ Use a bimodal input distribution and show why one median or one training set can
 
 <a id="pr-t34-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -107636,7 +107636,7 @@ Change the training distribution and show whether the held-out workload regresse
 
 <a id="pr-t35-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -107918,7 +107918,7 @@ Add one opcode and revise authorization/effect/work policy before changing the p
 
 <a id="pr-t35-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -108155,7 +108155,7 @@ Remove a permitted application effect, demonstrate denial, then state which ambi
 
 <a id="pr-t35-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -108343,7 +108343,7 @@ Change quota units from requests to decoded work and revise every bound/oracle.
 
 <a id="pr-t35-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -108551,7 +108551,7 @@ Repeat after a compiler/libc change and identify which previous enforcement/depe
 
 <a id="pr-t35-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -108761,7 +108761,7 @@ Change compiler optimization and explain why the clearing/comparison audit must 
 
 <a id="pr-t35-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -108984,7 +108984,7 @@ Raise the minimum accepted version and show the policy effect without confusing 
 
 <a id="pr-t36-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -109319,7 +109319,7 @@ Keep the same observable trace but change ring capacity to 4. Predict physical o
 
 <a id="pr-t36-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -109781,7 +109781,7 @@ Retarget one scalar declaration to a different ABI in a separate experiment. Sta
 
 <a id="pr-t36-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -110149,7 +110149,7 @@ Add a descending comparator policy only in a separate interface experiment. Pred
 
 <a id="pr-t36-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -110468,7 +110468,7 @@ Use the same certificate format for a min heap without changing the original max
 
 <a id="pr-t36-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -110953,7 +110953,7 @@ Explain how a red-black policy certificate would differ using the already inspec
 
 <a id="pr-t36-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -111364,7 +111364,7 @@ Replace the fixture hash with the existing table’s real hash in a separate run
 
 <a id="pr-t36-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -111724,7 +111724,7 @@ Compare a minimum spanning tree question with the same graph’s shortest-path q
 
 <a id="pr-t36-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -112127,7 +112127,7 @@ Design a borrowed view with no mutation operations and state which invalidation/
 
 <a id="pr-t37-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -112452,7 +112452,7 @@ Change to width 5 and predict range/flag boundaries before exhaustion. Keep the 
 
 <a id="pr-t37-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -112784,7 +112784,7 @@ Explain what additional vendor passage inspection would be required to add one n
 
 <a id="pr-t37-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -113187,7 +113187,7 @@ Add one external-input event between two commits and state its precedence. Avoid
 
 <a id="pr-t37-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -113547,7 +113547,7 @@ Move branch resolution to ID under a separately specified model and predict the 
 
 <a id="pr-t37-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -113894,7 +113894,7 @@ Change associativity to two-way with an explicit replacement rule. Predict which
 
 <a id="pr-t37-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -114201,7 +114201,7 @@ Move only a CPU-local temporary into CCM and predict linker/map and master-path 
 
 <a id="pr-t37-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -114517,7 +114517,7 @@ Describe the additional inspected specification and capacity checks needed for a
 
 <a id="pr-t37-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -114757,7 +114757,7 @@ Repeat one input family at a different size and predict whether algorithmic work
 
 <a id="pr-t38-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -115245,7 +115245,7 @@ Change the selected peripheral clock while preserving the character contract; re
 
 <a id="pr-t38-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -115662,7 +115662,7 @@ Describe which additional target framing rules would be required before reusing 
 
 <a id="pr-t38-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -115985,7 +115985,7 @@ Increase estimated capacitance and identify the threshold where the pull-up inte
 
 <a id="pr-t38-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -116379,7 +116379,7 @@ Explain why multi-byte F439 reception needs additional inspected closing/NACK pr
 
 <a id="pr-t38-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -116960,7 +116960,7 @@ Replace the scripted peer with a second documented target whose command/select p
 
 <a id="pr-t38-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -117252,7 +117252,7 @@ Explain and draw the crossed connections needed for a second DTE peer, keeping h
 
 <a id="pr-t38-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -117564,7 +117564,7 @@ Add one receiver only after recomputing its input loading and cable/termination 
 
 <a id="pr-t38-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -118008,7 +118008,7 @@ Bind T40’s original framing layer to the unchanged byte channel and explain wh
 
 <a id="pr-t38-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -118399,7 +118399,7 @@ Describe the additional source, storage and hardware boundaries needed for FD; d
 
 <a id="pr-t38-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -118866,7 +118866,7 @@ Compare an optional native-FD board with the external SPI route, naming which co
 
 <a id="pr-t38-11"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -119354,7 +119354,7 @@ Explain the evidence that would need to be repeated after changing the oscillato
 
 <a id="pr-t38-12"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -119851,7 +119851,7 @@ Explain the evidence that would need to be repeated after changing the oscillato
 
 <a id="pr-t39-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -120099,7 +120099,7 @@ Replace the educational link wrapper with the T39 frame service and identify eve
 
 <a id="pr-t39-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -120403,7 +120403,7 @@ Change the MAC stripping policy and update exactly one frame-channel boundary ra
 
 <a id="pr-t39-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -120697,7 +120697,7 @@ Explain why adding redundant links requires a separate loop-control mechanism ra
 
 <a id="pr-t39-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -121125,7 +121125,7 @@ Feed the unchanged ready/link-down management events to T41 and explain which MA
 
 <a id="pr-t39-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -121489,7 +121489,7 @@ Move one buffer section to a deliberately invalid region in a separate diagnosti
 
 <a id="pr-t39-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -121875,7 +121875,7 @@ Pass an accepted borrowed frame to a synthetic IPv4 consumer that rejects it; sh
 
 <a id="pr-t39-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -122239,7 +122239,7 @@ Use the unchanged frame channel for ARP and IPv4 frames and explain why a TCP AC
 
 <a id="pr-t39-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -122605,7 +122605,7 @@ Hand the frame/time/event interface and source/evidence ledger to T41; compare i
 
 <a id="pr-t40-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -122823,7 +122823,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t40-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -123072,7 +123072,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t40-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -123309,7 +123309,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t40-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -123586,7 +123586,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t40-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -123894,7 +123894,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t40-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -124185,7 +124185,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t40-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -124440,7 +124440,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t40-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -124746,7 +124746,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t41-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -124973,7 +124973,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t41-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -125288,7 +125288,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t41-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -125678,7 +125678,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t41-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -125972,7 +125972,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t41-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -126264,7 +126264,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t41-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -126716,7 +126716,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t41-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -127125,7 +127125,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t41-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -127553,7 +127553,7 @@ For this milestone, retain three separately labeled evidence items:
 
 <a id="pr-t42-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -127830,7 +127830,7 @@ After a delay, change one split, capacity, connection-generation or time boundar
 
 <a id="pr-t42-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -128162,7 +128162,7 @@ After a delay, change one split, capacity, connection-generation or time boundar
 
 <a id="pr-t42-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -128648,7 +128648,7 @@ After a delay, change one split, capacity, connection-generation or time boundar
 
 <a id="pr-t42-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -128953,7 +128953,7 @@ After a delay, change one split, capacity, connection-generation or time boundar
 
 <a id="pr-t42-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -129387,7 +129387,7 @@ After a delay, change one split, capacity, connection-generation or time boundar
 
 <a id="pr-t42-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -129859,7 +129859,7 @@ After a delay, change one split, capacity, connection-generation or time boundar
 
 <a id="pr-t42-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -130171,7 +130171,7 @@ After a delay, change one split, capacity, connection-generation or time boundar
 
 <a id="pr-t42-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -130551,7 +130551,7 @@ After a delay, change one split, capacity, connection-generation or time boundar
 
 <a id="pr-t43-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -131024,7 +131024,7 @@ Apply the same contract discipline to an already accepted graph traversal: name 
 
 <a id="pr-t43-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -131360,7 +131360,7 @@ Compare the same accepted table with a fixed-increment growth policy on paper. D
 
 <a id="pr-t43-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -131817,7 +131817,7 @@ Change one constraint and predict the selected candidate. Then ask whether a bus
 
 <a id="pr-t43-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -132294,7 +132294,7 @@ Move scratch use so it overlaps result lifetime and predict the changed simultan
 
 <a id="pr-t43-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -132758,7 +132758,7 @@ Increase M to six items and predict the cyclic-stream counts before running. Com
 
 <a id="pr-t43-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -133201,7 +133201,7 @@ If you already completed the [framed network project](#pr-t24-03), compare send 
 
 <a id="pr-t43-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -133760,7 +133760,7 @@ Compare one large transfer with several small transfers under the same useful-by
 
 <a id="pr-t43-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -134096,7 +134096,7 @@ Recompute p50 and p95 after adding one slow observation. Explain how sensitive t
 
 <a id="pr-t43-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -134574,7 +134574,7 @@ Predict a case with equal instruction count but changed cycle count caused by me
 
 <a id="pr-t43-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -135088,7 +135088,7 @@ Explain why a historical peak above a newly lowered limit is not necessarily an 
 
 <a id="pr-t43-11"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -135627,7 +135627,7 @@ Make one caller perform a slow input and another a cheap input to the same calle
 
 <a id="pr-t43-12"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -136221,7 +136221,7 @@ Change the declared clock and predict converted time while holding the count fix
 
 <a id="pr-t44-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -136475,7 +136475,7 @@ Change the boundary, chunk grammar, optimization, acquisition point, schedule or
 
 <a id="pr-t44-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -136784,7 +136784,7 @@ Change the boundary, chunk grammar, optimization, acquisition point, schedule or
 
 <a id="pr-t44-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -137143,7 +137143,7 @@ Change the boundary, chunk grammar, optimization, acquisition point, schedule or
 
 <a id="pr-t44-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -137437,7 +137437,7 @@ Change the boundary, chunk grammar, optimization, acquisition point, schedule or
 
 <a id="pr-t44-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -137797,7 +137797,7 @@ Change the boundary, chunk grammar, optimization, acquisition point, schedule or
 
 <a id="pr-t44-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -138142,7 +138142,7 @@ Change the boundary, chunk grammar, optimization, acquisition point, schedule or
 
 <a id="pr-t44-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -138437,7 +138437,7 @@ Change the boundary, chunk grammar, optimization, acquisition point, schedule or
 
 <a id="pr-t44-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -138797,7 +138797,7 @@ Change the boundary, chunk grammar, optimization, acquisition point, schedule or
 
 <a id="pr-t44-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -139106,7 +139106,7 @@ Change the boundary, chunk grammar, optimization, acquisition point, schedule or
 
 <a id="pr-t44-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -139344,7 +139344,7 @@ Change the boundary, chunk grammar, optimization, acquisition point, schedule or
 
 <a id="pr-t45-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -139595,7 +139595,7 @@ Use [guide-assessment](#guide-assessment) for criterion-specific remediation and
 
 <a id="pr-t45-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -139958,7 +139958,7 @@ Use [guide-assessment](#guide-assessment) for criterion-specific remediation and
 
 <a id="pr-t45-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -140287,7 +140287,7 @@ Use [guide-assessment](#guide-assessment) for criterion-specific remediation and
 
 <a id="pr-t45-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -140623,7 +140623,7 @@ Use [guide-assessment](#guide-assessment) for criterion-specific remediation and
 
 <a id="pr-t45-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -140942,7 +140942,7 @@ Use [guide-assessment](#guide-assessment) for criterion-specific remediation and
 
 <a id="pr-t45-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -141299,7 +141299,7 @@ Use [guide-assessment](#guide-assessment) for criterion-specific remediation and
 
 <a id="pr-t45-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -141700,7 +141700,7 @@ Use [guide-assessment](#guide-assessment) for criterion-specific remediation and
 
 <a id="pr-t45-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -142022,7 +142022,7 @@ Use [guide-assessment](#guide-assessment) for criterion-specific remediation and
 
 <a id="pr-t45-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -142475,7 +142475,7 @@ Use [guide-assessment](#guide-assessment) for criterion-specific remediation and
 
 <a id="pr-t45-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -142817,7 +142817,7 @@ Use [guide-assessment](#guide-assessment) for criterion-specific remediation and
 
 <a id="pr-t46-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -142987,7 +142987,7 @@ After at least a week, change a capacity, opcode history, allocation point or ho
 
 <a id="pr-t46-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -143234,7 +143234,7 @@ After at least a week, change a capacity, opcode history, allocation point or ho
 
 <a id="pr-t46-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -143461,7 +143461,7 @@ After at least a week, change a capacity, opcode history, allocation point or ho
 
 <a id="pr-t46-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -143667,7 +143667,7 @@ After at least a week, change a capacity, opcode history, allocation point or ho
 
 <a id="pr-t46-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -143901,7 +143901,7 @@ After at least a week, change a capacity, opcode history, allocation point or ho
 
 <a id="pr-t46-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -144136,7 +144136,7 @@ After at least a week, change a capacity, opcode history, allocation point or ho
 
 <a id="pr-t46-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -144298,7 +144298,7 @@ After at least a week, change a capacity, opcode history, allocation point or ho
 
 <a id="pr-t46-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -144549,7 +144549,7 @@ After at least a week, change a capacity, opcode history, allocation point or ho
 
 <a id="pr-t46-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -144712,7 +144712,7 @@ After at least a week, change a capacity, opcode history, allocation point or ho
 
 <a id="pr-t46-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -144877,7 +144877,7 @@ After at least a week, change a capacity, opcode history, allocation point or ho
 
 <a id="pr-t46-11"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -145076,7 +145076,7 @@ After at least a week, change a capacity, opcode history, allocation point or ho
 
 <a id="pr-t46-12"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -145275,7 +145275,7 @@ After at least a week, change a capacity, opcode history, allocation point or ho
 
 <a id="pr-t47-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -145499,7 +145499,7 @@ Change the host byte order in a hand calculation; the encoded file bytes must st
 
 <a id="pr-t47-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -145682,7 +145682,7 @@ Compare a pinned-root policy with direct mapping on the same trace and account f
 
 <a id="pr-t47-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -145905,7 +145905,7 @@ Add a lower-bound key that is an exact prefix of two stored binary keys and pred
 
 <a id="pr-t47-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -146167,7 +146167,7 @@ Replace whole-tree separator refresh with path-local repair and defend the revis
 
 <a id="pr-t47-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -146429,7 +146429,7 @@ Derive which side must update its next-leaf link for left merge versus right mer
 
 <a id="pr-t47-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -146652,7 +146652,7 @@ Calculate the actual sizeof workspace on two toolchains and separate that ABI-de
 
 <a id="pr-t47-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -146916,7 +146916,7 @@ Add an application operation ID in a design sketch and explain why it changes sa
 
 <a id="pr-t47-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -147138,7 +147138,7 @@ Sketch a dirty-page-only checkpoint and identify which extra metadata would be r
 
 <a id="pr-t47-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -147364,7 +147364,7 @@ Explain why replaying set-page-to-image is idempotent while increment-page-count
 
 <a id="pr-t47-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -147626,7 +147626,7 @@ Add one new partial-persistence subset or tear offset and explain what coverage 
 
 <a id="pr-t47-11"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -147847,7 +147847,7 @@ Change the number of useful bytes in a transaction and predict write amplificati
 
 <a id="pr-t47-12"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -148028,7 +148028,7 @@ Design a bounded transaction identifier for safe application reconciliation and 
 
 <a id="pr-t48-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -148255,7 +148255,7 @@ Move the kernel physical load address while preserving the boot/header and mappi
 
 <a id="pr-t48-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -148434,7 +148434,7 @@ Add an unknown tag and a larger memory-map stride without losing the required en
 
 <a id="pr-t48-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -148665,7 +148665,7 @@ Inject a different user exception and terminate that process while preserving pe
 
 <a id="pr-t48-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -148943,7 +148943,7 @@ Tighten available RAM and demonstrate an atomic allocation refusal. Attempt afte
 
 <a id="pr-t48-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -149219,7 +149219,7 @@ Try instruction fetch from user data and classify the fault using the actual sav
 
 <a id="pr-t48-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -149506,7 +149506,7 @@ Change the quantum and add a bounded slow syscall; measure the different delay m
 
 <a id="pr-t48-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -149781,7 +149781,7 @@ Add a segment whose memory tail crosses a page boundary without introducing a wr
 
 <a id="pr-t48-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -150056,7 +150056,7 @@ Reuse a handle slot with a new generation and retain the old caller token as a r
 
 <a id="pr-t48-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -150335,7 +150335,7 @@ Use a failing or non-completing backend and explain why DMA storage remains rese
 
 <a id="pr-t48-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -150617,7 +150617,7 @@ Suppress the flush in a deliberately faulty adapter and show which evidence no l
 
 <a id="pr-t48-11"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -150847,7 +150847,7 @@ Add one read-only diagnostic command without adding raw kernel memory access. At
 
 <a id="pr-t48-12"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -151124,7 +151124,7 @@ Load a new bounded bytecode fixture through the boot-archive API and reject its 
 
 <a id="pr-t48-13"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -151401,7 +151401,7 @@ Change the callback value and cut execution at a selected storage fault-model bo
 
 <a id="pr-t48-14"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -151677,7 +151677,7 @@ Defend and implement one changed resource limit or fault policy without consulti
 
 <a id="pr-t49-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -151865,7 +151865,7 @@ Repeat with a nonblocking pipe whose available capacity is smaller than the requ
 
 <a id="pr-t49-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -152066,7 +152066,7 @@ Move a descriptor open before process creation and measure which offset state is
 
 <a id="pr-t49-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -152313,7 +152313,7 @@ Add a one-unit dispatch cost and show where an apparently better quantum loses i
 
 <a id="pr-t49-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -152510,7 +152510,7 @@ Change one worker weight halfway through a run and defend the pass-reinitializat
 
 <a id="pr-t49-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -152710,7 +152710,7 @@ Use two interleaved reference windows with identical total bytes and different l
 
 <a id="pr-t49-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -152952,7 +152952,7 @@ Add dirty pages and report writeback count separately from faults. Attempt the v
 
 <a id="pr-t49-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -153174,7 +153174,7 @@ Pass a descriptor through a Unix-domain socket and update the ownership ledger. 
 
 <a id="pr-t49-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -153378,7 +153378,7 @@ Deliver completions out of order and show that request identities preserve buffe
 
 <a id="pr-t49-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -153603,7 +153603,7 @@ Use two competing children with different weights and then impose a parent quota
 
 <a id="pr-t49-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -153801,7 +153801,7 @@ Add a concurrent reader and identify interference without claiming causal attrib
 
 <a id="pr-t50-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -154011,7 +154011,7 @@ Change optimization level and compiler, then compare the dependency ledger. Atte
 
 <a id="pr-t50-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -154226,7 +154226,7 @@ Use unequal stack sizes and explain the fragmentation or fixed-class tradeoff. A
 
 <a id="pr-t50-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -154464,7 +154464,7 @@ Add a third task with a deeper call chain and different stack usage. Attempt the
 
 <a id="pr-t50-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -154677,7 +154677,7 @@ Reverse the equal-priority insertion policy and predict which timelines change. 
 
 <a id="pr-t50-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -154891,7 +154891,7 @@ Replace the sorted list with a heap and measure insertion versus expiry cost. At
 
 <a id="pr-t50-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -155133,7 +155133,7 @@ Move timer accounting away from the switch handler and verify that selection and
 
 <a id="pr-t50-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -155341,7 +155341,7 @@ Introduce one higher-urgency interrupt that cannot call the kernel and pass work
 
 <a id="pr-t50-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -155541,7 +155541,7 @@ Switch stacking mode and explain changed stack and interrupt-latency observation
 
 <a id="pr-t50-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -155785,7 +155785,7 @@ Add detached tasks with an explicit reaper policy and compare the ownership diag
 
 <a id="pr-t50-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -155989,7 +155989,7 @@ Fault a task while it owns two resources and design a supervisor recovery sequen
 
 <a id="pr-t50-11"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -156188,7 +156188,7 @@ Change the timer frequency so common deadlines are not exact timer multiples. At
 
 <a id="pr-t50-12"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -156439,7 +156439,7 @@ Replace the sensor producer with a UART interrupt burst while preserving the run
 
 <a id="pr-t51-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -156632,7 +156632,7 @@ Add a timeout arriving at the exact publication boundary. Attempt the variant af
 
 <a id="pr-t51-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -156831,7 +156831,7 @@ Use a semaphore to bound a fixed buffer pool and prove buffers and permits canno
 
 <a id="pr-t51-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -157073,7 +157073,7 @@ Add an optional recursive wrapper without changing the base mutex semantics. Att
 
 <a id="pr-t51-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -157279,7 +157279,7 @@ Cancel the highest-priority donor while a lower-priority donor remains. Attempt 
 
 <a id="pr-t51-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -157472,7 +157472,7 @@ Add shutdown as a second predicate so all blocked producers and consumers termin
 
 <a id="pr-t51-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -157732,7 +157732,7 @@ Replace payload copying with fixed-buffer ownership transfer and audit every rel
 
 <a id="pr-t51-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -157924,7 +157924,7 @@ Turn request/reply into a two-client server with bounded outstanding calls. Atte
 
 <a id="pr-t51-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -158116,7 +158116,7 @@ Add a nonconsuming observer and compare its evidence with a consuming waiter. At
 
 <a id="pr-t51-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -158346,7 +158346,7 @@ Add consume-all and define its atomic result without changing post ownership. At
 
 <a id="pr-t51-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -158546,7 +158546,7 @@ Permit a coordinated participant-set change only between completed generations. 
 
 <a id="pr-t51-11"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -158740,7 +158740,7 @@ Add retry using a new generation and specify which external effects are safe to 
 
 <a id="pr-t51-12"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -158973,7 +158973,7 @@ Implement phase-fair admission and compare worst observed reader and writer wait
 
 <a id="pr-t51-13"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -159168,7 +159168,7 @@ Introduce task migration and show which synchronization protects terminal state.
 
 <a id="pr-t51-14"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -159362,7 +159362,7 @@ Restart a service that owns several IPC objects and recover each lifetime in dep
 
 <a id="pr-t52-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -159586,7 +159586,7 @@ Introduce release jitter and identify which original conclusion no longer follow
 
 <a id="pr-t52-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -159809,7 +159809,7 @@ Add nonpreemptive critical sections and expose a miss despite unchanged utilizat
 
 <a id="pr-t52-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -160062,7 +160062,7 @@ Add one unit of higher-priority release jitter and derive the changed fixed poin
 
 <a id="pr-t52-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -160267,7 +160267,7 @@ Add a new higher-priority resource user and recompute all affected ceilings. Att
 
 <a id="pr-t52-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -160486,7 +160486,7 @@ Change burst arrival phase while keeping total aperiodic work constant. Attempt 
 
 <a id="pr-t52-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -160734,7 +160734,7 @@ Add two reservations that share a mutex and account for the new interference. At
 
 <a id="pr-t52-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -160961,7 +160961,7 @@ Switch from reject-new to latest-value semantics and identify the application gu
 
 <a id="pr-t52-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -161163,7 +161163,7 @@ Change the tick width to 16 and keep the same real-time horizon requirement. Att
 
 <a id="pr-t52-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -161413,7 +161413,7 @@ Move the task set to heterogeneous M7/M4 cores using measured per-core costs. At
 
 <a id="pr-t52-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -161621,7 +161621,7 @@ Change the tiny jobs cost toward zero and explain why the counterexample persist
 
 <a id="pr-t52-11"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -161822,7 +161822,7 @@ Change the FreeRTOS tick rate and predict which results are quantization effects
 
 <a id="pr-t52-12"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -162064,7 +162064,7 @@ Place competing background I/O on the same CPU and trace additional interference
 
 <a id="pr-t53-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -162291,7 +162291,7 @@ Insert an unknown well-sized MADT record and preserve compatible parsing. Attemp
 
 <a id="pr-t53-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -162528,7 +162528,7 @@ Delay one AP and prove another AP cannot overwrite its startup parameters. Attem
 
 <a id="pr-t53-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -162788,7 +162788,7 @@ Pad and unpad hot per-CPU counters and compare observed contention. Attempt the 
 
 <a id="pr-t53-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -163011,7 +163011,7 @@ Send two coalescible reschedule requests and show why one IPI can service both. 
 
 <a id="pr-t53-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -163230,7 +163230,7 @@ Pause the lock owner and explain why a spinlock is blocking even if its instruct
 
 <a id="pr-t53-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -163493,7 +163493,7 @@ Replace one queue policy while preserving the scheduler ownership protocol. Atte
 
 <a id="pr-t53-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -163712,7 +163712,7 @@ Batch several remote wakes behind a single doorbell and account for all tasks. A
 
 <a id="pr-t53-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -163927,7 +163927,7 @@ Pin one latency-sensitive task and rebalance only the remaining workers. Attempt
 
 <a id="pr-t53-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -164198,7 +164198,7 @@ Batch adjacent page invalidations and measure request versus per-page cost. Atte
 
 <a id="pr-t53-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -164435,7 +164435,7 @@ Use a histogram reduction with per-CPU bins and compare false-sharing behavior. 
 
 <a id="pr-t53-11"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -164677,7 +164677,7 @@ Give one worker a long job and compare queueing delay under work chunking. Attem
 
 <a id="pr-t53-12"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -164953,7 +164953,7 @@ Split a long node into several nodes and evaluate overhead against reduced span.
 
 <a id="pr-t54-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -165170,7 +165170,7 @@ Move a shared buffer to another SRAM bank and re-evaluate access and power-domai
 
 <a id="pr-t54-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -165392,7 +165392,7 @@ Reset only one peer and perform a new handshake without corrupting the survivor 
 
 <a id="pr-t54-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -165639,7 +165639,7 @@ Use variable-length messages with a fixed maximum and reject truncation without 
 
 <a id="pr-t54-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -165853,7 +165853,7 @@ Mask notification temporarily, enqueue a burst, then restore it and prove eventu
 
 <a id="pr-t54-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -166060,7 +166060,7 @@ Place unrelated data beside a buffer and explain why line isolation changes the 
 
 <a id="pr-t54-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -166317,7 +166317,7 @@ Use ping-pong buffers and bound the maximum producer overrun burst. Attempt the 
 
 <a id="pr-t54-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -166521,7 +166521,7 @@ Change one core frequency and predict which communication components scale. Atte
 
 <a id="pr-t54-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -166739,7 +166739,7 @@ Make one command idempotent by request ID and demonstrate safe replay. Attempt t
 
 <a id="pr-t54-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -166993,7 +166993,7 @@ Inject a high-priority interrupt burst on only one core and locate the resulting
 
 <a id="pr-t54-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -167209,7 +167209,7 @@ Move one service to the other core and re-derive ownership and timing before ref
 
 <a id="pr-t55-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -167403,7 +167403,7 @@ Add batching while preserving a single publication point for each accepted batch
 
 <a id="pr-t55-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -167614,7 +167614,7 @@ Add exponential backoff and explain which guarantees remain unchanged. Attempt t
 
 <a id="pr-t55-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -167840,7 +167840,7 @@ Reduce the generation width to two bits and construct a wrap counterexample. Att
 
 <a id="pr-t55-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -168043,7 +168043,7 @@ Partition the pool per worker and measure capacity imbalance versus contention. 
 
 <a id="pr-t55-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -168246,7 +168246,7 @@ Pause a participant indefinitely and explain which operations can still make pro
 
 <a id="pr-t55-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -168497,7 +168497,7 @@ Delay an enqueuer after linking but before tail update and verify another partic
 
 <a id="pr-t55-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -168707,7 +168707,7 @@ Introduce periodic quiescent points and measure latency versus retention. Attemp
 
 <a id="pr-t55-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -168908,7 +168908,7 @@ Compare copy-on-update cost with a reader-writer lock under read-heavy traffic. 
 
 <a id="pr-t55-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -169149,7 +169149,7 @@ Add a stack specification and demonstrate that one history can be legal for one 
 
 <a id="pr-t55-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -169339,7 +169339,7 @@ Change message size and CPU affinity to expose bandwidth and cache effects. Atte
 
 <a id="pr-t56-01"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -169550,7 +169550,7 @@ Terminate one thread while a peer in the same process is blocked on a channel. A
 
 <a id="pr-t56-02"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -169764,7 +169764,7 @@ Spawn until capacity exhaustion and verify the next failed attempt leaves existi
 
 <a id="pr-t56-03"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -170016,7 +170016,7 @@ Have two threads fault the same page concurrently and resolve to one owned frame
 
 <a id="pr-t56-04"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -170217,7 +170217,7 @@ Exit the child before either side writes and explain why the parent can regain w
 
 <a id="pr-t56-05"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -170418,7 +170418,7 @@ Connect three processes into a pipeline and impose backpressure at the final rec
 
 <a id="pr-t56-06"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -170666,7 +170666,7 @@ Kill one process while the other continues using the object and reconcile surviv
 
 <a id="pr-t56-07"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -170880,7 +170880,7 @@ Complete several requests in one interrupt and verify each waiting client gets i
 
 <a id="pr-t56-08"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -171080,7 +171080,7 @@ Duplicate one file handle with explicitly shared offset semantics and compare se
 
 <a id="pr-t56-09"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -171323,7 +171323,7 @@ Run two VM service instances and dispatch requests without sharing their interna
 
 <a id="pr-t56-10"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -171528,7 +171528,7 @@ Add read batching while maintaining the specified visibility order for concurren
 
 <a id="pr-t56-11"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 
@@ -171744,7 +171744,7 @@ Crash after commit but before reply and prove the documented retry semantics. At
 
 <a id="pr-t56-12"></a>
 
-## V4 working units
+## V5 working units
 
 The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.
 

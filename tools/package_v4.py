@@ -163,6 +163,8 @@ def package(accept=None, receipts='reviews/v4', archives=ARCHIVES, candidate_pre
 
 
 def main(receipts='reviews/v4', schema_version=4, **options):
+    if receipts == 'reviews/v4' and (ROOT / 'curriculum/v5/baseline.json').is_file():
+        raise SystemExit('The fifth edition is active: run tools/package_v5.py; reviews/v4 is historical.')
     report_path = ROOT / receipts / 'package_report.json'
     dump(report_path, {'schema_version': schema_version, 'status': 'pending', 'passed': False})
     try:

@@ -44,19 +44,22 @@ def main():
     passed_diagnostic_core=core-(diagnostic-entry_check)
     architecture_hours=sum(total_hours(m['meta']) for k,m in modules.items() if 36<=int(k[1:])<=42)
     performance_hours=sum(total_hours(m['meta']) for k,m in modules.items() if 43<=int(k[1:])<=45)
-    new_family_hours=sum(total_hours(m['meta']) for k,m in modules.items() if int(k[1:])>=46)
-    os_v3_hours=sum(total_hours(m['meta']) for k,m in modules.items() if int(k[1:])>=49)
+    new_family_hours=sum(total_hours(m['meta']) for k,m in modules.items() if 46<=int(k[1:])<=56)
+    os_v3_hours=sum(total_hours(m['meta']) for k,m in modules.items() if 49<=int(k[1:])<=56)
+    fifth_edition_hours=sum(total_hours(m['meta']) for k,m in modules.items() if int(k[1:])>=57)
     enhancement_hours=architecture_hours+performance_hours
     summary={'catalog_hours':catalog,'enhancement_module_hours':enhancement_hours,
         'architecture_networking_module_hours':architecture_hours,'performance_debugging_module_hours':performance_hours,
         'new_required_family_hours':new_family_hours,'os_concurrency_v3_module_hours':os_v3_hours,
-        'current_through_T42_catalog_hours':catalog-performance_hours-new_family_hours,
-        'current_35_domain_catalog_hours':catalog-enhancement_hours-new_family_hours,'core_with_full_diagnostic_hours':core,'diagnostic_full_module_hours':diagnostic,
+        'current_through_T42_catalog_hours':catalog-performance_hours-new_family_hours-fifth_edition_hours,
+        'current_35_domain_catalog_hours':catalog-enhancement_hours-new_family_hours-fifth_edition_hours,'core_with_full_diagnostic_hours':core,'diagnostic_full_module_hours':diagnostic,
         'elective_implementation_verification_hours':elective,'integration_implementation_verification_hours':integr,
         'entry_check_hours':entry_check,'core_after_passed_diagnostic_hours':passed_diagnostic_core,
         'integration_additional_reading_assessment_consolidation_hours':overhead,
         'core_weeks_at_10h':math.ceil(core/10),'core_weeks_at_20h':math.ceil(core/20),
         'accounting':'Module projects are already in module implementation+verification. Integration adds only new boundary work. Mixed-module reading/review overhead retained conservatively in core. Diagnostic remediation conditional; no calendar promise.'}
+    if fifth_edition_hours:
+        summary['fifth_edition_module_hours']=fifth_edition_hours
     dump(ROOT/'curriculum/program.json',{'order':order,'summary':summary,'integration_families':families,'communication_families':communication_families,'performance_debugging_tracks':performance_tracks})
     dump(ROOT/'reviews/workload_reconciliation.json',summary)
     family_guide=ROOT/'curriculum/guides/communication-stacks.md'
@@ -106,8 +109,10 @@ The five values are reading / implementation / verification / assessment / conso
 
 The T49–T56 operating-system, concurrency and multicore route contributes **{os_v3_hours:,} hours**, already included in the totals below. The remaining runtime/store/kernel allocation is **{new_family_hours-os_v3_hours:,} hours**. These are provisional project estimates, not measured learner completion times.
 
-The architecture and networking domains T36–T42 contribute **{architecture_hours:,} hours**. The performance and debugging domains T43–T45 contribute **{performance_hours:,} hours**. The runtime, storage, kernel and OS/concurrency families contribute **{new_family_hours:,} hours**. All are already included below. The current allocation to the original 35-domain catalog is **{catalog-enhancement_hours-new_family_hours:,} hours**; the current allocation through T42 is **{catalog-performance_hours-new_family_hours:,} hours**. The archived first edition remains the source of historical estimates. Communication and runtime family directories add no second budget. Reuse previous implementations and charge only newly assigned work.
-
+The architecture and networking domains T36–T42 contribute **{architecture_hours:,} hours**. The performance and debugging domains T43–T45 contribute **{performance_hours:,} hours**. The runtime, storage, kernel and OS/concurrency families contribute **{new_family_hours:,} hours**. All are already included below. The current allocation to the original 35-domain catalog is **{catalog-enhancement_hours-new_family_hours-fifth_edition_hours:,} hours**; the current allocation through T42 is **{catalog-performance_hours-new_family_hours-fifth_edition_hours:,} hours**. The archived first edition remains the source of historical estimates. Communication and runtime family directories add no second budget. Reuse previous implementations and charge only newly assigned work.
+'''+(f'''
+The fifth-edition domains T57 onward contribute **{fifth_edition_hours:,} hours**, already included in the totals below.
+''' if fifth_edition_hours else '')+f'''
 The full catalog estimate is **{catalog:,} hours**. The conservative core estimate including the complete T01 diagnostic/remediation allocation is **{core:,} hours**. Elective implementation/verification slices total **{elective:,} hours**. T01's full allocation is **{diagnostic} hours**; after passing the initial diagnostic, retain its evidence and remove only its unneeded remedial activities from your personal plan.
 
 With the {entry_check}-hour initial entry check passed and no T01 remediation required, the core estimate becomes **{passed_diagnostic_core:,} hours**, or {math.ceil(passed_diagnostic_core/10)} / {math.ceil(passed_diagnostic_core/20)} weeks at 10 / 20 hours per week. Other targeted mathematics or semantic remediation is additional when needed.

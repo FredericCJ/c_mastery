@@ -7,6 +7,8 @@ from v2_common import source_identity
 
 
 def main():
+    if (ROOT/'curriculum/v5/baseline.json').is_file():
+        raise SystemExit('The fifth edition is active: run tools/build_v5.py; reviews/v4 is historical and must not be rewritten.')
     historical={p:p.read_bytes() for folder in ['reviews/v2','reviews/v3'] for p in (ROOT/folder).rglob('*') if p.is_file()}
     try:
         subprocess.run([sys.executable,'-X','utf8',str(ROOT/'tools/author_v4.py')],cwd=ROOT,check=True)

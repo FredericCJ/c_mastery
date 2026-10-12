@@ -412,6 +412,14 @@ def author(rules=RULES_V4, catalog=V4, baseline=None):
         for dep in umap[uid]['requires']:promote(dep,rank-0.01,seen)
     for uid in preferred:promote(uid,ranks[uid])
     order=[];done=set();active=None;last_strand={};pending=set(umap)
+    for uid in rules.get('order_prefix',[]):
+        # An accepted route prefix is replayed verbatim; its readiness is re-verified, never assumed.
+        if uid not in pending:raise ValueError('Preserved route unit is missing: '+uid)
+        u=umap[uid]
+        if not set(u['requires'])<=done:raise ValueError('Preserved route prefix is not ready at '+uid)
+        order.append(uid);done.add(uid);pending.remove(uid)
+        active=None if u['milestone'] else u['project']
+        if u['milestone']:last_strand[u['strand']]=len(order)
     while pending:
         ready=[umap[x] for x in pending if set(umap[x]['requires'])<=done]
         if not ready:
@@ -464,7 +472,7 @@ def author(rules=RULES_V4, catalog=V4, baseline=None):
         'after_sequence':'maintenance at consumption and cumulative milestones','failure':'corrective feedback then next-day independent attempt','missed_sessions':'one overdue opportunity per topic','interval_claim':'Configurable engineering defaults; no scientifically optimal C schedule is asserted.'}})
     dump(catalog/'project_overlays.json',{'schema_version':4,'projects':overlays})
     dump(catalog/'budget.json',budget)
-    dump(catalog/'migration.json',{'schema_version':4,'baseline_commit':baseline['commit'],'projects':{p:'retained identity and budget; v4 unit overlay' for p in projects},
+    dump(catalog/'migration.json',{'schema_version':4,'baseline_commit':baseline['commit'],'projects':{p:rules.get('migration_note','retained identity and budget; v4 unit overlay') for p in projects},
         'objectives':{o:'retained' for o in baseline['objectives']},'receipt_policy':'Read old schema-2 receipts without assigning new acceptance; source changes preserve history and reopen only supported affected claims.'})
     dump(catalog/'summary.json',{'domains':len(modules),'projects':len(projects),'objectives':len(baseline['objectives']),
         'units':len(units),'new_executable_units':sum(u['new_executable'] for u in units),'recall_sets':len(sets),
