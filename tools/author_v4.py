@@ -113,6 +113,21 @@ CRITICAL = {
     'measurement.capture':['T43.01.b','T43.01.c','T43.02.c'],
 }
 
+RULES_V4 = {
+    'phases': PHASES, 'phase_domains': PHASE_DOMAINS, 'artifacts': ARTIFACTS, 'decisions': DECISIONS,
+    'interface_projects': INTERFACE_PROJECTS, 'required_interfaces': REQUIRED_INTERFACES,
+    'integration_imports': INTEGRATION_IMPORTS, 'critical': CRITICAL,
+    'strands': {}, 'imports': {},
+    'early_projects': ['PR-T01-03','PR-T04-01','PR-T03-02','PR-T14-01'],
+    'boundary_unit': 'LAB-HS-02', 'boundary_fallback': 'PR-T23-02', 'early_observation': 'PR-T49-01',
+    'budget': {'catalog_hours':4879,'core_hours':4799,'core_after_diagnostic_hours':4777},
+    'consolidation_sets': '627 activated topic sets; five short reviews at a planned five minutes each',
+}
+
+
+def domain_phase(rules):
+    return {f'T{d:02}': phase for phase, domains in rules['phase_domains'].items() for d in domains}
+
 
 def section(body, name):
     match = re.search(r'^## '+re.escape(name)+r'\s*\n(.*?)(?=^## |\Z)', body, re.M|re.S)
@@ -132,7 +147,7 @@ def topic_passage(body, heading, topic):
     return next((x for x in paragraphs if not x.startswith(('Before running,','This ','Submit contract,','For each objective,','1. Write','2. Establish'))), paragraphs[0] if paragraphs else '')
 
 
-def phase_for(meta):
+def phase_for(meta, rules=RULES_V4):
     key = meta['id']; owner = meta['module']
     if owner == 'INTEGRATION':
         stem=key.removeprefix('PR-').rsplit('-',1)[0]
@@ -141,11 +156,12 @@ def phase_for(meta):
     if key in {'PR-T48-12','PR-T48-13','PR-T48-14'}: return 8
     if key in {'PR-T20-03','PR-T20-04'}: return 5
     if key == 'PR-T19-04': return 3
-    return DOMAIN_PHASE[owner]
+    return domain_phase(rules)[owner]
 
 
-def strand_for(meta):
+def strand_for(meta, rules=RULES_V4):
     n=meta['module']
+    if n in rules.get('strands',{}): return rules['strands'][n]
     if n=='INTEGRATION':
         return 'firmware' if 'MCU' in meta['id'] or '-P4-' in meta['id'] else 'service'
     if n in {'T27','T28','T29','T30','T31','T38','T39','T40','T41','T50','T51','T52','T54'}: return 'firmware'
@@ -154,9 +170,12 @@ def strand_for(meta):
     return 'toolbox'
 
 
-def imports_for(meta, phase):
+def imports_for(meta, phase, rules=RULES_V4):
     owner=meta['module']; key=meta['id']
-    if owner=='INTEGRATION': return INTEGRATION_IMPORTS[key.removeprefix('PR-').rsplit('-',1)[0]][:]
+    if owner in rules.get('imports',{}):
+        declared=rules['imports'][owner]
+        return list(declared.get(key, declared.get('*', [])))
+    if owner=='INTEGRATION': return rules['integration_imports'][key.removeprefix('PR-').rsplit('-',1)[0]][:]
     if owner=='T01': return []
     result=[]
     if owner in {'T14','T15','T16','T17','T18','T19','T20','T46','T47','T48'}:result+=['bytes.checked']
@@ -174,8 +193,8 @@ def imports_for(meta, phase):
     return list(dict.fromkeys(result))
 
 
-def main():
-    baseline=capture_baseline()
+def author(rules=RULES_V4, catalog=V4, baseline=None):
+    baseline=baseline or capture_baseline()
     taxonomy, modules, projects, resources=load()
     topics={t['id']:t for d in taxonomy for t in d['subtopics']}
     known_resources={r['id'] for r in resources}
@@ -184,9 +203,9 @@ def main():
     for unit in additions:
         if unit['project'] not in projects: raise ValueError('Unknown executable unit owner '+unit['project'])
         extra_by_project[unit['project']].append(unit)
-    units=[]; by_project={}; overlays={}; art_owner={a:p for a,p,_ in ARTIFACTS}
+    units=[]; by_project={}; overlays={}; art_owner={a:p for a,p,_ in rules['artifacts']}
     for key, project in sorted(projects.items()):
-        meta=project['meta']; body=project['body']; phase=phase_for(meta)
+        meta=project['meta']; body=project['body']; phase=phase_for(meta,rules)
         additions=sorted(extra_by_project[key], key=lambda x:x['id'])
         count=max(math.ceil(meta['hours']/3),len(additions)+1,len(meta['topics']))
         # Each unit owns an exact integer number of minutes. No float drift in budgets.
@@ -201,7 +220,7 @@ def main():
             for topic in project_topics:
                 for r in modules[topic.split('.')[0]]['meta']['readings']:
                     if r['resource_id'] not in seen: readings.append(r);seen.add(r['resource_id'])
-        imports=imports_for(meta,phase)
+        imports=imports_for(meta,phase,rules)
         imports=[a for a in imports if art_owner.get(a)!=key]
         for i in range(count):
             extra=additions[i] if i<len(additions) else None
@@ -232,7 +251,7 @@ def main():
                 ('Connect the new boundary to '+', '.join(imports)+'. Keep the earlier regression and record only changed assumptions.' if final and imports else 'Produce the smallest independently inspectable implementation or trace for the operation above.')]
             if extra:rows=extra.get('steps',rows)
             unit={'id':uid,'project':key,'title':title,'hours':minutes[i]/60,'minutes':minutes[i],
-                'budget_owner':key,'budget_categories':['implementation','verification'],'phase':phase,'strand':strand_for(meta),
+                'budget_owner':key,'budget_categories':['implementation','verification'],'phase':phase,'strand':strand_for(meta,rules),
                 'kind':kind,'status':meta['status'],'objectives':objective_ids,'requires':([local[-1]['id']] if local else []),
                 'requires_reasons':({local[-1]['id']:'Continue the same implementation with its established contract.'} if local else {}),
                 'imports':imports[:],'exports':[],'recall_sets':list(dict.fromkeys(x.rsplit('.',1)[0] for x in objective_ids)),
@@ -268,7 +287,7 @@ def main():
                         'procedure':'Initialize a separate workspace for the new family, retain the earlier workspace and evidence, and import compatible components explicitly. Advance never overwrites code across families.'}
                     u['steps'].insert(0,u['workspace_transition']['procedure'])
         overlays[key]={'title':meta['title'],'phase':phase,'contract':contract,'units':[u['id'] for u in local],
-            'engineering_question':DECISIONS[key][0] if key in DECISIONS else 'Which assumption in '+topics[project_topics[0]]['title']+' determines the allowed transition, and how will '+topic_passage(body,'Acceptance and evidence',project_topics[0])+' be demonstrated?',
+            'engineering_question':rules['decisions'][key][0] if key in rules['decisions'] else 'Which assumption in '+topics[project_topics[0]]['title']+' determines the allowed transition, and how will '+topic_passage(body,'Acceptance and evidence',project_topics[0])+' be demonstrated?',
             'transfer':section(body,'Transfer challenge'),'budget_hours':meta['hours'],
             'legacy_notice':'The original project is the coverage and budget envelope. Follow these v4 units and their capability prerequisites; historical whole-domain ordering is not a new readiness gate.'}
     # Host/model increments stay usable while original physical/guest obligations
@@ -281,8 +300,8 @@ def main():
             last['claims'].append({'id':last['id']+'.integrated-physical','scope':'physical','target':'stm32f439'})
             purpose={'02':'deployed image, startup and actual-interface behavior','03':'recoverable peripheral failure, controlled software fault and reset/recovery','04':'changed-condition comparison and integrated physical timing'}[key[-2:]]
             last['steps'].append('Capture and assess this integrated application\'s own '+purpose+' on the recorded F439 board. Register the current source/image and raw traces locally; earlier component portfolios do not satisfy this claim.')
-        if key in INTERFACE_PROJECTS:
-            interfaces=INTERFACE_PROJECTS[key]
+        if key in rules['interface_projects']:
+            interfaces=rules['interface_projects'][key]
             last['capture_targets']={'interface-bench':{'physical':True,'manual_only':True,'interfaces':interfaces}}
             last['claims'].append({'id':last['id']+'.physical','scope':'physical','target':'interface-bench','interfaces':interfaces})
             last['steps'].append('Register and assess current raw '+', '.join(interfaces)+' captures, image hashes and changed-condition observations using the physical-evidence dossier. Model tests alone leave this project gate open.')
@@ -297,19 +316,19 @@ def main():
             last['claims'].append({'id':last['id']+'.guest','scope':'emulator','target':'cortex-m4-qemu'})
             last['target_tests']={'cortex-m4-qemu':['execution.image_cortex-m4-qemu','execution.cortex_m4_preemptive']}
     cap=by_project['PR-CAP-MCU-04'][-1]
-    physical_sources=[by_project[p][-1]['id'] for p in INTERFACE_PROJECTS]
+    physical_sources=[by_project[p][-1]['id'] for p in rules['interface_projects']]
     cap['claims'].append({'id':cap['id']+'.interfaces','scope':'physical','target':'interface-bench',
-        'interfaces':REQUIRED_INTERFACES,'source_units':physical_sources})
+        'interfaces':rules['required_interfaces'],'source_units':physical_sources})
     cap['claims'].append({'id':cap['id']+'.boards','scope':'physical','targets':['stm32f439','stm32h745'],
         'source_units':[by_project[p][-1]['id'] for p in ['PR-T50-12','PR-T52-10','PR-T54-10']]})
     for dep in physical_sources+[by_project[p][-1]['id'] for p in ['PR-T50-12','PR-T52-10','PR-T54-10']]:
         cap['requires'].append(dep)
         cap['requires_reasons'][dep]='Final physical portfolio consumes this accepted target/interface capture and its reviewed original project obligations.'
     artifacts=[]
-    for aid,owner,contract in ARTIFACTS:
+    for aid,owner,contract in rules['artifacts']:
         producer=by_project[owner][-1]
         producer['exports'].append(aid)
-        critical=CRITICAL[aid]
+        critical=rules['critical'][aid]
         artifacts.append({'id':aid,'producer_unit':producer['id'],'producer_project':owner,'contract_version':'1',
             'public_contract':contract,'critical_objectives':critical,'profiles':[projects[owner]['meta']['profile']],
             'targets':['host','model','emulator','physical'],'consumers':[],
@@ -362,8 +381,8 @@ def main():
                 consumer['requires'].append(dep);consumer['requires_reasons'][dep]='Import '+aid+': '+art['public_contract']
         if unit['milestone']:
             unit['critical_objectives']=list(dict.fromkeys(o for a in unit['imports'] for o in amap[a]['critical_objectives']))
-        if unit['project'] in DECISIONS and unit['milestone']:
-            question,alts,probe,reversal=DECISIONS[unit['project']]
+        if unit['project'] in rules['decisions'] and unit['milestone']:
+            question,alts,probe,reversal=rules['decisions'][unit['project']]
             unit.update(decision_required=True,decision_before=first['id'],decision_prompt={
                 'question':question,'alternatives':alts,'discriminator':probe,'reversal_trigger':reversal})
             first['steps'].insert(0,'Before the main implementation, seal the design decision for '+unit['id']+': '+question+' Compare '+ ' versus '.join(alts)+'. '+probe)
@@ -375,16 +394,16 @@ def main():
             if p not in by_project:continue
             if key=='PR-T55-01' and p.startswith('PR-T53-'):continue
             if key in {'PR-T48-01','PR-T48-02','PR-T48-03','PR-T48-04'} and p.startswith(('PR-T46-','PR-T47-')):continue
-            if phase_for(projects[p]['meta'])>first['phase']:continue
+            if phase_for(projects[p]['meta'],rules)>first['phase']:continue
             dep=by_project[p][-1]['id']
             if dep not in first['requires']:
                 first['requires'].append(dep);first['requires_reasons'][dep]='Explicit project contract consumes the prior '+projects[p]['meta']['title']+' capability.'
     # Early visible results precede deep catalog consolidation. Their true DAG
     # ancestors are pulled forward, never ignored or automatically accepted.
-    early_projects=['PR-T01-03','PR-T04-01','PR-T03-02','PR-T14-01']
+    early_projects=rules['early_projects']
     preferred=[by_project['PR-T01-01'][0]['id']]+[u['id'] for p in early_projects for u in by_project[p]]
-    preferred+=['LAB-HS-02'] if 'LAB-HS-02' in umap else [by_project['PR-T23-02'][0]['id']]
-    preferred += [by_project['PR-T49-01'][0]['id']]
+    preferred+=[rules['boundary_unit']] if rules['boundary_unit'] in umap else [by_project[rules['boundary_fallback']][0]['id']]
+    preferred += [by_project[rules['early_observation']][0]['id']]
     ranks={u:i for i,u in enumerate(preferred)}
     def promote(uid,rank,seen=None):
         seen=set() if seen is None else seen
@@ -430,28 +449,32 @@ def main():
     integrations=read_json(ROOT/'curriculum/integration_families.json')['families']
     for f in integrations:categories.update(f['additional_workload'])
     categories['integration_implementation_verification']=sum(p['meta']['hours'] for p in projects.values() if p['meta']['module']=='INTEGRATION')
-    budget={'catalog_hours':4879,'core_hours':4799,'core_after_diagnostic_hours':4777,
+    budget={**rules['budget'],
         'project_implementation_verification_hours':sum(p['meta']['hours'] for p in projects.values()),'categories':dict(categories),
         'project_owners':{p:{'hours':r['meta']['hours'],'units':[u['id'] for u in by_project[p]],'minutes':sum(u['minutes'] for u in by_project[p]),'status':r['meta']['status']} for p,r in projects.items()},
         'review_replacements':[
             {'old_activity':'Module assessment: retrospective alternatives/dossier prose','replacement':'Sealed design comparison and milestone rubric','category':'assessment','hours':160},
-            {'old_activity':'Module consolidation: manual delayed reconstruction','replacement':'627 activated topic sets; five short reviews at a planned five minutes each','category':'consolidation','hours':261.25},
+            {'old_activity':'Module consolidation: manual delayed reconstruction','replacement':rules['consolidation_sets'],'category':'consolidation','hours':261.25},
             {'old_activity':'Integration assessment and consolidation','replacement':'Changed-condition handoff, deduplicated critical recall and transfer defense','category':'assessment_and_consolidation','hours':32}],
         'policy':'Replacements consume existing categories. The remaining assessment/consolidation funds explanations, longer variants and review. No full dossier per unit; remediation and equipment waiting are separate reported contingencies.'}
-    dump(V4/'units.json',{'schema_version':4,'units':units,'order':order,'phases':[{'id':i+1,'title':p[0],'gate':p[1]} for i,p in enumerate(PHASES)],
+    dump(catalog/'units.json',{'schema_version':4,'units':units,'order':order,'phases':[{'id':i+1,'title':p[0],'gate':p[1]} for i,p in enumerate(rules['phases'])],
         'policy':'Unit/claim readiness is authoritative in v4; the preserved v3 project graph is an identity/coverage view.'})
-    dump(V4/'artifacts.json',{'schema_version':4,'artifacts':artifacts})
-    dump(V4/'recall.json',{'schema_version':4,'sets':sets,'policy':{'gaps_days':[1,3,7,14,30],'freshness_days':14,'session_minutes':15,'sets_per_session':2,
+    dump(catalog/'artifacts.json',{'schema_version':4,'artifacts':artifacts})
+    dump(catalog/'recall.json',{'schema_version':4,'sets':sets,'policy':{'gaps_days':[1,3,7,14,30],'freshness_days':14,'session_minutes':15,'sets_per_session':2,
         'after_sequence':'maintenance at consumption and cumulative milestones','failure':'corrective feedback then next-day independent attempt','missed_sessions':'one overdue opportunity per topic','interval_claim':'Configurable engineering defaults; no scientifically optimal C schedule is asserted.'}})
-    dump(V4/'project_overlays.json',{'schema_version':4,'projects':overlays})
-    dump(V4/'budget.json',budget)
-    dump(V4/'migration.json',{'schema_version':4,'baseline_commit':baseline['commit'],'projects':{p:'retained identity and budget; v4 unit overlay' for p in projects},
+    dump(catalog/'project_overlays.json',{'schema_version':4,'projects':overlays})
+    dump(catalog/'budget.json',budget)
+    dump(catalog/'migration.json',{'schema_version':4,'baseline_commit':baseline['commit'],'projects':{p:'retained identity and budget; v4 unit overlay' for p in projects},
         'objectives':{o:'retained' for o in baseline['objectives']},'receipt_policy':'Read old schema-2 receipts without assigning new acceptance; source changes preserve history and reopen only supported affected claims.'})
-    dump(V4/'summary.json',{'domains':len(modules),'projects':len(projects),'objectives':len(baseline['objectives']),
+    dump(catalog/'summary.json',{'domains':len(modules),'projects':len(projects),'objectives':len(baseline['objectives']),
         'units':len(units),'new_executable_units':sum(u['new_executable'] for u in units),'recall_sets':len(sets),
         'recall_variants':sum(len(s['variants']) for s in sets),'artifacts':len(artifacts),'families':len(list((ROOT/'labs').glob('*/family.json'))),
         'status':'authored; acceptance requires independent validation and execution receipts'})
-    print(read_json(V4/'summary.json'))
+    print(read_json(catalog/'summary.json'))
+
+
+def main():
+    author()
 
 
 if __name__=='__main__':main()

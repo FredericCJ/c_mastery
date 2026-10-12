@@ -41,8 +41,22 @@ def digest(value):
                                      ensure_ascii=False).encode()).hexdigest()
 
 
+def catalog_dir():
+    """The edition manifest names the active catalog from schema 5 on; v4 is the default."""
+    manifest = cli.ROOT / "curriculum/edition.json"
+    try:
+        value = cli.read(manifest) if manifest.is_file() else {}
+    except (OSError, ValueError):
+        value = {}
+    if isinstance(value, dict) and isinstance(value.get("schema_version"), int) and value["schema_version"] >= 5:
+        base = cli.ROOT / str(value.get("catalog_dir") or "")
+        if value.get("catalog_dir") and (base / "units.json").is_file():
+            return base
+    return cli.ROOT / "curriculum/v4"
+
+
 def catalog():
-    base = cli.ROOT / "curriculum/v4"
+    base = catalog_dir()
     signature = (str(base),) + tuple((base / name).stat().st_mtime_ns for name in ("units.json", "recall.json", "artifacts.json"))
     if signature in _CATALOG_CACHE:
         return _CATALOG_CACHE[signature]

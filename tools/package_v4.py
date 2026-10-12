@@ -57,17 +57,18 @@ def promote(archives, dist, candidate):
     return destinations
 
 
-def package():
+def package(accept=None, receipts='reviews/v4', archives=ARCHIVES, candidate_prefix='v4_',
+            build_script='tools/build_v4.py', schema_version=4, fixed_point=()):
     # Reviews and execution receipts are deliberately outside canonical identity.
     # Re-evaluate them, including their current status, before creating exports.
-    accept_v4.main()
-    acceptance = read_json(ROOT / 'reviews/v4/acceptance.json')
+    (accept or accept_v4.main)()
+    acceptance = read_json(ROOT / receipts / 'acceptance.json')
     identity = source_identity()
     if not acceptance.get('accepted') or acceptance['input_sha256'] != identity['sha256']:
         raise ValueError('Current accepted source identity is required')
     dist = bounded_directory(Path('dist'))
     candidates = bounded_directory(Path('build/release_candidates'))
-    candidate = candidates / datetime.now(timezone.utc).strftime('v4_%Y%m%dT%H%M%S%fZ')
+    candidate = candidates / datetime.now(timezone.utc).strftime(candidate_prefix + '%Y%m%dT%H%M%S%fZ')
     if candidate.resolve().parent != candidates.resolve():
         raise ValueError('Unsafe release candidate')
     candidate.mkdir(exist_ok=False)
@@ -83,7 +84,7 @@ def package():
         if (ROOT / name).exists():
             files.append(ROOT / name)
     files = sorted(set(files))
-    source, learner, assessor, html_zip = [candidate / name for name in ARCHIVES]
+    source, learner, assessor, html_zip = [candidate / name for name in archives]
     source_entries = write_zip(source, files, ROOT)
     learner_files = [p for p in files if 'assessor' not in p.relative_to(ROOT).parts
                      and p.relative_to(ROOT).parts[0] not in {'reviews', 'planning'}]
@@ -114,9 +115,9 @@ def package():
     for relative, digest in identity['files'].items():
         if sha(check / relative) != digest:
             raise ValueError('Archive differs from accepted source: ' + relative)
-    run = subprocess.run([sys.executable, '-X', 'utf8', str(check / 'tools/build_v4.py')],
+    run = subprocess.run([sys.executable, '-X', 'utf8', str(check / build_script)],
                          cwd=check, capture_output=True, text=True, encoding='utf-8')
-    (ROOT / 'reviews/v4/package_build.log').write_text(run.stdout + '\n' + run.stderr, encoding='utf-8')
+    (ROOT / receipts / 'package_build.log').write_text(run.stdout + '\n' + run.stderr, encoding='utf-8')
     if run.returncode:
         raise ValueError('Extracted-source build failed; see package_build.log')
     rebuilt = check / 'build/html'
@@ -129,6 +130,10 @@ def package():
     markdown = 'c_programming_mastery_curriculum.md'
     if sha(ROOT / markdown) != sha(check / markdown):
         raise ValueError('Extracted standalone Markdown differs')
+    # Tracked generated files must be a fixed point of the extracted rebuild.
+    for relative in fixed_point:
+        if not (check / relative).is_file() or sha(ROOT / relative) != sha(check / relative):
+            raise ValueError('Extracted rebuild changed a tracked generated file: ' + relative)
     if source_identity()['sha256'] != identity['sha256']:
         raise ValueError('Canonical source changed during packaging')
     # This also binds reviews, acceptance, inventories and standalone outputs,
@@ -146,7 +151,7 @@ def package():
     entries = [source_entries, learner_entries, assessor_entries, html_entries]
     archive_records = [{'path': (Path('dist') / p.name).as_posix(),
                         'sha256': sha(p), 'files': len(rows)} for p, rows in zip(staged, entries)]
-    report = {'schema_version': 4, 'status': 'passed', 'passed': True,
+    report = {'schema_version': schema_version, 'status': 'passed', 'passed': True,
               'input_sha256': identity['sha256'], 'archives': archive_records,
               'learner_excludes_assessor': True, 'fresh_extracted_source_rebuild': True,
               'reproduced_html_files': len(original_map), 'standalone_sha256': sha(check / markdown),
@@ -157,18 +162,18 @@ def package():
     return report
 
 
-def main():
-    report_path = ROOT / 'reviews/v4/package_report.json'
-    dump(report_path, {'schema_version': 4, 'status': 'pending', 'passed': False})
+def main(receipts='reviews/v4', schema_version=4, **options):
+    report_path = ROOT / receipts / 'package_report.json'
+    dump(report_path, {'schema_version': schema_version, 'status': 'pending', 'passed': False})
     try:
-        report = package()
+        report = package(receipts=receipts, schema_version=schema_version, **options)
     except BaseException as error:
-        dump(report_path, {'schema_version': 4, 'status': 'failed', 'passed': False,
+        dump(report_path, {'schema_version': schema_version, 'status': 'failed', 'passed': False,
                            'error': type(error).__name__ + ': ' + str(error)})
         raise
     # Publish success only after every final archive has been promoted.
     dump(report_path, report)
-    print('Four v4 bundles exported; fresh HTML/Markdown reproduction passed.')
+    print('Four bundles exported; fresh HTML/Markdown reproduction passed.')
 
 
 if __name__ == '__main__':

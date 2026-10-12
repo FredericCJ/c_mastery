@@ -181,14 +181,17 @@ class RunnerContracts(unittest.TestCase):
         self.assertEqual(result['status'],'unavailable')
         self.assertEqual(result['steps'],[])
 
-def main():
+def main(receipt=None):
     identity=source_identity()
     result=unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(RunnerContracts))
     passed=result.wasSuccessful() and identity['sha256']==source_identity()['sha256']
     edition='v3' if (ROOT/'curriculum/baseline_v2.json').exists() else 'v2'
-    dump(ROOT/'reviews'/edition/'cli_checks.json',{'status':'passed' if passed else 'failed','passed':passed,
+    dump(ROOT/receipt if receipt else ROOT/'reviews'/edition/'cli_checks.json',{'status':'passed' if passed else 'failed','passed':passed,
         'input_sha256':identity['sha256'],'tests':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),
         'scope':'Runner semantics with controlled subprocess responses plus real workspace isolation. Actual C execution is in lab_matrix.json.'})
     return 0 if passed else 1
 
-if __name__=='__main__': raise SystemExit(main())
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--receipt')
+    raise SystemExit(main(parser.parse_args().receipt))

@@ -4,8 +4,8 @@ from common import ROOT, dump, read_json, sha
 from v2_common import source_identity
 
 
-def pinned_receipt(name):
-    path=ROOT/'reviews/v4'/name
+def pinned_receipt(name, receipts='reviews/v4'):
+    path=ROOT/receipts/name
     record=read_json(path)
     if not record.get('passed',record.get('accepted',False)):
         raise ValueError('Failed or absent execution/review receipt: '+name)

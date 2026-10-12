@@ -32,7 +32,7 @@ def sha(path):
 
 def load_taxonomy():
     taxonomy = read_json(ROOT / 'curriculum/taxonomy.json')['domains']
-    for name in ['enhancement_taxonomy.json','performance_debugging_taxonomy.json','v2_taxonomy.json','v3_taxonomy.json']:
+    for name in ['enhancement_taxonomy.json','performance_debugging_taxonomy.json','v2_taxonomy.json','v3_taxonomy.json','v5_taxonomy.json']:
         extension = ROOT / 'curriculum' / name
         if extension.exists(): taxonomy += read_json(extension)['domains']
     return taxonomy
@@ -85,6 +85,11 @@ def require_research_gates():
         if not gate.exists() or read_json(gate).get('accepted') is not True:
             raise ValueError('Third-edition source research gate not accepted')
         verify_research_hashes(read_json(gate),'research/v3','*resources.json')
+    if (ROOT/'curriculum/v5_taxonomy.json').exists():
+        gate=ROOT/'reviews/v5/research_gate.json'
+        if not gate.exists() or read_json(gate).get('accepted') is not True:
+            raise ValueError('Fifth-edition source research gate not accepted')
+        verify_research_hashes(read_json(gate),'research/v5','*resources.json')
 
 def check_taxonomy_preservation(taxonomy):
     if (ROOT/'curriculum/edition.json').exists():

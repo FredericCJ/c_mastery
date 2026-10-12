@@ -19,6 +19,13 @@ from common import ROOT, dump, read_json, sha
 
 
 class ReleaseGuards(unittest.TestCase):
+    RECEIPTS = "reviews/v4"
+    MODULES = (accept_v4, package_v4, run_targets_v4, run_legacy_matrix_v4)
+    ACCEPT = accept_v4
+    PACKAGE = package_v4
+    TARGETS = run_targets_v4
+    LEGACY = run_legacy_matrix_v4
+
     def setUp(self):
         parent = ROOT / "build/release_guard_checks_v4"
         if parent.resolve() != ROOT.resolve() / "build/release_guard_checks_v4":
@@ -34,13 +41,13 @@ class ReleaseGuards(unittest.TestCase):
         self.root.mkdir()
         self.stack = ExitStack()
         self.addCleanup(self.stack.close)
-        for module in (accept_v4, package_v4, run_targets_v4, run_legacy_matrix_v4):
+        for module in self.MODULES:
             self.stack.enter_context(patch.object(module, "ROOT", self.root))
         self.stack.enter_context(redirect_stdout(io.StringIO()))
         self.write("curriculum/example.md", "accepted teaching\n")
         self.receipt = {"passed": True, "inspected_paths": {
             "curriculum/example.md": sha(self.root / "curriculum/example.md")}, "findings": []}
-        dump(self.root / "reviews/v4/check.json", self.receipt)
+        dump(self.root / self.RECEIPTS / "check.json", self.receipt)
         self.dist = self.root / "dist"
         self.dist.mkdir()
         self.candidate = self.root / "build/release_candidates/new"
@@ -55,7 +62,7 @@ class ReleaseGuards(unittest.TestCase):
     def change_receipt(self, **changes):
         record = dict(self.receipt)
         record.update(changes)
-        dump(self.root / "reviews/v4/check.json", record)
+        dump(self.root / self.RECEIPTS / "check.json", record)
 
     def symlink(self, path, target, directory=False):
         try:
@@ -66,7 +73,7 @@ class ReleaseGuards(unittest.TestCase):
     def staged(self, existing=(0, 1, 2, 3)):
         archives = []
         before = {}
-        for index, name in enumerate(package_v4.ARCHIVES):
+        for index, name in enumerate(self.PACKAGE.ARCHIVES):
             source = self.candidate / name
             source.write_bytes(("new:" + name).encode())
             archives.append(source)
@@ -77,39 +84,39 @@ class ReleaseGuards(unittest.TestCase):
         return archives, before
 
     def test_current_pinned_receipt_returns_receipt_digest(self):
-        self.assertEqual(accept_v4.pinned_receipt("check.json"),
-                         sha(self.root / "reviews/v4/check.json"))
+        self.assertEqual(self.ACCEPT.pinned_receipt("check.json"),
+                         sha(self.root / self.RECEIPTS / "check.json"))
 
     def test_missing_receipt_rejects(self):
         with self.assertRaises(FileNotFoundError):
-            accept_v4.pinned_receipt("missing.json")
+            self.ACCEPT.pinned_receipt("missing.json")
 
     def test_failed_receipt_rejects_even_with_current_source(self):
         self.change_receipt(passed=False)
         with self.assertRaisesRegex(ValueError, "Failed or absent"):
-            accept_v4.pinned_receipt("check.json")
+            self.ACCEPT.pinned_receipt("check.json")
 
     def test_unpinned_receipt_rejects(self):
         self.change_receipt(inspected_paths={})
         with self.assertRaisesRegex(ValueError, "no source pins"):
-            accept_v4.pinned_receipt("check.json")
+            self.ACCEPT.pinned_receipt("check.json")
 
     def test_stale_source_rejects(self):
         self.write("curriculum/example.md", "changed after execution\n")
         with self.assertRaisesRegex(ValueError, "Stale receipt"):
-            accept_v4.pinned_receipt("check.json")
+            self.ACCEPT.pinned_receipt("check.json")
 
     def test_missing_pinned_source_rejects(self):
         (self.root / "curriculum/example.md").unlink()
         with self.assertRaisesRegex(ValueError, "Stale receipt"):
-            accept_v4.pinned_receipt("check.json")
+            self.ACCEPT.pinned_receipt("check.json")
 
     def test_escaping_pin_rejects_even_when_external_hash_matches(self):
         outside = self.sandbox / "outside.md"
         outside.write_text("outside\n", encoding="utf-8")
         self.change_receipt(inspected_paths={"../outside.md": sha(outside)})
         with self.assertRaisesRegex(ValueError, "Stale receipt"):
-            accept_v4.pinned_receipt("check.json")
+            self.ACCEPT.pinned_receipt("check.json")
 
     def test_redirected_source_pin_rejects(self):
         outside = self.sandbox / "outside.md"
@@ -118,35 +125,35 @@ class ReleaseGuards(unittest.TestCase):
         self.symlink(link, outside)
         self.change_receipt(inspected_paths={"curriculum/linked.md": sha(outside)})
         with self.assertRaisesRegex(ValueError, "Stale receipt"):
-            accept_v4.pinned_receipt("check.json")
+            self.ACCEPT.pinned_receipt("check.json")
 
     def test_open_medium_finding_rejects(self):
         self.change_receipt(findings=[{"severity": "medium", "status": "open"}])
         with self.assertRaisesRegex(ValueError, "Unresolved finding"):
-            accept_v4.pinned_receipt("check.json")
+            self.ACCEPT.pinned_receipt("check.json")
 
     def test_resolved_medium_finding_is_permitted(self):
         self.change_receipt(findings=[{"severity": "medium", "status": "resolved"}])
-        accept_v4.pinned_receipt("check.json")
+        self.ACCEPT.pinned_receipt("check.json")
 
     def test_closed_high_finding_is_permitted(self):
         self.change_receipt(findings=[{"severity": "high", "status": "closed"}])
-        accept_v4.pinned_receipt("check.json")
+        self.ACCEPT.pinned_receipt("check.json")
 
     def test_relative_release_directory_is_created_inside_checkout(self):
         expected = self.root / "build/another_candidate"
-        self.assertEqual(package_v4.bounded_directory(Path("build/another_candidate")), expected)
+        self.assertEqual(self.PACKAGE.bounded_directory(Path("build/another_candidate")), expected)
         self.assertTrue(expected.is_dir())
 
     def test_parent_traversal_release_directory_rejects(self):
         with self.assertRaises(ValueError):
-            package_v4.bounded_directory(Path("../escaped"))
+            self.PACKAGE.bounded_directory(Path("../escaped"))
         self.assertFalse((self.sandbox / "escaped").exists())
 
     def test_absolute_release_directory_rejects(self):
         outside = self.sandbox / "escaped"
         with self.assertRaises(ValueError):
-            package_v4.bounded_directory(outside)
+            self.PACKAGE.bounded_directory(outside)
         self.assertFalse(outside.exists())
 
     def test_redirected_release_directory_rejects(self):
@@ -154,11 +161,11 @@ class ReleaseGuards(unittest.TestCase):
         outside.mkdir()
         self.symlink(self.root / "redirected", outside, directory=True)
         with self.assertRaisesRegex(ValueError, "Unsafe release directory"):
-            package_v4.bounded_directory(Path("redirected"))
+            self.PACKAGE.bounded_directory(Path("redirected"))
 
     def test_promotion_replaces_all_four_candidates(self):
         archives, before = self.staged()
-        destinations = package_v4.promote(archives, self.dist, self.candidate)
+        destinations = self.PACKAGE.promote(archives, self.dist, self.candidate)
         self.assertEqual(len(destinations), 4)
         for destination in destinations:
             self.assertEqual(destination.read_bytes(), ("new:" + destination.name).encode())
@@ -175,17 +182,17 @@ class ReleaseGuards(unittest.TestCase):
 
         with patch.object(Path, "replace", injected_failure):
             with self.assertRaisesRegex(OSError, "injected third"):
-                package_v4.promote(archives, self.dist, self.candidate)
+                self.PACKAGE.promote(archives, self.dist, self.candidate)
         for name, content in before.items():
             self.assertEqual((self.dist / name).read_bytes(), content)
-        self.assertFalse((self.dist / package_v4.ARCHIVES[1]).exists())
+        self.assertFalse((self.dist / self.PACKAGE.ARCHIVES[1]).exists())
         self.assertTrue(archives[2].exists())
 
     def test_directory_destination_rejects_before_any_replacement(self):
         archives, before = self.staged(existing=(0, 1, 3))
-        (self.dist / package_v4.ARCHIVES[2]).mkdir()
+        (self.dist / self.PACKAGE.ARCHIVES[2]).mkdir()
         with self.assertRaisesRegex(ValueError, "not a file"):
-            package_v4.promote(archives, self.dist, self.candidate)
+            self.PACKAGE.promote(archives, self.dist, self.candidate)
         for name, content in before.items():
             self.assertEqual((self.dist / name).read_bytes(), content)
         self.assertTrue(all(path.is_file() for path in archives))
@@ -194,9 +201,9 @@ class ReleaseGuards(unittest.TestCase):
         archives, before = self.staged(existing=(0, 1, 3))
         outside = self.sandbox / "outside.zip"
         outside.write_bytes(b"untouched outside archive")
-        self.symlink(self.dist / package_v4.ARCHIVES[2], outside)
+        self.symlink(self.dist / self.PACKAGE.ARCHIVES[2], outside)
         with self.assertRaisesRegex(ValueError, "Unsafe final archive"):
-            package_v4.promote(archives, self.dist, self.candidate)
+            self.PACKAGE.promote(archives, self.dist, self.candidate)
         self.assertEqual(outside.read_bytes(), b"untouched outside archive")
         for name, content in before.items():
             self.assertEqual((self.dist / name).read_bytes(), content)
@@ -221,9 +228,9 @@ class ReleaseGuards(unittest.TestCase):
     def test_target_adapter_preserves_every_historical_byte(self):
         before = self.prepare_wrapper()
         with patch.object(run_targets_v4.subprocess, "run", side_effect=self.successful_runner):
-            self.assertEqual(run_targets_v4.run(native=True), 0)
+            self.assertEqual(self.TARGETS.run(native=True), 0)
         self.assertEqual(run_targets_v4.historical_files(self.root / "reviews/v3"), before)
-        record = read_json(self.root / "reviews/v4/target_matrix.json")
+        record = read_json(self.root / self.RECEIPTS / "target_matrix.json")
         self.assertTrue(record["passed"])
         self.assertEqual(record["inspected_paths"], self.receipt["inspected_paths"])
         self.assertNotIn("old", record)
@@ -232,10 +239,10 @@ class ReleaseGuards(unittest.TestCase):
         before = self.prepare_wrapper()
         failure = subprocess.CompletedProcess([], 9, "failed before writing a receipt", "")
         with patch.object(run_targets_v4.subprocess, "run", return_value=failure):
-            self.assertEqual(run_targets_v4.run(native=True), 1)
+            self.assertEqual(self.TARGETS.run(native=True), 1)
         self.assertEqual(run_targets_v4.historical_files(self.root / "reviews/v3"), before)
         for name in ("target_matrix.json", "os_comparison.json"):
-            record = read_json(self.root / "reviews/v4" / name)
+            record = read_json(self.root / self.RECEIPTS / name)
             self.assertFalse(record["passed"])
             self.assertIn("no new receipt", record["reason"])
 
@@ -245,10 +252,10 @@ class ReleaseGuards(unittest.TestCase):
         changed = {"sha256": "after", "files": self.receipt["inspected_paths"]}
         with patch.object(run_targets_v4, "source_identity", side_effect=[initial, changed]):
             with patch.object(run_targets_v4.subprocess, "run", side_effect=self.successful_runner):
-                self.assertEqual(run_targets_v4.run(native=True), 1)
+                self.assertEqual(self.TARGETS.run(native=True), 1)
         self.assertEqual(run_targets_v4.historical_files(self.root / "reviews/v3"), before)
         for name in ("target_matrix.json", "os_comparison.json"):
-            record = read_json(self.root / "reviews/v4" / name)
+            record = read_json(self.root / self.RECEIPTS / name)
             self.assertFalse(record["passed"])
             self.assertTrue(record["source_changed_during_wrapper"])
 
@@ -261,9 +268,9 @@ class ReleaseGuards(unittest.TestCase):
 
         with patch.object(run_targets_v4.subprocess, "run", side_effect=failure):
             with self.assertRaisesRegex(OSError, "runner launch failed"):
-                run_targets_v4.run(native=True)
+                self.TARGETS.run(native=True)
         self.assertEqual(run_targets_v4.historical_files(self.root / "reviews/v3"), before)
-        self.assertFalse(read_json(self.root / "reviews/v4/target_matrix.json")["passed"])
+        self.assertFalse(read_json(self.root / self.RECEIPTS / "target_matrix.json")["passed"])
 
 
     def prepare_legacy_wrapper(self):
@@ -297,7 +304,7 @@ class ReleaseGuards(unittest.TestCase):
         return subprocess.CompletedProcess(command, 0)
 
     def assert_failed_legacy_and_preserved(self, before):
-        record = read_json(self.root / "reviews/v4/legacy_matrix.json")
+        record = read_json(self.root / self.RECEIPTS / "legacy_matrix.json")
         self.assertEqual(record["status"], "failed")
         self.assertIs(record["passed"], False)
         self.assertNotIn("details", record)
@@ -308,7 +315,7 @@ class ReleaseGuards(unittest.TestCase):
         with patch.object(run_legacy_matrix_v4.subprocess, "run",
                           return_value=subprocess.CompletedProcess([], 9)):
             with self.assertRaisesRegex(ValueError, "runner exited 9"):
-                run_legacy_matrix_v4.main()
+                self.LEGACY.main()
         self.assert_failed_legacy_and_preserved(before)
 
     def test_legacy_zero_exit_without_new_receipts_rejects(self):
@@ -316,7 +323,7 @@ class ReleaseGuards(unittest.TestCase):
         with patch.object(run_legacy_matrix_v4.subprocess, "run",
                           return_value=subprocess.CompletedProcess([], 0)):
             with self.assertRaisesRegex(ValueError, "omitted new receipts"):
-                run_legacy_matrix_v4.main()
+                self.LEGACY.main()
         self.assert_failed_legacy_and_preserved(before)
 
     def test_legacy_source_mutation_prevents_success_receipt(self):
@@ -329,15 +336,15 @@ class ReleaseGuards(unittest.TestCase):
 
         with patch.object(run_legacy_matrix_v4.subprocess, "run", side_effect=mutate):
             with self.assertRaisesRegex(ValueError, "Source changed"):
-                run_legacy_matrix_v4.main()
+                self.LEGACY.main()
         self.assert_failed_legacy_and_preserved(before)
 
     def test_legacy_fresh_success_is_pinned_and_preserves_history(self):
         before = self.prepare_legacy_wrapper()
         with patch.object(run_legacy_matrix_v4.subprocess, "run", side_effect=self.fresh_legacy_runner):
-            run_legacy_matrix_v4.main()
+            self.LEGACY.main()
         self.assertEqual(run_targets_v4.historical_files(self.root / "reviews/v3"), before)
-        record = read_json(self.root / "reviews/v4/legacy_matrix.json")
+        record = read_json(self.root / self.RECEIPTS / "legacy_matrix.json")
         self.assertIs(record["passed"], True)
         self.assertEqual(record["input_sha256"], self.legacy_identity()["sha256"])
         self.assertEqual(set(record["details"]), set(run_legacy_matrix_v4.FAMILIES))
@@ -347,9 +354,9 @@ class ReleaseGuards(unittest.TestCase):
             self.assertEqual(sha(self.root / relative), digest)
 
 
-def main():
+def main(case=ReleaseGuards):
     result = unittest.TextTestRunner(verbosity=2).run(
-        unittest.defaultTestLoader.loadTestsFromTestCase(ReleaseGuards))
+        unittest.defaultTestLoader.loadTestsFromTestCase(case))
     if not result.wasSuccessful():
         raise SystemExit(1)
     print(f"{result.testsRun} isolated v4 release guards passed; {len(result.skipped)} platform skips.")

@@ -60,9 +60,9 @@ def restore_history(folder, before):
         raise ValueError("Historical v3 receipt bytes were not restored")
 
 
-def run(freertos_root=None, native=False):
+def run(freertos_root=None, native=False, receipts="reviews/v4"):
     historical = safe_folder("reviews/v3")
-    current = safe_folder("reviews/v4")
+    current = safe_folder(receipts)
     before = historical_files(historical)
     identity = source_identity()
     captured = {}
@@ -85,7 +85,7 @@ def run(freertos_root=None, native=False):
                 command.append("--native")
             if script == "run_os_comparison.py" and freertos_root is not None:
                 command += ["--freertos-root", str(freertos_root)]
-            print("Running " + script + "; current receipts will be written to reviews/v4", flush=True)
+            print("Running " + script + "; current receipts will be written to " + receipts, flush=True)
             try:
                 completed = subprocess.run(command, cwd=ROOT, capture_output=True,
                                            text=True, encoding="utf-8", errors="replace",

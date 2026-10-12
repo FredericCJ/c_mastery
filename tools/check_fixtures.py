@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
-from common import ROOT, dump, load
+from common import ROOT, dump, load, read_json
 
 def required_oracles(root=ROOT):
     names={'verify_language_fixtures.py','verify_systems_fixtures.py','verify_embedded_fixtures.py','verify_integration_fixtures.py'}
@@ -15,6 +15,9 @@ def required_oracles(root=ROOT):
         names.update({'verify_runtime_fixtures.py','verify_storage_fixtures.py','verify_kernel_fixtures.py'})
     if (root/'curriculum/v3_taxonomy.json').exists():
         names.add('verify_os_v3_fixtures.py')
+    manifest=root/'curriculum/v5/domains.json'
+    if (root/'curriculum/v5_taxonomy.json').exists() and manifest.is_file():
+        names.update(read_json(manifest).get('fixture_oracles',[]))
     return names
 
 def check_oracle_presence(scripts,root=ROOT):

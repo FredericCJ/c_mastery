@@ -6,8 +6,12 @@ import hashlib
 from common import ROOT, dump, load, read_json
 from v4_common import V4, identity
 
+EXPECTED_V4={'new_executable_units':{'MI':12,'HS':12,'FW':12,'IN':8,'EX':12},'implementation_verification_hours':3599,
+    'catalog_hours':4879,'core_hours':4799,'recall_sets':627}
 
-def inspect(data, artifacts, recall, budget, projects, taxonomy, resources):
+
+def inspect(data, artifacts, recall, budget, projects, taxonomy, resources, expected=None):
+    expected=expected or EXPECTED_V4
     errors=[]
     def require(condition,message):
         if not condition:errors.append(message)
@@ -91,10 +95,10 @@ def inspect(data, artifacts, recall, budget, projects, taxonomy, resources):
                 require(set(claim['interfaces'])<=set(declared.get('interfaces',[])),u['id']+': claimed interface is not declared')
         if u['family']=='kernel_smp' and u['milestone']:
             require(any(c['scope']=='emulator' and c.get('target')=='x86-smp' and c.get('cpus')==[1,2,4] for c in u['claims']),u['id']+': SMP target matrix is not required')
-    require(new=={'MI':12,'HS':12,'FW':12,'IN':8,'EX':12},'Expected 56 newly executable units by declared investment: '+str(dict(new)))
-    require(sum(allocated.values())==3599*60,'Implementation/verification total changed')
-    require(budget['catalog_hours']==4879 and budget['core_hours']==4799,'Planning ceilings changed')
-    require(sum(budget['categories'].values())==4879,'Category conservation does not reconcile')
+    require(new==expected['new_executable_units'],'Expected 56 newly executable units by declared investment: '+str(dict(new)))
+    require(sum(allocated.values())==expected['implementation_verification_hours']*60,'Implementation/verification total changed')
+    require(budget['catalog_hours']==expected['catalog_hours'] and budget['core_hours']==expected['core_hours'],'Planning ceilings changed')
+    require(sum(budget['categories'].values())==expected['catalog_hours'],'Category conservation does not reconcile')
     for art in arts.values():
         producer=by_id.get(art['producer_unit'])
         require(producer is not None,art['id']+': missing producer')
@@ -104,7 +108,7 @@ def inspect(data, artifacts, recall, budget, projects, taxonomy, resources):
         if producer:require(set(art['critical_objectives'])<=set(producer['objectives']),art['id']+': critical facet not taught by producer')
         require(set(art['consumers'])=={u['id'] for u in units if art['id'] in u['imports']},art['id']+': lineage differs from real imports')
     sets=recall['sets']
-    require({s['id'] for s in sets}==topics and len(sets)==627,'Recall set coverage must be 627 unique topics')
+    require({s['id'] for s in sets}==topics and len(sets)==expected['recall_sets'],'Recall set coverage must be 627 unique topics')
     prompts=set()
     for s in sets:
         require(set(s['objectives'])=={x for x in objectives if x.rsplit('.',1)[0]==s['id']},s['id']+': recall facets differ')
