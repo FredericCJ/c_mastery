@@ -34,6 +34,38 @@ terminology pass over the existing 56 domains recorded in
 budgets stay immutable; prose differs from its accepted bytes only through
 logged, reviewed hunks.
 
+## Modern-techniques extension (T65–T76)
+
+On 2026-10-16 the owner extended this edition with twelve core domains that
+implement modern programming techniques from first principles in C17:
+T65 error models and executable contracts, T66 ownership, lifetime and cleanup
+protocols, T67 algebraic data, views and boundary representations, T68 generic
+programming, reflection and code generation, T69 dispatch, closures and type
+erasure, T70 data-oriented layout and persistent structures, T71 typestate,
+protocols and state machines, T72 iterators, coroutines and continuations, T73
+structured concurrency, channels and actors, T74 managed-runtime object models,
+T75 flow control and resilient services, and T76 replicated and event-sourced
+state. They hold 114 planned projects and twelve laboratory families, and are
+authored after T57–T64 with the same deliverables per domain. A coverage ledger
+assigns every census technique and every selected SWE design element to a
+project, an import from an accepted domain, a non-equivalence recall variant or
+a recorded exclusion. `planning/modern_techniques_plan.md` holds the domain map,
+subtopics, imports, exports and boundary statements.
+
+Reservations made now so that T57–T64 authoring cannot collide with them:
+
+- Phases: "Modern abstractions from first principles" (T65–T70) and "Modern
+  execution, runtime and data models" (T71–T76) follow every phase that T57–T64
+  introduce. Phase numbers are positions in `domains.json.phases`, so T57–T64
+  freeze their phase list before T65 authoring starts.
+- Unit prefixes (two letters, no dash): T57 KL, T58 PO, T59 LC, T60 CC, T61 VF,
+  T62 LI, T63 MD, T64 NS; T65 ER, T66 OW, T67 AD, T68 MP, T69 DS, T70 DO, T71 TS,
+  T72 CR, T73 SC, T74 OR, T75 RZ, T76 RP. MI, HS, FW, IN, EX and BN are already
+  in use.
+- Families: `errors`, `ownership`, `adt`, `metaprog`, `dispatch`, `dod`,
+  `protocols`, `coroutines`, `messaging`, `object_runtime`, `resilience`,
+  `replicated`.
+
 ## Mechanics
 
 `curriculum/edition.json` (schema 5) is the single manifest: expected
@@ -61,6 +93,17 @@ family's own CONTRACTS.md.
   `fixtures/<author>/`, `tools/verify_<author>_fixtures.py`, `labs/<family>/`,
   `assessor/<family>/`, `curriculum/v5/recall/Txx.json`,
   `curriculum/vocabulary/Txx.json` and the domain block of `domains.json`.
+- One author per modern domain (v5_errors, v5_ownership, v5_adt, v5_metaprog,
+  v5_dispatch, v5_dod, v5_protocols, v5_coroutines, v5_messaging,
+  v5_object_runtime, v5_resilience, v5_replicated) owning the same per-domain
+  paths, except that research lives in `research/v5/modern/<author>_*` and each
+  author also owns `research/v5/modern/coverage/Txx.json`. Once
+  `domains_manifest()` merges per-domain fragments, the author owns
+  `curriculum/v5/domains/Txx.json` instead of a block of `domains.json`. A
+  producer commits its fragment with frozen artifact contracts before any
+  consumer domain starts.
+- v5_modern_integration: one integrator owns the shared tooling changes for
+  T65–T76, the manifest counts and receipt list, and the generated catalogs.
 - v5_physical_campaign: bench tooling, board runner, dossier validation,
   `reviews/v5/physical_matrix.json`.
 - Rotated reviewers (never the author of the reviewed scope) record findings
@@ -69,7 +112,11 @@ family's own CONTRACTS.md.
 ## Evidence discipline
 
 Research precedes authorship: `reviews/v5/research_gate.json` must accept every
-`research/v5/*resources.json` before a module is written. Author tests,
+`research/v5/*resources.json` before a module is written. T65–T76 sources live in
+`research/v5/modern/*resources.json` under their own gate,
+`reviews/v5/research_gate_modern.json`, so that the later scope never reopens the
+accepted T57–T64 gate. The census copy in `research/v5/modern/census/` is a
+discovery aid and is never cited as an authority. Author tests,
 campaigns, emulator runs and physical captures are separate claims with separate
 receipts; a receipt is current only while every pinned path hashes identically.
 Status fields in the manifest may never exceed the receipts present. Learner
@@ -102,4 +149,6 @@ criterion and the contract amendment. Authority locators marked pending (126)
 await the fifth-edition research gate; the glossaries for the remaining domains
 and the terminology pass over accepted prose are stage 6 work. The catalog is
 otherwise identical to the fourth edition until domain authoring lands. See
-`reviews/v5/` for current receipts.
+`reviews/v5/` for current receipts. The T65–T76 extension is authorized and
+planned (`planning/modern_techniques_plan.md`); none of its research or
+material exists yet.
