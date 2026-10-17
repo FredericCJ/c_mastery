@@ -1,0 +1,36 @@
+{
+  "id": "PR-T76-02",
+  "description": "CQRS projection admission and atomic position advancement",
+  "input": {
+    "case": "projection"
+  },
+  "expected": {
+    "contract": "Apply(1,0,7) twice yields total7,count1. Reuse position1 with8 conflicts; position3 before2 is a gap. Two synchronized threads each delivering values1..16 yield count16,total136;128 fresh concurrent runs test the adapter."
+  },
+  "cases": [
+    {
+      "kind": "projection",
+      "example": "Apply(1,0,7) twice yields total7,count1. Reuse position1 with8 conflicts; position3 before2 is a gap. Two synchronized threads each delivering values1..16 yield count16,total136;128 fresh concurrent runs test the adapter.",
+      "input": {
+        "deliveries": [
+          [
+            1,
+            0,
+            7
+          ],
+          [
+            1,
+            0,
+            7
+          ]
+        ]
+      },
+      "expected": {
+        "count": 1,
+        "total": 7
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

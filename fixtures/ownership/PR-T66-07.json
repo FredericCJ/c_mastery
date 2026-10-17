@@ -1,0 +1,43 @@
+{
+  "id": "PR-T66-07",
+  "description": "Copy-on-write values with transactional detach",
+  "input": {
+    "case": "cow"
+  },
+  "expected": {
+    "contract": "Two references to[1,2,3], write index1=9, fail-at2: NOMEM and both logical values remain[1,2,3]. Retry succeeds with old[1,2,3], new[1,9,3], one reference each and two buffers. Dropping both releases both buffers. A unique write must leave allocator attempts unchanged."
+  },
+  "cases": [
+    {
+      "id": "cow-13",
+      "kind": "cow",
+      "input": {
+        "original": [
+          1,
+          2,
+          3
+        ],
+        "index": 1,
+        "value": 9
+      },
+      "expected": {
+        "failed_owner": [
+          1,
+          2,
+          3
+        ],
+        "old_owner": [
+          1,
+          2,
+          3
+        ],
+        "new_owner": [
+          1,
+          9,
+          3
+        ]
+      }
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

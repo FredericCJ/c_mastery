@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "family": "modern_bridge",
+  "title": "Region, once and reclamation bridge",
+  "build_system": "cmake",
+  "assessor_root": "assessor/modern_bridge",
+  "projects": [],
+  "units": [],
+  "exercises": [
+    {
+      "id": "X-T16-003",
+      "project": "PR-T16-01",
+      "tests": [
+        "modern_bridge.region"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Region lifetime, cleanup and cohort costs"
+    },
+    {
+      "id": "X-T51-002",
+      "project": "PR-T51-11",
+      "tests": [
+        "modern_bridge.once"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Once publication and incompatible failure policies"
+    },
+    {
+      "id": "X-T55-002",
+      "project": "PR-T55-05",
+      "tests": [
+        "modern_bridge.hazard"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Publish/revalidate protection and finite reclamation"
+    },
+    {
+      "id": "X-T55-003",
+      "project": "PR-T55-07",
+      "tests": [
+        "modern_bridge.epoch"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ],
+      "scope": "Quiescent cohorts, earliest reuse and retention"
+    }
+  ],
+  "contract": "labs/modern_bridge/CONTRACTS.md",
+  "modules": [
+    "T16",
+    "T51",
+    "T55"
+  ],
+  "dependencies": [],
+  "tests": [
+    "modern_bridge.region",
+    "modern_bridge.once",
+    "modern_bridge.hazard",
+    "modern_bridge.epoch"
+  ],
+  "campaign": {
+    "producer": "tools/run_modern_bridge.py",
+    "receipt": "modern_bridge_campaign.json",
+    "assertion_marker": "MB_CHECK:",
+    "mutants_per_anchor": 2,
+    "expected_mutants": 8,
+    "fixture_oracle": "labs/modern_bridge/tests/verify_fixtures.py",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan"
+    ]
+  }
+}

@@ -1,0 +1,569 @@
+{
+  "schema_version": 1,
+  "project": "PR-T10-03",
+  "domain": "T10",
+  "title": "Raw syscall transfer adapter — explicit depth assessments",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T10.md",
+        "sha256": "8373d4e013b5340d8f7999a28861b7ed62c50b2b72fe2b4d5631c4277b3c89e1",
+        "passages": [
+          "Topic teaching passages and reading guidance for T10.06, T10.07"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T10-03.md",
+        "sha256": "1ca46d313faad19492f71353d5e471dd5ed0276a1b57fbe4884e35075b2d8fe3",
+        "passages": [
+          "Contract, Steps, Failure cases, Acceptance and linked-objective checklist"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T10-03.json",
+        "sha256": "3d758a4e0556f124e52ffa0e40006319c0c988c073defe4cb19e758c4ac395fc",
+        "passages": [
+          "Complete synthetic fixture and expected values"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "oracle branches used by this fixture; synthetic reference is not target execution"
+        ]
+      },
+      {
+        "path": "labs/machine_image/README.md",
+        "sha256": "0472b1599c030ab1240c22633db3da5e60a0363607ec1e366dbe13f4ef90f7e2",
+        "passages": [
+          "All twelve bounded laboratory contracts and explicit remaining obligations"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/runtime.c",
+        "sha256": "2cd3dc97c292cc6e5ed2f3b867b2f32bdd0f7fbc3c1c1aa38ebdaf93f17d66b2",
+        "passages": [
+          "abi, hostile, bytes and wide cases"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/artifacts.py",
+        "sha256": "f74dd8b6944dff1f9e36f6d870e3ae83c183db5f8cbc1bda28db14383bbb97ff",
+        "passages": [
+          "archive, relocation, tls, budget, entry, syscall, helpers, byte_closure, closure and image branches"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T10.md",
+        "anchors": [
+          "T10.06",
+          "T10.07"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-MI-08",
+      "U-T10-03-02",
+      "U-T10-03-03",
+      "U-T10-03-04"
+    ],
+    "inspection_limits": [
+      "Project contract/steps/checklists and module teaching inspected; source registers are not treated as actual book inspections.",
+      "Unit objective/test links and selected operation steps inspected; no fresh complete historical portfolio review.",
+      "No new execution or independent learner assessment in this authoring wave."
+    ]
+  },
+  "environment": {
+    "language": "Active C17 baseline. C11/C23 comparisons require their explicitly identified wording; GNU assembly, __int128, ELF and operating-system contracts are extensions/platform rules.",
+    "target": "Linux x86-64 SysV for executable host observations; foreign targets are compile/analysis-only unless explicitly supported and recorded.",
+    "profile": "D",
+    "dependencies": "Retain the parent profile exactly. Host Python, build and binary inspection tools remain outside restricted target closures; no library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, CMake/Ninja/Make and binutils versions and effective flags",
+      "Unsupported target or instrumentation cells remain unavailable"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LSYS-GCC-ASM",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "6.11.2 Volatile; Output Operands; Input Operands; Clobbers and Scratch Registers, through line 569"
+      ]
+    },
+    {
+      "id": "R-LSYS-SYSCALL",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; NOTES architecture-specific requirements and calling-convention tables"
+      ]
+    },
+    {
+      "id": "R-LSYS-WRITE",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "RETURN VALUE; ERRORS EINTR/EAGAIN/EPIPE; NOTES short transfers and durability"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact published C17/C23 text and private CS:APP/TLPI passages were not newly inspected.",
+    "Primary sources listed cover only the named passages; other parent references retain their historical status without a new inspection claim.",
+    "Current full ELF gABI and historical AMD64 0.99 PDF fetch unavailable; full loader/TLS implementation and selected library service contracts remain required for claims beyond supplied passages."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T10-03.md",
+    "fixtures/systems/PR-T10-03.json",
+    "tools/verify_systems_fixtures.py"
+  ],
+  "execution_support": {
+    "kind": "retained partial baseline laboratory anchors",
+    "scope": "Tests exercise only their named bounded cases; broad project acceptance and these supplemental criteria require separate evidence.",
+    "tests": [
+      "machine_image.syscall"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T10-03-T10.06.a",
+      "title": "Map syscall numbers, arguments, clobbers, and results to registers.",
+      "objective": "T10.06.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Map a synthetic six-argument Linux x86-64 syscall to registers and clobbers, then inspect the existing write wrapper. Test only harmless original descriptor operations; no arbitrary syscall-number fuzzer is used.",
+      "purpose": "The fourth syscall argument belongs in rcx because C uses rcx.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.06 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "The fourth syscall argument belongs in rcx because C uses rcx. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: The fourth syscall argument belongs in rcx because C uses rcx.",
+        "D2": "Map a synthetic six-argument Linux x86-64 syscall to registers and clobbers, then inspect the existing write wrapper. Test only harmless original descriptor operations; no arbitrary syscall-number fuzzer is used.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Port the adapter design to a documented Arm64 convention and keep compile-only evidence separate from execution."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The syscall interface uses r10 for argument4 and has rcx/r11 side effects; declare compiler operands/clobbers as well as machine register assignments.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The syscall interface uses r10 for argument4 and has rcx/r11 side effects; declare compiler operands/clobbers as well as machine register assignments. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Port the adapter design to a documented Arm64 convention and keep compile-only evidence separate from execution. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Draw C argument registers and syscall argument registers side by side.",
+        "Check argument4 and the instruction's rcx/r11 effects before diagnosing the higher-level transfer loop."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-03-T10.06.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Port the adapter design to a documented Arm64 convention and keep compile-only evidence separate from execution."
+        }
+      ],
+      "assessor_anchor": "#t1006a",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.06 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T10-03-T10.06.b",
+      "title": "Compare syscall ABI with ordinary C-call ABI.",
+      "objective": "T10.06.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Draw side-by-side normal C call and raw syscall transitions for the same six logical arguments. Explain stack alignment, register ownership and which layer translates the interface.",
+      "purpose": "A C function pointer can directly represent a raw kernel entry convention.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.06 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A C function pointer can directly represent a raw kernel entry convention. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A C function pointer can directly represent a raw kernel entry convention.",
+        "D2": "Draw side-by-side normal C call and raw syscall transitions for the same six logical arguments. Explain stack alignment, register ownership and which layer translates the interface.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Introduce a32-bit ABI with an aligned64-bit syscall argument and derive its split/padding requirement."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "A wrapper bridges different contracts; correct C argument placement does not prove correct kernel argument placement.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "A wrapper bridges different contracts; correct C argument placement does not prove correct kernel argument placement. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Introduce a32-bit ABI with an aligned64-bit syscall argument and derive its split/padding requirement. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Draw C argument registers and syscall argument registers side by side.",
+        "Check argument4 and the instruction's rcx/r11 effects before diagnosing the higher-level transfer loop."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-03-T10.06.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Introduce a32-bit ABI with an aligned64-bit syscall argument and derive its split/padding requirement."
+        }
+      ],
+      "assessor_anchor": "#t1006b",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.06 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T10-03-T10.06.c",
+      "title": "Separate raw kernel error returns from libc errno conventions.",
+      "objective": "T10.06.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "For raw results0,7,-9 and-4 produce a conversion table to an explicit {status,value,error} result without global errno. Explain how libc syscall() differs and ensure legitimate success values are not confused with errors under the chosen syscall contract.",
+      "purpose": "Every negative-looking machine word is universally an errno value on every ABI.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.06 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Every negative-looking machine word is universally an errno value on every ABI. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Every negative-looking machine word is universally an errno value on every ABI.",
+        "D2": "For raw results0,7,-9 and-4 produce a conversion table to an explicit {status,value,error} result without global errno. Explain how libc syscall() differs and ensure legitimate success values are not confused with errors under the chosen syscall contract.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Design an adapter for a syscall whose successful result is an address and revisit the error-range test instead of testing only sign."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Interpretation is operation/ABI-specific; the local write adapter treats raw Linux negative errors explicitly and preserves success byte counts.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Interpretation is operation/ABI-specific; the local write adapter treats raw Linux negative errors explicitly and preserves success byte counts. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Design an adapter for a syscall whose successful result is an address and revisit the error-range test instead of testing only sign. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Draw C argument registers and syscall argument registers side by side.",
+        "Check argument4 and the instruction's rcx/r11 effects before diagnosing the higher-level transfer loop."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-03-T10.06.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Design an adapter for a syscall whose successful result is an address and revisit the error-range test instead of testing only sign."
+        }
+      ],
+      "assessor_anchor": "#t1006c",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.06 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T10-03-T10.07.a",
+      "title": "Implement partial-transfer handling and interruption policies.",
+      "objective": "T10.07.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "For payload ABCDEFG and scripted writes [2,EINTR,3,2], record each submitted suffix, accepted prefix and retry. Implement progress preservation and reject a backend reporting more bytes than requested.",
+      "purpose": "Retrying after partial progress means resending the entire buffer.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.07 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Retrying after partial progress means resending the entire buffer. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Retrying after partial progress means resending the entire buffer.",
+        "D2": "For payload ABCDEFG and scripted writes [2,EINTR,3,2], record each submitted suffix, accepted prefix and retry. Implement progress preservation and reject a backend reporting more bytes than requested.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Replace EINTR with EAGAIN and define resumable state plus caller-owned lifetime across suspension."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Submitted offsets are0,2,2,5 and exactly seven bytes are accepted once; EINTR consumes no bytes in this script. Backend contract violation is not clipped silently.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Submitted offsets are0,2,2,5 and exactly seven bytes are accepted once; EINTR consumes no bytes in this script. Backend contract violation is not clipped silently. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace EINTR with EAGAIN and define resumable state plus caller-owned lifetime across suspension. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Maintain an accepted prefix and unaccepted suffix.",
+        "An interrupted call without progress retains the same offset; a later error cannot undo already accepted bytes."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-03-T10.07.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace EINTR with EAGAIN and define resumable state plus caller-owned lifetime across suspension."
+        }
+      ],
+      "assessor_anchor": "#t1007a",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.07 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T10-03-T10.07.b",
+      "title": "Handle EOF, zero progress, and operation-specific error conditions.",
+      "objective": "T10.07.b",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Run scripts [0], [2,0], [2,EAGAIN], [EINTR,EINTR,3] for bounded reads/writes with an explicit retry budget. Distinguish read EOF from write zero progress and preserve accepted byte counts on every stop.",
+      "purpose": "Zero progress always means EOF or should be retried forever.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.07 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Zero progress always means EOF or should be retried forever. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Zero progress always means EOF or should be retried forever.",
+        "D2": "Run scripts [0], [2,0], [2,EAGAIN], [EINTR,EINTR,3] for bounded reads/writes with an explicit retry budget. Distinguish read EOF from write zero progress and preserve accepted byte counts on every stop.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Introduce cancellation after a partial write and explain why rollback of already accepted external bytes is impossible."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Operation-specific statuses prevent spinning; retries need a declared cancellation/deadline policy. A partial accepted prefix remains owned by the receiver.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Operation-specific statuses prevent spinning; retries need a declared cancellation/deadline policy. A partial accepted prefix remains owned by the receiver. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Introduce cancellation after a partial write and explain why rollback of already accepted external bytes is impossible. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Maintain an accepted prefix and unaccepted suffix.",
+        "An interrupted call without progress retains the same offset; a later error cannot undo already accepted bytes."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-03-T10.07.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Introduce cancellation after a partial write and explain why rollback of already accepted external bytes is impossible."
+        }
+      ],
+      "assessor_anchor": "#t1007b",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.07 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T10-03-T10.07.c",
+      "title": "Keep syscall wrappers separate from higher-level stream abstractions.",
+      "objective": "T10.07.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Keep raw syscall translation separate from a reusable transfer-state machine with {buffer,length,offset,status}. Supply a scripted host backend and the real target adapter through one explicit contract; audit target closure separately.",
+      "purpose": "A host mock proving the loop also proves register-level syscall correctness.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.07 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A host mock proving the loop also proves register-level syscall correctness. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A host mock proving the loop also proves register-level syscall correctness.",
+        "D2": "Keep raw syscall translation separate from a reusable transfer-state machine with {buffer,length,offset,status}. Supply a scripted host backend and the real target adapter through one explicit contract; audit target closure separately.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Compose the transfer state with length-prefixed framing and preserve frame ownership across a would-block return."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The mock assesses state transitions; real wrapper and final binary require separate ABI/dependency evidence. Buffer storage must remain live until completion/cancellation.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The mock assesses state transitions; real wrapper and final binary require separate ABI/dependency evidence. Buffer storage must remain live until completion/cancellation. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Compose the transfer state with length-prefixed framing and preserve frame ownership across a would-block return. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Maintain an accepted prefix and unaccepted suffix.",
+        "An interrupted call without progress retains the same offset; a later error cannot undo already accepted bytes."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-03-T10.07.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Compose the transfer state with length-prefixed framing and preserve frame ownership across a would-block return."
+        }
+      ],
+      "assessor_anchor": "#t1007c",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.07 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T10-03.md",
+  "status": {
+    "content": "authored",
+    "execution": "not-run supplemental assessments",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite visible tests are not absolute mastery.",
+      "No baseline hours, IDs, source bytes or historical acceptance receipts changed."
+    ]
+  }
+}

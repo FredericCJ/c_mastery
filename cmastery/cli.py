@@ -107,9 +107,18 @@ def snapshot(folder):
     identity = hashlib.sha256(json.dumps(records, sort_keys=True).encode()).hexdigest()
     return {"sha256": identity, "files": records}
 
-def instantiate(project, destination, family_name=None, unit_id=None):
+def instantiate(project, destination, family_name=None, unit_id=None, exercise_id=None):
     item, family = locate(project)
     learning_unit = None
+    learning_exercise = None
+    if unit_id and exercise_id:
+        raise ValueError('Select either a unit or an exercise')
+    if exercise_id:
+        from . import exercises, learning
+        learning_exercise = exercises.exercise(exercise_id, project)
+        family_name = family_name or learning_exercise['lab']['family']
+        if family_name != learning_exercise['lab']['family']:
+            raise ValueError('Selected family differs from exercise')
     if unit_id:
         from . import learning
         learning_unit = learning.unit(unit_id, project)
@@ -123,7 +132,10 @@ def instantiate(project, destination, family_name=None, unit_id=None):
         entries=candidate['meta'].get('projects',[])
         ids=set(entries) if isinstance(entries,dict) else {p if isinstance(p,str) else p['id'] for p in entries}
         unit_projects = {u['project'] for u in candidate['meta'].get('units', [])}
-        if project not in ids | unit_projects: raise ValueError('Family does not support project: '+family_name+' / '+project)
+        exercise_projects = {u['project'] for u in candidate['meta'].get('exercises', []) if u.get('project')}
+        if learning_exercise:
+            exercise_projects.add(learning_exercise['project'])
+        if project not in ids | unit_projects | exercise_projects: raise ValueError('Family does not support project: '+family_name+' / '+project)
         family=candidate
     destination = Path(destination).expanduser().resolve()
     protected = [ROOT / name for name in ('curriculum', 'labs', 'assessor', 'tools', 'site', 'research', 'references', 'fixtures', 'cmastery')]
@@ -156,17 +168,32 @@ def instantiate(project, destination, family_name=None, unit_id=None):
               "family": family["path"].name if family else None,
               "created_at": now(), "source_catalog": item,
               "assessment": "learner", "evidence_status": "not-run"}
+    from . import assessments
+    supplemental = assessments.export(ROOT, project, destination)
+    if supplemental:
+        record['supplemental_assessment'] = supplemental
     if learning_unit:
         record['unit'] = unit_id
         record['unit_contract'] = learning.digest(learning_unit)
         save(destination / '.cmastery/unit.json', learning_unit)
         (destination / 'UNIT.md').write_text(unit_brief(learning_unit), encoding='utf-8')
+    if learning_exercise:
+        record.update(exercise=exercise_id, exercise_contract=learning.digest(learning_exercise))
+        save(destination / '.cmastery/exercise.json', learning_exercise)
+        (destination / 'EXERCISE.md').write_text(exercises.learner_brief(learning_exercise), encoding='utf-8')
+        for name in learning_exercise['fixtures'] + learning_exercise['shared_contracts']:
+            source = exercises.path_in_root(name)
+            target = destination / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+        exercises.harness(learning_exercise, destination)
     save(destination / ".cmastery/project.json", record)
     save(destination / ".cmastery/prediction.json", {
         "project": project, "predictions": [], "invariant": "",
         "competing_causes": [], "assistance": [], "sealed_at": None})
     return {"project": project, "workspace": str(destination),
             "family": record["family"], "status": "not-run",
+            **({"exercise": exercise_id} if exercise_id else {}),
             "next": "Implement the assigned boundary, then run cmastery check.",
             "limits": "Instantiation does not establish implementation or mastery."}
 
@@ -197,6 +224,8 @@ def advance(workspace, project, unit_id=None):
     """Select another project in the same family without replacing learner code."""
     workspace=Path(workspace).expanduser().resolve()
     meta=read(workspace/'.cmastery/project.json')
+    if meta.get('exercise'):
+        raise ValueError('Initialize each exercise separately to retain its selected contract and evidence')
     item,_=locate(project)
     learning_unit = None
     if unit_id:
@@ -228,6 +257,8 @@ def advance(workspace, project, unit_id=None):
     for source,name in [(workspace/'.cmastery/project.json','project.json'),
                         (workspace/'.cmastery/prediction.json','prediction.json'),
                         (workspace/'PROJECT.md','PROJECT.md'),
+                        (workspace/'ASSESSMENT.md','ASSESSMENT.md'),
+                        (workspace/'ASSESSMENT.json','ASSESSMENT.json'),
                         (workspace/'UNIT.md','UNIT.md'),
                         (workspace/'.cmastery/unit.json','unit.json'),
                         (workspace/'evidence/latest.json','latest.json')]:
@@ -237,6 +268,13 @@ def advance(workspace, project, unit_id=None):
             target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,target)
     (workspace/'PROJECT.md').write_text(text,encoding='utf-8')
     meta.update(project=project,source_catalog=item,selected_at=now(),evidence_status='not-run')
+    from . import assessments
+    for name in ('ASSESSMENT.md', 'ASSESSMENT.json'):
+        (workspace/name).unlink(missing_ok=True)
+    meta.pop('supplemental_assessment', None)
+    supplemental = assessments.export(ROOT, project, workspace)
+    if supplemental:
+        meta['supplemental_assessment'] = supplemental
     if learning_unit:
         meta.update(unit=unit_id, unit_contract=learning.digest(learning_unit))
         save(workspace/'.cmastery/unit.json',learning_unit)
@@ -254,9 +292,16 @@ def advance(workspace, project, unit_id=None):
             'limits':'Selection preserves learner sources and prior evidence; it does not accept prerequisites or mastery.'}
 
 def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_tests=False, dependencies=None,
-               target=None, cpus=None, external=None, unit_id=None):
+               target=None, cpus=None, external=None, unit_id=None, exercise_id=None):
     workspace = Path(workspace).resolve()
     meta = read(workspace / ".cmastery/project.json")
+    if (unit_id and exercise_id) or (unit_id and meta.get('exercise')) or (exercise_id and meta.get('unit')):
+        raise ValueError('Select either a unit or an exercise workspace')
+    learning_exercise = None
+    exercise_id = exercise_id or meta.get('exercise')
+    if exercise_id:
+        from . import exercises, learning
+        learning_exercise = exercises.workspace_contract(workspace, exercise_id)
     unit_id = unit_id or meta.get('unit')
     learning_unit = None
     if unit_id:
@@ -279,6 +324,9 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
             project_contract['target_tests'] = learning_unit['target_tests']
         elif 'target_tests' not in unit_adapter:
             project_contract.pop('target_tests', None)
+    if learning_exercise:
+        adapter = next((e for e in family_meta.get('exercises', []) if e['id'] == exercise_id), {})
+        project_contract = dict(adapter, tests=learning_exercise['lab']['tests'])
     target = target or family_meta.get('default_target')
     targets = family_meta.get('targets', {})
     if target is not None and target not in targets:
@@ -308,6 +356,9 @@ def run_checks(workspace, compiler, profile, assessor=False, timeout=180, all_te
     if learning_unit:
         record['unit'] = unit_id
         record['unit_contract'] = learning.digest(learning_unit)
+    if learning_exercise:
+        record.update(exercise=exercise_id, exercise_contract=learning.digest(learning_exercise),
+                      exercise_harness=exercises.harness(learning_exercise, workspace))
     if (workspace/'.cmastery/artifacts.json').exists():
         from . import learning
         record['component_links'] = {key:value['sha256'] for key,value in learning.linked_state(workspace).items()}
@@ -525,6 +576,15 @@ def report(workspace):
         from . import learning
         if record.get('unit_contract') != learning.digest(learning.unit(record['unit'])):
             record = dict(record, status='not-run', stale=True, reason='Learning unit contract changed after evidence')
+    if record.get('exercise'):
+        from . import exercises, learning
+        try:
+            current = exercises.workspace_contract(workspace, record['exercise'])
+            valid = record.get('exercise_contract') == learning.digest(current)
+        except (OSError, ValueError, KeyError):
+            valid = False
+        if not valid:
+            record = dict(record, status='not-run', stale=True, reason='Exercise contract or harness changed after evidence')
     if record.get('component_links') is not None:
         from . import learning
         try:
@@ -608,7 +668,9 @@ def main(argv=None):
     initialize.add_argument("project")
     initialize.add_argument("destination")
     initialize.add_argument('--family', help='Select an additional family listed for this project')
-    initialize.add_argument('--unit', help='Select a v4 learning unit')
+    selection = initialize.add_mutually_exclusive_group()
+    selection.add_argument('--unit', help='Select a v4 learning unit')
+    selection.add_argument('--exercise', help='Select an additive exercise contract')
     advancing=sub.add_parser('advance',help='Select the next same-family project, preserving code and archiving evidence')
     advancing.add_argument('workspace')
     advancing.add_argument('project')
@@ -624,7 +686,9 @@ def main(argv=None):
     checking.add_argument('--target', help='Target declared by the selected laboratory family')
     checking.add_argument('--cpus', type=int, choices=[1, 2, 4], help='Requested guest CPU count, recorded with evidence')
     checking.add_argument('--external', action='append', default=[], metavar='NAME=PATH', help='Explicit pinned external source declared by this family')
-    checking.add_argument('--unit', help='Check the tests of a v4 learning unit')
+    selection = checking.add_mutually_exclusive_group()
+    selection.add_argument('--unit', help='Check the tests of a v4 learning unit')
+    selection.add_argument('--exercise', help='Check an additive exercise contract')
     physical = sub.add_parser('record-physical', help='Register physical capture files without automatically accepting their claims')
     physical.add_argument('workspace')
     physical.add_argument('manifest')
@@ -641,13 +705,13 @@ def main(argv=None):
                        "lab_family": p.get("lab_family"), "lab_families":p.get('lab_families',[]), "requires": p.get("requires", [])}
                       for p in catalog() if not args.module or p["module"] == args.module]
         elif args.command == "init":
-            result = instantiate(args.project, args.destination, args.family, args.unit)
+            result = instantiate(args.project, args.destination, args.family, args.unit, args.exercise)
         elif args.command == 'advance':
             result = advance(args.workspace,args.project,args.unit)
         elif args.command == "check":
             deps = dict(item.split('=', 1) for item in args.dependency)
             result = run_checks(args.workspace, args.compiler, args.profile, args.assessor, args.timeout, args.all_tests, deps,
-                                args.target, args.cpus, dict(item.split('=',1) for item in args.external), args.unit)
+                                args.target, args.cpus, dict(item.split('=',1) for item in args.external), args.unit, args.exercise)
         elif args.command == 'record-physical':
             result = record_physical(args.workspace, args.manifest)
         elif args.command == 'report':

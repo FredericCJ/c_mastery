@@ -1,0 +1,70 @@
+{
+  "id": "T73",
+  "domain": {
+    "family": "messaging",
+    "prefix": "SC",
+    "phase": 12,
+    "strand": "service",
+    "research_gate": "research/v5/modern/messaging_research_gate.json",
+    "imports": {
+      "*": [
+        "work.pool",
+        "sync.condition_queue",
+        "sync.spsc",
+        "io.async",
+        "io.deadline",
+        "testing.faults",
+        "coro.frame"
+      ]
+    },
+    "artifacts": [
+      {
+        "id": "conc.nursery",
+        "producer": "PR-T73-01",
+        "contract": "Scope-owned child contexts retained through join, cooperative cancellation, deterministic error aggregation; no forced termination or bounded cancellation latency.",
+        "critical_objectives": [
+          "T73.01.a",
+          "T73.01.b",
+          "T73.01.d"
+        ]
+      },
+      {
+        "id": "conc.channel",
+        "producer": "PR-T73-02",
+        "contract": "Copied unsigned messages, finite buffered FIFO or acknowledged rendezvous, atomic select registration, close/drain and terminal cancellation; adapters retain borrowed frames until disarm/quiescence.",
+        "critical_objectives": [
+          "T73.02.a",
+          "T73.02.b",
+          "T73.02.d"
+        ]
+      },
+      {
+        "id": "actor.runtime",
+        "producer": "PR-T73-04",
+        "contract": "Single-executor actor, copied finite mailbox, generation-tagged incarnation and explicit death/restart; concurrent adapters and external-effect recovery need separate protocols.",
+        "critical_objectives": [
+          "T73.04.a",
+          "T73.04.b",
+          "T73.04.d"
+        ]
+      }
+    ],
+    "decisions": {
+      "PR-T73-02": {
+        "question": "Should multi-channel selection use a shared registration lock or separate channel locks?",
+        "alternatives": [
+          "one shared hub mutex and predicate",
+          "per-channel mutexes plus a registration/recheck protocol"
+        ],
+        "discriminator": "Publish between the final empty observation and waiter registration; require no lost notification and exact close/cancel ownership under both implementations.",
+        "reversal_trigger": "Measured contention exceeds the agreed bound and an independently justified registration protocol preserves the same semantics."
+      }
+    }
+  },
+  "new_executable_counts": {
+    "SC": 10
+  },
+  "fixture_oracles": [
+    "verify_messaging_fixtures.py"
+  ]
+}

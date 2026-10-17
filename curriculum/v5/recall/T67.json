@@ -1,0 +1,787 @@
+{
+  "schema_version": 5,
+  "sets": [
+    {
+      "id": "T67.01",
+      "title": "Products, tagged sums and checked elimination",
+      "objectives": [
+        "T67.01.a",
+        "T67.01.b",
+        "T67.01.c",
+        "T67.01.d"
+      ],
+      "objective_text": {
+        "T67.01.a": "Derive product versus sum cardinality and distinguish a C union representation from an automatically checked discriminated union; show why -Wswitch-enum is a diagnostic policy, not an ISO C exhaustiveness theorem.",
+        "T67.01.b": "Draw all admitted tag/payload states, establish uint64 sufficiency for two uint32 values, and explain which inactive-member operations are avoided. Derive a counterexample to the claim that adding a default branch makes future variants exhaustively handled. Compare Rust enum constructors and binding behavior with C aggregate initialization and private-header discipline.",
+        "T67.01.c": "Run adt.sums and compile the missing-enumerator probe with -Wswitch-enum -Werror. Both semantic mutants must fail: omitted second product member and silently accepted invalid tag. Add every variant and invalid boundary, inspect enum size without assuming it is the wire tag size, and compare debug/release generated branches.",
+        "T67.01.d": "Add an owning text variant with a failing clone callback. Derive copy/drop/rollback and exhaustiveness obligations for every old eliminator; demonstrate which clients fail compilation and which silently preserve a default path."
+      },
+      "projects": [
+        "PR-T67-01"
+      ],
+      "variants": [
+        {
+          "id": "T67.01-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T67.01.a",
+            "T67.01.b",
+            "T67.01.c",
+            "T67.01.d"
+          ],
+          "prompt": "Derive product versus sum cardinality and distinguish a C union representation from an automatically checked discriminated union; show why -Wswitch-enum is a diagnostic policy, not an ISO C exhaustiveness theorem.",
+          "checklist": [
+            "Derive product versus sum cardinality and distinguish a C union representation from an automatically checked discriminated union; show why -Wswitch-enum is a diagnostic policy, not an ISO C exhaustiveness theorem.",
+            "Draw all admitted tag/payload states, establish uint64 sufficiency for two uint32 values, and explain which inactive-member operations are avoided. Derive a counterexample to the claim that adding a default branch makes future variants exhaustively handled. Compare Rust enum constructors and binding behavior with C aggregate initialization and private-header discipline.",
+            "Run adt.sums and compile the missing-enumerator probe with -Wswitch-enum -Werror. Both semantic mutants must fail: omitted second product member and silently accepted invalid tag. Add every variant and invalid boundary, inspect enum size without assuming it is the wire tag size, and compare debug/release generated branches.",
+            "Add an owning text variant with a failing clone callback. Derive copy/drop/rollback and exhaustiveness obligations for every old eliminator; demonstrate which clients fail compilation and which silently preserve a default path."
+          ]
+        },
+        {
+          "id": "T67.01-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T67.01.a",
+            "T67.01.b",
+            "T67.01.c",
+            "T67.01.d"
+          ],
+          "prompt": "PAIR(UINT32_MAX,5) measures4294967300; NUMBER(0) is distinct from EMPTY despite equal measurement. Invalid tag99 leaves prior result unchanged. A PAIR requested as NUMBER leaves its output sentinel untouched. Derive each transition before executing.",
+          "checklist": [
+            "Derive product versus sum cardinality and distinguish a C union representation from an automatically checked discriminated union; show why -Wswitch-enum is a diagnostic policy, not an ISO C exhaustiveness theorem.",
+            "Draw all admitted tag/payload states, establish uint64 sufficiency for two uint32 values, and explain which inactive-member operations are avoided. Derive a counterexample to the claim that adding a default branch makes future variants exhaustively handled. Compare Rust enum constructors and binding behavior with C aggregate initialization and private-header discipline.",
+            "Run adt.sums and compile the missing-enumerator probe with -Wswitch-enum -Werror. Both semantic mutants must fail: omitted second product member and silently accepted invalid tag. Add every variant and invalid boundary, inspect enum size without assuming it is the wire tag size, and compare debug/release generated branches.",
+            "Add an owning text variant with a failing clone callback. Derive copy/drop/rollback and exhaustiveness obligations for every old eliminator; demonstrate which clients fail compilation and which silently preserve a default path."
+          ]
+        },
+        {
+          "id": "T67.01-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T67.01.a",
+            "T67.01.b",
+            "T67.01.c",
+            "T67.01.d"
+          ],
+          "prompt": "Add an owning text variant with a failing clone callback. Derive copy/drop/rollback and exhaustiveness obligations for every old eliminator; demonstrate which clients fail compilation and which silently preserve a default path.",
+          "checklist": [
+            "Derive product versus sum cardinality and distinguish a C union representation from an automatically checked discriminated union; show why -Wswitch-enum is a diagnostic policy, not an ISO C exhaustiveness theorem.",
+            "Draw all admitted tag/payload states, establish uint64 sufficiency for two uint32 values, and explain which inactive-member operations are avoided. Derive a counterexample to the claim that adding a default branch makes future variants exhaustively handled. Compare Rust enum constructors and binding behavior with C aggregate initialization and private-header discipline.",
+            "Run adt.sums and compile the missing-enumerator probe with -Wswitch-enum -Werror. Both semantic mutants must fail: omitted second product member and silently accepted invalid tag. Add every variant and invalid boundary, inspect enum size without assuming it is the wire tag size, and compare debug/release generated branches.",
+            "Add an owning text variant with a failing clone callback. Derive copy/drop/rollback and exhaustiveness obligations for every old eliminator; demonstrate which clients fail compilation and which silently preserve a default path."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-ADMP-ENUM",
+        "R-ADMP-MATCH",
+        "R-ADMP-C11"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T67.02",
+      "title": "Newtypes and checked dimensional conversions",
+      "objectives": [
+        "T67.02.a",
+        "T67.02.b",
+        "T67.02.c",
+        "T67.02.d"
+      ],
+      "objective_text": {
+        "T67.02.a": "Explain why two distinct struct wrapper types reject accidental argument substitution while two typedef names for uint32_t do not; derive the exact safe seconds-to-milliseconds domain.",
+        "T67.02.b": "Derive the division-before-multiplication admission test and show that the largest accepted seconds value maps below UINT32_MAX. Compare the inspected C++ duration_cast ratio formulas; static_cast or a distinct duration type does not itself establish arbitrary destination representability. Specify round/truncate behavior before adding fractional units.",
+        "T67.02.c": "Run adt.quantities and reject wrong nominal type in a separate compilation. Kill missing-range-check and wrong-scale mutants, then test both sides of the quotient boundary. Show an explicit cast or field extraction bypass and identify programmer discipline rather than claim unforgeability.",
+        "T67.02.d": "Introduce signed microseconds and rational tick periods with a nonintegral ratio. Implement checked conversion with explicit rounding toward zero and a loss-of-precision result; derive bounds without a wider integer type."
+      },
+      "projects": [
+        "PR-T67-02"
+      ],
+      "variants": [
+        {
+          "id": "T67.02-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T67.02.a",
+            "T67.02.b",
+            "T67.02.c",
+            "T67.02.d"
+          ],
+          "prompt": "Explain why two distinct struct wrapper types reject accidental argument substitution while two typedef names for uint32_t do not; derive the exact safe seconds-to-milliseconds domain.",
+          "checklist": [
+            "Explain why two distinct struct wrapper types reject accidental argument substitution while two typedef names for uint32_t do not; derive the exact safe seconds-to-milliseconds domain.",
+            "Derive the division-before-multiplication admission test and show that the largest accepted seconds value maps below UINT32_MAX. Compare the inspected C++ duration_cast ratio formulas; static_cast or a distinct duration type does not itself establish arbitrary destination representability. Specify round/truncate behavior before adding fractional units.",
+            "Run adt.quantities and reject wrong nominal type in a separate compilation. Kill missing-range-check and wrong-scale mutants, then test both sides of the quotient boundary. Show an explicit cast or field extraction bypass and identify programmer discipline rather than claim unforgeability.",
+            "Introduce signed microseconds and rational tick periods with a nonintegral ratio. Implement checked conversion with explicit rounding toward zero and a loss-of-precision result; derive bounds without a wider integer type."
+          ]
+        },
+        {
+          "id": "T67.02-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T67.02.a",
+            "T67.02.b",
+            "T67.02.c",
+            "T67.02.d"
+          ],
+          "prompt": "42seconds becomes42000milliseconds;4294967seconds becomes4294967000;4294968seconds fails without modifying output;zero succeeds. Derive each transition before executing.",
+          "checklist": [
+            "Explain why two distinct struct wrapper types reject accidental argument substitution while two typedef names for uint32_t do not; derive the exact safe seconds-to-milliseconds domain.",
+            "Derive the division-before-multiplication admission test and show that the largest accepted seconds value maps below UINT32_MAX. Compare the inspected C++ duration_cast ratio formulas; static_cast or a distinct duration type does not itself establish arbitrary destination representability. Specify round/truncate behavior before adding fractional units.",
+            "Run adt.quantities and reject wrong nominal type in a separate compilation. Kill missing-range-check and wrong-scale mutants, then test both sides of the quotient boundary. Show an explicit cast or field extraction bypass and identify programmer discipline rather than claim unforgeability.",
+            "Introduce signed microseconds and rational tick periods with a nonintegral ratio. Implement checked conversion with explicit rounding toward zero and a loss-of-precision result; derive bounds without a wider integer type."
+          ]
+        },
+        {
+          "id": "T67.02-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T67.02.a",
+            "T67.02.b",
+            "T67.02.c",
+            "T67.02.d"
+          ],
+          "prompt": "Introduce signed microseconds and rational tick periods with a nonintegral ratio. Implement checked conversion with explicit rounding toward zero and a loss-of-precision result; derive bounds without a wider integer type.",
+          "checklist": [
+            "Explain why two distinct struct wrapper types reject accidental argument substitution while two typedef names for uint32_t do not; derive the exact safe seconds-to-milliseconds domain.",
+            "Derive the division-before-multiplication admission test and show that the largest accepted seconds value maps below UINT32_MAX. Compare the inspected C++ duration_cast ratio formulas; static_cast or a distinct duration type does not itself establish arbitrary destination representability. Specify round/truncate behavior before adding fractional units.",
+            "Run adt.quantities and reject wrong nominal type in a separate compilation. Kill missing-range-check and wrong-scale mutants, then test both sides of the quotient boundary. Show an explicit cast or field extraction bypass and identify programmer discipline rather than claim unforgeability.",
+            "Introduce signed microseconds and rational tick periods with a nonintegral ratio. Implement checked conversion with explicit rounding toward zero and a loss-of-precision result; derive bounds without a wider integer type."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-ADMP-DURATION",
+        "R-ADMP-C11"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T67.03",
+      "title": "Typed flag sets and reserved-bit admission",
+      "objectives": [
+        "T67.03.a",
+        "T67.03.b",
+        "T67.03.c",
+        "T67.03.d"
+      ],
+      "objective_text": {
+        "T67.03.a": "Distinguish a set of independent options from a mutually exclusive sum, and explain why reserved bits must be rejected or retained under a documented evolution policy rather than silently cleared.",
+        "T67.03.b": "Define the valid mask invariant raw & ~7 ==0, all eight admitted states and ownership-free value semantics. Explain integer promotions when complementing a narrow mask; use an explicit uint32 mask. A public struct can be forged, so only constructor-admitted values have the promised invariant.",
+        "T67.03.c": "Run adt.flags; exhaustively test0..255 and each single bit position. Reject the silent-mask mutant and empty-set rejection mutant. Show a newly reserved bit cannot be accidentally converted into success by masking.",
+        "T67.03.d": "Negotiate separate required and advisory bit sets between two schema versions. Preserve unknown advisory bits for forwarding while rejecting unsupported required bits, and prove the union operation cannot manufacture support."
+      },
+      "projects": [
+        "PR-T67-03"
+      ],
+      "variants": [
+        {
+          "id": "T67.03-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T67.03.a",
+            "T67.03.b",
+            "T67.03.c",
+            "T67.03.d"
+          ],
+          "prompt": "Distinguish a set of independent options from a mutually exclusive sum, and explain why reserved bits must be rejected or retained under a documented evolution policy rather than silently cleared.",
+          "checklist": [
+            "Distinguish a set of independent options from a mutually exclusive sum, and explain why reserved bits must be rejected or retained under a documented evolution policy rather than silently cleared.",
+            "Define the valid mask invariant raw & ~7 ==0, all eight admitted states and ownership-free value semantics. Explain integer promotions when complementing a narrow mask; use an explicit uint32 mask. A public struct can be forged, so only constructor-admitted values have the promised invariant.",
+            "Run adt.flags; exhaustively test0..255 and each single bit position. Reject the silent-mask mutant and empty-set rejection mutant. Show a newly reserved bit cannot be accidentally converted into success by masking.",
+            "Negotiate separate required and advisory bit sets between two schema versions. Preserve unknown advisory bits for forwarding while rejecting unsupported required bits, and prove the union operation cannot manufacture support."
+          ]
+        },
+        {
+          "id": "T67.03-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T67.03.a",
+            "T67.03.b",
+            "T67.03.c",
+            "T67.03.d"
+          ],
+          "prompt": "Inputs0 and7 succeed unchanged;8 andUINT32_MAX fail while preserving the prior ADFlags value. Derive each transition before executing.",
+          "checklist": [
+            "Distinguish a set of independent options from a mutually exclusive sum, and explain why reserved bits must be rejected or retained under a documented evolution policy rather than silently cleared.",
+            "Define the valid mask invariant raw & ~7 ==0, all eight admitted states and ownership-free value semantics. Explain integer promotions when complementing a narrow mask; use an explicit uint32 mask. A public struct can be forged, so only constructor-admitted values have the promised invariant.",
+            "Run adt.flags; exhaustively test0..255 and each single bit position. Reject the silent-mask mutant and empty-set rejection mutant. Show a newly reserved bit cannot be accidentally converted into success by masking.",
+            "Negotiate separate required and advisory bit sets between two schema versions. Preserve unknown advisory bits for forwarding while rejecting unsupported required bits, and prove the union operation cannot manufacture support."
+          ]
+        },
+        {
+          "id": "T67.03-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T67.03.a",
+            "T67.03.b",
+            "T67.03.c",
+            "T67.03.d"
+          ],
+          "prompt": "Negotiate separate required and advisory bit sets between two schema versions. Preserve unknown advisory bits for forwarding while rejecting unsupported required bits, and prove the union operation cannot manufacture support.",
+          "checklist": [
+            "Distinguish a set of independent options from a mutually exclusive sum, and explain why reserved bits must be rejected or retained under a documented evolution policy rather than silently cleared.",
+            "Define the valid mask invariant raw & ~7 ==0, all eight admitted states and ownership-free value semantics. Explain integer promotions when complementing a narrow mask; use an explicit uint32 mask. A public struct can be forged, so only constructor-admitted values have the promised invariant.",
+            "Run adt.flags; exhaustively test0..255 and each single bit position. Reject the silent-mask mutant and empty-set rejection mutant. Show a newly reserved bit cannot be accidentally converted into success by masking.",
+            "Negotiate separate required and advisory bit sets between two schema versions. Preserve unknown advisory bits for forwarding while rejecting unsupported required bits, and prove the union operation cannot manufacture support."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-ADMP-C11"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T67.04",
+      "title": "UTF-8 smart constructors and validated borrowed text",
+      "objectives": [
+        "T67.04.a",
+        "T67.04.b",
+        "T67.04.c",
+        "T67.04.d"
+      ],
+      "objective_text": {
+        "T67.04.a": "Derive a UTF-8 validation predicate from RFC3629 and explain why successful construction proves byte encoding only while the backing bytes remain live and unchanged.",
+        "T67.04.b": "Track input position and remaining continuation count without forming an out-of-range pointer. For each sequence derive minimum scalar value and maximum scalar value; compare scalar count with byte count. State storage lifetime and mutation restrictions explicitly, including a safe constructed example where another alias changes a previously validated buffer.",
+        "T67.04.c": "Run adt.text and the Python strict UTF-8 differential oracle for all one/two-byte strings plus specified three/four-byte boundary samples. Kill overlong and surrogate acceptance mutants. Record that Python decoding is an independent implementation, not a proof of normalization or all higher-level text properties.",
+        "T67.04.d": "Add an incremental decoder across chunks with at most3retained bytes and finalization. Test every split of each boundary sequence, cancellation that drops pending bytes, and a copying owner that can preserve validation under caller mutation."
+      },
+      "projects": [
+        "PR-T67-04"
+      ],
+      "variants": [
+        {
+          "id": "T67.04-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T67.04.a",
+            "T67.04.b",
+            "T67.04.c",
+            "T67.04.d"
+          ],
+          "prompt": "Derive a UTF-8 validation predicate from RFC3629 and explain why successful construction proves byte encoding only while the backing bytes remain live and unchanged.",
+          "checklist": [
+            "Derive a UTF-8 validation predicate from RFC3629 and explain why successful construction proves byte encoding only while the backing bytes remain live and unchanged.",
+            "Track input position and remaining continuation count without forming an out-of-range pointer. For each sequence derive minimum scalar value and maximum scalar value; compare scalar count with byte count. State storage lifetime and mutation restrictions explicitly, including a safe constructed example where another alias changes a previously validated buffer.",
+            "Run adt.text and the Python strict UTF-8 differential oracle for all one/two-byte strings plus specified three/four-byte boundary samples. Kill overlong and surrogate acceptance mutants. Record that Python decoding is an independent implementation, not a proof of normalization or all higher-level text properties.",
+            "Add an incremental decoder across chunks with at most3retained bytes and finalization. Test every split of each boundary sequence, cancellation that drops pending bytes, and a copying owner that can preserve validation under caller mutation."
+          ]
+        },
+        {
+          "id": "T67.04-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T67.04.a",
+            "T67.04.b",
+            "T67.04.c",
+            "T67.04.d"
+          ],
+          "prompt": "41 E2 82 AC F4 8F BF BF is8bytes/3scalars; C0 80 and ED A0 80 fail; empty NULL input succeeds with0scalars; prefix41 E2 82 fails. Derive each transition before executing.",
+          "checklist": [
+            "Derive a UTF-8 validation predicate from RFC3629 and explain why successful construction proves byte encoding only while the backing bytes remain live and unchanged.",
+            "Track input position and remaining continuation count without forming an out-of-range pointer. For each sequence derive minimum scalar value and maximum scalar value; compare scalar count with byte count. State storage lifetime and mutation restrictions explicitly, including a safe constructed example where another alias changes a previously validated buffer.",
+            "Run adt.text and the Python strict UTF-8 differential oracle for all one/two-byte strings plus specified three/four-byte boundary samples. Kill overlong and surrogate acceptance mutants. Record that Python decoding is an independent implementation, not a proof of normalization or all higher-level text properties.",
+            "Add an incremental decoder across chunks with at most3retained bytes and finalization. Test every split of each boundary sequence, cancellation that drops pending bytes, and a copying owner that can preserve validation under caller mutation."
+          ]
+        },
+        {
+          "id": "T67.04-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T67.04.a",
+            "T67.04.b",
+            "T67.04.c",
+            "T67.04.d"
+          ],
+          "prompt": "Add an incremental decoder across chunks with at most3retained bytes and finalization. Test every split of each boundary sequence, cancellation that drops pending bytes, and a copying owner that can preserve validation under caller mutation.",
+          "checklist": [
+            "Derive a UTF-8 validation predicate from RFC3629 and explain why successful construction proves byte encoding only while the backing bytes remain live and unchanged.",
+            "Track input position and remaining continuation count without forming an out-of-range pointer. For each sequence derive minimum scalar value and maximum scalar value; compare scalar count with byte count. State storage lifetime and mutation restrictions explicitly, including a safe constructed example where another alias changes a previously validated buffer.",
+            "Run adt.text and the Python strict UTF-8 differential oracle for all one/two-byte strings plus specified three/four-byte boundary samples. Kill overlong and surrogate acceptance mutants. Record that Python decoding is an independent implementation, not a proof of normalization or all higher-level text properties.",
+            "Add an incremental decoder across chunks with at most3retained bytes and finalization. Test every split of each boundary sequence, cancellation that drops pending bytes, and a copying owner that can preserve validation under caller mutation."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-ADMP-UTF8",
+        "R-ADMP-SPAN",
+        "R-ADMP-RFC3629"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T67.05",
+      "title": "Branded pool handles with checked generations",
+      "objectives": [
+        "T67.05.a",
+        "T67.05.b",
+        "T67.05.c",
+        "T67.05.d"
+      ],
+      "objective_text": {
+        "T67.05.a": "Separate nominal handle category, pool identity, slot generation and ownership; demonstrate why a C wrapper cannot create a compile-time fresh brand per runtime pool or enforce linear use.",
+        "T67.05.b": "Derive FREE/LIVE/RETIRED transitions and count available slots. Explain why copying a handle is permitted by C yet does not duplicate ownership. Pool objects must remain live at fixed addresses and cannot be reinitialized or reused while handles survive: pointer identity does not prevent ABA across object lifetimes. Compare PhantomData nominal/lifetime roles without claiming equivalent static checks.",
+        "T67.05.c": "Run adt.brands and enumerate short acquire/release/get traces against an independent occupancy/generation model. Kill owner-check omission and generation-check omission independently. Compile a wrong-category handle probe; show that copying or explicitly constructing a valid public representation bypasses any unforgeability claim.",
+        "T67.05.d": "Replace the owner pointer with a nonreused externally assigned pool identity and implement relocation of the pool. Then introduce concurrent get/release: provide a reclamation/lifetime protocol, not just an atomic generation counter."
+      },
+      "projects": [
+        "PR-T67-05"
+      ],
+      "variants": [
+        {
+          "id": "T67.05-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T67.05.a",
+            "T67.05.b",
+            "T67.05.c",
+            "T67.05.d"
+          ],
+          "prompt": "Separate nominal handle category, pool identity, slot generation and ownership; demonstrate why a C wrapper cannot create a compile-time fresh brand per runtime pool or enforce linear use.",
+          "checklist": [
+            "Separate nominal handle category, pool identity, slot generation and ownership; demonstrate why a C wrapper cannot create a compile-time fresh brand per runtime pool or enforce linear use.",
+            "Derive FREE/LIVE/RETIRED transitions and count available slots. Explain why copying a handle is permitted by C yet does not duplicate ownership. Pool objects must remain live at fixed addresses and cannot be reinitialized or reused while handles survive: pointer identity does not prevent ABA across object lifetimes. Compare PhantomData nominal/lifetime roles without claiming equivalent static checks.",
+            "Run adt.brands and enumerate short acquire/release/get traces against an independent occupancy/generation model. Kill owner-check omission and generation-check omission independently. Compile a wrong-category handle probe; show that copying or explicitly constructing a valid public representation bypasses any unforgeability claim.",
+            "Replace the owner pointer with a nonreused externally assigned pool identity and implement relocation of the pool. Then introduce concurrent get/release: provide a reclamation/lifetime protocol, not just an atomic generation counter."
+          ]
+        },
+        {
+          "id": "T67.05-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T67.05.a",
+            "T67.05.b",
+            "T67.05.c",
+            "T67.05.d"
+          ],
+          "prompt": "A handle frompoolA is rejected bypoolB; release/reacquire invalidates the old generation; release atUINT_MAX retires its slot and reduces usable capacity to3. Derive each transition before executing.",
+          "checklist": [
+            "Separate nominal handle category, pool identity, slot generation and ownership; demonstrate why a C wrapper cannot create a compile-time fresh brand per runtime pool or enforce linear use.",
+            "Derive FREE/LIVE/RETIRED transitions and count available slots. Explain why copying a handle is permitted by C yet does not duplicate ownership. Pool objects must remain live at fixed addresses and cannot be reinitialized or reused while handles survive: pointer identity does not prevent ABA across object lifetimes. Compare PhantomData nominal/lifetime roles without claiming equivalent static checks.",
+            "Run adt.brands and enumerate short acquire/release/get traces against an independent occupancy/generation model. Kill owner-check omission and generation-check omission independently. Compile a wrong-category handle probe; show that copying or explicitly constructing a valid public representation bypasses any unforgeability claim.",
+            "Replace the owner pointer with a nonreused externally assigned pool identity and implement relocation of the pool. Then introduce concurrent get/release: provide a reclamation/lifetime protocol, not just an atomic generation counter."
+          ]
+        },
+        {
+          "id": "T67.05-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T67.05.a",
+            "T67.05.b",
+            "T67.05.c",
+            "T67.05.d"
+          ],
+          "prompt": "Replace the owner pointer with a nonreused externally assigned pool identity and implement relocation of the pool. Then introduce concurrent get/release: provide a reclamation/lifetime protocol, not just an atomic generation counter.",
+          "checklist": [
+            "Separate nominal handle category, pool identity, slot generation and ownership; demonstrate why a C wrapper cannot create a compile-time fresh brand per runtime pool or enforce linear use.",
+            "Derive FREE/LIVE/RETIRED transitions and count available slots. Explain why copying a handle is permitted by C yet does not duplicate ownership. Pool objects must remain live at fixed addresses and cannot be reinitialized or reused while handles survive: pointer identity does not prevent ABA across object lifetimes. Compare PhantomData nominal/lifetime roles without claiming equivalent static checks.",
+            "Run adt.brands and enumerate short acquire/release/get traces against an independent occupancy/generation model. Kill owner-check omission and generation-check omission independently. Compile a wrong-category handle probe; show that copying or explicitly constructing a valid public representation bypasses any unforgeability claim.",
+            "Replace the owner pointer with a nonreused externally assigned pool identity and implement relocation of the pool. Then introduce concurrent get/release: provide a reclamation/lifetime protocol, not just an atomic generation counter."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-ADMP-PHANTOM",
+        "R-ADMP-C11"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T67.06",
+      "title": "Read-only strided views and ownership boundaries",
+      "objectives": [
+        "T67.06.a",
+        "T67.06.b",
+        "T67.06.c",
+        "T67.06.d"
+      ],
+      "objective_text": {
+        "T67.06.a": "Derive required backing extent from shape and strides, including empty shapes and overflow, and distinguish a read-only overlapping view from a mutable injective layout.",
+        "T67.06.b": "Prove multiplication and addition guards before computing the last element offset; explain why logical element count need not equal required span. Compare span contiguous access and mdspan layout_stride preconditions. Define when two logical indices alias and why a writable transfer needs stronger validation or an explicit alias contract.",
+        "T67.06.c": "Run adt.views; enumerate small shapes/strides/capacities against a Python coordinate-set oracle. Kill row-major-assumption and missing-capacity-admission mutants. Audit zero/SIZE_MAX boundaries and distinguish arithmetic acceptance from existence of a real caller object of that extent.",
+        "T67.06.d": "Implement mutable transpose/submatrix views and a SIMD reduction adapter. Establish injectivity or documented repeated-write semantics, equivalent overflow/alias contracts, and measure scalar/vector behavior only on admitted layouts."
+      },
+      "projects": [
+        "PR-T67-06"
+      ],
+      "variants": [
+        {
+          "id": "T67.06-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T67.06.a",
+            "T67.06.b",
+            "T67.06.c",
+            "T67.06.d"
+          ],
+          "prompt": "Derive required backing extent from shape and strides, including empty shapes and overflow, and distinguish a read-only overlapping view from a mutable injective layout.",
+          "checklist": [
+            "Derive required backing extent from shape and strides, including empty shapes and overflow, and distinguish a read-only overlapping view from a mutable injective layout.",
+            "Prove multiplication and addition guards before computing the last element offset; explain why logical element count need not equal required span. Compare span contiguous access and mdspan layout_stride preconditions. Define when two logical indices alias and why a writable transfer needs stronger validation or an explicit alias contract.",
+            "Run adt.views; enumerate small shapes/strides/capacities against a Python coordinate-set oracle. Kill row-major-assumption and missing-capacity-admission mutants. Audit zero/SIZE_MAX boundaries and distinguish arithmetic acceptance from existence of a real caller object of that extent.",
+            "Implement mutable transpose/submatrix views and a SIMD reduction adapter. Establish injectivity or documented repeated-write semantics, equivalent overflow/alias contracts, and measure scalar/vector behavior only on admitted layouts."
+          ]
+        },
+        {
+          "id": "T67.06-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T67.06.a",
+            "T67.06.b",
+            "T67.06.c",
+            "T67.06.d"
+          ],
+          "prompt": "Backing[1,2,99,3,4],shape2x2,strides3/1 yields4 at(1,1) and needs5elements; capacity4fails. Shape0x3 is empty. Strides1/1 admit read-only overlap. Derive each transition before executing.",
+          "checklist": [
+            "Derive required backing extent from shape and strides, including empty shapes and overflow, and distinguish a read-only overlapping view from a mutable injective layout.",
+            "Prove multiplication and addition guards before computing the last element offset; explain why logical element count need not equal required span. Compare span contiguous access and mdspan layout_stride preconditions. Define when two logical indices alias and why a writable transfer needs stronger validation or an explicit alias contract.",
+            "Run adt.views; enumerate small shapes/strides/capacities against a Python coordinate-set oracle. Kill row-major-assumption and missing-capacity-admission mutants. Audit zero/SIZE_MAX boundaries and distinguish arithmetic acceptance from existence of a real caller object of that extent.",
+            "Implement mutable transpose/submatrix views and a SIMD reduction adapter. Establish injectivity or documented repeated-write semantics, equivalent overflow/alias contracts, and measure scalar/vector behavior only on admitted layouts."
+          ]
+        },
+        {
+          "id": "T67.06-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T67.06.a",
+            "T67.06.b",
+            "T67.06.c",
+            "T67.06.d"
+          ],
+          "prompt": "Implement mutable transpose/submatrix views and a SIMD reduction adapter. Establish injectivity or documented repeated-write semantics, equivalent overflow/alias contracts, and measure scalar/vector behavior only on admitted layouts.",
+          "checklist": [
+            "Derive required backing extent from shape and strides, including empty shapes and overflow, and distinguish a read-only overlapping view from a mutable injective layout.",
+            "Prove multiplication and addition guards before computing the last element offset; explain why logical element count need not equal required span. Compare span contiguous access and mdspan layout_stride preconditions. Define when two logical indices alias and why a writable transfer needs stronger validation or an explicit alias contract.",
+            "Run adt.views; enumerate small shapes/strides/capacities against a Python coordinate-set oracle. Kill row-major-assumption and missing-capacity-admission mutants. Audit zero/SIZE_MAX boundaries and distinguish arithmetic acceptance from existence of a real caller object of that extent.",
+            "Implement mutable transpose/submatrix views and a SIMD reduction adapter. Establish injectivity or documented repeated-write semantics, equivalent overflow/alias contracts, and measure scalar/vector behavior only on admitted layouts."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-ADMP-SPAN",
+        "R-ADMP-STRIDE"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T67.07",
+      "title": "Recursive arena values and typed indices",
+      "objectives": [
+        "T67.07.a",
+        "T67.07.b",
+        "T67.07.c",
+        "T67.07.d"
+      ],
+      "objective_text": {
+        "T67.07.a": "Derive acyclicity from a topological child-index invariant and explain when a checked arena can support unchecked internal traversal without allowing later mutation to invalidate the proof.",
+        "T67.07.b": "Prove by induction on node index that each value is available before its parent; separate index category from actual range validity. Give O(count)time/O(32)stack and compare a recursive tree that duplicates shared children. For validate-once extension, make the arena immutable or invalidate its certificate after every structural mutation.",
+        "T67.07.c": "Run adt.arena and independent postfix/tree evaluation cases. Kill forward-reference acceptance and arithmetic-overflow omission. Add unreachable malformed nodes, multiple roots, shared children, empty and maximum count, then record stack-use output.",
+        "T67.07.d": "Support bounded cyclic graphs for a monotone dataflow analysis. Replace topological induction with a lattice/worklist convergence argument and distinguish no fixed point, insufficient iteration budget and successful convergence."
+      },
+      "projects": [
+        "PR-T67-07"
+      ],
+      "variants": [
+        {
+          "id": "T67.07-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T67.07.a",
+            "T67.07.b",
+            "T67.07.c",
+            "T67.07.d"
+          ],
+          "prompt": "Derive acyclicity from a topological child-index invariant and explain when a checked arena can support unchecked internal traversal without allowing later mutation to invalidate the proof.",
+          "checklist": [
+            "Derive acyclicity from a topological child-index invariant and explain when a checked arena can support unchecked internal traversal without allowing later mutation to invalidate the proof.",
+            "Prove by induction on node index that each value is available before its parent; separate index category from actual range validity. Give O(count)time/O(32)stack and compare a recursive tree that duplicates shared children. For validate-once extension, make the arena immutable or invalidate its certificate after every structural mutation.",
+            "Run adt.arena and independent postfix/tree evaluation cases. Kill forward-reference acceptance and arithmetic-overflow omission. Add unreachable malformed nodes, multiple roots, shared children, empty and maximum count, then record stack-use output.",
+            "Support bounded cyclic graphs for a monotone dataflow analysis. Replace topological induction with a lattice/worklist convergence argument and distinguish no fixed point, insufficient iteration budget and successful convergence."
+          ]
+        },
+        {
+          "id": "T67.07-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T67.07.a",
+            "T67.07.b",
+            "T67.07.c",
+            "T67.07.d"
+          ],
+          "prompt": "CONST7,CONST9,ADD(0,1),root2 yields16. A self-child2 fails. UINT32_MAX+9 fails without changing prior output. Derive each transition before executing.",
+          "checklist": [
+            "Derive acyclicity from a topological child-index invariant and explain when a checked arena can support unchecked internal traversal without allowing later mutation to invalidate the proof.",
+            "Prove by induction on node index that each value is available before its parent; separate index category from actual range validity. Give O(count)time/O(32)stack and compare a recursive tree that duplicates shared children. For validate-once extension, make the arena immutable or invalidate its certificate after every structural mutation.",
+            "Run adt.arena and independent postfix/tree evaluation cases. Kill forward-reference acceptance and arithmetic-overflow omission. Add unreachable malformed nodes, multiple roots, shared children, empty and maximum count, then record stack-use output.",
+            "Support bounded cyclic graphs for a monotone dataflow analysis. Replace topological induction with a lattice/worklist convergence argument and distinguish no fixed point, insufficient iteration budget and successful convergence."
+          ]
+        },
+        {
+          "id": "T67.07-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T67.07.a",
+            "T67.07.b",
+            "T67.07.c",
+            "T67.07.d"
+          ],
+          "prompt": "Support bounded cyclic graphs for a monotone dataflow analysis. Replace topological induction with a lattice/worklist convergence argument and distinguish no fixed point, insufficient iteration budget and successful convergence.",
+          "checklist": [
+            "Derive acyclicity from a topological child-index invariant and explain when a checked arena can support unchecked internal traversal without allowing later mutation to invalidate the proof.",
+            "Prove by induction on node index that each value is available before its parent; separate index category from actual range validity. Give O(count)time/O(32)stack and compare a recursive tree that duplicates shared children. For validate-once extension, make the arena immutable or invalidate its certificate after every structural mutation.",
+            "Run adt.arena and independent postfix/tree evaluation cases. Kill forward-reference acceptance and arithmetic-overflow omission. Add unreachable malformed nodes, multiple roots, shared children, empty and maximum count, then record stack-use output.",
+            "Support bounded cyclic graphs for a monotone dataflow analysis. Replace topological induction with a lattice/worklist convergence argument and distinguish no fixed point, insufficient iteration budget and successful convergence."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-ADMP-ENUM",
+        "R-ADMP-C11"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T67.08",
+      "title": "Lenses and prisms with falsifiable laws",
+      "objectives": [
+        "T67.08.a",
+        "T67.08.b",
+        "T67.08.c",
+        "T67.08.d"
+      ],
+      "objective_text": {
+        "T67.08.a": "Derive lens get-put, put-get and put-put laws and prism review/preview round trips; explain how lawful optics differ from arbitrary field mutation helpers.",
+        "T67.08.b": "Write each law as an executable predicate and derive which information an update may change. Compare the C functions with the inspected lens type laws; C types do not enforce those laws. Distinguish field equality from raw struct memcmp because padding need not encode semantic identity.",
+        "T67.08.c": "Run adt.optics:256combinations assess get-put/put-get/put-put and prism round trips. Kill the collateral-y-write and EMPTY-as-NUMBER mutants. Add composition of nested pairs, identify a law violated by a clamping setter, and explain why exhaustive small domains are not proof for arbitrary callback optics.",
+        "T67.08.d": "Implement a lens into an optional nested configuration and a prism for a versioned error sum. Decide which updates are partial, state revised laws, and produce counterexamples to importing total-lens laws unchanged."
+      },
+      "projects": [
+        "PR-T67-08"
+      ],
+      "variants": [
+        {
+          "id": "T67.08-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T67.08.a",
+            "T67.08.b",
+            "T67.08.c",
+            "T67.08.d"
+          ],
+          "prompt": "Derive lens get-put, put-get and put-put laws and prism review/preview round trips; explain how lawful optics differ from arbitrary field mutation helpers.",
+          "checklist": [
+            "Derive lens get-put, put-get and put-put laws and prism review/preview round trips; explain how lawful optics differ from arbitrary field mutation helpers.",
+            "Write each law as an executable predicate and derive which information an update may change. Compare the C functions with the inspected lens type laws; C types do not enforce those laws. Distinguish field equality from raw struct memcmp because padding need not encode semantic identity.",
+            "Run adt.optics:256combinations assess get-put/put-get/put-put and prism round trips. Kill the collateral-y-write and EMPTY-as-NUMBER mutants. Add composition of nested pairs, identify a law violated by a clamping setter, and explain why exhaustive small domains are not proof for arbitrary callback optics.",
+            "Implement a lens into an optional nested configuration and a prism for a versioned error sum. Decide which updates are partial, state revised laws, and produce counterexamples to importing total-lens laws unchanged."
+          ]
+        },
+        {
+          "id": "T67.08-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T67.08.a",
+            "T67.08.b",
+            "T67.08.c",
+            "T67.08.d"
+          ],
+          "prompt": "Setting x of(1,2)to3 gives(3,2); setting it toitscurrent1 preserves bothfields. Preview(review(3))=3; preview(EMPTY)fails without publishing0. Derive each transition before executing.",
+          "checklist": [
+            "Derive lens get-put, put-get and put-put laws and prism review/preview round trips; explain how lawful optics differ from arbitrary field mutation helpers.",
+            "Write each law as an executable predicate and derive which information an update may change. Compare the C functions with the inspected lens type laws; C types do not enforce those laws. Distinguish field equality from raw struct memcmp because padding need not encode semantic identity.",
+            "Run adt.optics:256combinations assess get-put/put-get/put-put and prism round trips. Kill the collateral-y-write and EMPTY-as-NUMBER mutants. Add composition of nested pairs, identify a law violated by a clamping setter, and explain why exhaustive small domains are not proof for arbitrary callback optics.",
+            "Implement a lens into an optional nested configuration and a prism for a versioned error sum. Decide which updates are partial, state revised laws, and produce counterexamples to importing total-lens laws unchanged."
+          ]
+        },
+        {
+          "id": "T67.08-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T67.08.a",
+            "T67.08.b",
+            "T67.08.c",
+            "T67.08.d"
+          ],
+          "prompt": "Implement a lens into an optional nested configuration and a prism for a versioned error sum. Decide which updates are partial, state revised laws, and produce counterexamples to importing total-lens laws unchanged.",
+          "checklist": [
+            "Derive lens get-put, put-get and put-put laws and prism review/preview round trips; explain how lawful optics differ from arbitrary field mutation helpers.",
+            "Write each law as an executable predicate and derive which information an update may change. Compare the C functions with the inspected lens type laws; C types do not enforce those laws. Distinguish field equality from raw struct memcmp because padding need not encode semantic identity.",
+            "Run adt.optics:256combinations assess get-put/put-get/put-put and prism round trips. Kill the collateral-y-write and EMPTY-as-NUMBER mutants. Add composition of nested pairs, identify a law violated by a clamping setter, and explain why exhaustive small domains are not proof for arbitrary callback optics.",
+            "Implement a lens into an optional nested configuration and a prism for a versioned error sum. Decide which updates are partial, state revised laws, and produce counterexamples to importing total-lens laws unchanged."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-ADMP-ENUM",
+        "R-ADMP-LENS"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T67.09",
+      "title": "Evolution-aware sums and lossless tolerant readers",
+      "objectives": [
+        "T67.09.a",
+        "T67.09.b",
+        "T67.09.c",
+        "T67.09.d"
+      ],
+      "objective_text": {
+        "T67.09.a": "Distinguish tolerance from permissiveness: an unknown noncritical alternative can be retained exactly, while malformed known alternatives and unknown required semantics must fail.",
+        "T67.09.b": "Define a sum of known-number, known-empty and unknown bytes; retain tag and payload even when semantics are unavailable. State lifetime, disjointness, maximum255payloadbytes and overflow-free size calculation. Compare binary unknown-field preservation with the inspected Protobuf guide and demonstrate a field-wise rebuilding path that loses unknown data.",
+        "T67.09.c": "Run adt.evolution and construct a two-version relay trace. Kill unknown-payload-discard and malformed-known-acceptance mutants. Test all truncation points, trailing bytes, capacity shortages, zero-length unknown payload and borrowed-buffer mutation. Record which operations preserve unknown data and which deliberately reject it.",
+        "T67.09.d": "Add duplicate fields and canonical ordering to an extensible record format. Specify how unknown duplicates participate in signatures and forwarding, and demonstrate why accepting arbitrary unknown fields can violate a higher-level security policy."
+      },
+      "projects": [
+        "PR-T67-09"
+      ],
+      "variants": [
+        {
+          "id": "T67.09-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T67.09.a",
+            "T67.09.b",
+            "T67.09.c",
+            "T67.09.d"
+          ],
+          "prompt": "Distinguish tolerance from permissiveness: an unknown noncritical alternative can be retained exactly, while malformed known alternatives and unknown required semantics must fail.",
+          "checklist": [
+            "Distinguish tolerance from permissiveness: an unknown noncritical alternative can be retained exactly, while malformed known alternatives and unknown required semantics must fail.",
+            "Define a sum of known-number, known-empty and unknown bytes; retain tag and payload even when semantics are unavailable. State lifetime, disjointness, maximum255payloadbytes and overflow-free size calculation. Compare binary unknown-field preservation with the inspected Protobuf guide and demonstrate a field-wise rebuilding path that loses unknown data.",
+            "Run adt.evolution and construct a two-version relay trace. Kill unknown-payload-discard and malformed-known-acceptance mutants. Test all truncation points, trailing bytes, capacity shortages, zero-length unknown payload and borrowed-buffer mutation. Record which operations preserve unknown data and which deliberately reject it.",
+            "Add duplicate fields and canonical ordering to an extensible record format. Specify how unknown duplicates participate in signatures and forwarding, and demonstrate why accepting arbitrary unknown fields can violate a higher-level security policy."
+          ]
+        },
+        {
+          "id": "T67.09-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T67.09.a",
+            "T67.09.b",
+            "T67.09.c",
+            "T67.09.d"
+          ],
+          "prompt": "09 03 04 05 06 round-trips byte-for-byte;01 01 07 fails as malformed known data;80 00 fails as unsupported required semantics. Derive each transition before executing.",
+          "checklist": [
+            "Distinguish tolerance from permissiveness: an unknown noncritical alternative can be retained exactly, while malformed known alternatives and unknown required semantics must fail.",
+            "Define a sum of known-number, known-empty and unknown bytes; retain tag and payload even when semantics are unavailable. State lifetime, disjointness, maximum255payloadbytes and overflow-free size calculation. Compare binary unknown-field preservation with the inspected Protobuf guide and demonstrate a field-wise rebuilding path that loses unknown data.",
+            "Run adt.evolution and construct a two-version relay trace. Kill unknown-payload-discard and malformed-known-acceptance mutants. Test all truncation points, trailing bytes, capacity shortages, zero-length unknown payload and borrowed-buffer mutation. Record which operations preserve unknown data and which deliberately reject it.",
+            "Add duplicate fields and canonical ordering to an extensible record format. Specify how unknown duplicates participate in signatures and forwarding, and demonstrate why accepting arbitrary unknown fields can violate a higher-level security policy."
+          ]
+        },
+        {
+          "id": "T67.09-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T67.09.a",
+            "T67.09.b",
+            "T67.09.c",
+            "T67.09.d"
+          ],
+          "prompt": "Add duplicate fields and canonical ordering to an extensible record format. Specify how unknown duplicates participate in signatures and forwarding, and demonstrate why accepting arbitrary unknown fields can violate a higher-level security policy.",
+          "checklist": [
+            "Distinguish tolerance from permissiveness: an unknown noncritical alternative can be retained exactly, while malformed known alternatives and unknown required semantics must fail.",
+            "Define a sum of known-number, known-empty and unknown bytes; retain tag and payload even when semantics are unavailable. State lifetime, disjointness, maximum255payloadbytes and overflow-free size calculation. Compare binary unknown-field preservation with the inspected Protobuf guide and demonstrate a field-wise rebuilding path that loses unknown data.",
+            "Run adt.evolution and construct a two-version relay trace. Kill unknown-payload-discard and malformed-known-acceptance mutants. Test all truncation points, trailing bytes, capacity shortages, zero-length unknown payload and borrowed-buffer mutation. Record which operations preserve unknown data and which deliberately reject it.",
+            "Add duplicate fields and canonical ordering to an extensible record format. Specify how unknown duplicates participate in signatures and forwarding, and demonstrate why accepting arbitrary unknown fields can violate a higher-level security policy."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-ADMP-UNKNOWN",
+        "R-ADMP-C11"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T67.10",
+      "title": "Zero-copy packet view with precise error sum",
+      "objectives": [
+        "T67.10.a",
+        "T67.10.b",
+        "T67.10.c",
+        "T67.10.d"
+      ],
+      "objective_text": {
+        "T67.10.a": "Port the supplied census packet-view artifact to C while preserving its admitted wire states, error distinctions and borrowed-payload lifetime; identify guarantees supplied by the C API versus the compared language wrappers.",
+        "T67.10.b": "Derive a state table for every failure stage and prove length-3 subtraction is reached only after header validation. No struct overlay, unaligned integer load, allocation or payload copy is permitted. Compare C tag/error conventions with census C++ variant/expected/span without treating the example as an authoritative language specification.",
+        "T67.10.c": "Run adt.packet and enumerate header/extent/tag combinations against the independent byte parser. Kill trailing-byte acceptance and nonempty-ack acceptance separately. Test all truncations and prior-output preservation, then integrate actual learner io.frame and bytes.cursor artifacts with recorded source identities. Public direct-parser anchors do not establish that integration.",
+        "T67.10.d": "Add segmented zero-copy payloads from a receive ring with wraparound and a retained borrow token. Prove storage cannot be recycled while a consumer holds the packet; compare copying and borrowing under equivalent release/cancellation semantics."
+      },
+      "projects": [
+        "PR-T67-10"
+      ],
+      "variants": [
+        {
+          "id": "T67.10-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T67.10.a",
+            "T67.10.b",
+            "T67.10.c",
+            "T67.10.d"
+          ],
+          "prompt": "Port the supplied census packet-view artifact to C while preserving its admitted wire states, error distinctions and borrowed-payload lifetime; identify guarantees supplied by the C API versus the compared language wrappers.",
+          "checklist": [
+            "Port the supplied census packet-view artifact to C while preserving its admitted wire states, error distinctions and borrowed-payload lifetime; identify guarantees supplied by the C API versus the compared language wrappers.",
+            "Derive a state table for every failure stage and prove length-3 subtraction is reached only after header validation. No struct overlay, unaligned integer load, allocation or payload copy is permitted. Compare C tag/error conventions with census C++ variant/expected/span without treating the example as an authoritative language specification.",
+            "Run adt.packet and enumerate header/extent/tag combinations against the independent byte parser. Kill trailing-byte acceptance and nonempty-ack acceptance separately. Test all truncations and prior-output preservation, then integrate actual learner io.frame and bytes.cursor artifacts with recorded source identities. Public direct-parser anchors do not establish that integration.",
+            "Add segmented zero-copy payloads from a receive ring with wraparound and a retained borrow token. Prove storage cannot be recycled while a consumer holds the packet; compare copying and borrowing under equivalent release/cancellation semantics."
+          ]
+        },
+        {
+          "id": "T67.10-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T67.10.a",
+            "T67.10.b",
+            "T67.10.c",
+            "T67.10.d"
+          ],
+          "prompt": "01 00 02 07 08 yieldskind1,length2,payload=input+3.02 00 00 isvalidack.01 00 01 07 08 islengtherror;02 00 01 07 isackerror;03 00 00 iskinderror. Derive each transition before executing.",
+          "checklist": [
+            "Port the supplied census packet-view artifact to C while preserving its admitted wire states, error distinctions and borrowed-payload lifetime; identify guarantees supplied by the C API versus the compared language wrappers.",
+            "Derive a state table for every failure stage and prove length-3 subtraction is reached only after header validation. No struct overlay, unaligned integer load, allocation or payload copy is permitted. Compare C tag/error conventions with census C++ variant/expected/span without treating the example as an authoritative language specification.",
+            "Run adt.packet and enumerate header/extent/tag combinations against the independent byte parser. Kill trailing-byte acceptance and nonempty-ack acceptance separately. Test all truncations and prior-output preservation, then integrate actual learner io.frame and bytes.cursor artifacts with recorded source identities. Public direct-parser anchors do not establish that integration.",
+            "Add segmented zero-copy payloads from a receive ring with wraparound and a retained borrow token. Prove storage cannot be recycled while a consumer holds the packet; compare copying and borrowing under equivalent release/cancellation semantics."
+          ]
+        },
+        {
+          "id": "T67.10-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T67.10.a",
+            "T67.10.b",
+            "T67.10.c",
+            "T67.10.d"
+          ],
+          "prompt": "Add segmented zero-copy payloads from a receive ring with wraparound and a retained borrow token. Prove storage cannot be recycled while a consumer holds the packet; compare copying and borrowing under equivalent release/cancellation semantics.",
+          "checklist": [
+            "Port the supplied census packet-view artifact to C while preserving its admitted wire states, error distinctions and borrowed-payload lifetime; identify guarantees supplied by the C API versus the compared language wrappers.",
+            "Derive a state table for every failure stage and prove length-3 subtraction is reached only after header validation. No struct overlay, unaligned integer load, allocation or payload copy is permitted. Compare C tag/error conventions with census C++ variant/expected/span without treating the example as an authoritative language specification.",
+            "Run adt.packet and enumerate header/extent/tag combinations against the independent byte parser. Kill trailing-byte acceptance and nonempty-ack acceptance separately. Test all truncations and prior-output preservation, then integrate actual learner io.frame and bytes.cursor artifacts with recorded source identities. Public direct-parser anchors do not establish that integration.",
+            "Add segmented zero-copy payloads from a receive ring with wraparound and a retained borrow token. Prove storage cannot be recycled while a consumer holds the packet; compare copying and borrowing under equivalent release/cancellation semantics."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-ADMP-ENUM",
+        "R-ADMP-SPAN",
+        "R-ADMP-C11"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    }
+  ]
+}

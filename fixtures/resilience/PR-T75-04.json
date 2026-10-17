@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "PR-T75-04",
+  "exercise": "X-T75-004",
+  "anchor": "resilience.bucket",
+  "input_contract": "Implement RZBucket with integral capacity/rate1..16 and costs1..capacity. Refill lazily under monotonic uint64 ticks, saturating before a potentially overflowing multiplication. A rejected spend retains elapsed-time refill but spends no tokens. Extend to fractional fixed-point replenishment without rounding away long-term credit, then compose a second peak bucket with rollback of admission when either bucket denies.",
+  "expected": "Capacity4/rate1 starts with4. Spending4 at0 succeeds; another1 at0 is FULL. At1 one token is available and exactly-cost admission succeeds. Advancing to UINT64_MAX fills only to4 without arithmetic overflow. Backward time is INVALID without mutation.",
+  "independent_oracle": "For capacity/rate1..16 and elapsed0..19, compare every single-step refill/spend with integer arithmetic; add UINT64_MAX gaps. Generate length0–6 cost/time sequences with same-time bursts, backward time and impossible costs. Preserve fractional remainder in the extension and verify splitting an idle interval does not change credit. Do not execute tc or modify host network policy.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "tokens": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "statuses": [
+      "OK",
+      "FULL",
+      "OK",
+      "OK"
+    ]
+  }
+}

@@ -1,0 +1,367 @@
+{
+  "schema_version": 1,
+  "project": "PR-T24-05",
+  "domain": "T24",
+  "title": "Deadline and notification counters — explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T24.md",
+        "sha256": "9f8a7a963ad452b0032c33cb3d354c4d9f10bcb9a9c5e3d28bb05706cae21186",
+        "passages": [
+          "All assigned topic teaching and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T24-05.md",
+        "sha256": "acd6c18ab78cc8353d4c7ccb309306aed38d8b96e964dea2d9c35cecfcb960e4",
+        "passages": [
+          "Metadata, Contract, Steps, Failure cases, Acceptance, Hints and changed-condition work"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T24-05.json",
+        "sha256": "9ea4d7dbbdb9821bebe61d248c678f1a96ee1481f2907e2210749af8a026352a",
+        "passages": [
+          "Complete synthetic inputs and expected outputs"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "Exact branches used by the assigned synthetic fixture; not target execution"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/README.md",
+        "sha256": "ea69b7b3b3fc358afd7cc62e4f64c8e4eb68e07a1a8cb58e4b8e117ba3bcf580",
+        "passages": [
+          "Named implementation contracts and explicit execution/physical limitations"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/CONTRACTS.md",
+        "sha256": "37b5c55cf0473e98071ee1221cf5667e739923b227f22ccec6b80a49797d10c5",
+        "passages": [
+          "All operation contracts, preconditions, failure and ownership boundaries"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T24.md",
+        "anchors": [
+          "T24.09"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-HS-03",
+      "U-T24-05-02",
+      "U-T24-05-03"
+    ],
+    "inspection_limits": [
+      "All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.",
+      "Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.",
+      "Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.",
+    "target": "Unprivileged Linux x86-64 for original hosted experiments; pure C memory models and restricted-profile target code retain their own contracts. Kernel execution only in a disposable VM.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.",
+      "Device/VM/tool unavailability is a missing observation, not a passing result."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LRUN-TIMER",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "clockid: CLOCK_REALTIME, CLOCK_MONOTONIC and CLOCK_BOOTTIME",
+        "timerfd_settime and read: absolute deadlines, disarm and accumulated uint64_t expirations"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
+    "Historical reading metadata is not promoted to a new source-inspection claim.",
+    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T24-05.md",
+    "fixtures/systems/PR-T24-05.json",
+    "tools/verify_systems_fixtures.py",
+    "labs/hosted_systems/README.md"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contracts and bounded partial anchors",
+    "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
+    "tests": [
+      "hosted_systems.deadline"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T24-05-T24.09.a",
+      "title": "Integrate timerfd, eventfd, and monotonic deadlines where appropriate.",
+      "objective": "T24.09.a",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-TIMER",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "clockid: CLOCK_REALTIME, CLOCK_MONOTONIC and CLOCK_BOOTTIME",
+            "timerfd_settime and read: absolute deadlines, disarm and accumulated uint64_t expirations"
+          ]
+        }
+      ],
+      "task": "Integrate a nonblocking CLOCK_MONOTONIC timerfd and an eventfd counter in the original loop. Read exact counter widths, preserve accumulated counts, and handle EAGAIN without treating it as cancellation.",
+      "purpose": "A notification descriptor carries one Boolean event per read.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.09 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-05 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A notification descriptor carries one Boolean event per read. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A notification descriptor carries one Boolean event per read.",
+        "D2": "Integrate a nonblocking CLOCK_MONOTONIC timerfd and an eventfd counter in the original loop. Read exact counter widths, preserve accumulated counts, and handle EAGAIN without treating it as cancellation.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Replace periodic wakeups with a single earliest-deadline timer and derive rearm behavior when an earlier deadline is inserted."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Counters accumulate multiple events; decoding native counters is distinct from protocol byte order. Descriptor ownership and full-width reads are explicit.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Counters accumulate multiple events; decoding native counters is distinct from protocol byte order. Descriptor ownership and full-width reads are explicit. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace periodic wakeups with a single earliest-deadline timer and derive rearm behavior when an earlier deadline is inserted. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Determine the exact counter width and its accumulation semantics.",
+        "Multiple expirations can be reported by one read; a short or interrupted operation is not a new timer count."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-05-T24.09.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace periodic wakeups with a single earliest-deadline timer and derive rearm behavior when an earlier deadline is inserted."
+        }
+      ],
+      "assessor_anchor": "#t2409a",
+      "facet_scope": {
+        "teaching": "Retained T24.09 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-05-T24.09.b",
+      "title": "Distinguish timer expiry from actual handler execution time.",
+      "objective": "T24.09.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-TIMER",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "clockid: CLOCK_REALTIME, CLOCK_MONOTONIC and CLOCK_BOOTTIME",
+            "timerfd_settime and read: absolute deadlines, disarm and accumulated uint64_t expirations"
+          ]
+        }
+      ],
+      "task": "Record scheduled expiry, kernel-reported expiration count and actual dispatch time while deliberately stalling only the teaching loop. Compare a late dispatch with the abstract deadlines fixture without assigning physical accuracy to it.",
+      "purpose": "The callback timestamp equals the expiration time.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.09 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-05 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "The callback timestamp equals the expiration time. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: The callback timestamp equals the expiration time.",
+        "D2": "Record scheduled expiry, kernel-reported expiration count and actual dispatch time while deliberately stalling only the teaching loop. Compare a late dispatch with the abstract deadlines fixture without assigning physical accuracy to it.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Change from catch-up to skip-missed-periods policy and derive effect count and next deadline."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Expiry and handling are separated by scheduling/work; accumulated periodic expirations do not imply that many handlers ran on time.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Expiry and handling are separated by scheduling/work; accumulated periodic expirations do not imply that many handlers ran on time. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Change from catch-up to skip-missed-periods policy and derive effect count and next deadline. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Determine the exact counter width and its accumulation semantics.",
+        "Multiple expirations can be reported by one read; a short or interrupted operation is not a new timer count."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-05-T24.09.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Change from catch-up to skip-missed-periods policy and derive effect count and next deadline."
+        }
+      ],
+      "assessor_anchor": "#t2409b",
+      "facet_scope": {
+        "teaching": "Retained T24.09 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-05-T24.09.c",
+      "title": "Handle cancellation, rescheduling, and counter accumulation.",
+      "objective": "T24.09.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-TIMER",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "clockid: CLOCK_REALTIME, CLOCK_MONOTONIC and CLOCK_BOOTTIME",
+            "timerfd_settime and read: absolute deadlines, disarm and accumulated uint64_t expirations"
+          ]
+        }
+      ],
+      "task": "Cancel and reschedule a timer object, then deliver a cached notification from its old generation. Make repeated cancellation idempotent and ensure an old event cannot fire the new callback.",
+      "purpose": "Disarming a source retracts every notification already copied into user space.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.09 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-05 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Disarming a source retracts every notification already copied into user space. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Disarming a source retracts every notification already copied into user space.",
+        "D2": "Cancel and reschedule a timer object, then deliver a cached notification from its old generation. Make repeated cancellation idempotent and ensure an old event cannot fire the new callback.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Let cancellation race with an already-running callback and specify whether cancellation waits, fails or returns an explicit still-running status."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Registration state and queued callback identity are separate; generation checks and retirement protect the new object.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Registration state and queued callback identity are separate; generation checks and retirement protect the new object. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Let cancellation race with an already-running callback and specify whether cancellation waits, fails or returns an explicit still-running status. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Determine the exact counter width and its accumulation semantics.",
+        "Multiple expirations can be reported by one read; a short or interrupted operation is not a new timer count."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-05-T24.09.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Let cancellation race with an already-running callback and specify whether cancellation waits, fails or returns an explicit still-running status."
+        }
+      ],
+      "assessor_anchor": "#t2409c",
+      "facet_scope": {
+        "teaching": "Retained T24.09 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T24-05.md",
+  "status": {
+    "content": "authored",
+    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite tests do not prove absolute mastery.",
+      "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
+      "Historical optional labels do not exclude required expansion work."
+    ]
+  }
+}

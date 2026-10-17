@@ -1,0 +1,781 @@
+{
+  "schema_version": 5,
+  "sets": [
+    {
+      "id": "T66.01",
+      "title": "Owning handles and the partial-initialization frontier",
+      "objectives": [
+        "T66.01.a",
+        "T66.01.b",
+        "T66.01.c",
+        "T66.01.d"
+      ],
+      "objective_text": {
+        "T66.01.a": "Derive the construction frontier invariant and distinguish acquired storage, initialized object state and published ownership; compare explicit C cleanup with automatic language destruction.",
+        "T66.01.b": "Implement transactional three-resource construction and idempotent destruction using the accepted typed allocator callback ABI, proving which prefix is owned at each failure point.",
+        "T66.01.c": "Inject failure on each acquisition, reject zero and overflowing lengths before any callback, instrument release order and exactly-once counts, and test repeated destruction. Kill the omitted-rollback mutant. Extend the anchor with a callback trace that proves reverse order, not just equal release totals.",
+        "T66.01.d": "Replace the prefix with a dependency graph: acquire A, then B and C independently, then D requiring B. Write an initialized-set representation and reverse dependency cleanup. Delayed assessment makes C initialization fail after its storage acquisition; distinguish storage release from destruction of a constructed value."
+      },
+      "projects": [
+        "PR-T66-01"
+      ],
+      "variants": [
+        {
+          "id": "T66.01-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T66.01.a",
+            "T66.01.b",
+            "T66.01.c",
+            "T66.01.d"
+          ],
+          "prompt": "Derive the construction frontier invariant and distinguish acquired storage, initialized object state and published ownership; compare explicit C cleanup with automatic language destruction.",
+          "checklist": [
+            "Derive the construction frontier invariant and distinguish acquired storage, initialized object state and published ownership; compare explicit C cleanup with automatic language destruction.",
+            "Implement transactional three-resource construction and idempotent destruction using the accepted typed allocator callback ABI, proving which prefix is owned at each failure point.",
+            "Inject failure on each acquisition, reject zero and overflowing lengths before any callback, instrument release order and exactly-once counts, and test repeated destruction. Kill the omitted-rollback mutant. Extend the anchor with a callback trace that proves reverse order, not just equal release totals.",
+            "Replace the prefix with a dependency graph: acquire A, then B and C independently, then D requiring B. Write an initialized-set representation and reverse dependency cleanup. Delayed assessment makes C initialization fail after its storage acquisition; distinguish storage release from destruction of a constructed value."
+          ]
+        },
+        {
+          "id": "T66.01-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T66.01.a",
+            "T66.01.b",
+            "T66.01.c",
+            "T66.01.d"
+          ],
+          "prompt": "Lengths[1,2,3] with failure on take2 produce NOMEM, one release, zero live blocks and unchanged empty output. Failure on take1 releases nothing. Three successful takes publish count3; two destroy calls together perform exactly three releases. A zero middle count causes no allocator invocation. Derive each transition before executing.",
+          "checklist": [
+            "Derive the construction frontier invariant and distinguish acquired storage, initialized object state and published ownership; compare explicit C cleanup with automatic language destruction.",
+            "Implement transactional three-resource construction and idempotent destruction using the accepted typed allocator callback ABI, proving which prefix is owned at each failure point.",
+            "Inject failure on each acquisition, reject zero and overflowing lengths before any callback, instrument release order and exactly-once counts, and test repeated destruction. Kill the omitted-rollback mutant. Extend the anchor with a callback trace that proves reverse order, not just equal release totals.",
+            "Replace the prefix with a dependency graph: acquire A, then B and C independently, then D requiring B. Write an initialized-set representation and reverse dependency cleanup. Delayed assessment makes C initialization fail after its storage acquisition; distinguish storage release from destruction of a constructed value."
+          ]
+        },
+        {
+          "id": "T66.01-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T66.01.a",
+            "T66.01.b",
+            "T66.01.c",
+            "T66.01.d"
+          ],
+          "prompt": "Replace the prefix with a dependency graph: acquire A, then B and C independently, then D requiring B. Write an initialized-set representation and reverse dependency cleanup. Delayed assessment makes C initialization fail after its storage acquisition; distinguish storage release from destruction of a constructed value.",
+          "checklist": [
+            "Derive the construction frontier invariant and distinguish acquired storage, initialized object state and published ownership; compare explicit C cleanup with automatic language destruction.",
+            "Implement transactional three-resource construction and idempotent destruction using the accepted typed allocator callback ABI, proving which prefix is owned at each failure point.",
+            "Inject failure on each acquisition, reject zero and overflowing lengths before any callback, instrument release order and exactly-once counts, and test repeated destruction. Kill the omitted-rollback mutant. Extend the anchor with a callback trace that proves reverse order, not just equal release totals.",
+            "Replace the prefix with a dependency graph: acquire A, then B and C independently, then D requiring B. Write an initialized-set representation and reverse dependency cleanup. Delayed assessment makes C initialization fail after its storage acquisition; distinguish storage release from destruction of a constructed value."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-RUST-DROP"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T66.02",
+      "title": "Scoped cleanup, conditional undo and publication by swap",
+      "objectives": [
+        "T66.02.a",
+        "T66.02.b",
+        "T66.02.c",
+        "T66.02.d"
+      ],
+      "objective_text": {
+        "T66.02.a": "Explain when a cleanup stack is a resource protocol, when an undo log is a semantic rollback protocol, and why neither automatically reverses already published external effects.",
+        "T66.02.b": "Implement conditional LIFO cleanup and publication-by-swap with explicit callback effects, stack capacity, transferred ownership and nonlocal-exit restrictions.",
+        "T66.02.c": "Enumerate all success/failure policy combinations through depth4 against an independent reversed-list filter, test capacity8/9 and callback reentrancy rejection, inject failure before every registration, and trace publication before old cleanup. Kill a mutant that executes every conditional cleanup.",
+        "T66.02.d": "Integrate cleanup.scope with the T65 typed jump boundary through an adapter that converts a raised error before final cleanup. Delayed assessment introduces a cleanup action that can fail: derive an explicit recovery-required result and retained owner rather than silently pretending the old void-callback contract still applies."
+      },
+      "projects": [
+        "PR-T66-02"
+      ],
+      "variants": [
+        {
+          "id": "T66.02-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T66.02.a",
+            "T66.02.b",
+            "T66.02.c",
+            "T66.02.d"
+          ],
+          "prompt": "Explain when a cleanup stack is a resource protocol, when an undo log is a semantic rollback protocol, and why neither automatically reverses already published external effects.",
+          "checklist": [
+            "Explain when a cleanup stack is a resource protocol, when an undo log is a semantic rollback protocol, and why neither automatically reverses already published external effects.",
+            "Implement conditional LIFO cleanup and publication-by-swap with explicit callback effects, stack capacity, transferred ownership and nonlocal-exit restrictions.",
+            "Enumerate all success/failure policy combinations through depth4 against an independent reversed-list filter, test capacity8/9 and callback reentrancy rejection, inject failure before every registration, and trace publication before old cleanup. Kill a mutant that executes every conditional cleanup.",
+            "Integrate cleanup.scope with the T65 typed jump boundary through an adapter that converts a raised error before final cleanup. Delayed assessment introduces a cleanup action that can fail: derive an explicit recovery-required result and retained owner rather than silently pretending the old void-callback contract still applies."
+          ]
+        },
+        {
+          "id": "T66.02-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T66.02.a",
+            "T66.02.b",
+            "T66.02.c",
+            "T66.02.d"
+          ],
+          "prompt": "Register digits1 ALWAYS,2 ON_SUCCESS,3 ON_ERROR. Failure produces trace31; success produces21; a second finish appends nothing. Publishing three staged blocks over three old blocks leaves exactly three live blocks and consumes the staged owner. Derive each transition before executing.",
+          "checklist": [
+            "Explain when a cleanup stack is a resource protocol, when an undo log is a semantic rollback protocol, and why neither automatically reverses already published external effects.",
+            "Implement conditional LIFO cleanup and publication-by-swap with explicit callback effects, stack capacity, transferred ownership and nonlocal-exit restrictions.",
+            "Enumerate all success/failure policy combinations through depth4 against an independent reversed-list filter, test capacity8/9 and callback reentrancy rejection, inject failure before every registration, and trace publication before old cleanup. Kill a mutant that executes every conditional cleanup.",
+            "Integrate cleanup.scope with the T65 typed jump boundary through an adapter that converts a raised error before final cleanup. Delayed assessment introduces a cleanup action that can fail: derive an explicit recovery-required result and retained owner rather than silently pretending the old void-callback contract still applies."
+          ]
+        },
+        {
+          "id": "T66.02-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T66.02.a",
+            "T66.02.b",
+            "T66.02.c",
+            "T66.02.d"
+          ],
+          "prompt": "Integrate cleanup.scope with the T65 typed jump boundary through an adapter that converts a raised error before final cleanup. Delayed assessment introduces a cleanup action that can fail: derive an explicit recovery-required result and retained owner rather than silently pretending the old void-callback contract still applies.",
+          "checklist": [
+            "Explain when a cleanup stack is a resource protocol, when an undo log is a semantic rollback protocol, and why neither automatically reverses already published external effects.",
+            "Implement conditional LIFO cleanup and publication-by-swap with explicit callback effects, stack capacity, transferred ownership and nonlocal-exit restrictions.",
+            "Enumerate all success/failure policy combinations through depth4 against an independent reversed-list filter, test capacity8/9 and callback reentrancy rejection, inject failure before every registration, and trace publication before old cleanup. Kill a mutant that executes every conditional cleanup.",
+            "Integrate cleanup.scope with the T65 typed jump boundary through an adapter that converts a raised error before final cleanup. Delayed assessment introduces a cleanup action that can fail: derive an explicit recovery-required result and retained owner rather than silently pretending the old void-callback contract still applies."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-C-JUMP-ASSERT",
+        "R-MOD-RUST-DROP"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T66.03",
+      "title": "Move protocols, source poisoning and the limits of must-use diagnostics",
+      "objectives": [
+        "T66.03.a",
+        "T66.03.b",
+        "T66.03.c",
+        "T66.03.d"
+      ],
+      "objective_text": {
+        "T66.03.a": "Separate ownership transfer, physical byte copying, source poisoning and diagnostic enforcement; explain why ISO C17 cannot prevent all implicit copies of this public struct.",
+        "T66.03.b": "Implement checked move/consume operations and an isolated diagnostic probe that intentionally ignores OW_MUST_USE, with extension-enabled and portable builds reported separately.",
+        "T66.03.c": "Test self-move, occupied destination, empty source, repeated consumption and allocator release counts. Reject the source-not-poisoned mutant. Compile a copied owner without consuming both copies: use it as a static counterexample, not an unbounded double-free experiment. Record whether GCC/Clang actually emit the ignored-result diagnostic.",
+        "T66.03.d": "Move a self-referential value or an inline-buffer owner: derive why copying its bytes may leave internal pointers referring to the former object. Delayed assessment hides the representation behind an opaque handle but allows duplicate handles; identify the remaining duplication attack and design checked generation/ownership tokens."
+      },
+      "projects": [
+        "PR-T66-03"
+      ],
+      "variants": [
+        {
+          "id": "T66.03-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T66.03.a",
+            "T66.03.b",
+            "T66.03.c",
+            "T66.03.d"
+          ],
+          "prompt": "Separate ownership transfer, physical byte copying, source poisoning and diagnostic enforcement; explain why ISO C17 cannot prevent all implicit copies of this public struct.",
+          "checklist": [
+            "Separate ownership transfer, physical byte copying, source poisoning and diagnostic enforcement; explain why ISO C17 cannot prevent all implicit copies of this public struct.",
+            "Implement checked move/consume operations and an isolated diagnostic probe that intentionally ignores OW_MUST_USE, with extension-enabled and portable builds reported separately.",
+            "Test self-move, occupied destination, empty source, repeated consumption and allocator release counts. Reject the source-not-poisoned mutant. Compile a copied owner without consuming both copies: use it as a static counterexample, not an unbounded double-free experiment. Record whether GCC/Clang actually emit the ignored-result diagnostic.",
+            "Move a self-referential value or an inline-buffer owner: derive why copying its bytes may leave internal pointers referring to the former object. Delayed assessment hides the representation behind an opaque handle but allows duplicate handles; identify the remaining duplication attack and design checked generation/ownership tokens."
+          ]
+        },
+        {
+          "id": "T66.03-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T66.03.a",
+            "T66.03.b",
+            "T66.03.c",
+            "T66.03.d"
+          ],
+          "prompt": "After moving three blocks, destination.count=3 and source.count=0. Consuming the source returns DEAD; consuming the destination releases three blocks once; a second consume returns DEAD. A direct C assignment copying the original owner is a counterexample to an alleged static move-only guarantee. Derive each transition before executing.",
+          "checklist": [
+            "Separate ownership transfer, physical byte copying, source poisoning and diagnostic enforcement; explain why ISO C17 cannot prevent all implicit copies of this public struct.",
+            "Implement checked move/consume operations and an isolated diagnostic probe that intentionally ignores OW_MUST_USE, with extension-enabled and portable builds reported separately.",
+            "Test self-move, occupied destination, empty source, repeated consumption and allocator release counts. Reject the source-not-poisoned mutant. Compile a copied owner without consuming both copies: use it as a static counterexample, not an unbounded double-free experiment. Record whether GCC/Clang actually emit the ignored-result diagnostic.",
+            "Move a self-referential value or an inline-buffer owner: derive why copying its bytes may leave internal pointers referring to the former object. Delayed assessment hides the representation behind an opaque handle but allows duplicate handles; identify the remaining duplication attack and design checked generation/ownership tokens."
+          ]
+        },
+        {
+          "id": "T66.03-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T66.03.a",
+            "T66.03.b",
+            "T66.03.c",
+            "T66.03.d"
+          ],
+          "prompt": "Move a self-referential value or an inline-buffer owner: derive why copying its bytes may leave internal pointers referring to the former object. Delayed assessment hides the representation behind an opaque handle but allows duplicate handles; identify the remaining duplication attack and design checked generation/ownership tokens.",
+          "checklist": [
+            "Separate ownership transfer, physical byte copying, source poisoning and diagnostic enforcement; explain why ISO C17 cannot prevent all implicit copies of this public struct.",
+            "Implement checked move/consume operations and an isolated diagnostic probe that intentionally ignores OW_MUST_USE, with extension-enabled and portable builds reported separately.",
+            "Test self-move, occupied destination, empty source, repeated consumption and allocator release counts. Reject the source-not-poisoned mutant. Compile a copied owner without consuming both copies: use it as a static counterexample, not an unbounded double-free experiment. Record whether GCC/Clang actually emit the ignored-result diagnostic.",
+            "Move a self-referential value or an inline-buffer owner: derive why copying its bytes may leave internal pointers referring to the former object. Delayed assessment hides the representation behind an opaque handle but allows duplicate handles; identify the remaining duplication attack and design checked generation/ownership tokens."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-PIN",
+        "R-MOD-RUST-DROP"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T66.04",
+      "title": "Runtime borrow tracking, range splitting and finite token identities",
+      "objectives": [
+        "T66.04.a",
+        "T66.04.b",
+        "T66.04.c",
+        "T66.04.d"
+      ],
+      "objective_text": {
+        "T66.04.a": "Derive reader/writer interval exclusion separately from pointer lifetime, then explain finite identity exhaustion and why a runtime token does not prevent illicit raw aliases.",
+        "T66.04.b": "Implement bounded acquire/release and transactional writer splitting with arithmetic-safe extent checks, generation retirement and an explicit guard ownership rule.",
+        "T66.04.c": "Use an independent finite-set intersection oracle for all small extents/ranges/read-write combinations, then test SIZE_MAX bounds and UINT32_MAX serial retirement. Exhaust the slot table before split and compare complete pre/post books and output canaries. Kill the conflict-check omission mutant; explain that reduced exhaustive checks do not prove arbitrary C lifetimes.",
+        "T66.04.d": "Change numeric intervals into a strided view: two disjoint bounding intervals are sufficient but not necessary for disjoint element sets. Delayed assessment splits a two-dimensional tile with padding; derive exact touched indices and decide whether a conservative rejection or richer borrow representation is justified."
+      },
+      "projects": [
+        "PR-T66-04"
+      ],
+      "variants": [
+        {
+          "id": "T66.04-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T66.04.a",
+            "T66.04.b",
+            "T66.04.c",
+            "T66.04.d"
+          ],
+          "prompt": "Derive reader/writer interval exclusion separately from pointer lifetime, then explain finite identity exhaustion and why a runtime token does not prevent illicit raw aliases.",
+          "checklist": [
+            "Derive reader/writer interval exclusion separately from pointer lifetime, then explain finite identity exhaustion and why a runtime token does not prevent illicit raw aliases.",
+            "Implement bounded acquire/release and transactional writer splitting with arithmetic-safe extent checks, generation retirement and an explicit guard ownership rule.",
+            "Use an independent finite-set intersection oracle for all small extents/ranges/read-write combinations, then test SIZE_MAX bounds and UINT32_MAX serial retirement. Exhaust the slot table before split and compare complete pre/post books and output canaries. Kill the conflict-check omission mutant; explain that reduced exhaustive checks do not prove arbitrary C lifetimes.",
+            "Change numeric intervals into a strided view: two disjoint bounding intervals are sufficient but not necessary for disjoint element sets. Delayed assessment splits a two-dimensional tile with padding; derive exact touched indices and decide whether a conservative rejection or richer borrow representation is justified."
+          ]
+        },
+        {
+          "id": "T66.04-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T66.04.a",
+            "T66.04.b",
+            "T66.04.c",
+            "T66.04.d"
+          ],
+          "prompt": "A writer[0,8) blocks a reader[3,4). Splitting it at3 creates[0,3) and[3,8), invalidates the parent token and admits no gap or overlap. A writer[8,8) may coexist because it touches no element. A released token cannot release a later loan in the same slot. Derive each transition before executing.",
+          "checklist": [
+            "Derive reader/writer interval exclusion separately from pointer lifetime, then explain finite identity exhaustion and why a runtime token does not prevent illicit raw aliases.",
+            "Implement bounded acquire/release and transactional writer splitting with arithmetic-safe extent checks, generation retirement and an explicit guard ownership rule.",
+            "Use an independent finite-set intersection oracle for all small extents/ranges/read-write combinations, then test SIZE_MAX bounds and UINT32_MAX serial retirement. Exhaust the slot table before split and compare complete pre/post books and output canaries. Kill the conflict-check omission mutant; explain that reduced exhaustive checks do not prove arbitrary C lifetimes.",
+            "Change numeric intervals into a strided view: two disjoint bounding intervals are sufficient but not necessary for disjoint element sets. Delayed assessment splits a two-dimensional tile with padding; derive exact touched indices and decide whether a conservative rejection or richer borrow representation is justified."
+          ]
+        },
+        {
+          "id": "T66.04-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T66.04.a",
+            "T66.04.b",
+            "T66.04.c",
+            "T66.04.d"
+          ],
+          "prompt": "Change numeric intervals into a strided view: two disjoint bounding intervals are sufficient but not necessary for disjoint element sets. Delayed assessment splits a two-dimensional tile with padding; derive exact touched indices and decide whether a conservative rejection or richer borrow representation is justified.",
+          "checklist": [
+            "Derive reader/writer interval exclusion separately from pointer lifetime, then explain finite identity exhaustion and why a runtime token does not prevent illicit raw aliases.",
+            "Implement bounded acquire/release and transactional writer splitting with arithmetic-safe extent checks, generation retirement and an explicit guard ownership rule.",
+            "Use an independent finite-set intersection oracle for all small extents/ranges/read-write combinations, then test SIZE_MAX bounds and UINT32_MAX serial retirement. Exhaust the slot table before split and compare complete pre/post books and output canaries. Kill the conflict-check omission mutant; explain that reduced exhaustive checks do not prove arbitrary C lifetimes.",
+            "Change numeric intervals into a strided view: two disjoint bounding intervals are sufficient but not necessary for disjoint element sets. Delayed assessment splits a two-dimensional tile with padding; derive exact touched indices and decide whether a conservative rejection or richer borrow representation is justified."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-REFCELL"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T66.05",
+      "title": "Interior-mutability cells and guard escape boundaries",
+      "objectives": [
+        "T66.05.a",
+        "T66.05.b",
+        "T66.05.c",
+        "T66.05.d"
+      ],
+      "objective_text": {
+        "T66.05.a": "Explain how dynamic borrow guards permit controlled mutation through a shared interface without making const a global immutability or thread-safety guarantee.",
+        "T66.05.b": "Implement guarded read/write and transactional replacement, composing the range guard protocol without bypassing its identity or exclusivity checks.",
+        "T66.05.c": "Test shared readers, exclusive writer, stale/released token, zero-length and partial-range tokens, failed replacement output canaries and every allowed guard-release order. Reject replacement that ignores an active guard. Analyze an escaped raw-pointer API as a contract counterexample rather than treating a clean sanitizer run as proof.",
+        "T66.05.d": "Add reentrant callbacks that read the cell while an update is in progress: choose an explicit rejection or snapshot policy and test it. Delayed assessment moves to multiple threads; derive the synchronization and guard lifetime changes rather than merely making the value atomic."
+      },
+      "projects": [
+        "PR-T66-05"
+      ],
+      "variants": [
+        {
+          "id": "T66.05-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T66.05.a",
+            "T66.05.b",
+            "T66.05.c",
+            "T66.05.d"
+          ],
+          "prompt": "Explain how dynamic borrow guards permit controlled mutation through a shared interface without making const a global immutability or thread-safety guarantee.",
+          "checklist": [
+            "Explain how dynamic borrow guards permit controlled mutation through a shared interface without making const a global immutability or thread-safety guarantee.",
+            "Implement guarded read/write and transactional replacement, composing the range guard protocol without bypassing its identity or exclusivity checks.",
+            "Test shared readers, exclusive writer, stale/released token, zero-length and partial-range tokens, failed replacement output canaries and every allowed guard-release order. Reject replacement that ignores an active guard. Analyze an escaped raw-pointer API as a contract counterexample rather than treating a clean sanitizer run as proof.",
+            "Add reentrant callbacks that read the cell while an update is in progress: choose an explicit rejection or snapshot policy and test it. Delayed assessment moves to multiple threads; derive the synchronization and guard lifetime changes rather than merely making the value atomic."
+          ]
+        },
+        {
+          "id": "T66.05-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T66.05.a",
+            "T66.05.b",
+            "T66.05.c",
+            "T66.05.d"
+          ],
+          "prompt": "Cell value9, old-output sentinel71 and one reader: replace(4) returns BUSY, leaves value9 and sentinel71. Read succeeds with9; write through that reader returns INVALID. After release, reading with the old token returns STALE and replace publishes4 while returning old9. Derive each transition before executing.",
+          "checklist": [
+            "Explain how dynamic borrow guards permit controlled mutation through a shared interface without making const a global immutability or thread-safety guarantee.",
+            "Implement guarded read/write and transactional replacement, composing the range guard protocol without bypassing its identity or exclusivity checks.",
+            "Test shared readers, exclusive writer, stale/released token, zero-length and partial-range tokens, failed replacement output canaries and every allowed guard-release order. Reject replacement that ignores an active guard. Analyze an escaped raw-pointer API as a contract counterexample rather than treating a clean sanitizer run as proof.",
+            "Add reentrant callbacks that read the cell while an update is in progress: choose an explicit rejection or snapshot policy and test it. Delayed assessment moves to multiple threads; derive the synchronization and guard lifetime changes rather than merely making the value atomic."
+          ]
+        },
+        {
+          "id": "T66.05-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T66.05.a",
+            "T66.05.b",
+            "T66.05.c",
+            "T66.05.d"
+          ],
+          "prompt": "Add reentrant callbacks that read the cell while an update is in progress: choose an explicit rejection or snapshot policy and test it. Delayed assessment moves to multiple threads; derive the synchronization and guard lifetime changes rather than merely making the value atomic.",
+          "checklist": [
+            "Explain how dynamic borrow guards permit controlled mutation through a shared interface without making const a global immutability or thread-safety guarantee.",
+            "Implement guarded read/write and transactional replacement, composing the range guard protocol without bypassing its identity or exclusivity checks.",
+            "Test shared readers, exclusive writer, stale/released token, zero-length and partial-range tokens, failed replacement output canaries and every allowed guard-release order. Reject replacement that ignores an active guard. Analyze an escaped raw-pointer API as a contract counterexample rather than treating a clean sanitizer run as proof.",
+            "Add reentrant callbacks that read the cell while an update is in progress: choose an explicit rejection or snapshot policy and test it. Delayed assessment moves to multiple threads; derive the synchronization and guard lifetime changes rather than merely making the value atomic."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-REFCELL"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T66.06",
+      "title": "Strong and weak ownership with atomic and non-atomic counts",
+      "objectives": [
+        "T66.06.a",
+        "T66.06.b",
+        "T66.06.c",
+        "T66.06.d"
+      ],
+      "objective_text": {
+        "T66.06.a": "Prove the distinct value/control lifetimes, no-resurrection property and count-overflow behavior; distinguish reference-count synchronization from pointee synchronization and cycle collection.",
+        "T66.06.b": "Implement strong/weak ownership twice, first under exclusion and then with C17 atomics, documenting initialization publication, owned-reference preconditions, callback effects and each memory-order edge.",
+        "T66.06.c": "Trace every strong/weak boundary with an independent counter model, test maximum-count refusal, and reject omission of the implicit weak release. Run the actual four-thread anchor, separate TSan if available, GCC/Clang optimized and ASan/UBSan builds, inspect atomic lowering and report lock-free status. A quiet race detector does not prove the memory-order argument or reclaim safety for fabricated references.",
+        "T66.06.d": "Construct a two-node strong cycle and show retained values after external owners disappear; break one edge with a weak reference and account for both control blocks. Delayed assessment races the last strong drop with weak upgrade using a synchronized start and a live weak owner: outcomes are successful ownership before destruction or DEAD, never resurrection."
+      },
+      "projects": [
+        "PR-T66-06"
+      ],
+      "variants": [
+        {
+          "id": "T66.06-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T66.06.a",
+            "T66.06.b",
+            "T66.06.c",
+            "T66.06.d"
+          ],
+          "prompt": "Prove the distinct value/control lifetimes, no-resurrection property and count-overflow behavior; distinguish reference-count synchronization from pointee synchronization and cycle collection.",
+          "checklist": [
+            "Prove the distinct value/control lifetimes, no-resurrection property and count-overflow behavior; distinguish reference-count synchronization from pointee synchronization and cycle collection.",
+            "Implement strong/weak ownership twice, first under exclusion and then with C17 atomics, documenting initialization publication, owned-reference preconditions, callback effects and each memory-order edge.",
+            "Trace every strong/weak boundary with an independent counter model, test maximum-count refusal, and reject omission of the implicit weak release. Run the actual four-thread anchor, separate TSan if available, GCC/Clang optimized and ASan/UBSan builds, inspect atomic lowering and report lock-free status. A quiet race detector does not prove the memory-order argument or reclaim safety for fabricated references.",
+            "Construct a two-node strong cycle and show retained values after external owners disappear; break one edge with a weak reference and account for both control blocks. Delayed assessment races the last strong drop with weak upgrade using a synchronized start and a live weak owner: outcomes are successful ownership before destruction or DEAD, never resurrection."
+          ]
+        },
+        {
+          "id": "T66.06-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T66.06.a",
+            "T66.06.b",
+            "T66.06.c",
+            "T66.06.d"
+          ],
+          "prompt": "Downgrade, retain, drop, drop yields strong0,weak1, one value destruction and no control reclamation. Upgrade now fails DEAD. Dropping the remaining weak reclaims the control once. Four threads each retain/drop5000 times while holding their own strong reference; after all owned strong references end, destruction occurs once, and a retained weak keeps the control available for a failed upgrade. Derive each transition before executing.",
+          "checklist": [
+            "Prove the distinct value/control lifetimes, no-resurrection property and count-overflow behavior; distinguish reference-count synchronization from pointee synchronization and cycle collection.",
+            "Implement strong/weak ownership twice, first under exclusion and then with C17 atomics, documenting initialization publication, owned-reference preconditions, callback effects and each memory-order edge.",
+            "Trace every strong/weak boundary with an independent counter model, test maximum-count refusal, and reject omission of the implicit weak release. Run the actual four-thread anchor, separate TSan if available, GCC/Clang optimized and ASan/UBSan builds, inspect atomic lowering and report lock-free status. A quiet race detector does not prove the memory-order argument or reclaim safety for fabricated references.",
+            "Construct a two-node strong cycle and show retained values after external owners disappear; break one edge with a weak reference and account for both control blocks. Delayed assessment races the last strong drop with weak upgrade using a synchronized start and a live weak owner: outcomes are successful ownership before destruction or DEAD, never resurrection."
+          ]
+        },
+        {
+          "id": "T66.06-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T66.06.a",
+            "T66.06.b",
+            "T66.06.c",
+            "T66.06.d"
+          ],
+          "prompt": "Construct a two-node strong cycle and show retained values after external owners disappear; break one edge with a weak reference and account for both control blocks. Delayed assessment races the last strong drop with weak upgrade using a synchronized start and a live weak owner: outcomes are successful ownership before destruction or DEAD, never resurrection.",
+          "checklist": [
+            "Prove the distinct value/control lifetimes, no-resurrection property and count-overflow behavior; distinguish reference-count synchronization from pointee synchronization and cycle collection.",
+            "Implement strong/weak ownership twice, first under exclusion and then with C17 atomics, documenting initialization publication, owned-reference preconditions, callback effects and each memory-order edge.",
+            "Trace every strong/weak boundary with an independent counter model, test maximum-count refusal, and reject omission of the implicit weak release. Run the actual four-thread anchor, separate TSan if available, GCC/Clang optimized and ASan/UBSan builds, inspect atomic lowering and report lock-free status. A quiet race detector does not prove the memory-order argument or reclaim safety for fabricated references.",
+            "Construct a two-node strong cycle and show retained values after external owners disappear; break one edge with a weak reference and account for both control blocks. Delayed assessment races the last strong drop with weak upgrade using a synchronized start and a live weak owner: outcomes are successful ownership before destruction or DEAD, never resurrection."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-RC",
+        "R-MOD-ARC"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T66.07",
+      "title": "Copy-on-write values with transactional detach",
+      "objectives": [
+        "T66.07.a",
+        "T66.07.b",
+        "T66.07.c",
+        "T66.07.d"
+      ],
+      "objective_text": {
+        "T66.07.a": "Explain logical value independence, shared representation and detach cost; distinguish copy-on-write from a deep copy guarantee or automatically synchronized shared mutation.",
+        "T66.07.b": "Implement reference sharing, failure-preserving detach, unique mutation and last-owner release with explicit control-block and mutable-borrow lifetimes.",
+        "T66.07.c": "Compare every owner value to independently copied Python lists across clone/write/drop traces, inject allocation failure at each detach, test index bounds and reference overflow, and count allocations/copies for unique versus shared mutation. Reject a mutant that writes shared backing in place. Check that a borrowed mutable alias cannot legally survive cloning.",
+        "T66.07.d": "Change the backing value to contain owned resource handles whose copies can fail: derive a partial-clone frontier and rollback. Delayed assessment permits concurrent readers and one writer; define snapshot publication, reference acquisition and reclamation rather than relying on the non-atomic COW counter."
+      },
+      "projects": [
+        "PR-T66-07"
+      ],
+      "variants": [
+        {
+          "id": "T66.07-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T66.07.a",
+            "T66.07.b",
+            "T66.07.c",
+            "T66.07.d"
+          ],
+          "prompt": "Explain logical value independence, shared representation and detach cost; distinguish copy-on-write from a deep copy guarantee or automatically synchronized shared mutation.",
+          "checklist": [
+            "Explain logical value independence, shared representation and detach cost; distinguish copy-on-write from a deep copy guarantee or automatically synchronized shared mutation.",
+            "Implement reference sharing, failure-preserving detach, unique mutation and last-owner release with explicit control-block and mutable-borrow lifetimes.",
+            "Compare every owner value to independently copied Python lists across clone/write/drop traces, inject allocation failure at each detach, test index bounds and reference overflow, and count allocations/copies for unique versus shared mutation. Reject a mutant that writes shared backing in place. Check that a borrowed mutable alias cannot legally survive cloning.",
+            "Change the backing value to contain owned resource handles whose copies can fail: derive a partial-clone frontier and rollback. Delayed assessment permits concurrent readers and one writer; define snapshot publication, reference acquisition and reclamation rather than relying on the non-atomic COW counter."
+          ]
+        },
+        {
+          "id": "T66.07-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T66.07.a",
+            "T66.07.b",
+            "T66.07.c",
+            "T66.07.d"
+          ],
+          "prompt": "Two references to[1,2,3], write index1=9, fail-at2: NOMEM and both logical values remain[1,2,3]. Retry succeeds with old[1,2,3], new[1,9,3], one reference each and two buffers. Dropping both releases both buffers. A unique write must leave allocator attempts unchanged. Derive each transition before executing.",
+          "checklist": [
+            "Explain logical value independence, shared representation and detach cost; distinguish copy-on-write from a deep copy guarantee or automatically synchronized shared mutation.",
+            "Implement reference sharing, failure-preserving detach, unique mutation and last-owner release with explicit control-block and mutable-borrow lifetimes.",
+            "Compare every owner value to independently copied Python lists across clone/write/drop traces, inject allocation failure at each detach, test index bounds and reference overflow, and count allocations/copies for unique versus shared mutation. Reject a mutant that writes shared backing in place. Check that a borrowed mutable alias cannot legally survive cloning.",
+            "Change the backing value to contain owned resource handles whose copies can fail: derive a partial-clone frontier and rollback. Delayed assessment permits concurrent readers and one writer; define snapshot publication, reference acquisition and reclamation rather than relying on the non-atomic COW counter."
+          ]
+        },
+        {
+          "id": "T66.07-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T66.07.a",
+            "T66.07.b",
+            "T66.07.c",
+            "T66.07.d"
+          ],
+          "prompt": "Change the backing value to contain owned resource handles whose copies can fail: derive a partial-clone frontier and rollback. Delayed assessment permits concurrent readers and one writer; define snapshot publication, reference acquisition and reclamation rather than relying on the non-atomic COW counter.",
+          "checklist": [
+            "Explain logical value independence, shared representation and detach cost; distinguish copy-on-write from a deep copy guarantee or automatically synchronized shared mutation.",
+            "Implement reference sharing, failure-preserving detach, unique mutation and last-owner release with explicit control-block and mutable-borrow lifetimes.",
+            "Compare every owner value to independently copied Python lists across clone/write/drop traces, inject allocation failure at each detach, test index bounds and reference overflow, and count allocations/copies for unique versus shared mutation. Reject a mutant that writes shared backing in place. Check that a borrowed mutable alias cannot legally survive cloning.",
+            "Change the backing value to contain owned resource handles whose copies can fail: derive a partial-clone frontier and rollback. Delayed assessment permits concurrent readers and one writer; define snapshot publication, reference acquisition and reclamation rather than relying on the non-atomic COW counter."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-RC",
+        "R-MOD-COW"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T66.08",
+      "title": "Thread affinity, address pinning and asynchronous quiescence",
+      "objectives": [
+        "T66.08.a",
+        "T66.08.b",
+        "T66.08.c",
+        "T66.08.d"
+      ],
+      "objective_text": {
+        "T66.08.a": "Separate address-sensitive validity, thread affinity, guard permission and asynchronous reclamation; explain why checked assertions are weaker than a language pinning guarantee.",
+        "T66.08.b": "Implement the address/thread/pending state machine and an explicit io.async adapter, identifying the actual event that permits storage reuse and the lifetime of every retained address.",
+        "T66.08.c": "Enumerate submit/cancel/complete/rebind traces with output-state canaries, include duplicate events and wrong-thread calls, and reject rebinding after cancellation while pending. Use only pointers to actual live test objects. Inspect a copied self-referential record to explain why its old internal address is wrong without dereferencing a dangling pointer.",
+        "T66.08.d": "Introduce completion callbacks on a different executor: separate ownership-thread policy from completion-notification permission and queue the terminal transition safely. Delayed assessment uses a device that may still DMA after a timeout; add a RecoveryRequired/quiescence protocol and identify the physical evidence needed before reuse."
+      },
+      "projects": [
+        "PR-T66-08"
+      ],
+      "variants": [
+        {
+          "id": "T66.08-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T66.08.a",
+            "T66.08.b",
+            "T66.08.c",
+            "T66.08.d"
+          ],
+          "prompt": "Separate address-sensitive validity, thread affinity, guard permission and asynchronous reclamation; explain why checked assertions are weaker than a language pinning guarantee.",
+          "checklist": [
+            "Separate address-sensitive validity, thread affinity, guard permission and asynchronous reclamation; explain why checked assertions are weaker than a language pinning guarantee.",
+            "Implement the address/thread/pending state machine and an explicit io.async adapter, identifying the actual event that permits storage reuse and the lifetime of every retained address.",
+            "Enumerate submit/cancel/complete/rebind traces with output-state canaries, include duplicate events and wrong-thread calls, and reject rebinding after cancellation while pending. Use only pointers to actual live test objects. Inspect a copied self-referential record to explain why its old internal address is wrong without dereferencing a dangling pointer.",
+            "Introduce completion callbacks on a different executor: separate ownership-thread policy from completion-notification permission and queue the terminal transition safely. Delayed assessment uses a device that may still DMA after a timeout; add a RecoveryRequired/quiescence protocol and identify the physical evidence needed before reuse."
+          ]
+        },
+        {
+          "id": "T66.08-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T66.08.a",
+            "T66.08.b",
+            "T66.08.c",
+            "T66.08.d"
+          ],
+          "prompt": "Bind addressA/thread7, submit, cancel, attempt rebindB: BUSY and addressA remains retained. Complete then rebindB succeeds. Thread8 fails, and an address comparison using a separately live B reports STALE. Completion before submission or repeated completion is rejected. Derive each transition before executing.",
+          "checklist": [
+            "Separate address-sensitive validity, thread affinity, guard permission and asynchronous reclamation; explain why checked assertions are weaker than a language pinning guarantee.",
+            "Implement the address/thread/pending state machine and an explicit io.async adapter, identifying the actual event that permits storage reuse and the lifetime of every retained address.",
+            "Enumerate submit/cancel/complete/rebind traces with output-state canaries, include duplicate events and wrong-thread calls, and reject rebinding after cancellation while pending. Use only pointers to actual live test objects. Inspect a copied self-referential record to explain why its old internal address is wrong without dereferencing a dangling pointer.",
+            "Introduce completion callbacks on a different executor: separate ownership-thread policy from completion-notification permission and queue the terminal transition safely. Delayed assessment uses a device that may still DMA after a timeout; add a RecoveryRequired/quiescence protocol and identify the physical evidence needed before reuse."
+          ]
+        },
+        {
+          "id": "T66.08-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T66.08.a",
+            "T66.08.b",
+            "T66.08.c",
+            "T66.08.d"
+          ],
+          "prompt": "Introduce completion callbacks on a different executor: separate ownership-thread policy from completion-notification permission and queue the terminal transition safely. Delayed assessment uses a device that may still DMA after a timeout; add a RecoveryRequired/quiescence protocol and identify the physical evidence needed before reuse.",
+          "checklist": [
+            "Separate address-sensitive validity, thread affinity, guard permission and asynchronous reclamation; explain why checked assertions are weaker than a language pinning guarantee.",
+            "Implement the address/thread/pending state machine and an explicit io.async adapter, identifying the actual event that permits storage reuse and the lifetime of every retained address.",
+            "Enumerate submit/cancel/complete/rebind traces with output-state canaries, include duplicate events and wrong-thread calls, and reject rebinding after cancellation while pending. Use only pointers to actual live test objects. Inspect a copied self-referential record to explain why its old internal address is wrong without dereferencing a dangling pointer.",
+            "Introduce completion callbacks on a different executor: separate ownership-thread policy from completion-notification permission and queue the terminal transition safely. Delayed assessment uses a device that may still DMA after a timeout; add a RecoveryRequired/quiescence protocol and identify the physical evidence needed before reuse."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-ARC",
+        "R-MOD-PIN"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T66.09",
+      "title": "Adversarial allocation through the existing typed callback ABI",
+      "objectives": [
+        "T66.09.a",
+        "T66.09.b",
+        "T66.09.c",
+        "T66.09.d"
+      ],
+      "objective_text": {
+        "T66.09.a": "Distinguish allocator policy, backing storage, object initialization, protocol invalidation, poison diagnostics and actual memory-safety enforcement; explain instrumentation overflow and observer effects.",
+        "T66.09.b": "Implement fail-at-N, counting and poisoning as the accepted containers.array allocator callback adapter, preserving typed storage legality and explicit finite-capacity behavior.",
+        "T66.09.c": "Sweep every allocation failure point of frontier and COW workloads, fill all eight slots, test sizes0/16/17 and counter extrema, and verify requested-prefix poison plus release accounting. Compare the imported header byte for byte with the accepted ABI and reject the no-poison mutant. Integrate with the learner dynamic array and T65 error paths, measuring actual calls rather than inferring zero allocation from source spelling.",
+        "T66.09.d": "Wrap a separately supplied upstream allocator while retaining accounting through resize success/failure; specify whether failed upstream calls consume the injection index. Delayed assessment makes an error-formatting callback allocate recursively: detect the hidden allocation and revise the whole-call-graph resource claim."
+      },
+      "projects": [
+        "PR-T66-09"
+      ],
+      "variants": [
+        {
+          "id": "T66.09-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T66.09.a",
+            "T66.09.b",
+            "T66.09.c",
+            "T66.09.d"
+          ],
+          "prompt": "Distinguish allocator policy, backing storage, object initialization, protocol invalidation, poison diagnostics and actual memory-safety enforcement; explain instrumentation overflow and observer effects.",
+          "checklist": [
+            "Distinguish allocator policy, backing storage, object initialization, protocol invalidation, poison diagnostics and actual memory-safety enforcement; explain instrumentation overflow and observer effects.",
+            "Implement fail-at-N, counting and poisoning as the accepted containers.array allocator callback adapter, preserving typed storage legality and explicit finite-capacity behavior.",
+            "Sweep every allocation failure point of frontier and COW workloads, fill all eight slots, test sizes0/16/17 and counter extrema, and verify requested-prefix poison plus release accounting. Compare the imported header byte for byte with the accepted ABI and reject the no-poison mutant. Integrate with the learner dynamic array and T65 error paths, measuring actual calls rather than inferring zero allocation from source spelling.",
+            "Wrap a separately supplied upstream allocator while retaining accounting through resize success/failure; specify whether failed upstream calls consume the injection index. Delayed assessment makes an error-formatting callback allocate recursively: detect the hidden allocation and revise the whole-call-graph resource claim."
+          ]
+        },
+        {
+          "id": "T66.09-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T66.09.a",
+            "T66.09.b",
+            "T66.09.c",
+            "T66.09.d"
+          ],
+          "prompt": "Take16 succeeds; fail-at2 makes take1 return null. Live1,peak1,attempts2. Release poisons all16 requested elements, gives live0/releases1; a second release only records an invalid-release event. Starting attempts at SIZE_MAX refuses allocation and leaves it at SIZE_MAX. Derive each transition before executing.",
+          "checklist": [
+            "Distinguish allocator policy, backing storage, object initialization, protocol invalidation, poison diagnostics and actual memory-safety enforcement; explain instrumentation overflow and observer effects.",
+            "Implement fail-at-N, counting and poisoning as the accepted containers.array allocator callback adapter, preserving typed storage legality and explicit finite-capacity behavior.",
+            "Sweep every allocation failure point of frontier and COW workloads, fill all eight slots, test sizes0/16/17 and counter extrema, and verify requested-prefix poison plus release accounting. Compare the imported header byte for byte with the accepted ABI and reject the no-poison mutant. Integrate with the learner dynamic array and T65 error paths, measuring actual calls rather than inferring zero allocation from source spelling.",
+            "Wrap a separately supplied upstream allocator while retaining accounting through resize success/failure; specify whether failed upstream calls consume the injection index. Delayed assessment makes an error-formatting callback allocate recursively: detect the hidden allocation and revise the whole-call-graph resource claim."
+          ]
+        },
+        {
+          "id": "T66.09-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T66.09.a",
+            "T66.09.b",
+            "T66.09.c",
+            "T66.09.d"
+          ],
+          "prompt": "Wrap a separately supplied upstream allocator while retaining accounting through resize success/failure; specify whether failed upstream calls consume the injection index. Delayed assessment makes an error-formatting callback allocate recursively: detect the hidden allocation and revise the whole-call-graph resource claim.",
+          "checklist": [
+            "Distinguish allocator policy, backing storage, object initialization, protocol invalidation, poison diagnostics and actual memory-safety enforcement; explain instrumentation overflow and observer effects.",
+            "Implement fail-at-N, counting and poisoning as the accepted containers.array allocator callback adapter, preserving typed storage legality and explicit finite-capacity behavior.",
+            "Sweep every allocation failure point of frontier and COW workloads, fill all eight slots, test sizes0/16/17 and counter extrema, and verify requested-prefix poison plus release accounting. Compare the imported header byte for byte with the accepted ABI and reject the no-poison mutant. Integrate with the learner dynamic array and T65 error paths, measuring actual calls rather than inferring zero allocation from source spelling.",
+            "Wrap a separately supplied upstream allocator while retaining accounting through resize success/failure; specify whether failed upstream calls consume the injection index. Delayed assessment makes an error-formatting callback allocate recursively: detect the hidden allocation and revise the whole-call-graph resource claim."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-RC",
+        "R-MOD-COW"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    },
+    {
+      "id": "T66.10",
+      "title": "A checked façade around a trusted core: bounded tenant-isolation failure",
+      "objectives": [
+        "T66.10.a",
+        "T66.10.b",
+        "T66.10.c",
+        "T66.10.d"
+      ],
+      "objective_text": {
+        "T66.10.a": "Derive the integer-wrap admission defect, attacker-controlled transition and exact violated authority property; distinguish a checked trusted-core boundary from whole-process memory safety.",
+        "T66.10.b": "Implement the subtraction-based boundary check, unchanged-on-failure behavior and an internal validated descriptor, preserving the simple core while documenting every remaining caller and same-process assumption.",
+        "T66.10.c": "Run the local cross-tenant demonstration with synthetic canaries, compare flawed/repaired outcomes, enumerate all ordinary tenant/offset/count combinations around8 and test UINT_MAX wrap cases. Reject the flawed-check mutant by a normal semantic assertion. Explain why ASan may remain quiet: every actual array access is in bounds. Test mitigation regression without claiming arbitrary code execution or privilege escalation.",
+        "T66.10.d": "Move the descriptor across an FFI or serialized boundary: reject fabricated fields and revalidate at that boundary rather than trusting a C typedef. Delayed assessment separates read from write capabilities and allows a read-only subview; derive authority attenuation and test that subview construction cannot widen rights."
+      },
+      "projects": [
+        "PR-T66-10"
+      ],
+      "variants": [
+        {
+          "id": "T66.10-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T66.10.a",
+            "T66.10.b",
+            "T66.10.c",
+            "T66.10.d"
+          ],
+          "prompt": "Derive the integer-wrap admission defect, attacker-controlled transition and exact violated authority property; distinguish a checked trusted-core boundary from whole-process memory safety.",
+          "checklist": [
+            "Derive the integer-wrap admission defect, attacker-controlled transition and exact violated authority property; distinguish a checked trusted-core boundary from whole-process memory safety.",
+            "Implement the subtraction-based boundary check, unchanged-on-failure behavior and an internal validated descriptor, preserving the simple core while documenting every remaining caller and same-process assumption.",
+            "Run the local cross-tenant demonstration with synthetic canaries, compare flawed/repaired outcomes, enumerate all ordinary tenant/offset/count combinations around8 and test UINT_MAX wrap cases. Reject the flawed-check mutant by a normal semantic assertion. Explain why ASan may remain quiet: every actual array access is in bounds. Test mitigation regression without claiming arbitrary code execution or privilege escalation.",
+            "Move the descriptor across an FFI or serialized boundary: reject fabricated fields and revalidate at that boundary rather than trusting a C typedef. Delayed assessment separates read from write capabilities and allows a read-only subview; derive authority attenuation and test that subview construction cannot widen rights."
+          ]
+        },
+        {
+          "id": "T66.10-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T66.10.a",
+            "T66.10.b",
+            "T66.10.c",
+            "T66.10.d"
+          ],
+          "prompt": "With 32-bit unsigned, offset=UINT_MAX-3,count8,value7 passes the flawed wrapped check and changes tenant1 indices12..15 from99 to7. The repaired API returns INVALID and leaves both tenants unchanged. This is a bounded integrity-property violation in original teaching code, not an out-of-bounds C access. Derive each transition before executing.",
+          "checklist": [
+            "Derive the integer-wrap admission defect, attacker-controlled transition and exact violated authority property; distinguish a checked trusted-core boundary from whole-process memory safety.",
+            "Implement the subtraction-based boundary check, unchanged-on-failure behavior and an internal validated descriptor, preserving the simple core while documenting every remaining caller and same-process assumption.",
+            "Run the local cross-tenant demonstration with synthetic canaries, compare flawed/repaired outcomes, enumerate all ordinary tenant/offset/count combinations around8 and test UINT_MAX wrap cases. Reject the flawed-check mutant by a normal semantic assertion. Explain why ASan may remain quiet: every actual array access is in bounds. Test mitigation regression without claiming arbitrary code execution or privilege escalation.",
+            "Move the descriptor across an FFI or serialized boundary: reject fabricated fields and revalidate at that boundary rather than trusting a C typedef. Delayed assessment separates read from write capabilities and allows a read-only subview; derive authority attenuation and test that subview construction cannot widen rights."
+          ]
+        },
+        {
+          "id": "T66.10-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T66.10.a",
+            "T66.10.b",
+            "T66.10.c",
+            "T66.10.d"
+          ],
+          "prompt": "Move the descriptor across an FFI or serialized boundary: reject fabricated fields and revalidate at that boundary rather than trusting a C typedef. Delayed assessment separates read from write capabilities and allows a read-only subview; derive authority attenuation and test that subview construction cannot widen rights.",
+          "checklist": [
+            "Derive the integer-wrap admission defect, attacker-controlled transition and exact violated authority property; distinguish a checked trusted-core boundary from whole-process memory safety.",
+            "Implement the subtraction-based boundary check, unchanged-on-failure behavior and an internal validated descriptor, preserving the simple core while documenting every remaining caller and same-process assumption.",
+            "Run the local cross-tenant demonstration with synthetic canaries, compare flawed/repaired outcomes, enumerate all ordinary tenant/offset/count combinations around8 and test UINT_MAX wrap cases. Reject the flawed-check mutant by a normal semantic assertion. Explain why ASan may remain quiet: every actual array access is in bounds. Test mitigation regression without claiming arbitrary code execution or privilege escalation.",
+            "Move the descriptor across an FFI or serialized boundary: reject fabricated fields and revalidate at that boundary rather than trusting a C typedef. Delayed assessment separates read from write capabilities and allows a read-only subview; derive authority attenuation and test that subview construction cannot widen rights."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-REFCELL"
+      ],
+      "elective": false,
+      "grading": "Grade each objective from the actual attempted evidence; consultation is assisted practice."
+    }
+  ]
+}

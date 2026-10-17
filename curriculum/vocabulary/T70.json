@@ -1,0 +1,623 @@
+{
+  "schema_version": 5,
+  "domain": "T70",
+  "recall": {
+    "define": "Define inline capacity, persistent collection version, bitmap child rank and rope concatenation node from their invariants.",
+    "distinguish": "Distinguish stable address from identity, persistence from durability, and byte positions from scalar positions.",
+    "apply": "A full archetype migration loses an entity, a failed persistent update changes an old root, and a copied small buffer frees one allocation twice. Identify the violated invariant and design a repair for each."
+  },
+  "entries": [
+    {
+      "id": "V-T70-hot-column",
+      "term": "hot column",
+      "kind": "programming-model",
+      "definition": "A parallel field array visited by the selected common operation, whose hotness is relative to that workload.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-FLECS",
+          "locator": "Caching: what is it? archetype grouping and component-set tables",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "cold metadata",
+          "distinction": "A hot column contains fields repeatedly accessed by the selected operation. Cold metadata is not visited by that operation or is visited infrequently; the distinction is workload-dependent and may reverse when another operation becomes dominant."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the hot column invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.01",
+        "X-T70-001"
+      ],
+      "misconception": "Calling an entire type hot does not predict which fields a consumer reads."
+    },
+    {
+      "id": "V-T70-archetype-table",
+      "term": "archetype table",
+      "kind": "programming-model",
+      "definition": "Rows of entities with the same component-set mask and typed per-component columns.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-FLECS",
+          "locator": "Caching: what is it? archetype grouping and component-set tables",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "entity identity",
+          "distinction": "The table groups rows by component set and gives each row a current storage location. Entity identity remains the logical name across table migration and swap erasure; a row number alone cannot serve as that stable identity."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the archetype table invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.05",
+        "X-T70-005"
+      ],
+      "misconception": "A row number is not a stable entity identity across migration."
+    },
+    {
+      "id": "V-T70-archetype-migration",
+      "term": "archetype migration",
+      "kind": "programming-model",
+      "definition": "Transfer of an entity between component-set tables with both table and entity mappings repaired.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-FLECS",
+          "locator": "Caching: what is it? archetype grouping and component-set tables",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "in-place field update",
+          "distinction": "Migration changes component-set membership and moves storage between tables, so capacity admission and both entity-to-row and row-to-entity mappings must be repaired. An in-place field update changes values within an unchanged component set and does not require that structural transfer."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the archetype migration invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.05",
+        "X-T70-005"
+      ],
+      "misconception": "Deleting the source before admitting destination capacity can lose the entity."
+    },
+    {
+      "id": "V-T70-inline-capacity",
+      "term": "inline capacity",
+      "kind": "programming-model",
+      "definition": "The number of live elements representable within the container owner before requesting separate storage.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-LLVM",
+          "locator": "llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "logical length",
+          "distinction": "Inline capacity is the storage threshold available inside the owner before a spill. Logical length counts the elements or bytes currently in the sequence and can be smaller; reserved capacity alone does not initialize arbitrary typed elements."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the inline capacity invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.02",
+        "X-T70-002"
+      ],
+      "misconception": "Reserved capacity does not initialize or create arbitrary typed elements."
+    },
+    {
+      "id": "V-T70-spill-transition",
+      "term": "spill transition",
+      "kind": "programming-model",
+      "definition": "A container state change from owner-local storage to separately allocated storage.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-LLVM",
+          "locator": "llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "append without growth",
+          "distinction": "A spill acquires separate storage, copies the live sequence and commits a new storage owner only after success. Appending within existing capacity needs no such storage transition; spill failure must preserve the old sequence under this contract."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the spill transition invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.02",
+        "X-T70-002"
+      ],
+      "misconception": "A failed spill need not be allowed to alter the old sequence."
+    },
+    {
+      "id": "V-T70-small-buffer-owner",
+      "term": "small-buffer owner",
+      "kind": "programming-model",
+      "definition": "An object that selects inline or separately owned storage according to its capacity/lifetime protocol.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-LLVM",
+          "locator": "llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "borrowed view",
+          "distinction": "The owner controls inline/heap selection, transfer and eventual release. A borrowed view only refers to a live portion of that storage and can expire after growth, move, compact or reset; copying owner bytes is not a valid way to create two independent owners."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the small-buffer owner invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.02",
+        "X-T70-002"
+      ],
+      "misconception": "Copying the owner bytes does not establish independent ownership of the heap."
+    },
+    {
+      "id": "V-T70-packed-lane",
+      "term": "packed arithmetic lane",
+      "kind": "programming-model",
+      "definition": "A fixed bit-field within an unsigned word treated as an independent numeric operand by a proved operation.",
+      "authority": [
+        {
+          "resource_id": "R-B01-N1570-OBJECT-ARITH",
+          "locator": "6.2.5p9 Unsigned arithmetic",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "memory byte",
+          "distinction": "A lane is defined by numerical bit positions in an unsigned word. A memory byte is an addressable storage unit whose width and order are implementation properties; lane numbering must not be inferred from the host byte layout."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the packed arithmetic lane invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.03",
+        "X-T70-003"
+      ],
+      "misconception": "Numerical bit positions do not depend on host byte order."
+    },
+    {
+      "id": "V-T70-lane-saturation",
+      "term": "lane saturation",
+      "kind": "programming-model",
+      "definition": "Clamping each independently computed lane result at its representable maximum before packing.",
+      "authority": [
+        {
+          "resource_id": "R-B01-N1570-OBJECT-ARITH",
+          "locator": "6.2.5p9 Unsigned arithmetic",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "word saturation",
+          "distinction": "Lane saturation clamps each lane independently and prevents carries from altering neighboring lanes. Saturating the entire word treats it as one number and can produce different lane values even when only one lane overflows."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the lane saturation invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.03",
+        "X-T70-003"
+      ],
+      "misconception": "Saturating the whole word does not saturate its individual lanes."
+    },
+    {
+      "id": "V-T70-segmented-storage",
+      "term": "segmented element storage",
+      "kind": "programming-model",
+      "definition": "Payload arrays in separate stable pages addressed through a movable page index.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-LLVM",
+          "locator": "llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "contiguous array",
+          "distinction": "Segmented storage keeps payloads in separate pages and locates them through an index; relocating that index need not move the payloads. A contiguous array places its elements in one array object and permits the corresponding within-array indexing; neither property licenses pointer arithmetic across separate pages."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the segmented element storage invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.04",
+        "X-T70-004"
+      ],
+      "misconception": "Moving the page table need not move payloads, but can invalidate table-entry pointers."
+    },
+    {
+      "id": "V-T70-dense-rank-inverse",
+      "term": "dense/rank inverse",
+      "kind": "programming-model",
+      "definition": "Two index arrays whose compositions recover each live slot ID and each live dense position.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-LLVM",
+          "locator": "llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "insertion order",
+          "distinction": "The inverse relates each live slot ID to its current dense position in both directions. It does not record insertion order: swap erasure can preserve the inverse while changing the order in which surviving IDs are visited."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the dense/rank inverse invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.04",
+        "X-T70-004"
+      ],
+      "misconception": "Swap erasure preserves the inverse but may change iteration order."
+    },
+    {
+      "id": "V-T70-persistent-version",
+      "term": "persistent collection version",
+      "kind": "programming-model",
+      "definition": "An observable root whose logical value remains available after creation of another version sharing its unchanged nodes.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-IM",
+          "locator": "Why Would I Want This?: structural sharing and workload tradeoffs",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "durable storage",
+          "distinction": "A persistent collection retains older logical versions after updates by keeping their roots and reachable nodes live. Durable storage concerns survival across a crash or power loss; in-memory structural sharing supplies no such persistence-to-media guarantee."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the persistent collection version invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.06",
+        "X-T70-006"
+      ],
+      "misconception": "Persistence here does not mean survival of process or power loss."
+    },
+    {
+      "id": "V-T70-path-copying",
+      "term": "path copying",
+      "kind": "programming-model",
+      "definition": "Constructing fresh nodes on a changed root-to-focus path while sharing untouched subtrees with older roots.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-IM",
+          "locator": "Why Would I Want This?: structural sharing and workload tradeoffs",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "whole-collection copy",
+          "distinction": "Path copying allocates only the changed root-to-focus path and shares unchanged subtrees without mutating older reachable nodes. A whole-collection copy duplicates every represented element or node; merely adding const to a pointer does not implement either copying strategy."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the path copying invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.06",
+        "X-T70-006"
+      ],
+      "misconception": "A const pointer to a mutable shared node does not implement path copying."
+    },
+    {
+      "id": "V-T70-retained-root-set",
+      "term": "retained root set",
+      "kind": "programming-model",
+      "definition": "The externally held version roots whose reachable nodes must remain live under the reclamation contract.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-IM",
+          "locator": "Why Would I Want This?: structural sharing and workload tradeoffs",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "allocated nodes",
+          "distinction": "The retained roots identify versions that users may still observe and therefore nodes that reclamation must preserve. Allocated nodes include those reachable from the roots and possibly unreachable retained storage; region reclamation can leave such nodes allocated until all users are quiescent."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the retained root set invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.06",
+        "X-T70-006"
+      ],
+      "misconception": "Unreachable nodes may remain allocated under region reclamation."
+    },
+    {
+      "id": "V-T70-bitmap-rank",
+      "term": "bitmap child rank",
+      "kind": "programming-model",
+      "definition": "The count of occupied logical child slots preceding a selected slot, used as a compact-array index.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-HAMT",
+          "locator": "HashMap description: immutable HAMT and hash/equality requirements",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "hash value",
+          "distinction": "A hash chunk chooses a logical child slot. Bitmap rank counts occupied slots before that slot to obtain its compact-array position, with a presence check for lookup; neither the whole hash value nor the logical slot number is automatically a valid dense child index."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the bitmap child rank invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.07",
+        "X-T70-007"
+      ],
+      "misconception": "The logical slot is not itself a valid dense child index."
+    },
+    {
+      "id": "V-T70-full-hash-collision",
+      "term": "full-hash collision",
+      "kind": "programming-model",
+      "definition": "Distinct admitted keys having the same complete hash value and therefore requiring a separate equality test.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-HAMT",
+          "locator": "HashMap description: immutable HAMT and hash/equality requirements",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "trie-prefix match",
+          "distinction": "A trie-prefix match shares only the hash chunks examined so far and may separate at a later chunk. A full-hash collision remains after all hash bits are exhausted, so distinct keys require equality checking and a collision representation rather than replacement by hash alone."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the full-hash collision invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.07",
+        "X-T70-007"
+      ],
+      "misconception": "Equal hashes do not authorize replacing a different key."
+    },
+    {
+      "id": "V-T70-rope-concatenation-node",
+      "term": "rope concatenation node",
+      "kind": "programming-model",
+      "definition": "An ordered pair of text-subsequence roots with a cached combined logical length.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-ROPES",
+          "locator": "Representation pages1316–1318: ordered shared DAG, lengths and operations",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "flat text buffer",
+          "distinction": "A concatenation node represents left then right subsequences through roots and a combined logical length, without requiring one contiguous payload. A flat buffer stores the expanded bytes together; when the same shared child appears twice, both sequence occurrences must be emitted during flattening."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the rope concatenation node invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.08",
+        "X-T70-008"
+      ],
+      "misconception": "A shared child used twice contributes its bytes twice to the sequence."
+    },
+    {
+      "id": "V-T70-rope-balance-bound",
+      "term": "rope balance bound",
+      "kind": "programming-model",
+      "definition": "A declared relation between depth and represented length used to detect excessive traversal height.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-ROPES",
+          "locator": "Representation pages1316–1318: ordered shared DAG, lengths and operations",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "byte capacity",
+          "distinction": "A balance bound constrains structural depth relative to represented length to limit traversal work. Byte capacity limits how much text can be represented or stored and can still admit an excessively deep chain; it does not by itself establish logarithmic height."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the rope balance bound invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.08",
+        "X-T70-008"
+      ],
+      "misconception": "A bounded byte capacity alone does not establish logarithmic depth."
+    },
+    {
+      "id": "V-T70-text-coordinate",
+      "term": "text coordinate domain",
+      "kind": "programming-model",
+      "definition": "The chosen units of an edit position, such as bytes, decoded scalars or grapheme boundaries.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DOD-ROPES",
+          "locator": "Representation pages1316–1318: ordered shared DAG, lengths and operations",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 implementation; bounded primary comparison",
+          "note": "This is an original laboratory representation/algorithm term, not a new ISO C language feature. Exact published C17 remains an access gap."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "byte offset",
+          "distinction": "A byte offset is one possible coordinate unit. A scalar or grapheme position uses a different domain and requires validated decoding/boundary conversion; an edit API must name its units rather than treating every integer position as interchangeable."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the text coordinate domain invariant before deriving its storage or cost."
+      ],
+      "related": [
+        "T70.08",
+        "X-T70-008"
+      ],
+      "misconception": "Equal byte sequences do not validate a scalar-index operation without coordinate conversion."
+    }
+  ]
+}

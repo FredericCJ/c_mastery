@@ -40,7 +40,7 @@ def main():
     trial('uninspected locator',lambda d:d[1]['T02']['meta']['readings'][0].update(locator='uninspected chapter'), 'uninspected reading locator')
     trial('budget inconsistency',lambda d:d[1]['T02']['meta']['workload'].update(implementation=0), 'do not reconcile')
     trial('boolean masquerading as an hour budget',lambda d:d[1]['T02']['meta']['workload'].update(assessment=True), 'invalid workload breakdown')
-    trial('floating-point project budget',lambda d:next(iter(d[2].values()))['meta'].update(hours=8.0), '4–12-hour budget')
+    trial('floating-point descriptive allocation',lambda d:next(iter(d[2].values()))['meta'].update(hours=8.0), 'positive integral descriptive hours')
     trial('boolean reading budget',lambda d:d[1]['T02']['meta']['readings'][0].update(hours=True), 'unbounded reading assignment')
     trial('fixture escape',lambda d:next(iter(d[2].values()))['meta'].update(fixtures=['../outside.json']), 'escaping fixture')
     trial('missing teaching',lambda d:d[1]['T02'].update(body=d[1]['T02']['body'].replace('### T02.01','### LOST.01')), 'missing substantive')

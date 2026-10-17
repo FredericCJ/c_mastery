@@ -1,0 +1,2227 @@
+{
+  "version": 5,
+  "family": "linux_io_depth",
+  "title": "Advanced Linux I/O and completion ownership",
+  "build_system": "cmake",
+  "assessor_root": "assessor/linux_io_depth",
+  "modules": [
+    "T62"
+  ],
+  "projects": [
+    {
+      "id": "PR-T62-01",
+      "tests": [
+        "linux_io_depth.iov"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement li_advance(lengths,count,position,bytes) for a valid vector cursor. Compute remaining extent with checked size_t arithmetic, reject excess progress transactionally, then advance across zero-length elements and normalize the terminal position to{count,0}. This is caller-side accounting, not a writev replacement.",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
+    },
+    {
+      "id": "PR-T62-02",
+      "tests": [
+        "linux_io_depth.readiness"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement li_ready_after(result,budget_exhausted) for a synthetic read result: positive progress retains readiness, -2 means EAGAIN and clears readiness,0 EOF clears readiness,-1 terminal error clears readiness. Return1 while progress remains, even when a dispatch budget was exhausted. Exercise the actual anonymous-pipe EPOLLET adapter and compare drain-to-EAGAIN with a local ready queue.",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
+    },
+    {
+      "id": "PR-T62-03",
+      "tests": [
+        "linux_io_depth.ring"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement li_slot(head,tail,capacity,out) for uint32_t monotonic counters: capacity is a power of two in1..2^30, unsigned tail-head must be<capacity, and output is tail&(capacity-1). Reject invalid/full states unchanged. Then map the arithmetic to raw io_uring offsets and acquire/release operations after feature probing.",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
+    },
+    {
+      "id": "PR-T62-04",
+      "tests": [
+        "linux_io_depth.completion"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement li_event on LIRequest with state0 idle,1 submitted,2 cancel-requested,3 completed,4 released. Events0 submit,1 request cancel,2 target completion(result),3 release. Require matching generation for every event. Completion is allowed from1/2 once; release only from3 once. Failed transitions preserve the object.",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
+    },
+    {
+      "id": "PR-T62-05",
+      "tests": [
+        "linux_io_depth.cancel"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
+    },
+    {
+      "id": "PR-T62-06",
+      "tests": [
+        "linux_io_depth.deadline"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement li_expired(start,now,duration,out) for a wrapping32-bit tick model with duration1..2^31-1 and elapsed distance known below2^31. Set out when unsigned now-start>=duration. Reject invalid duration without changing out. Use timerfd in the Linux adapter and keep real monotonic timestamps separate from modeled ticks.",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
+    },
+    {
+      "id": "PR-T62-07",
+      "tests": [
+        "linux_io_depth.durability"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit.",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
+    },
+    {
+      "id": "PR-T62-08",
+      "tests": [
+        "linux_io_depth.zerocopy"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement li_buffer_release(submitted,terminal,borrowers) returning true only when submitted/terminal are booleans, every submitted operation is terminal, and borrowers0. Use it to compare read/write, sendfile/splice and a mapped-buffer path over synthetic local files; measure bytes copied, syscalls, CPU time and retained memory under the same output contract.",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
+    }
+  ],
+  "units": [
+    {
+      "project": "PR-T62-01",
+      "title": "Vectored partial progress",
+      "minutes": 240,
+      "objectives": [
+        "T62.01.a",
+        "T62.01.b",
+        "T62.01.c"
+      ],
+      "tests": [
+        "linux_io_depth.iov"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_advance(lengths,count,position,bytes) for a valid vector cursor. Compute remaining extent with checked size_t arithmetic, reject excess progress transactionally, then advance across zero-length elements and normalize the terminal position to{count,0}. This is caller-side accounting, not a writev replacement.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove accepted progress plus remaining extent equals the original stream length, including zero spans and overflow. Distinguish kernel acceptance from remote delivery or persistence.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-01.a",
+          "objective": "T62.01.a",
+          "criterion": "Derive and defend: Prove accepted progress plus remaining extent equals the original stream length, including zero spans and overflow. Distinguish kernel acceptance from remote delivery or persistence.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove accepted progress plus remaining extent equals the original stream length, including zero spans and overflow. Distinguish kernel acceptance from remote delivery or persistence. Retain original source or derivation and counterexample.",
+            "3": "Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-01.b",
+          "objective": "T62.01.b",
+          "criterion": "Implement and investigate: Implement li_advance(lengths,count,position,bytes) for a valid vector cursor. Compute remaining extent with checked size_t arithmetic, reject excess progress transactionally, then advance across zero-length elements and normalize the terminal position to{count,0}. This is caller-side accounting, not a writev replacement.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_advance(lengths,count,position,bytes) for a valid vector cursor. Compute remaining extent with checked size_t arithmetic, reject excess progress transactionally, then advance across zero-length elements and normalize the terminal position to{count,0}. This is caller-side accounting, not a writev replacement. Retain original source or derivation and counterexample.",
+            "3": "Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-01.c",
+          "objective": "T62.01.c",
+          "criterion": "Falsify and transfer: The faulty cursor resets the within-element offset after a short write, duplicating the first byte of the next span on retry. Then Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The faulty cursor resets the within-element offset after a short write, duplicating the first byte of the next span on retry. Then Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers. Retain original source or derivation and counterexample.",
+            "3": "Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-01-transfer",
+          "minimum_days": 7,
+          "task": "Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-01.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-01A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement li_advance(lengths,count,position,bytes) for a valid vector cursor. Compute remaining extent with checked size_t arithmetic, reject excess progress transactionally, then advance across zero-length elements and normalize the terminal position to{count,0}. This is caller-side accounting, not a writev replacement.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Prove accepted progress plus remaining extent equals the original stream length, including zero spans and overflow. Distinguish kernel acceptance from remote delivery or persistence."
+      ],
+      "checks": [
+        "The faulty cursor resets the within-element offset after a short write, duplicating the first byte of the next span on retry.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T62-01",
+      "title": "Vectored partial progress",
+      "minutes": 240,
+      "objectives": [
+        "T62.01.a",
+        "T62.01.b",
+        "T62.01.c"
+      ],
+      "tests": [
+        "linux_io_depth.iov"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_advance(lengths,count,position,bytes) for a valid vector cursor. Compute remaining extent with checked size_t arithmetic, reject excess progress transactionally, then advance across zero-length elements and normalize the terminal position to{count,0}. This is caller-side accounting, not a writev replacement.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove accepted progress plus remaining extent equals the original stream length, including zero spans and overflow. Distinguish kernel acceptance from remote delivery or persistence.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-01.a",
+          "objective": "T62.01.a",
+          "criterion": "Derive and defend: Prove accepted progress plus remaining extent equals the original stream length, including zero spans and overflow. Distinguish kernel acceptance from remote delivery or persistence.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove accepted progress plus remaining extent equals the original stream length, including zero spans and overflow. Distinguish kernel acceptance from remote delivery or persistence. Retain original source or derivation and counterexample.",
+            "3": "Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-01.b",
+          "objective": "T62.01.b",
+          "criterion": "Implement and investigate: Implement li_advance(lengths,count,position,bytes) for a valid vector cursor. Compute remaining extent with checked size_t arithmetic, reject excess progress transactionally, then advance across zero-length elements and normalize the terminal position to{count,0}. This is caller-side accounting, not a writev replacement.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_advance(lengths,count,position,bytes) for a valid vector cursor. Compute remaining extent with checked size_t arithmetic, reject excess progress transactionally, then advance across zero-length elements and normalize the terminal position to{count,0}. This is caller-side accounting, not a writev replacement. Retain original source or derivation and counterexample.",
+            "3": "Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-01.c",
+          "objective": "T62.01.c",
+          "criterion": "Falsify and transfer: The faulty cursor resets the within-element offset after a short write, duplicating the first byte of the next span on retry. Then Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The faulty cursor resets the within-element offset after a short write, duplicating the first byte of the next span on retry. Then Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers. Retain original source or derivation and counterexample.",
+            "3": "Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-01-transfer",
+          "minimum_days": 7,
+          "task": "Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-01.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-01B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The faulty cursor resets the within-element offset after a short write, duplicating the first byte of the next span on retry.",
+        "Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Prove accepted progress plus remaining extent equals the original stream length, including zero spans and overflow. Distinguish kernel acceptance from remote delivery or persistence.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T62-02",
+      "title": "Edge readiness and fair draining",
+      "minutes": 240,
+      "objectives": [
+        "T62.02.a",
+        "T62.02.b",
+        "T62.02.c"
+      ],
+      "tests": [
+        "linux_io_depth.readiness"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_ready_after(result,budget_exhausted) for a synthetic read result: positive progress retains readiness, -2 means EAGAIN and clears readiness,0 EOF clears readiness,-1 terminal error clears readiness. Return1 while progress remains, even when a dispatch budget was exhausted. Exercise the actual anonymous-pipe EPOLLET adapter and compare drain-to-EAGAIN with a local ready queue.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Distinguish kernel notification, locally remembered readiness and actual EAGAIN. Derive a fairness budget that does not lose readiness or spin forever after EOF.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-02.a",
+          "objective": "T62.02.a",
+          "criterion": "Derive and defend: Distinguish kernel notification, locally remembered readiness and actual EAGAIN. Derive a fairness budget that does not lose readiness or spin forever after EOF.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Distinguish kernel notification, locally remembered readiness and actual EAGAIN. Derive a fairness budget that does not lose readiness or spin forever after EOF. Retain original source or derivation and counterexample.",
+            "3": "Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-02.b",
+          "objective": "T62.02.b",
+          "criterion": "Implement and investigate: Implement li_ready_after(result,budget_exhausted) for a synthetic read result: positive progress retains readiness, -2 means EAGAIN and clears readiness,0 EOF clears readiness,-1 terminal error clears readiness. Return1 while progress remains, even when a dispatch budget was exhausted. Exercise the actual anonymous-pipe EPOLLET adapter and compare drain-to-EAGAIN with a local ready queue.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_ready_after(result,budget_exhausted) for a synthetic read result: positive progress retains readiness, -2 means EAGAIN and clears readiness,0 EOF clears readiness,-1 terminal error clears readiness. Return1 while progress remains, even when a dispatch budget was exhausted. Exercise the actual anonymous-pipe EPOLLET adapter and compare drain-to-EAGAIN with a local ready queue. Retain original source or derivation and counterexample.",
+            "3": "Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-02.c",
+          "objective": "T62.02.c",
+          "criterion": "Falsify and transfer: The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash. Then Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash. Then Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts. Retain original source or derivation and counterexample.",
+            "3": "Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-02-transfer",
+          "minimum_days": 7,
+          "task": "Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-02.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-02A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement li_ready_after(result,budget_exhausted) for a synthetic read result: positive progress retains readiness, -2 means EAGAIN and clears readiness,0 EOF clears readiness,-1 terminal error clears readiness. Return1 while progress remains, even when a dispatch budget was exhausted. Exercise the actual anonymous-pipe EPOLLET adapter and compare drain-to-EAGAIN with a local ready queue.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Distinguish kernel notification, locally remembered readiness and actual EAGAIN. Derive a fairness budget that does not lose readiness or spin forever after EOF."
+      ],
+      "checks": [
+        "The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T62-02",
+      "title": "Edge readiness and fair draining",
+      "minutes": 240,
+      "objectives": [
+        "T62.02.a",
+        "T62.02.b",
+        "T62.02.c"
+      ],
+      "tests": [
+        "linux_io_depth.readiness"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_ready_after(result,budget_exhausted) for a synthetic read result: positive progress retains readiness, -2 means EAGAIN and clears readiness,0 EOF clears readiness,-1 terminal error clears readiness. Return1 while progress remains, even when a dispatch budget was exhausted. Exercise the actual anonymous-pipe EPOLLET adapter and compare drain-to-EAGAIN with a local ready queue.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Distinguish kernel notification, locally remembered readiness and actual EAGAIN. Derive a fairness budget that does not lose readiness or spin forever after EOF.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-02.a",
+          "objective": "T62.02.a",
+          "criterion": "Derive and defend: Distinguish kernel notification, locally remembered readiness and actual EAGAIN. Derive a fairness budget that does not lose readiness or spin forever after EOF.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Distinguish kernel notification, locally remembered readiness and actual EAGAIN. Derive a fairness budget that does not lose readiness or spin forever after EOF. Retain original source or derivation and counterexample.",
+            "3": "Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-02.b",
+          "objective": "T62.02.b",
+          "criterion": "Implement and investigate: Implement li_ready_after(result,budget_exhausted) for a synthetic read result: positive progress retains readiness, -2 means EAGAIN and clears readiness,0 EOF clears readiness,-1 terminal error clears readiness. Return1 while progress remains, even when a dispatch budget was exhausted. Exercise the actual anonymous-pipe EPOLLET adapter and compare drain-to-EAGAIN with a local ready queue.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_ready_after(result,budget_exhausted) for a synthetic read result: positive progress retains readiness, -2 means EAGAIN and clears readiness,0 EOF clears readiness,-1 terminal error clears readiness. Return1 while progress remains, even when a dispatch budget was exhausted. Exercise the actual anonymous-pipe EPOLLET adapter and compare drain-to-EAGAIN with a local ready queue. Retain original source or derivation and counterexample.",
+            "3": "Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-02.c",
+          "objective": "T62.02.c",
+          "criterion": "Falsify and transfer: The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash. Then Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash. Then Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts. Retain original source or derivation and counterexample.",
+            "3": "Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-02-transfer",
+          "minimum_days": 7,
+          "task": "Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-02.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-02B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash.",
+        "Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Distinguish kernel notification, locally remembered readiness and actual EAGAIN. Derive a fairness budget that does not lose readiness or spin forever after EOF.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T62-03",
+      "title": "Shared submission ring arithmetic",
+      "minutes": 240,
+      "objectives": [
+        "T62.03.a",
+        "T62.03.b",
+        "T62.03.c"
+      ],
+      "tests": [
+        "linux_io_depth.ring"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_slot(head,tail,capacity,out) for uint32_t monotonic counters: capacity is a power of two in1..2^30, unsigned tail-head must be<capacity, and output is tail&(capacity-1). Reject invalid/full states unchanged. Then map the arithmetic to raw io_uring offsets and acquire/release operations after feature probing.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the bounded-distance interpretation under counter wrap. Separate single-producer ownership, ring-slot lifetime and payload-before-tail publication.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-03.a",
+          "objective": "T62.03.a",
+          "criterion": "Derive and defend: Derive the bounded-distance interpretation under counter wrap. Separate single-producer ownership, ring-slot lifetime and payload-before-tail publication.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the bounded-distance interpretation under counter wrap. Separate single-producer ownership, ring-slot lifetime and payload-before-tail publication. Retain original source or derivation and counterexample.",
+            "3": "Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-03.b",
+          "objective": "T62.03.b",
+          "criterion": "Implement and investigate: Implement li_slot(head,tail,capacity,out) for uint32_t monotonic counters: capacity is a power of two in1..2^30, unsigned tail-head must be<capacity, and output is tail&(capacity-1). Reject invalid/full states unchanged. Then map the arithmetic to raw io_uring offsets and acquire/release operations after feature probing.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_slot(head,tail,capacity,out) for uint32_t monotonic counters: capacity is a power of two in1..2^30, unsigned tail-head must be<capacity, and output is tail&(capacity-1). Reject invalid/full states unchanged. Then map the arithmetic to raw io_uring offsets and acquire/release operations after feature probing. Retain original source or derivation and counterexample.",
+            "3": "Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-03.c",
+          "objective": "T62.03.c",
+          "criterion": "Falsify and transfer: A producer masks tail and overwrites a still-owned full slot. Adding a barrier cannot repair missing capacity admission. Then Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A producer masks tail and overwrites a still-owned full slot. Adding a barrier cannot repair missing capacity admission. Then Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof. Retain original source or derivation and counterexample.",
+            "3": "Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-03-transfer",
+          "minimum_days": 7,
+          "task": "Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-03.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-03A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement li_slot(head,tail,capacity,out) for uint32_t monotonic counters: capacity is a power of two in1..2^30, unsigned tail-head must be<capacity, and output is tail&(capacity-1). Reject invalid/full states unchanged. Then map the arithmetic to raw io_uring offsets and acquire/release operations after feature probing.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive the bounded-distance interpretation under counter wrap. Separate single-producer ownership, ring-slot lifetime and payload-before-tail publication."
+      ],
+      "checks": [
+        "A producer masks tail and overwrites a still-owned full slot. Adding a barrier cannot repair missing capacity admission.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T62-03",
+      "title": "Shared submission ring arithmetic",
+      "minutes": 240,
+      "objectives": [
+        "T62.03.a",
+        "T62.03.b",
+        "T62.03.c"
+      ],
+      "tests": [
+        "linux_io_depth.ring"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_slot(head,tail,capacity,out) for uint32_t monotonic counters: capacity is a power of two in1..2^30, unsigned tail-head must be<capacity, and output is tail&(capacity-1). Reject invalid/full states unchanged. Then map the arithmetic to raw io_uring offsets and acquire/release operations after feature probing.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the bounded-distance interpretation under counter wrap. Separate single-producer ownership, ring-slot lifetime and payload-before-tail publication.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-03.a",
+          "objective": "T62.03.a",
+          "criterion": "Derive and defend: Derive the bounded-distance interpretation under counter wrap. Separate single-producer ownership, ring-slot lifetime and payload-before-tail publication.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the bounded-distance interpretation under counter wrap. Separate single-producer ownership, ring-slot lifetime and payload-before-tail publication. Retain original source or derivation and counterexample.",
+            "3": "Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-03.b",
+          "objective": "T62.03.b",
+          "criterion": "Implement and investigate: Implement li_slot(head,tail,capacity,out) for uint32_t monotonic counters: capacity is a power of two in1..2^30, unsigned tail-head must be<capacity, and output is tail&(capacity-1). Reject invalid/full states unchanged. Then map the arithmetic to raw io_uring offsets and acquire/release operations after feature probing.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_slot(head,tail,capacity,out) for uint32_t monotonic counters: capacity is a power of two in1..2^30, unsigned tail-head must be<capacity, and output is tail&(capacity-1). Reject invalid/full states unchanged. Then map the arithmetic to raw io_uring offsets and acquire/release operations after feature probing. Retain original source or derivation and counterexample.",
+            "3": "Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-03.c",
+          "objective": "T62.03.c",
+          "criterion": "Falsify and transfer: A producer masks tail and overwrites a still-owned full slot. Adding a barrier cannot repair missing capacity admission. Then Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A producer masks tail and overwrites a still-owned full slot. Adding a barrier cannot repair missing capacity admission. Then Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof. Retain original source or derivation and counterexample.",
+            "3": "Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-03-transfer",
+          "minimum_days": 7,
+          "task": "Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-03.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-03B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A producer masks tail and overwrites a still-owned full slot. Adding a barrier cannot repair missing capacity admission.",
+        "Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive the bounded-distance interpretation under counter wrap. Separate single-producer ownership, ring-slot lifetime and payload-before-tail publication.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T62-04",
+      "title": "Generation-tagged completion ownership",
+      "minutes": 240,
+      "objectives": [
+        "T62.04.a",
+        "T62.04.b",
+        "T62.04.c"
+      ],
+      "tests": [
+        "linux_io_depth.completion"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_event on LIRequest with state0 idle,1 submitted,2 cancel-requested,3 completed,4 released. Events0 submit,1 request cancel,2 target completion(result),3 release. Require matching generation for every event. Completion is allowed from1/2 once; release only from3 once. Failed transitions preserve the object.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove each target completion is consumed once and cannot authorize release of another generation. State finite-generation exhaustion policy and metadata versus payload lifetime.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-04.a",
+          "objective": "T62.04.a",
+          "criterion": "Derive and defend: Prove each target completion is consumed once and cannot authorize release of another generation. State finite-generation exhaustion policy and metadata versus payload lifetime.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove each target completion is consumed once and cannot authorize release of another generation. State finite-generation exhaustion policy and metadata versus payload lifetime. Retain original source or derivation and counterexample.",
+            "3": "Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-04.b",
+          "objective": "T62.04.b",
+          "criterion": "Implement and investigate: Implement li_event on LIRequest with state0 idle,1 submitted,2 cancel-requested,3 completed,4 released. Events0 submit,1 request cancel,2 target completion(result),3 release. Require matching generation for every event. Completion is allowed from1/2 once; release only from3 once. Failed transitions preserve the object.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_event on LIRequest with state0 idle,1 submitted,2 cancel-requested,3 completed,4 released. Events0 submit,1 request cancel,2 target completion(result),3 release. Require matching generation for every event. Completion is allowed from1/2 once; release only from3 once. Failed transitions preserve the object. Retain original source or derivation and counterexample.",
+            "3": "Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-04.c",
+          "objective": "T62.04.c",
+          "criterion": "Falsify and transfer: The mutant ignores generation and lets a stale completion finish a new request. Demonstrate harmless wrong-result publication using two synthetic requests, not another process’s data. Then Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant ignores generation and lets a stale completion finish a new request. Demonstrate harmless wrong-result publication using two synthetic requests, not another process’s data. Then Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags. Retain original source or derivation and counterexample.",
+            "3": "Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-04-transfer",
+          "minimum_days": 7,
+          "task": "Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-04.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-04A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement li_event on LIRequest with state0 idle,1 submitted,2 cancel-requested,3 completed,4 released. Events0 submit,1 request cancel,2 target completion(result),3 release. Require matching generation for every event. Completion is allowed from1/2 once; release only from3 once. Failed transitions preserve the object.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Prove each target completion is consumed once and cannot authorize release of another generation. State finite-generation exhaustion policy and metadata versus payload lifetime."
+      ],
+      "checks": [
+        "The mutant ignores generation and lets a stale completion finish a new request. Demonstrate harmless wrong-result publication using two synthetic requests, not another process’s data.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T62-04",
+      "title": "Generation-tagged completion ownership",
+      "minutes": 240,
+      "objectives": [
+        "T62.04.a",
+        "T62.04.b",
+        "T62.04.c"
+      ],
+      "tests": [
+        "linux_io_depth.completion"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_event on LIRequest with state0 idle,1 submitted,2 cancel-requested,3 completed,4 released. Events0 submit,1 request cancel,2 target completion(result),3 release. Require matching generation for every event. Completion is allowed from1/2 once; release only from3 once. Failed transitions preserve the object.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove each target completion is consumed once and cannot authorize release of another generation. State finite-generation exhaustion policy and metadata versus payload lifetime.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-04.a",
+          "objective": "T62.04.a",
+          "criterion": "Derive and defend: Prove each target completion is consumed once and cannot authorize release of another generation. State finite-generation exhaustion policy and metadata versus payload lifetime.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove each target completion is consumed once and cannot authorize release of another generation. State finite-generation exhaustion policy and metadata versus payload lifetime. Retain original source or derivation and counterexample.",
+            "3": "Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-04.b",
+          "objective": "T62.04.b",
+          "criterion": "Implement and investigate: Implement li_event on LIRequest with state0 idle,1 submitted,2 cancel-requested,3 completed,4 released. Events0 submit,1 request cancel,2 target completion(result),3 release. Require matching generation for every event. Completion is allowed from1/2 once; release only from3 once. Failed transitions preserve the object.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_event on LIRequest with state0 idle,1 submitted,2 cancel-requested,3 completed,4 released. Events0 submit,1 request cancel,2 target completion(result),3 release. Require matching generation for every event. Completion is allowed from1/2 once; release only from3 once. Failed transitions preserve the object. Retain original source or derivation and counterexample.",
+            "3": "Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-04.c",
+          "objective": "T62.04.c",
+          "criterion": "Falsify and transfer: The mutant ignores generation and lets a stale completion finish a new request. Demonstrate harmless wrong-result publication using two synthetic requests, not another process’s data. Then Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant ignores generation and lets a stale completion finish a new request. Demonstrate harmless wrong-result publication using two synthetic requests, not another process’s data. Then Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags. Retain original source or derivation and counterexample.",
+            "3": "Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-04-transfer",
+          "minimum_days": 7,
+          "task": "Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-04.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-04B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant ignores generation and lets a stale completion finish a new request. Demonstrate harmless wrong-result publication using two synthetic requests, not another process’s data.",
+        "Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Prove each target completion is consumed once and cannot authorize release of another generation. State finite-generation exhaustion policy and metadata versus payload lifetime.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T62-05",
+      "title": "Cancellation acknowledgement versus target completion",
+      "minutes": 240,
+      "objectives": [
+        "T62.05.a",
+        "T62.05.b",
+        "T62.05.c"
+      ],
+      "tests": [
+        "linux_io_depth.cancel"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Name separate ownership of cancel request, target request and payload. Explain how success, not-found and already-completing cancellation results change scheduling but do not substitute for a target terminal event.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-05.a",
+          "objective": "T62.05.a",
+          "criterion": "Derive and defend: Name separate ownership of cancel request, target request and payload. Explain how success, not-found and already-completing cancellation results change scheduling but do not substitute for a target terminal event.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Name separate ownership of cancel request, target request and payload. Explain how success, not-found and already-completing cancellation results change scheduling but do not substitute for a target terminal event. Retain original source or derivation and counterexample.",
+            "3": "Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-05.b",
+          "objective": "T62.05.b",
+          "criterion": "Implement and investigate: Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations. Retain original source or derivation and counterexample.",
+            "3": "Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-05.c",
+          "objective": "T62.05.c",
+          "criterion": "Falsify and transfer: The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability. Then Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability. Then Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics. Retain original source or derivation and counterexample.",
+            "3": "Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-05-transfer",
+          "minimum_days": 7,
+          "task": "Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-05.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-05A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Name separate ownership of cancel request, target request and payload. Explain how success, not-found and already-completing cancellation results change scheduling but do not substitute for a target terminal event."
+      ],
+      "checks": [
+        "The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T62-05",
+      "title": "Cancellation acknowledgement versus target completion",
+      "minutes": 240,
+      "objectives": [
+        "T62.05.a",
+        "T62.05.b",
+        "T62.05.c"
+      ],
+      "tests": [
+        "linux_io_depth.cancel"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Name separate ownership of cancel request, target request and payload. Explain how success, not-found and already-completing cancellation results change scheduling but do not substitute for a target terminal event.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-05.a",
+          "objective": "T62.05.a",
+          "criterion": "Derive and defend: Name separate ownership of cancel request, target request and payload. Explain how success, not-found and already-completing cancellation results change scheduling but do not substitute for a target terminal event.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Name separate ownership of cancel request, target request and payload. Explain how success, not-found and already-completing cancellation results change scheduling but do not substitute for a target terminal event. Retain original source or derivation and counterexample.",
+            "3": "Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-05.b",
+          "objective": "T62.05.b",
+          "criterion": "Implement and investigate: Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations. Retain original source or derivation and counterexample.",
+            "3": "Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-05.c",
+          "objective": "T62.05.c",
+          "criterion": "Falsify and transfer: The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability. Then Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability. Then Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics. Retain original source or derivation and counterexample.",
+            "3": "Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-05-transfer",
+          "minimum_days": 7,
+          "task": "Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-05.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-05B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability.",
+        "Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Name separate ownership of cancel request, target request and payload. Explain how success, not-found and already-completing cancellation results change scheduling but do not substitute for a target terminal event.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T62-06",
+      "title": "Deadlines, timer events and wraparound",
+      "minutes": 240,
+      "objectives": [
+        "T62.06.a",
+        "T62.06.b",
+        "T62.06.c"
+      ],
+      "tests": [
+        "linux_io_depth.deadline"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_expired(start,now,duration,out) for a wrapping32-bit tick model with duration1..2^31-1 and elapsed distance known below2^31. Set out when unsigned now-start>=duration. Reject invalid duration without changing out. Use timerfd in the Linux adapter and keep real monotonic timestamps separate from modeled ticks.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "State the half-range observation assumption and prove equality is expiration. Distinguish wall-clock corrections, monotonic elapsed time and deadline policy.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-06.a",
+          "objective": "T62.06.a",
+          "criterion": "Derive and defend: State the half-range observation assumption and prove equality is expiration. Distinguish wall-clock corrections, monotonic elapsed time and deadline policy.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: State the half-range observation assumption and prove equality is expiration. Distinguish wall-clock corrections, monotonic elapsed time and deadline policy. Retain original source or derivation and counterexample.",
+            "3": "Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-06.b",
+          "objective": "T62.06.b",
+          "criterion": "Implement and investigate: Implement li_expired(start,now,duration,out) for a wrapping32-bit tick model with duration1..2^31-1 and elapsed distance known below2^31. Set out when unsigned now-start>=duration. Reject invalid duration without changing out. Use timerfd in the Linux adapter and keep real monotonic timestamps separate from modeled ticks.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_expired(start,now,duration,out) for a wrapping32-bit tick model with duration1..2^31-1 and elapsed distance known below2^31. Set out when unsigned now-start>=duration. Reject invalid duration without changing out. Use timerfd in the Linux adapter and keep real monotonic timestamps separate from modeled ticks. Retain original source or derivation and counterexample.",
+            "3": "Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-06.c",
+          "objective": "T62.06.c",
+          "criterion": "Falsify and transfer: The faulty start+duration comparison wraps the deadline and expires an operation prematurely. Resetting the total deadline after each byte also permits indefinite slow progress. Then Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The faulty start+duration comparison wraps the deadline and expires an operation prematurely. Resetting the total deadline after each byte also permits indefinite slow progress. Then Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds. Retain original source or derivation and counterexample.",
+            "3": "Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-06-transfer",
+          "minimum_days": 7,
+          "task": "Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-06.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-06A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement li_expired(start,now,duration,out) for a wrapping32-bit tick model with duration1..2^31-1 and elapsed distance known below2^31. Set out when unsigned now-start>=duration. Reject invalid duration without changing out. Use timerfd in the Linux adapter and keep real monotonic timestamps separate from modeled ticks.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "State the half-range observation assumption and prove equality is expiration. Distinguish wall-clock corrections, monotonic elapsed time and deadline policy."
+      ],
+      "checks": [
+        "The faulty start+duration comparison wraps the deadline and expires an operation prematurely. Resetting the total deadline after each byte also permits indefinite slow progress.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T62-06",
+      "title": "Deadlines, timer events and wraparound",
+      "minutes": 240,
+      "objectives": [
+        "T62.06.a",
+        "T62.06.b",
+        "T62.06.c"
+      ],
+      "tests": [
+        "linux_io_depth.deadline"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_expired(start,now,duration,out) for a wrapping32-bit tick model with duration1..2^31-1 and elapsed distance known below2^31. Set out when unsigned now-start>=duration. Reject invalid duration without changing out. Use timerfd in the Linux adapter and keep real monotonic timestamps separate from modeled ticks.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "State the half-range observation assumption and prove equality is expiration. Distinguish wall-clock corrections, monotonic elapsed time and deadline policy.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-06.a",
+          "objective": "T62.06.a",
+          "criterion": "Derive and defend: State the half-range observation assumption and prove equality is expiration. Distinguish wall-clock corrections, monotonic elapsed time and deadline policy.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: State the half-range observation assumption and prove equality is expiration. Distinguish wall-clock corrections, monotonic elapsed time and deadline policy. Retain original source or derivation and counterexample.",
+            "3": "Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-06.b",
+          "objective": "T62.06.b",
+          "criterion": "Implement and investigate: Implement li_expired(start,now,duration,out) for a wrapping32-bit tick model with duration1..2^31-1 and elapsed distance known below2^31. Set out when unsigned now-start>=duration. Reject invalid duration without changing out. Use timerfd in the Linux adapter and keep real monotonic timestamps separate from modeled ticks.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_expired(start,now,duration,out) for a wrapping32-bit tick model with duration1..2^31-1 and elapsed distance known below2^31. Set out when unsigned now-start>=duration. Reject invalid duration without changing out. Use timerfd in the Linux adapter and keep real monotonic timestamps separate from modeled ticks. Retain original source or derivation and counterexample.",
+            "3": "Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-06.c",
+          "objective": "T62.06.c",
+          "criterion": "Falsify and transfer: The faulty start+duration comparison wraps the deadline and expires an operation prematurely. Resetting the total deadline after each byte also permits indefinite slow progress. Then Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The faulty start+duration comparison wraps the deadline and expires an operation prematurely. Resetting the total deadline after each byte also permits indefinite slow progress. Then Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds. Retain original source or derivation and counterexample.",
+            "3": "Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-06-transfer",
+          "minimum_days": 7,
+          "task": "Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-06.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-06B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The faulty start+duration comparison wraps the deadline and expires an operation prematurely. Resetting the total deadline after each byte also permits indefinite slow progress.",
+        "Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "State the half-range observation assumption and prove equality is expiration. Distinguish wall-clock corrections, monotonic elapsed time and deadline policy.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T62-07",
+      "title": "Durable replacement and crash cuts",
+      "minutes": 240,
+      "objectives": [
+        "T62.07.a",
+        "T62.07.b",
+        "T62.07.c"
+      ],
+      "tests": [
+        "linux_io_depth.durability"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Specify observable atomicity, persistence, filesystem assumptions and failure recovery. Account for open descriptors to the replaced old inode and permissions on the new object.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-07.a",
+          "objective": "T62.07.a",
+          "criterion": "Derive and defend: Specify observable atomicity, persistence, filesystem assumptions and failure recovery. Account for open descriptors to the replaced old inode and permissions on the new object.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Specify observable atomicity, persistence, filesystem assumptions and failure recovery. Account for open descriptors to the replaced old inode and permissions on the new object. Retain original source or derivation and counterexample.",
+            "3": "Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-07.b",
+          "objective": "T62.07.b",
+          "criterion": "Implement and investigate: Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit. Retain original source or derivation and counterexample.",
+            "3": "Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-07.c",
+          "objective": "T62.07.c",
+          "criterion": "Falsify and transfer: A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee. Then Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee. Then Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated. Retain original source or derivation and counterexample.",
+            "3": "Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-07-transfer",
+          "minimum_days": 7,
+          "task": "Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-07.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-07A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Specify observable atomicity, persistence, filesystem assumptions and failure recovery. Account for open descriptors to the replaced old inode and permissions on the new object."
+      ],
+      "checks": [
+        "A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T62-07",
+      "title": "Durable replacement and crash cuts",
+      "minutes": 240,
+      "objectives": [
+        "T62.07.a",
+        "T62.07.b",
+        "T62.07.c"
+      ],
+      "tests": [
+        "linux_io_depth.durability"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Specify observable atomicity, persistence, filesystem assumptions and failure recovery. Account for open descriptors to the replaced old inode and permissions on the new object.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-07.a",
+          "objective": "T62.07.a",
+          "criterion": "Derive and defend: Specify observable atomicity, persistence, filesystem assumptions and failure recovery. Account for open descriptors to the replaced old inode and permissions on the new object.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Specify observable atomicity, persistence, filesystem assumptions and failure recovery. Account for open descriptors to the replaced old inode and permissions on the new object. Retain original source or derivation and counterexample.",
+            "3": "Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-07.b",
+          "objective": "T62.07.b",
+          "criterion": "Implement and investigate: Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit. Retain original source or derivation and counterexample.",
+            "3": "Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-07.c",
+          "objective": "T62.07.c",
+          "criterion": "Falsify and transfer: A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee. Then Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee. Then Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated. Retain original source or derivation and counterexample.",
+            "3": "Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-07-transfer",
+          "minimum_days": 7,
+          "task": "Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-07.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-07B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee.",
+        "Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Specify observable atomicity, persistence, filesystem assumptions and failure recovery. Account for open descriptors to the replaced old inode and permissions on the new object.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T62-08",
+      "title": "Zero-copy claims and retained buffers",
+      "minutes": 240,
+      "objectives": [
+        "T62.08.a",
+        "T62.08.b",
+        "T62.08.c"
+      ],
+      "tests": [
+        "linux_io_depth.zerocopy"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_buffer_release(submitted,terminal,borrowers) returning true only when submitted/terminal are booleans, every submitted operation is terminal, and borrowers0. Use it to compare read/write, sendfile/splice and a mapped-buffer path over synthetic local files; measure bytes copied, syscalls, CPU time and retained memory under the same output contract.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Distinguish copy avoidance, kernel retention, DMA mapping and application borrowing. Derive memory-pressure/backpressure costs and what the selected syscall actually promises.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-08.a",
+          "objective": "T62.08.a",
+          "criterion": "Derive and defend: Distinguish copy avoidance, kernel retention, DMA mapping and application borrowing. Derive memory-pressure/backpressure costs and what the selected syscall actually promises.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Distinguish copy avoidance, kernel retention, DMA mapping and application borrowing. Derive memory-pressure/backpressure costs and what the selected syscall actually promises. Retain original source or derivation and counterexample.",
+            "3": "Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-08.b",
+          "objective": "T62.08.b",
+          "criterion": "Implement and investigate: Implement li_buffer_release(submitted,terminal,borrowers) returning true only when submitted/terminal are booleans, every submitted operation is terminal, and borrowers0. Use it to compare read/write, sendfile/splice and a mapped-buffer path over synthetic local files; measure bytes copied, syscalls, CPU time and retained memory under the same output contract.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_buffer_release(submitted,terminal,borrowers) returning true only when submitted/terminal are booleans, every submitted operation is terminal, and borrowers0. Use it to compare read/write, sendfile/splice and a mapped-buffer path over synthetic local files; measure bytes copied, syscalls, CPU time and retained memory under the same output contract. Retain original source or derivation and counterexample.",
+            "3": "Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-08.c",
+          "objective": "T62.08.c",
+          "criterion": "Falsify and transfer: The mutant releases after terminal I/O while an application borrower still uses the buffer. Kernel completion does not revoke independent application ownership. Then Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant releases after terminal I/O while an application borrower still uses the buffer. Kernel completion does not revoke independent application ownership. Then Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability. Retain original source or derivation and counterexample.",
+            "3": "Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-08-transfer",
+          "minimum_days": 7,
+          "task": "Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-08.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-08A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement li_buffer_release(submitted,terminal,borrowers) returning true only when submitted/terminal are booleans, every submitted operation is terminal, and borrowers0. Use it to compare read/write, sendfile/splice and a mapped-buffer path over synthetic local files; measure bytes copied, syscalls, CPU time and retained memory under the same output contract.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Distinguish copy avoidance, kernel retention, DMA mapping and application borrowing. Derive memory-pressure/backpressure costs and what the selected syscall actually promises."
+      ],
+      "checks": [
+        "The mutant releases after terminal I/O while an application borrower still uses the buffer. Kernel completion does not revoke independent application ownership.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T62-08",
+      "title": "Zero-copy claims and retained buffers",
+      "minutes": 240,
+      "objectives": [
+        "T62.08.a",
+        "T62.08.b",
+        "T62.08.c"
+      ],
+      "tests": [
+        "linux_io_depth.zerocopy"
+      ],
+      "target_scope": "host",
+      "scope": "Implement li_buffer_release(submitted,terminal,borrowers) returning true only when submitted/terminal are booleans, every submitted operation is terminal, and borrowers0. Use it to compare read/write, sendfile/splice and a mapped-buffer path over synthetic local files; measure bytes copied, syscalls, CPU time and retained memory under the same output contract.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Distinguish copy avoidance, kernel retention, DMA mapping and application borrowing. Derive memory-pressure/backpressure costs and what the selected syscall actually promises.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T62-08.a",
+          "objective": "T62.08.a",
+          "criterion": "Derive and defend: Distinguish copy avoidance, kernel retention, DMA mapping and application borrowing. Derive memory-pressure/backpressure costs and what the selected syscall actually promises.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Distinguish copy avoidance, kernel retention, DMA mapping and application borrowing. Derive memory-pressure/backpressure costs and what the selected syscall actually promises. Retain original source or derivation and counterexample.",
+            "3": "Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-08.b",
+          "objective": "T62.08.b",
+          "criterion": "Implement and investigate: Implement li_buffer_release(submitted,terminal,borrowers) returning true only when submitted/terminal are booleans, every submitted operation is terminal, and borrowers0. Use it to compare read/write, sendfile/splice and a mapped-buffer path over synthetic local files; measure bytes copied, syscalls, CPU time and retained memory under the same output contract.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement li_buffer_release(submitted,terminal,borrowers) returning true only when submitted/terminal are booleans, every submitted operation is terminal, and borrowers0. Use it to compare read/write, sendfile/splice and a mapped-buffer path over synthetic local files; measure bytes copied, syscalls, CPU time and retained memory under the same output contract. Retain original source or derivation and counterexample.",
+            "3": "Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T62-08.c",
+          "objective": "T62.08.c",
+          "criterion": "Falsify and transfer: The mutant releases after terminal I/O while an application borrower still uses the buffer. Kernel completion does not revoke independent application ownership. Then Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant releases after terminal I/O while an application borrower still uses the buffer. Kernel completion does not revoke independent application ownership. Then Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability. Retain original source or derivation and counterexample.",
+            "3": "Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T62-08-transfer",
+          "minimum_days": 7,
+          "task": "Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability."
+        }
+      ],
+      "assessor_analysis": "assessor/linux_io_depth/PR-T62-08.md",
+      "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes.",
+      "references": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls",
+          "purpose": "Partial-drain hang example, EAGAIN readiness accounting and starvation discussion inspected. Actual OS behavior must be separately observed.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability",
+          "purpose": "Shared-ring publication, index indirection and feature-dependent metadata stability inspected. Payload lifetime and individual-opcode cancellation contracts require explicit separate checks.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-CANCEL",
+          "locator": "DESCRIPTION; ERRORS; NOTES",
+          "purpose": "Actual matching keys, ENOENT/EALREADY and target-completion timing passages inspected; successful cancel posts target completion by submission return, but application must consume correct terminal ownership event.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FSYNC",
+          "locator": "DESCRIPTION; RETURN VALUE; ERRORS",
+          "purpose": "Actual file-versus-directory persistence and error passages inspected. No physical power-loss observation.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-SENDFILE",
+          "locator": "RETURN VALUE; NOTES",
+          "purpose": "Actual partial progress, fallback and retained-file-data immutability obligations inspected.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-LI-08B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant releases after terminal I/O while an application borrower still uses the buffer. Kernel completion does not revoke independent application ownership.",
+        "Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Distinguish copy avoidance, kernel retention, DMA mapping and application borrowing. Derive memory-pressure/backpressure costs and what the selected syscall actually promises.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    }
+  ],
+  "tests": [
+    "linux_io_depth.iov",
+    "linux_io_depth.readiness",
+    "linux_io_depth.ring",
+    "linux_io_depth.completion",
+    "linux_io_depth.cancel",
+    "linux_io_depth.deadline",
+    "linux_io_depth.durability",
+    "linux_io_depth.zerocopy"
+  ],
+  "negative_controls": [
+    "linux_io_depth.mutation.iov",
+    "linux_io_depth.mutation.readiness",
+    "linux_io_depth.mutation.ring",
+    "linux_io_depth.mutation.completion",
+    "linux_io_depth.mutation.cancel",
+    "linux_io_depth.mutation.deadline",
+    "linux_io_depth.mutation.durability",
+    "linux_io_depth.mutation.zerocopy"
+  ],
+  "remaining_evidence": "Actual epoll, eventfd/timerfd/signalfd, io_uring feature/error paths, splice/sendfile and fsync/rename observations are required; unavailable kernel features are explicit gaps and never simulated passes."
+}

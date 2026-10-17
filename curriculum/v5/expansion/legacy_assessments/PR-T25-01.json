@@ -1,0 +1,659 @@
+{
+  "schema_version": 1,
+  "project": "PR-T25-01",
+  "domain": "T25",
+  "title": "Thread-owned work and join obligations — explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md",
+    "labs/posix_lifecycle_depth/CONTRACTS.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T25.md",
+        "sha256": "a71a96c3f032d0feb423291018a3c870931629aeb38a8e9e39fa2f4b1330edd8",
+        "passages": [
+          "All assigned topic teaching and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T25-01.md",
+        "sha256": "0eb0e0e65a929ba4ca0bcb1122f61f8a070b95dc20be5c20eeff910532bce3ea",
+        "passages": [
+          "Metadata, Contract, Steps, Failure cases, Acceptance, Hints and changed-condition work"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T25-01.json",
+        "sha256": "738561ca445fa8aa6bacf6826b2ab34d63ae380f97f8df77f413f2e9b3cf2420",
+        "passages": [
+          "Complete synthetic inputs and expected outputs"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "Exact branches used by the assigned synthetic fixture; not target execution"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/README.md",
+        "sha256": "ea69b7b3b3fc358afd7cc62e4f64c8e4eb68e07a1a8cb58e4b8e117ba3bcf580",
+        "passages": [
+          "Named implementation contracts and explicit execution/physical limitations"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/CONTRACTS.md",
+        "sha256": "37b5c55cf0473e98071ee1221cf5667e739923b227f22ccec6b80a49797d10c5",
+        "passages": [
+          "All operation contracts, preconditions, failure and ownership boundaries"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T25.md",
+        "anchors": [
+          "T25.01",
+          "T25.02"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-HS-10",
+      "U-T25-01-02",
+      "U-T25-01-03"
+    ],
+    "inspection_limits": [
+      "All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.",
+      "Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.",
+      "Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.",
+    "target": "Unprivileged Linux x86-64 for original hosted experiments; pure C memory models and restricted-profile target code retain their own contracts. Kernel execution only in a disposable VM.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.",
+      "Device/VM/tool unavailability is a missing observation, not a passing result."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LRUN-C11-ATOMICS",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "7.17.3 paragraphs1–14 Order and consistency",
+        "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+      ]
+    },
+    {
+      "id": "R-LRUN-THREAD",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; ERRORS",
+        "NOTES: scheduling order, joinable/detached resources and stack defaults"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
+    "Historical reading metadata is not promoted to a new source-inspection claim.",
+    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T25-01.md",
+    "fixtures/systems/PR-T25-01.json",
+    "tools/verify_systems_fixtures.py",
+    "labs/hosted_systems/README.md",
+    "labs/posix_lifecycle_depth/include/posix_lifecycle.h",
+    "labs/posix_lifecycle_depth/src/posix_lifecycle.c",
+    "fixtures/posix_lifecycle_depth/cases.json"
+  ],
+  "execution_support": {
+    "kind": "retained partial anchors plus additive lifecycle laboratory",
+    "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
+    "tests": [
+      "hosted_systems.pool",
+      "posix_lifecycle_depth.pool"
+    ],
+    "fresh_execution": "Source-pinned posix_lifecycle_depth campaign only; the complete supplemental criteria are unattempted.",
+    "criterion_anchors": [
+      {
+        "criterion": "AX-PR-T25-01-T25.01.a",
+        "test": "posix_lifecycle_depth.pool",
+        "scope": "All successful-prefix creation/failure cases for0..4 actual pthreads, result sum and invalid-input preservation; no detached/cancellation/join-failure recovery claim."
+      }
+    ],
+    "campaign": "reviews/v5/expansion/legacy_runtime/posix_lifecycle_depth_campaign.json"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T25-01-T25.01.a",
+      "title": "Create, join, and manage thread resources explicitly.",
+      "objective": "T25.01.a",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-THREAD",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION; RETURN VALUE; ERRORS",
+            "NOTES: scheduling order, joinable/detached resources and stack defaults"
+          ]
+        }
+      ],
+      "task": "Implement pl_pool from the additive lifecycle contract and test every creation-failure ordinal for 0..4 workers. Retain stable argument cells until joining exactly the successfully created prefix; report direct pthread status and partial result counts.",
+      "purpose": "A failed creation invalidates the obligation to join earlier workers.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T25.01 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T25-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A failed creation invalidates the obligation to join earlier workers. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A failed creation invalidates the obligation to join earlier workers.",
+        "D2": "Implement pl_pool from the additive lifecycle contract and test every creation-failure ordinal for 0..4 workers. Retain stable argument cells until joining exactly the successfully created prefix; report direct pthread status and partial result counts.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Replace stack argument storage with a retained heap control block and derive recoverable join-error ownership instead of terminating the teaching process."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Earlier successful creations remain live borrowers and join obligations; uninitialized handles must never be joined. Complete acquisition gives sum 30, failure at 3 gives sum 5.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Earlier successful creations remain live borrowers and join obligations; uninitialized handles must never be joined. Complete acquisition gives sum 30, failure at 3 gives sum 5. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace stack argument storage with a retained heap control block and derive recoverable join-error ownership instead of terminating the teaching process. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Record the successful creation prefix before touching any thread handle.",
+        "Failed pthread_create returns an error directly and does not create a joinable handle; keep all successful workers' argument storage live through join."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T25-01-T25.01.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace stack argument storage with a retained heap control block and derive recoverable join-error ownership instead of terminating the teaching process."
+        }
+      ],
+      "assessor_anchor": "#t2501a",
+      "facet_scope": {
+        "teaching": "Retained T25.01 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T25-01-T25.01.b",
+      "title": "Compare detached and joinable lifetime strategies.",
+      "objective": "T25.01.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-THREAD",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION; RETURN VALUE; ERRORS",
+            "NOTES: scheduling order, joinable/detached resources and stack defaults"
+          ]
+        }
+      ],
+      "task": "Draw joinable and detached versions of a worker borrowing a caller buffer. Schedule caller return before worker completion and repair with a completion-owned storage protocol; implement the joinable version and analyze the detached variant until its last-user proof is complete.",
+      "purpose": "Detach extends the lifetime of the caller's argument.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T25.01 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T25-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Detach extends the lifetime of the caller's argument. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Detach extends the lifetime of the caller's argument.",
+        "D2": "Draw joinable and detached versions of a worker borrowing a caller buffer. Schedule caller return before worker completion and repair with a completion-owned storage protocol; implement the joinable version and analyze the detached variant until its last-user proof is complete.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Let the creator itself be canceled and identify who retains and eventually releases detached-worker storage."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Detached thread resource cleanup does not keep arbitrary borrowed objects live. A separate owner and completion protocol are required.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Detached thread resource cleanup does not keep arbitrary borrowed objects live. A separate owner and completion protocol are required. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Let the creator itself be canceled and identify who retains and eventually releases detached-worker storage. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Record the successful creation prefix before touching any thread handle.",
+        "Failed pthread_create returns an error directly and does not create a joinable handle; keep all successful workers' argument storage live through join."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T25-01-T25.01.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Let the creator itself be canceled and identify who retains and eventually releases detached-worker storage."
+        }
+      ],
+      "assessor_anchor": "#t2501b",
+      "facet_scope": {
+        "teaching": "Retained T25.01 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T25-01-T25.01.c",
+      "title": "Separate C thread facilities from POSIX-specific APIs.",
+      "objective": "T25.01.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-THREAD",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION; RETURN VALUE; ERRORS",
+            "NOTES: scheduling order, joinable/detached resources and stack defaults"
+          ]
+        }
+      ],
+      "task": "Compile separate clean C17 and POSIX thread signature probes; record C optional thread support, start-function return type, create status and join result. Reject function-pointer and handle casts between thrd_* and pthread_* APIs.",
+      "purpose": "Matching purposes make C and POSIX thread handles/signatures interchangeable.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T25.01 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T25-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Matching purposes make C and POSIX thread handles/signatures interchangeable. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Matching purposes make C and POSIX thread handles/signatures interchangeable.",
+        "D2": "Compile separate clean C17 and POSIX thread signature probes; record C optional thread support, start-function return type, create status and join result. Reject function-pointer and handle casts between thrd_* and pthread_* APIs.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Compare a later C edition's optionality wording using exact inspected text before updating the support matrix."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "C integer results and POSIX pointer results/error codes remain distinct; unsupported C facilities are recorded separately from POSIX support.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "C integer results and POSIX pointer results/error codes remain distinct; unsupported C facilities are recorded separately from POSIX support. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Compare a later C edition's optionality wording using exact inspected text before updating the support matrix. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Record the successful creation prefix before touching any thread handle.",
+        "Failed pthread_create returns an error directly and does not create a joinable handle; keep all successful workers' argument storage live through join."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T25-01-T25.01.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Compare a later C edition's optionality wording using exact inspected text before updating the support matrix."
+        }
+      ],
+      "assessor_anchor": "#t2501c",
+      "facet_scope": {
+        "teaching": "Retained T25.01 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T25-01-T25.02.a",
+      "title": "Identify shared, immutable, thread-owned, and transferred state.",
+      "objective": "T25.02.a",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "H",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        },
+        {
+          "id": "R-LRUN-THREAD",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION; RETURN VALUE; ERRORS",
+            "NOTES: scheduling order, joinable/detached resources and stack defaults"
+          ]
+        }
+      ],
+      "task": "Partition 16 immutable integers between four workers with disjoint result cells. Draw every read/write owner, then compare to a shared-counter implementation under the same sum contract. Include a zero-work partition.",
+      "purpose": "Every object visible to several threads requires a lock around every read.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T25.02 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T25-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Every object visible to several threads requires a lock around every read. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Every object visible to several threads requires a lock around every read.",
+        "D2": "Partition 16 immutable integers between four workers with disjoint result cells. Draw every read/write owner, then compare to a shared-counter implementation under the same sum contract. Include a zero-work partition.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Allow input mutation during processing and derive a snapshot/version or ownership-transfer contract before reuse."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Immutable shared input and disjoint mutable results reduce synchronization; publication and join still bound lifetimes.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Immutable shared input and disjoint mutable results reduce synchronization; publication and join still bound lifetimes. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Allow input mutation during processing and derive a snapshot/version or ownership-transfer contract before reuse. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Assign every ordinary object a writer and a permitted reader interval.",
+        "Disjoint result cells need no shared update lock, but publication and worker completion still require synchronization."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T25-01-T25.02.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Allow input mutation during processing and derive a snapshot/version or ownership-transfer contract before reuse."
+        }
+      ],
+      "assessor_anchor": "#t2502a",
+      "facet_scope": {
+        "teaching": "Retained T25.02 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T25-01-T25.02.b",
+      "title": "Define ownership of work items and shutdown messages.",
+      "objective": "T25.02.b",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "H",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        },
+        {
+          "id": "R-LRUN-THREAD",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION; RETURN VALUE; ERRORS",
+            "NOTES: scheduling order, joinable/detached resources and stack defaults"
+          ]
+        }
+      ],
+      "task": "Give each queued work item a unique ID and states caller-owned, queue-owned, worker-owned and settled. Inject enqueue rejection and shutdown with pending items; check one terminal disposition per ID.",
+      "purpose": "An enqueue attempt always transfers ownership.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T25.02 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T25-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "An enqueue attempt always transfers ownership. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: An enqueue attempt always transfers ownership.",
+        "D2": "Give each queued work item a unique ID and states caller-owned, queue-owned, worker-owned and settled. Inject enqueue rejection and shutdown with pending items; check one terminal disposition per ID.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Add a worker failure after dequeue and define whether the item is retried, failed or retained uncertain."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Only successful acceptance transfers; shutdown must settle already accepted work separately from rejected input. Sentinels need an explicit multiplicity/consumer policy.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Only successful acceptance transfers; shutdown must settle already accepted work separately from rejected input. Sentinels need an explicit multiplicity/consumer policy. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a worker failure after dequeue and define whether the item is retried, failed or retained uncertain. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Assign every ordinary object a writer and a permitted reader interval.",
+        "Disjoint result cells need no shared update lock, but publication and worker completion still require synchronization."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T25-01-T25.02.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a worker failure after dequeue and define whether the item is retried, failed or retained uncertain."
+        }
+      ],
+      "assessor_anchor": "#t2502b",
+      "facet_scope": {
+        "teaching": "Retained T25.02 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T25-01-T25.02.c",
+      "title": "Prefer reduced sharing before introducing fine-grained synchronization.",
+      "objective": "T25.02.c",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "H",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        },
+        {
+          "id": "R-LRUN-THREAD",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION; RETURN VALUE; ERRORS",
+            "NOTES: scheduling order, joinable/detached resources and stack defaults"
+          ]
+        }
+      ],
+      "task": "Replace a single shared histogram with four private histograms plus a merge, preserving exact counts. Derive memory, merge work and publication costs, and measure only equivalent integer-overflow contracts.",
+      "purpose": "Reduced locking is automatically free or always faster.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T25.02 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T25-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Reduced locking is automatically free or always faster. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Reduced locking is automatically free or always faster.",
+        "D2": "Replace a single shared histogram with four private histograms plus a merge, preserving exact counts. Derive memory, merge work and publication costs, and measure only equivalent integer-overflow contracts.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Make the number of bins exceed cache and compare sharding/batching under the same memory cap."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Partitioning spends extra storage/merge work and may improve locality; correctness and measured cost are separate arguments.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Partitioning spends extra storage/merge work and may improve locality; correctness and measured cost are separate arguments. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Make the number of bins exceed cache and compare sharding/batching under the same memory cap. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Assign every ordinary object a writer and a permitted reader interval.",
+        "Disjoint result cells need no shared update lock, but publication and worker completion still require synchronization."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T25-01-T25.02.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Make the number of bins exceed cache and compare sharding/batching under the same memory cap."
+        }
+      ],
+      "assessor_anchor": "#t2502c",
+      "facet_scope": {
+        "teaching": "Retained T25.02 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T25-01.md",
+  "status": {
+    "content": "authored",
+    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite tests do not prove absolute mastery.",
+      "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
+      "Historical optional labels do not exclude required expansion work."
+    ]
+  }
+}

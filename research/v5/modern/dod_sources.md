@@ -1,0 +1,7 @@
+# T70 source inspection and synthesis
+
+Actual bounded passages in dod_resources.json were read on2026-10-17. planning/modern_techniques_plan.md and census sections supplied discovery leads, not authority. New C operations and experiments are original constructions; their claims are assessed under explicit contracts. Accepted T14/T16/T19 work is imported with its original identity rather than re-labelled as new mastery.
+
+LLVM SmallVector distinguishes inline capacity from bounded allocation freedom and calls out object-size tradeoffs. PagedVector adds page-granular lazy storage and indirection. im overview and HashMap contracts distinguish structural sharing from in-place mutation and require cloned values when copying shared nodes. Flecs opening query discussion groups equal component sets into tables; the original teaching ECS uses its own declared migration protocol. The rope paper describes shared ordered trees, length-directed access and selective balancing. GNU gap-buffer pages were unavailable; their content is not claimed inspected. An original gap/piece contract can still be derived and checked independently, with that comparison gap retained.
+
+Exact C17 text remains the inherited reference gap. N1570 object clauses and documented correction records support bounded C reasoning separately. No compiler/hardware results, reviewer independence or learner competence are inferred from source inspection.

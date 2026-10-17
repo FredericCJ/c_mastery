@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "PR-T75-01",
+  "exercise": "X-T75-001",
+  "anchor": "resilience.deadline",
+  "input_contract": "Implement RZScope init/cancel/check/remaining over immutable parent links, atomic cancellation flags and injected uint64 ticks. Limit depth to8, choose the earliest inherited deadline, and reject unrepresentable standalone addition. Then implement a request-budget envelope for two simulated hosts with unrelated clock origins: it carries remaining duration, never a raw local absolute deadline. Deduct local elapsed work and state the transport-delay assumption. Add a completion acknowledgement owned by each asynchronous borrower, retaining scope storage until all acknowledgements arrive.",
+  "expected": "Parent created at10 with budget10 expires20. A child at13 asking100 still expires20; at19 remaining is1 and at20 it is expired. Cancelling the parent makes the child CANCELLED. No borrowed storage becomes reclaimable solely because cancellation was requested.",
+  "independent_oracle": "Exhaust now0–16/budget0–16 across parent/child creation and every cancellation/finish permutation for two borrowers. Use mathematical min and arbitrary-precision addition as an oracle. Test UINT64_MAX edges and chain depth8/9. Compare Go Context documented cancellation and deadline behavior with the C runtime checks and caller lifetime discipline; never infer acknowledgement from an atomic flag.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "parent_deadline": 20,
+    "child_deadline": 20,
+    "remaining_at19": 1,
+    "expired_at20": true
+  }
+}

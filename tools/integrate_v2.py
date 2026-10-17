@@ -54,7 +54,7 @@ def taxonomy():
         domains+=value.get('domains',[value] if 'id' in value else [])
     if domains: dump(ROOT/'curriculum/v2_taxonomy.json',{'edition':2,'domains':sorted(domains,key=lambda d:d['id'])})
 
-def graph():
+def graph(preserved=None, preserved_order=None):
     taxonomy, modules, projects, resources=load()
     module_projects={key:list(value['meta']['projects']) for key,value in modules.items()}
     integration_families=read_json(ROOT/'curriculum/integration_families.json')['families']
@@ -115,13 +115,41 @@ def graph():
             'consumes':[p+'/accepted-component-and-dossier' for p in sorted(set(deps)-{key})],
             'fixtures':meta['fixtures'],'lab_family':primary,'lab_families':candidates,
             'manual_evidence':manual,'evidence_template':meta.get('evidence_template','component')})
+    # Later editions may retain a historical project view while adding explicit
+    # unit/exercise adapters. Discovering a new lab does not rewrite that view.
+    if preserved:
+        missing = set(preserved) - {node['id'] for node in nodes}
+        if missing:
+            raise ValueError('Accepted projects disappeared from canonical input: ' + ', '.join(sorted(missing)))
+        if preserved_order is not None and (len(preserved_order) != len(set(preserved_order)) or set(preserved_order) != set(preserved)):
+            raise ValueError('Accepted project route must contain each preserved project exactly once')
+        for node in nodes:
+            old = preserved.get(node['id'])
+            if old is None:
+                continue
+            # Missing and present-with-None are different contracts as well.
+            changed = (set(node) ^ set(old)) | {key for key in set(node) & set(old) if node[key] != old[key]}
+            if changed - {'lab_family', 'lab_families'}:
+                raise ValueError('Accepted project semantics changed: ' + node['id'])
+            for key in ('lab_family', 'lab_families'):
+                if key in old:
+                    node[key] = old[key]
+                else:
+                    node.pop(key, None)
     by_id={n['id']:n for n in nodes}; done=set(); order=[]
     while len(done)<len(nodes):
         ready=[n for n in nodes if n['id'] not in done and set(n['requires'])<=done]
         if not ready: raise ValueError('Project prerequisite cycle or missing project: '+str(sorted(set(by_id)-done)))
         early={'PR-T44-01','PR-T44-02','PR-T44-03','PR-T45-01','PR-T45-02','PR-T45-03','PR-T43-01','PR-T43-02'}
         ready.sort(key=lambda n:(0 if n['id'] in early else 1,n['module'],n['id']))
-        key=ready[0]['id'];done.add(key);order.append(key)
+        key=ready[0]['id']
+        if preserved_order and len(order) < len(preserved_order):
+            key = preserved_order[len(order)]
+            if key not in {row['id'] for row in ready}:
+                raise ValueError('Accepted project route is no longer ready: ' + key)
+        done.add(key);order.append(key)
+    if preserved_order is not None and order[:len(preserved_order)] != preserved_order:
+        raise ValueError('Generated project route does not retain the complete accepted prefix')
     dump(ROOT/'curriculum/project_graph.json',{'schema_version':2,'order':order,'projects':nodes,
         'policy':'Whole-project dependencies and selected-objective evidence gates are distinct. Reading a prelude alone does not mark it mastered.',
         'completion':'All required projects, objective evidence, delayed transfer and physical interfaces; automated suites establish only their own scope.'})
@@ -138,6 +166,8 @@ def graph():
         'When a project has more than one family, choose the additional workspace explicitly with `cmastery init PROJECT PATH --family NAME`. Reuse completed components and charge their work once.', '',
         '| Project | Family | Named tests | Scope and remaining evidence |','|---|---|---|---|']
     for (family,key),contract in sorted(laboratory_contracts.items(),key=lambda item:(item[0][1],item[0][0])):
+        if preserved and key in preserved and family not in preserved[key].get('lab_families', []):
+            continue
         scope=contract.get('scope','Finite mechanism checks; full project dossier and transfer remain required.')
         scope+=' '+contract.get('remaining_evidence','')
         evidence.append('| {ref}`'+key+'` | '+family+' | '+', '.join('`'+t+'`' for t in contract.get('tests',[]))+' | '+scope.replace('|','/').replace('\n',' ')+' |')

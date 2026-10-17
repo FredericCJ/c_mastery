@@ -1,0 +1,871 @@
+{
+  "schema_version": 5,
+  "sets": [
+    {
+      "id": "T69.01",
+      "title": "Named interfaces, structural probes and semantic conformance",
+      "objectives": [
+        "T69.01.a",
+        "T69.01.b",
+        "T69.01.c",
+        "T69.01.d"
+      ],
+      "objective_text": {
+        "T69.01.a": "Distinguish nominal registration, structural syntax compatibility and semantic interface laws; explain which C function-pointer mismatches need diagnostics and which wrong implementations still type-check.",
+        "T69.01.b": "Implement typed view constructors and a checked erased call wrapper with exactly-once callback invocation, stable table lifetime and failure-output staging.",
+        "T69.01.c": "Generate values and error callbacks against an independent direct-call model, reject incompatible signature/receiver translations and kill status-erasure and wrong-result mutants.",
+        "T69.01.d": "Transfer to an interface with two mutually constrained operations such as length and copy. Construct a table that satisfies every signature but violates their relation; assess the relation separately. Compare named Rust impl conformance with the C registration and explain why free C functions do not add language extension-method lookup."
+      },
+      "projects": [
+        "PR-T69-01"
+      ],
+      "variants": [
+        {
+          "id": "T69.01-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T69.01.a",
+            "T69.01.b",
+            "T69.01.c",
+            "T69.01.d"
+          ],
+          "prompt": "Distinguish nominal registration, structural syntax compatibility and semantic interface laws; explain which C function-pointer mismatches need diagnostics and which wrong implementations still type-check.",
+          "checklist": [
+            "Distinguish nominal registration, structural syntax compatibility and semantic interface laws; explain which C function-pointer mismatches need diagnostics and which wrong implementations still type-check.",
+            "Implement typed view constructors and a checked erased call wrapper with exactly-once callback invocation, stable table lifetime and failure-output staging.",
+            "Generate values and error callbacks against an independent direct-call model, reject incompatible signature/receiver translations and kill status-erasure and wrong-result mutants.",
+            "Transfer to an interface with two mutually constrained operations such as length and copy. Construct a table that satisfies every signature but violates their relation; assess the relation separately. Compare named Rust impl conformance with the C registration and explain why free C functions do not add language extension-method lookup."
+          ]
+        },
+        {
+          "id": "T69.01-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T69.01.a",
+            "T69.01.b",
+            "T69.01.c",
+            "T69.01.d"
+          ],
+          "prompt": "A borrowed int7 measures7. A callback returning DS_FAILED after writing123 into its private output leaves caller output99 unchanged. A missing table rejects before invocation. The wrong-return-type callback fixture must fail strict C17 compilation. Derive the state before executing.",
+          "checklist": [
+            "Distinguish nominal registration, structural syntax compatibility and semantic interface laws; explain which C function-pointer mismatches need diagnostics and which wrong implementations still type-check.",
+            "Implement typed view constructors and a checked erased call wrapper with exactly-once callback invocation, stable table lifetime and failure-output staging.",
+            "Generate values and error callbacks against an independent direct-call model, reject incompatible signature/receiver translations and kill status-erasure and wrong-result mutants.",
+            "Transfer to an interface with two mutually constrained operations such as length and copy. Construct a table that satisfies every signature but violates their relation; assess the relation separately. Compare named Rust impl conformance with the C registration and explain why free C functions do not add language extension-method lookup."
+          ]
+        },
+        {
+          "id": "T69.01-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T69.01.a",
+            "T69.01.b",
+            "T69.01.c",
+            "T69.01.d"
+          ],
+          "prompt": "X-T69-001-DELAYED: add an interface whose read method may make partial progress. Preserve both progress and status and show why the original single-output success/failure wrapper cannot express it.",
+          "checklist": [
+            "Distinguish nominal registration, structural syntax compatibility and semantic interface laws; explain which C function-pointer mismatches need diagnostics and which wrong implementations still type-check.",
+            "Implement typed view constructors and a checked erased call wrapper with exactly-once callback invocation, stable table lifetime and failure-output staging.",
+            "Generate values and error callbacks against an independent direct-call model, reject incompatible signature/receiver translations and kill status-erasure and wrong-result mutants.",
+            "Transfer to an interface with two mutually constrained operations such as length and copy. Construct a table that satisfies every signature but violates their relation; assess the relation separately. Compare named Rust impl conformance with the C registration and explain why free C functions do not add language extension-method lookup."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DISPATCH-TRAIT-DECL",
+        "R-MOD-DISPATCH-C-POINTERS"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T69.02",
+      "title": "Fat views, embedded tables and unsafe qualifier substitution",
+      "objectives": [
+        "T69.02.a",
+        "T69.02.b",
+        "T69.02.c",
+        "T69.02.d"
+      ],
+      "objective_text": {
+        "T69.02.a": "Derive the two representations and their table/data lifetime and cache costs; distinguish logical two-part dispatch from an ABI promise of exactly two machine words.",
+        "T69.02.b": "Implement an embedded-to-view adapter preserving concrete receiver address, const access and failure publication.",
+        "T69.02.c": "Validate both representations against the same direct implementation and compile the double-pointer qualifier counterexample under strict C17; diagnose why one-level qualifier addition does not generalize recursively.",
+        "T69.02.d": "Compare Rust trait-object representation and lifetime bounds with the C pair, then change to a borrowed subobject and multiple interfaces. Recompute pointer adjustment, owner storage and invalidation; no automatic variance or lifetime proof is inherited. Compile the supplied empty-struct probe under strict C17 and compare a one-byte marker field with the inspected Rust zero-sized marker rules. Record extension diagnostics and actual size separately; no zero-size or no-cost C guarantee follows."
+      },
+      "projects": [
+        "PR-T69-02"
+      ],
+      "variants": [
+        {
+          "id": "T69.02-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T69.02.a",
+            "T69.02.b",
+            "T69.02.c",
+            "T69.02.d"
+          ],
+          "prompt": "Derive the two representations and their table/data lifetime and cache costs; distinguish logical two-part dispatch from an ABI promise of exactly two machine words.",
+          "checklist": [
+            "Derive the two representations and their table/data lifetime and cache costs; distinguish logical two-part dispatch from an ABI promise of exactly two machine words.",
+            "Implement an embedded-to-view adapter preserving concrete receiver address, const access and failure publication.",
+            "Validate both representations against the same direct implementation and compile the double-pointer qualifier counterexample under strict C17; diagnose why one-level qualifier addition does not generalize recursively.",
+            "Compare Rust trait-object representation and lifetime bounds with the C pair, then change to a borrowed subobject and multiple interfaces. Recompute pointer adjustment, owner storage and invalidation; no automatic variance or lifetime proof is inherited. Compile the supplied empty-struct probe under strict C17 and compare a one-byte marker field with the inspected Rust zero-sized marker rules. Record extension diagnostics and actual size separately; no zero-size or no-cost C guarantee follows."
+          ]
+        },
+        {
+          "id": "T69.02-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T69.02.a",
+            "T69.02.b",
+            "T69.02.c",
+            "T69.02.d"
+          ],
+          "prompt": "DSBox containing int17 measures17 through its embedded table. If its table returns DS_FAILED, output99 remains99. Assigning char** to const char** produces the intended diagnostic. A successful cast compilation is not permission to perform the counterfactual const write. Derive the state before executing.",
+          "checklist": [
+            "Derive the two representations and their table/data lifetime and cache costs; distinguish logical two-part dispatch from an ABI promise of exactly two machine words.",
+            "Implement an embedded-to-view adapter preserving concrete receiver address, const access and failure publication.",
+            "Validate both representations against the same direct implementation and compile the double-pointer qualifier counterexample under strict C17; diagnose why one-level qualifier addition does not generalize recursively.",
+            "Compare Rust trait-object representation and lifetime bounds with the C pair, then change to a borrowed subobject and multiple interfaces. Recompute pointer adjustment, owner storage and invalidation; no automatic variance or lifetime proof is inherited. Compile the supplied empty-struct probe under strict C17 and compare a one-byte marker field with the inspected Rust zero-sized marker rules. Record extension diagnostics and actual size separately; no zero-size or no-cost C guarantee follows."
+          ]
+        },
+        {
+          "id": "T69.02-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T69.02.a",
+            "T69.02.b",
+            "T69.02.c",
+            "T69.02.d"
+          ],
+          "prompt": "X-T69-002-DELAYED: a view refers to the second field of a live parent and must outlive a temporary table built on the stack. Repair ownership by choosing a static table or owned metadata, and justify which borrows remain valid.",
+          "checklist": [
+            "Derive the two representations and their table/data lifetime and cache costs; distinguish logical two-part dispatch from an ABI promise of exactly two machine words.",
+            "Implement an embedded-to-view adapter preserving concrete receiver address, const access and failure publication.",
+            "Validate both representations against the same direct implementation and compile the double-pointer qualifier counterexample under strict C17; diagnose why one-level qualifier addition does not generalize recursively.",
+            "Compare Rust trait-object representation and lifetime bounds with the C pair, then change to a borrowed subobject and multiple interfaces. Recompute pointer adjustment, owner storage and invalidation; no automatic variance or lifetime proof is inherited. Compile the supplied empty-struct probe under strict C17 and compare a one-byte marker field with the inspected Rust zero-sized marker rules. Record extension diagnostics and actual size separately; no zero-size or no-cost C guarantee follows."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DISPATCH-TRAIT",
+        "R-MOD-DISPATCH-LAYOUT",
+        "R-MOD-DISPATCH-C-POINTERS"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T69.03",
+      "title": "Dictionary passing, specialization and effect-sensitive folds",
+      "objectives": [
+        "T69.03.a",
+        "T69.03.b",
+        "T69.03.c",
+        "T69.03.d"
+      ],
+      "objective_text": {
+        "T69.03.a": "Derive the dictionary as explicit operation evidence and state the laws required before reordering or parallelizing a fold.",
+        "T69.03.b": "Implement dictionary and specialized forms with identical admission, prefix-overflow and output contracts, maintaining callback order and count.",
+        "T69.03.c": "Exhaust length0–5 over values{-2,0,3} against an independent mathematical fold and failure trace; kill swapped-operand and partial-publication mutants.",
+        "T69.03.d": "Measure code size, indirect branches, compilation and inlining under fixed versus runtime-selected dictionaries. Explain why a C macro over concrete types or void-pointer dictionary does not implement Haskell kind checking over a type constructor; give a rejected or unchecked encoding counterexample."
+      },
+      "projects": [
+        "PR-T69-03"
+      ],
+      "variants": [
+        {
+          "id": "T69.03-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T69.03.a",
+            "T69.03.b",
+            "T69.03.c",
+            "T69.03.d"
+          ],
+          "prompt": "Derive the dictionary as explicit operation evidence and state the laws required before reordering or parallelizing a fold.",
+          "checklist": [
+            "Derive the dictionary as explicit operation evidence and state the laws required before reordering or parallelizing a fold.",
+            "Implement dictionary and specialized forms with identical admission, prefix-overflow and output contracts, maintaining callback order and count.",
+            "Exhaust length0–5 over values{-2,0,3} against an independent mathematical fold and failure trace; kill swapped-operand and partial-publication mutants.",
+            "Measure code size, indirect branches, compilation and inlining under fixed versus runtime-selected dictionaries. Explain why a C macro over concrete types or void-pointer dictionary does not implement Haskell kind checking over a type constructor; give a rejected or unchecked encoding counterexample."
+          ]
+        },
+        {
+          "id": "T69.03-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T69.03.a",
+            "T69.03.b",
+            "T69.03.c",
+            "T69.03.d"
+          ],
+          "prompt": "Folding subtraction over[3,2] from10 yields5; specialized addition yields15. Empty input with initial7 yields7 without callback invocation. A later rejected negative value preserves caller output99 even after an earlier successful callback. Derive the state before executing.",
+          "checklist": [
+            "Derive the dictionary as explicit operation evidence and state the laws required before reordering or parallelizing a fold.",
+            "Implement dictionary and specialized forms with identical admission, prefix-overflow and output contracts, maintaining callback order and count.",
+            "Exhaust length0–5 over values{-2,0,3} against an independent mathematical fold and failure trace; kill swapped-operand and partial-publication mutants.",
+            "Measure code size, indirect branches, compilation and inlining under fixed versus runtime-selected dictionaries. Explain why a C macro over concrete types or void-pointer dictionary does not implement Haskell kind checking over a type constructor; give a rejected or unchecked encoding counterexample."
+          ]
+        },
+        {
+          "id": "T69.03-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T69.03.a",
+            "T69.03.b",
+            "T69.03.c",
+            "T69.03.d"
+          ],
+          "prompt": "X-T69-003-DELAYED: introduce a saturating signed policy and parallel tree reduction. Produce a minimal associativity counterexample and either retain fold order or narrow the algebraic contract before optimizing.",
+          "checklist": [
+            "Derive the dictionary as explicit operation evidence and state the laws required before reordering or parallelizing a fold.",
+            "Implement dictionary and specialized forms with identical admission, prefix-overflow and output contracts, maintaining callback order and count.",
+            "Exhaust length0–5 over values{-2,0,3} against an independent mathematical fold and failure trace; kill swapped-operand and partial-publication mutants.",
+            "Measure code size, indirect branches, compilation and inlining under fixed versus runtime-selected dictionaries. Explain why a C macro over concrete types or void-pointer dictionary does not implement Haskell kind checking over a type constructor; give a rejected or unchecked encoding counterexample."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DISPATCH-KINDS",
+        "R-MOD-DISPATCH-TRAIT-DECL"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T69.04",
+      "title": "Capture ownership and shared, mutable, consuming invocation",
+      "objectives": [
+        "T69.04.a",
+        "T69.04.b",
+        "T69.04.c",
+        "T69.04.d"
+      ],
+      "objective_text": {
+        "T69.04.a": "Separate capture-by-value/reference from invocation capabilities and explain the documented Rust rule that move capture alone does not imply only FnOnce.",
+        "T69.04.b": "Implement the three explicit modes with checked arithmetic, exactly-once consumption and clear borrowed/owned capture lifetimes; add borrowed-slice and owning-resource closures.",
+        "T69.04.c": "Enumerate operation sequences including repeated calls, failed calls, reinitialization under its ownership precondition and copied-state misuse; compare state transitions with an independent finite model.",
+        "T69.04.d": "Transfer to a retained asynchronous callback. Establish an environment outlives relation, cancellation ownership and reentrancy policy; show how copying an active C struct defeats a local consumed bit even when every ordinary call checks it."
+      },
+      "projects": [
+        "PR-T69-04"
+      ],
+      "variants": [
+        {
+          "id": "T69.04-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T69.04.a",
+            "T69.04.b",
+            "T69.04.c",
+            "T69.04.d"
+          ],
+          "prompt": "Separate capture-by-value/reference from invocation capabilities and explain the documented Rust rule that move capture alone does not imply only FnOnce.",
+          "checklist": [
+            "Separate capture-by-value/reference from invocation capabilities and explain the documented Rust rule that move capture alone does not imply only FnOnce.",
+            "Implement the three explicit modes with checked arithmetic, exactly-once consumption and clear borrowed/owned capture lifetimes; add borrowed-slice and owning-resource closures.",
+            "Enumerate operation sequences including repeated calls, failed calls, reinitialization under its ownership precondition and copied-state misuse; compare state transitions with an independent finite model.",
+            "Transfer to a retained asynchronous callback. Establish an environment outlives relation, cancellation ownership and reentrancy policy; show how copying an active C struct defeats a local consumed bit even when every ordinary call checks it."
+          ]
+        },
+        {
+          "id": "T69.04-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T69.04.a",
+            "T69.04.b",
+            "T69.04.c",
+            "T69.04.d"
+          ],
+          "prompt": "Capture3 shared calls with2 return5 repeatedly without capture mutation. Mutable calls return5 then7. Once capture1 with2 returns3 and later DS_EMPTY. Once INT_MAX with1 returns DS_RANGE with unchanged output and becomes inactive. Derive the state before executing.",
+          "checklist": [
+            "Separate capture-by-value/reference from invocation capabilities and explain the documented Rust rule that move capture alone does not imply only FnOnce.",
+            "Implement the three explicit modes with checked arithmetic, exactly-once consumption and clear borrowed/owned capture lifetimes; add borrowed-slice and owning-resource closures.",
+            "Enumerate operation sequences including repeated calls, failed calls, reinitialization under its ownership precondition and copied-state misuse; compare state transitions with an independent finite model.",
+            "Transfer to a retained asynchronous callback. Establish an environment outlives relation, cancellation ownership and reentrancy policy; show how copying an active C struct defeats a local consumed bit even when every ordinary call checks it."
+          ]
+        },
+        {
+          "id": "T69.04-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T69.04.a",
+            "T69.04.b",
+            "T69.04.c",
+            "T69.04.d"
+          ],
+          "prompt": "X-T69-004-DELAYED: the once body takes ownership of a resource before returning a recoverable failure. Design a result that returns the resource when retry is possible, and distinguish that from the original consumed-on-attempt policy.",
+          "checklist": [
+            "Separate capture-by-value/reference from invocation capabilities and explain the documented Rust rule that move capture alone does not imply only FnOnce.",
+            "Implement the three explicit modes with checked arithmetic, exactly-once consumption and clear borrowed/owned capture lifetimes; add borrowed-slice and owning-resource closures.",
+            "Enumerate operation sequences including repeated calls, failed calls, reinitialization under its ownership precondition and copied-state misuse; compare state transitions with an independent finite model.",
+            "Transfer to a retained asynchronous callback. Establish an environment outlives relation, cancellation ownership and reentrancy policy; show how copying an active C struct defeats a local consumed bit even when every ordinary call checks it."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DISPATCH-RUST",
+        "R-MOD-DISPATCH-LAYOUT"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T69.05",
+      "title": "Owning erased calls over the byte-only small buffer",
+      "objectives": [
+        "T69.05.a",
+        "T69.05.b",
+        "T69.05.c",
+        "T69.05.d",
+        "T69.05.e"
+      ],
+      "objective_text": {
+        "T69.05.a": "Derive erased-call representation, invocation thunk, ownership and empty states; distinguish byte encoding from placing an arbitrary typed object in character storage.",
+        "T69.05.b": "Implement capture construction, explicit movement and no-fail destruction through dod.small_buffer with no duplicated allocator logic, including a spill and failure rollback.",
+        "T69.05.c": "Inject each allocation/codec failure, test source/destination/self move and repeated drop, and verify exactly-once external destruction plus unchanged outputs on failing calls.",
+        "T69.05.d": "Compare owning C erasure, a borrowed function reference and the documented C++ move_only_function/function_ref contracts. Analyze inline storage, movement constraints and empty invocation without claiming common ABI or universal small-buffer capacity.",
+        "T69.05.e": "Transfer to a self-referential or over-aligned capture and a callback returning a borrowed reference. Either provide a justified typed representation/relocator/lifetime protocol or reject it explicitly; a byte copy is not a general solution."
+      },
+      "projects": [
+        "PR-T69-05"
+      ],
+      "variants": [
+        {
+          "id": "T69.05-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T69.05.a",
+            "T69.05.b",
+            "T69.05.c",
+            "T69.05.d",
+            "T69.05.e"
+          ],
+          "prompt": "Derive erased-call representation, invocation thunk, ownership and empty states; distinguish byte encoding from placing an arbitrary typed object in character storage.",
+          "checklist": [
+            "Derive erased-call representation, invocation thunk, ownership and empty states; distinguish byte encoding from placing an arbitrary typed object in character storage.",
+            "Implement capture construction, explicit movement and no-fail destruction through dod.small_buffer with no duplicated allocator logic, including a spill and failure rollback.",
+            "Inject each allocation/codec failure, test source/destination/self move and repeated drop, and verify exactly-once external destruction plus unchanged outputs on failing calls.",
+            "Compare owning C erasure, a borrowed function reference and the documented C++ move_only_function/function_ref contracts. Analyze inline storage, movement constraints and empty invocation without claiming common ABI or universal small-buffer capacity.",
+            "Transfer to a self-referential or over-aligned capture and a callback returning a borrowed reference. Either provide a justified typed representation/relocator/lifetime protocol or reject it explicitly; a byte copy is not a general solution."
+          ]
+        },
+        {
+          "id": "T69.05-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T69.05.a",
+            "T69.05.b",
+            "T69.05.c",
+            "T69.05.d",
+            "T69.05.e"
+          ],
+          "prompt": "Capture byte7 called with3 produces10. Move leaves the source inactive/empty and destination active. Dropping source then destination twice invokes the resource destructor exactly once. Allocation failure during a large capture assignment leaves the destination empty and ownership with the caller. Derive the state before executing.",
+          "checklist": [
+            "Derive erased-call representation, invocation thunk, ownership and empty states; distinguish byte encoding from placing an arbitrary typed object in character storage.",
+            "Implement capture construction, explicit movement and no-fail destruction through dod.small_buffer with no duplicated allocator logic, including a spill and failure rollback.",
+            "Inject each allocation/codec failure, test source/destination/self move and repeated drop, and verify exactly-once external destruction plus unchanged outputs on failing calls.",
+            "Compare owning C erasure, a borrowed function reference and the documented C++ move_only_function/function_ref contracts. Analyze inline storage, movement constraints and empty invocation without claiming common ABI or universal small-buffer capacity.",
+            "Transfer to a self-referential or over-aligned capture and a callback returning a borrowed reference. Either provide a justified typed representation/relocator/lifetime protocol or reject it explicitly; a byte copy is not a general solution."
+          ]
+        },
+        {
+          "id": "T69.05-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T69.05.a",
+            "T69.05.b",
+            "T69.05.c",
+            "T69.05.d",
+            "T69.05.e"
+          ],
+          "prompt": "X-T69-005-DELAYED: allow cloning only for captures whose clone callback can fail. Specify source preservation, destination rollback and destructor ordering when the second of two owned subresources fails to clone.",
+          "checklist": [
+            "Derive erased-call representation, invocation thunk, ownership and empty states; distinguish byte encoding from placing an arbitrary typed object in character storage.",
+            "Implement capture construction, explicit movement and no-fail destruction through dod.small_buffer with no duplicated allocator logic, including a spill and failure rollback.",
+            "Inject each allocation/codec failure, test source/destination/self move and repeated drop, and verify exactly-once external destruction plus unchanged outputs on failing calls.",
+            "Compare owning C erasure, a borrowed function reference and the documented C++ move_only_function/function_ref contracts. Analyze inline storage, movement constraints and empty invocation without claiming common ABI or universal small-buffer capacity.",
+            "Transfer to a self-referential or over-aligned capture and a callback returning a borrowed reference. Either provide a justified typed representation/relocator/lifetime protocol or reject it explicitly; a byte copy is not a general solution."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DISPATCH-MOVE",
+        "R-MOD-DISPATCH-REF",
+        "R-MOD-DISPATCH-C-POINTERS"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T69.06",
+      "title": "Ordered multiple dispatch and cache invalidation epochs",
+      "objectives": [
+        "T69.06.a",
+        "T69.06.b",
+        "T69.06.c",
+        "T69.06.d"
+      ],
+      "objective_text": {
+        "T69.06.a": "Derive ordered dispatch keys, missing-method behavior, cache coherence and epoch exhaustion; distinguish explicit symmetry from accidental argument normalization.",
+        "T69.06.b": "Implement registration and cached invocation preserving output on failure; add a two-entry policy with an explicit eviction rule.",
+        "T69.06.c": "Enumerate all nine type pairs and registration/cache histories, including cached misses, replacement/removal and epoch exhaustion; kill stale-epoch and reversed-pair mutants.",
+        "T69.06.d": "Transfer to subtype fallback with two equally specific candidates. Define ambiguity detection and coherence before caching, then compare lookup, code size and update costs under monomorphic and varied call traces."
+      },
+      "projects": [
+        "PR-T69-06"
+      ],
+      "variants": [
+        {
+          "id": "T69.06-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T69.06.a",
+            "T69.06.b",
+            "T69.06.c",
+            "T69.06.d"
+          ],
+          "prompt": "Derive ordered dispatch keys, missing-method behavior, cache coherence and epoch exhaustion; distinguish explicit symmetry from accidental argument normalization.",
+          "checklist": [
+            "Derive ordered dispatch keys, missing-method behavior, cache coherence and epoch exhaustion; distinguish explicit symmetry from accidental argument normalization.",
+            "Implement registration and cached invocation preserving output on failure; add a two-entry policy with an explicit eviction rule.",
+            "Enumerate all nine type pairs and registration/cache histories, including cached misses, replacement/removal and epoch exhaustion; kill stale-epoch and reversed-pair mutants.",
+            "Transfer to subtype fallback with two equally specific candidates. Define ambiguity detection and coherence before caching, then compare lookup, code size and update costs under monomorphic and varied call traces."
+          ]
+        },
+        {
+          "id": "T69.06-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T69.06.a",
+            "T69.06.b",
+            "T69.06.c",
+            "T69.06.d"
+          ],
+          "prompt": "Register subtraction for(0,1): arguments10,2 produce8; reversed types(1,0) are unsupported. Replace the same entry with addition: the old cached result must be invalidated and produce12. A third registration rejects at the finite epoch limit. Derive the state before executing.",
+          "checklist": [
+            "Derive ordered dispatch keys, missing-method behavior, cache coherence and epoch exhaustion; distinguish explicit symmetry from accidental argument normalization.",
+            "Implement registration and cached invocation preserving output on failure; add a two-entry policy with an explicit eviction rule.",
+            "Enumerate all nine type pairs and registration/cache histories, including cached misses, replacement/removal and epoch exhaustion; kill stale-epoch and reversed-pair mutants.",
+            "Transfer to subtype fallback with two equally specific candidates. Define ambiguity detection and coherence before caching, then compare lookup, code size and update costs under monomorphic and varied call traces."
+          ]
+        },
+        {
+          "id": "T69.06-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T69.06.a",
+            "T69.06.b",
+            "T69.06.c",
+            "T69.06.d"
+          ],
+          "prompt": "X-T69-006-DELAYED: methods can be registered by a reloadable plugin. Integrate module ownership into each cache entry and prove quiescence before discarding code pointers, including cached misses after a new plugin loads.",
+          "checklist": [
+            "Derive ordered dispatch keys, missing-method behavior, cache coherence and epoch exhaustion; distinguish explicit symmetry from accidental argument normalization.",
+            "Implement registration and cached invocation preserving output on failure; add a two-entry policy with an explicit eviction rule.",
+            "Enumerate all nine type pairs and registration/cache histories, including cached misses, replacement/removal and epoch exhaustion; kill stale-epoch and reversed-pair mutants.",
+            "Transfer to subtype fallback with two equally specific candidates. Define ambiguity detection and coherence before caching, then compare lookup, code size and update costs under monomorphic and varied call traces."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DISPATCH-TRAIT-DECL"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T69.07",
+      "title": "Intrusive membership, initial-member recovery and external behavior",
+      "objectives": [
+        "T69.07.a",
+        "T69.07.b",
+        "T69.07.c",
+        "T69.07.d"
+      ],
+      "objective_text": {
+        "T69.07.a": "Prove circular forward/backward invariants, single membership and item/list lifetime; explain why the sentinel is not a DSItem.",
+        "T69.07.b": "Implement bounded insertion/removal and checked traversal using the inspected first-member conversion rule; attach external behavior without assuming an object hierarchy.",
+        "T69.07.c": "Enumerate insertion/removal permutations and wrong-list operations, recompute both directions independently and reject omitted-backlink and duplicate-membership mutants.",
+        "T69.07.d": "Transfer to an object with two intrusive hooks and movable surrounding storage. Compare an explicit parent pointer, typed index and platform-specific container recovery; define every invalidation rule and inspect generated code/diagnostics without executing an invalid cast."
+      },
+      "projects": [
+        "PR-T69-07"
+      ],
+      "variants": [
+        {
+          "id": "T69.07-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T69.07.a",
+            "T69.07.b",
+            "T69.07.c",
+            "T69.07.d"
+          ],
+          "prompt": "Prove circular forward/backward invariants, single membership and item/list lifetime; explain why the sentinel is not a DSItem.",
+          "checklist": [
+            "Prove circular forward/backward invariants, single membership and item/list lifetime; explain why the sentinel is not a DSItem.",
+            "Implement bounded insertion/removal and checked traversal using the inspected first-member conversion rule; attach external behavior without assuming an object hierarchy.",
+            "Enumerate insertion/removal permutations and wrong-list operations, recompute both directions independently and reject omitted-backlink and duplicate-membership mutants.",
+            "Transfer to an object with two intrusive hooks and movable surrounding storage. Compare an explicit parent pointer, typed index and platform-specific container recovery; define every invalidation rule and inspect generated code/diagnostics without executing an invalid cast."
+          ]
+        },
+        {
+          "id": "T69.07-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T69.07.a",
+            "T69.07.b",
+            "T69.07.c",
+            "T69.07.d"
+          ],
+          "prompt": "Appending values1,2,3 produces sum6. Removing2 repairs both neighboring links, clears its membership and produces sum4. Duplicate insertion and repeated removal reject. Removing all items restores both sentinel links to itself. Derive the state before executing.",
+          "checklist": [
+            "Prove circular forward/backward invariants, single membership and item/list lifetime; explain why the sentinel is not a DSItem.",
+            "Implement bounded insertion/removal and checked traversal using the inspected first-member conversion rule; attach external behavior without assuming an object hierarchy.",
+            "Enumerate insertion/removal permutations and wrong-list operations, recompute both directions independently and reject omitted-backlink and duplicate-membership mutants.",
+            "Transfer to an object with two intrusive hooks and movable surrounding storage. Compare an explicit parent pointer, typed index and platform-specific container recovery; define every invalidation rule and inspect generated code/diagnostics without executing an invalid cast."
+          ]
+        },
+        {
+          "id": "T69.07-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T69.07.a",
+            "T69.07.b",
+            "T69.07.c",
+            "T69.07.d"
+          ],
+          "prompt": "X-T69-007-DELAYED: replace physical links with stable generation-checked indices so the item array may move. Compare additional validation/indirection cost and demonstrate rejection after slot reuse.",
+          "checklist": [
+            "Prove circular forward/backward invariants, single membership and item/list lifetime; explain why the sentinel is not a DSItem.",
+            "Implement bounded insertion/removal and checked traversal using the inspected first-member conversion rule; attach external behavior without assuming an object hierarchy.",
+            "Enumerate insertion/removal permutations and wrong-list operations, recompute both directions independently and reject omitted-backlink and duplicate-membership mutants.",
+            "Transfer to an object with two intrusive hooks and movable surrounding storage. Compare an explicit parent pointer, typed index and platform-specific container recovery; define every invalidation rule and inspect generated code/diagnostics without executing an invalid cast."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DISPATCH-C-POINTERS"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T69.08",
+      "title": "Opaque modules with explicit service injection and failure effects",
+      "objectives": [
+        "T69.08.a",
+        "T69.08.b",
+        "T69.08.c",
+        "T69.08.d"
+      ],
+      "objective_text": {
+        "T69.08.a": "Derive public incomplete-type opacity and dependency ownership; distinguish hidden representation, nominal type identity and an unforgeable security boundary.",
+        "T69.08.b": "Implement a bounded factory, close protocol and injected-service operation with atomic result publication and explicit irreversible callback effects.",
+        "T69.08.c": "Inject failures at each service invocation and exhaust the factory; compile a client attempting private-field access and compare two implementations through one independent contract suite.",
+        "T69.08.d": "Transfer to a parameterized module with correlated key/value types. Explain which relations a typed C facade can enforce and which erased dictionary cannot; compare fixed opaque concrete return identity with runtime existential selection and state why neither is reproduced merely by returning void*."
+      },
+      "projects": [
+        "PR-T69-08"
+      ],
+      "variants": [
+        {
+          "id": "T69.08-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T69.08.a",
+            "T69.08.b",
+            "T69.08.c",
+            "T69.08.d"
+          ],
+          "prompt": "Derive public incomplete-type opacity and dependency ownership; distinguish hidden representation, nominal type identity and an unforgeable security boundary.",
+          "checklist": [
+            "Derive public incomplete-type opacity and dependency ownership; distinguish hidden representation, nominal type identity and an unforgeable security boundary.",
+            "Implement a bounded factory, close protocol and injected-service operation with atomic result publication and explicit irreversible callback effects.",
+            "Inject failures at each service invocation and exhaust the factory; compile a client attempting private-field access and compare two implementations through one independent contract suite.",
+            "Transfer to a parameterized module with correlated key/value types. Explain which relations a typed C facade can enforce and which erased dictionary cannot; compare fixed opaque concrete return identity with runtime existential selection and state why neither is reproduced merely by returning void*."
+          ]
+        },
+        {
+          "id": "T69.08-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T69.08.a",
+            "T69.08.b",
+            "T69.08.c",
+            "T69.08.d"
+          ],
+          "prompt": "Two service reads of7 return14 with exactly two calls. Failure on the second read preserves caller output99 while the call count remains2. A third simultaneously open module returns full and preserves the output pointer. Closing ends the lease and all module aliases must be discarded. Derive the state before executing.",
+          "checklist": [
+            "Derive public incomplete-type opacity and dependency ownership; distinguish hidden representation, nominal type identity and an unforgeable security boundary.",
+            "Implement a bounded factory, close protocol and injected-service operation with atomic result publication and explicit irreversible callback effects.",
+            "Inject failures at each service invocation and exhaust the factory; compile a client attempting private-field access and compare two implementations through one independent contract suite.",
+            "Transfer to a parameterized module with correlated key/value types. Explain which relations a typed C facade can enforce and which erased dictionary cannot; compare fixed opaque concrete return identity with runtime existential selection and state why neither is reproduced merely by returning void*."
+          ]
+        },
+        {
+          "id": "T69.08-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T69.08.a",
+            "T69.08.b",
+            "T69.08.c",
+            "T69.08.d"
+          ],
+          "prompt": "X-T69-008-DELAYED: replace borrowed service context with a shared owner and allow factory creation to fail after acquiring one dependency. Integrate cleanup.scope and provide acquisition-prefix rollback without changing successful client semantics.",
+          "checklist": [
+            "Derive public incomplete-type opacity and dependency ownership; distinguish hidden representation, nominal type identity and an unforgeable security boundary.",
+            "Implement a bounded factory, close protocol and injected-service operation with atomic result publication and explicit irreversible callback effects.",
+            "Inject failures at each service invocation and exhaust the factory; compile a client attempting private-field access and compare two implementations through one independent contract suite.",
+            "Transfer to a parameterized module with correlated key/value types. Explain which relations a typed C facade can enforce and which erased dictionary cannot; compare fixed opaque concrete return identity with runtime existential selection and state why neither is reproduced merely by returning void*."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DISPATCH-OPAQUE",
+        "R-MOD-DISPATCH-TRAIT-DECL"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T69.09",
+      "title": "Authority attenuation, revocation and the limits of C tokens",
+      "objectives": [
+        "T69.09.a",
+        "T69.09.b",
+        "T69.09.c",
+        "T69.09.d"
+      ],
+      "objective_text": {
+        "T69.09.a": "State the authority graph, permitted attacker actions and property: delegated rights remain a subset and revoked epochs cannot authorize a new effect. Distinguish a cooperative token from an unforgeable capability.",
+        "T69.09.b": "Implement subset admission, owner/epoch validation, bounded revocation and checked effect publication without global ambient authority.",
+        "T69.09.c": "Enumerate all rights masks, owner pairs and epoch transitions; demonstrate harmless unauthorized-counter change in the two explicit mutants and regression rejection in the repair.",
+        "T69.09.d": "Transfer to delegation across an actual process boundary with opaque server-side IDs. Define authentication, replay, ID reuse, revocation and confused-deputy behavior, and show why a hidden C struct alone does not solve arbitrary in-process writes."
+      },
+      "projects": [
+        "PR-T69-09"
+      ],
+      "variants": [
+        {
+          "id": "T69.09-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T69.09.a",
+            "T69.09.b",
+            "T69.09.c",
+            "T69.09.d"
+          ],
+          "prompt": "State the authority graph, permitted attacker actions and property: delegated rights remain a subset and revoked epochs cannot authorize a new effect. Distinguish a cooperative token from an unforgeable capability.",
+          "checklist": [
+            "State the authority graph, permitted attacker actions and property: delegated rights remain a subset and revoked epochs cannot authorize a new effect. Distinguish a cooperative token from an unforgeable capability.",
+            "Implement subset admission, owner/epoch validation, bounded revocation and checked effect publication without global ambient authority.",
+            "Enumerate all rights masks, owner pairs and epoch transitions; demonstrate harmless unauthorized-counter change in the two explicit mutants and regression rejection in the repair.",
+            "Transfer to delegation across an actual process boundary with opaque server-side IDs. Define authentication, replay, ID reuse, revocation and confused-deputy behavior, and show why a hidden C struct alone does not solve arbitrary in-process writes."
+          ]
+        },
+        {
+          "id": "T69.09-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T69.09.a",
+            "T69.09.b",
+            "T69.09.c",
+            "T69.09.d"
+          ],
+          "prompt": "A full-rights capability can add5. Its attenuated read-only capability cannot change the counter. Attempting to attenuate read-only rights to full rights rejects with output unchanged. After revocation, the former full capability returns stale and the counter remains5. Derive the state before executing.",
+          "checklist": [
+            "State the authority graph, permitted attacker actions and property: delegated rights remain a subset and revoked epochs cannot authorize a new effect. Distinguish a cooperative token from an unforgeable capability.",
+            "Implement subset admission, owner/epoch validation, bounded revocation and checked effect publication without global ambient authority.",
+            "Enumerate all rights masks, owner pairs and epoch transitions; demonstrate harmless unauthorized-counter change in the two explicit mutants and regression rejection in the repair.",
+            "Transfer to delegation across an actual process boundary with opaque server-side IDs. Define authentication, replay, ID reuse, revocation and confused-deputy behavior, and show why a hidden C struct alone does not solve arbitrary in-process writes."
+          ]
+        },
+        {
+          "id": "T69.09-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T69.09.a",
+            "T69.09.b",
+            "T69.09.c",
+            "T69.09.d"
+          ],
+          "prompt": "X-T69-009-DELAYED: introduce a deputy that accepts a target owner plus caller capability. Construct a cross-owner request that would spend the deputy authority, then repair it by making the exact effect capability an explicit argument.",
+          "checklist": [
+            "State the authority graph, permitted attacker actions and property: delegated rights remain a subset and revoked epochs cannot authorize a new effect. Distinguish a cooperative token from an unforgeable capability.",
+            "Implement subset admission, owner/epoch validation, bounded revocation and checked effect publication without global ambient authority.",
+            "Enumerate all rights masks, owner pairs and epoch transitions; demonstrate harmless unauthorized-counter change in the two explicit mutants and regression rejection in the repair.",
+            "Transfer to delegation across an actual process boundary with opaque server-side IDs. Define authentication, replay, ID reuse, revocation and confused-deputy behavior, and show why a hidden C struct alone does not solve arbitrary in-process writes."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DISPATCH-C-POINTERS"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T69.10",
+      "title": "Versioned plugin objects and borrowed code lifetime",
+      "objectives": [
+        "T69.10.a",
+        "T69.10.b",
+        "T69.10.c",
+        "T69.10.d"
+      ],
+      "objective_text": {
+        "T69.10.a": "Separate ISO object/function pointer rules, the target ABI and Linux loader semantics, including dlsym error handling, constructor effects and logical invalidation after close.",
+        "T69.10.b": "Implement failure-clean loading, exact version/size admission and borrowed-code quiescence using a typed exported object; define trusted fixture extent rather than pretending a size field proves memory validity.",
+        "T69.10.c": "Run original good/bad/missing-symbol/size fixtures under GCC/Clang sanitizers, verify each acquisition prefix and reject ignored-version and premature-close mutants by intended assertions before an invalid call.",
+        "T69.10.d": "Transfer to an ABI with optional trailing methods and independently built clients. Specify common-prefix compatibility, alignment/calling-convention/version negotiation and code/data allocator ownership; test with separate shared libraries and record unsupported ABI combinations."
+      },
+      "projects": [
+        "PR-T69-10"
+      ],
+      "variants": [
+        {
+          "id": "T69.10-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T69.10.a",
+            "T69.10.b",
+            "T69.10.c",
+            "T69.10.d"
+          ],
+          "prompt": "Separate ISO object/function pointer rules, the target ABI and Linux loader semantics, including dlsym error handling, constructor effects and logical invalidation after close.",
+          "checklist": [
+            "Separate ISO object/function pointer rules, the target ABI and Linux loader semantics, including dlsym error handling, constructor effects and logical invalidation after close.",
+            "Implement failure-clean loading, exact version/size admission and borrowed-code quiescence using a typed exported object; define trusted fixture extent rather than pretending a size field proves memory validity.",
+            "Run original good/bad/missing-symbol/size fixtures under GCC/Clang sanitizers, verify each acquisition prefix and reject ignored-version and premature-close mutants by intended assertions before an invalid call.",
+            "Transfer to an ABI with optional trailing methods and independently built clients. Specify common-prefix compatibility, alignment/calling-convention/version negotiation and code/data allocator ownership; test with separate shared libraries and record unsupported ABI combinations."
+          ]
+        },
+        {
+          "id": "T69.10-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T69.10.a",
+            "T69.10.b",
+            "T69.10.c",
+            "T69.10.d"
+          ],
+          "prompt": "The ABI9 original fixture rejects and leaves the module empty. ABI1 opens; acquire then close returns busy. Its apply(17,3) returns20. Clear the borrowed pointer, release, and close empties handle/API. Never call a pointer after release/close to infer whether the loader really unmapped it. Derive the state before executing.",
+          "checklist": [
+            "Separate ISO object/function pointer rules, the target ABI and Linux loader semantics, including dlsym error handling, constructor effects and logical invalidation after close.",
+            "Implement failure-clean loading, exact version/size admission and borrowed-code quiescence using a typed exported object; define trusted fixture extent rather than pretending a size field proves memory validity.",
+            "Run original good/bad/missing-symbol/size fixtures under GCC/Clang sanitizers, verify each acquisition prefix and reject ignored-version and premature-close mutants by intended assertions before an invalid call.",
+            "Transfer to an ABI with optional trailing methods and independently built clients. Specify common-prefix compatibility, alignment/calling-convention/version negotiation and code/data allocator ownership; test with separate shared libraries and record unsupported ABI combinations."
+          ]
+        },
+        {
+          "id": "T69.10-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T69.10.a",
+            "T69.10.b",
+            "T69.10.c",
+            "T69.10.d"
+          ],
+          "prompt": "X-T69-010-DELAYED: the plugin registers a callback in a host registry. Add registration ownership and removal acknowledgement; prove no callback can execute after unload, including a queued but not running callback.",
+          "checklist": [
+            "Separate ISO object/function pointer rules, the target ABI and Linux loader semantics, including dlsym error handling, constructor effects and logical invalidation after close.",
+            "Implement failure-clean loading, exact version/size admission and borrowed-code quiescence using a typed exported object; define trusted fixture extent rather than pretending a size field proves memory validity.",
+            "Run original good/bad/missing-symbol/size fixtures under GCC/Clang sanitizers, verify each acquisition prefix and reject ignored-version and premature-close mutants by intended assertions before an invalid call.",
+            "Transfer to an ABI with optional trailing methods and independently built clients. Specify common-prefix compatibility, alignment/calling-convention/version negotiation and code/data allocator ownership; test with separate shared libraries and record unsupported ABI combinations."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DISPATCH-DLOPEN",
+        "R-MOD-DISPATCH-DLSYM",
+        "R-MOD-DISPATCH-C-POINTERS"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T69.11",
+      "title": "Quiescent hot reload with staged state handoff and retirement",
+      "objectives": [
+        "T69.11.a",
+        "T69.11.b",
+        "T69.11.c",
+        "T69.11.d"
+      ],
+      "objective_text": {
+        "T69.11.a": "Derive prepare/commit/retire states and the quiescence condition covering every borrowed code/data pointer; distinguish rejected migration from committed reload with pending cleanup.",
+        "T69.11.b": "Implement staged migration, source ownership consumption, finite generations and explicit retired collection, preserving the old service on every precommit failure.",
+        "T69.11.c": "Explore reload/borrow/release/collect/fail sequences against an independent ownership/state model, verifying no duplicated or lost handle and no state publication before migration succeeds.",
+        "T69.11.d": "Transfer to asynchronous plugin callbacks and owned variable-size state. Define snapshot/serialization, cancellation acknowledgement, allocator boundaries and bounded retirement; measure pause time and retained resources without claiming transparent live-code replacement."
+      },
+      "projects": [
+        "PR-T69-11"
+      ],
+      "variants": [
+        {
+          "id": "T69.11-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T69.11.a",
+            "T69.11.b",
+            "T69.11.c",
+            "T69.11.d"
+          ],
+          "prompt": "Derive prepare/commit/retire states and the quiescence condition covering every borrowed code/data pointer; distinguish rejected migration from committed reload with pending cleanup.",
+          "checklist": [
+            "Derive prepare/commit/retire states and the quiescence condition covering every borrowed code/data pointer; distinguish rejected migration from committed reload with pending cleanup.",
+            "Implement staged migration, source ownership consumption, finite generations and explicit retired collection, preserving the old service on every precommit failure.",
+            "Explore reload/borrow/release/collect/fail sequences against an independent ownership/state model, verifying no duplicated or lost handle and no state publication before migration succeeds.",
+            "Transfer to asynchronous plugin callbacks and owned variable-size state. Define snapshot/serialization, cancellation acknowledgement, allocator boundaries and bounded retirement; measure pause time and retained resources without claiming transparent live-code replacement."
+          ]
+        },
+        {
+          "id": "T69.11-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T69.11.a",
+            "T69.11.b",
+            "T69.11.c",
+            "T69.11.d"
+          ],
+          "prompt": "Starting state7, load schema1 then schema2: state becomes14, generation2, candidate becomes empty and the former module is retired. Collect releases retired. With old state600, migration rejects and retains state600, generation2, current and candidate ownership unchanged. Derive the state before executing.",
+          "checklist": [
+            "Derive prepare/commit/retire states and the quiescence condition covering every borrowed code/data pointer; distinguish rejected migration from committed reload with pending cleanup.",
+            "Implement staged migration, source ownership consumption, finite generations and explicit retired collection, preserving the old service on every precommit failure.",
+            "Explore reload/borrow/release/collect/fail sequences against an independent ownership/state model, verifying no duplicated or lost handle and no state publication before migration succeeds.",
+            "Transfer to asynchronous plugin callbacks and owned variable-size state. Define snapshot/serialization, cancellation acknowledgement, allocator boundaries and bounded retirement; measure pause time and retained resources without claiming transparent live-code replacement."
+          ]
+        },
+        {
+          "id": "T69.11-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T69.11.a",
+            "T69.11.b",
+            "T69.11.c",
+            "T69.11.d"
+          ],
+          "prompt": "X-T69-011-DELAYED: a candidate accepts state but its initialization registers two host callbacks and the second registration fails. Design precommit rollback and a postcommit retirement protocol, including exactly-once callback deregistration.",
+          "checklist": [
+            "Derive prepare/commit/retire states and the quiescence condition covering every borrowed code/data pointer; distinguish rejected migration from committed reload with pending cleanup.",
+            "Implement staged migration, source ownership consumption, finite generations and explicit retired collection, preserving the old service on every precommit failure.",
+            "Explore reload/borrow/release/collect/fail sequences against an independent ownership/state model, verifying no duplicated or lost handle and no state publication before migration succeeds.",
+            "Transfer to asynchronous plugin callbacks and owned variable-size state. Define snapshot/serialization, cancellation acknowledgement, allocator boundaries and bounded retirement; measure pause time and retained resources without claiming transparent live-code replacement."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DISPATCH-DLOPEN",
+        "R-MOD-DISPATCH-DLSYM"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    }
+  ]
+}

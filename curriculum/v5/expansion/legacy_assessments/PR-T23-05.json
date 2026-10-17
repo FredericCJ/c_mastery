@@ -1,0 +1,393 @@
+{
+  "schema_version": 1,
+  "project": "PR-T23-05",
+  "domain": "T23",
+  "title": "File locking and interrupted updates — explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T23.md",
+        "sha256": "d9ae48b509898d345050f9d4b6b5398ffa8d61c6c12dea664d13f7258ca7abe7",
+        "passages": [
+          "All assigned topic teaching and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T23-05.md",
+        "sha256": "592bff8a0e4801bfba3556fa7c2d437079d295f44a7e27cba4437b7f8a6a843f",
+        "passages": [
+          "Metadata, Contract, Steps, Failure cases, Acceptance, Hints and changed-condition work"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T23-05.json",
+        "sha256": "9a0ce0593a353fd0e1b2577cdb0fa5b4fab73140d2c89f217fa504e7d52923d0",
+        "passages": [
+          "Complete synthetic inputs and expected outputs"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "Exact branches used by the assigned synthetic fixture; not target execution"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/README.md",
+        "sha256": "ea69b7b3b3fc358afd7cc62e4f64c8e4eb68e07a1a8cb58e4b8e117ba3bcf580",
+        "passages": [
+          "Named implementation contracts and explicit execution/physical limitations"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/CONTRACTS.md",
+        "sha256": "37b5c55cf0473e98071ee1221cf5667e739923b227f22ccec6b80a49797d10c5",
+        "passages": [
+          "All operation contracts, preconditions, failure and ownership boundaries"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T23.md",
+        "anchors": [
+          "T23.12"
+        ]
+      }
+    ],
+    "units": [
+      "U-T23-05-01",
+      "U-T23-05-02",
+      "U-T23-05-03",
+      "U-T23-05-04"
+    ],
+    "inspection_limits": [
+      "All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.",
+      "Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.",
+      "Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.",
+    "target": "Unprivileged Linux x86-64 for original hosted experiments; pure C memory models and restricted-profile target code retain their own contracts. Kernel execution only in a disposable VM.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.",
+      "Device/VM/tool unavailability is a missing observation, not a passing result."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-B06-FSYNC",
+      "path": "research/v5/b06_resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; ERRORS"
+      ]
+    },
+    {
+      "id": "R-LSYS-WRITE",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "RETURN VALUE; ERRORS EINTR/EAGAIN/EPIPE; NOTES short transfers and durability"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
+    "Historical reading metadata is not promoted to a new source-inspection claim.",
+    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T23-05.md",
+    "fixtures/systems/PR-T23-05.json",
+    "tools/verify_systems_fixtures.py",
+    "labs/hosted_systems/README.md"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contracts and bounded partial anchors",
+    "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
+    "tests": [],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T23-05-T23.12.a",
+      "title": "Distinguish buffering, visibility, and durable storage claims.",
+      "objective": "T23.12.a",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-FSYNC",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "DESCRIPTION; RETURN VALUE; ERRORS"
+          ]
+        },
+        {
+          "id": "R-LSYS-WRITE",
+          "path": "research/v5/expansion/legacy_systems/resources.json",
+          "passages": [
+            "RETURN VALUE; ERRORS EINTR/EAGAIN/EPIPE; NOTES short transfers and durability"
+          ]
+        }
+      ],
+      "task": "Draw separate application-buffer, kernel-visible, file-synchronized and directory-synchronized states for a temporary replacement. Inject fsync EIO after a successful write and preserve the failure in the result record.",
+      "purpose": "Successful write, fflush or rename is universal durable success.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.12 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-05 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Successful write, fflush or rename is universal durable success. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Successful write, fflush or rename is universal durable success.",
+        "D2": "Draw separate application-buffer, kernel-visible, file-synchronized and directory-synchronized states for a temporary replacement. Inject fsync EIO after a successful write and preserve the failure in the result record.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Replace a regular file with a pipe and show why the same synchronization API is inapplicable."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Visibility and persistence boundaries differ; failed synchronization leaves a durability claim unresolved even when reads show new bytes.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Visibility and persistence boundaries differ; failed synchronization leaves a durability claim unresolved even when reads show new bytes. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace a regular file with a pipe and show why the same synchronization API is inapplicable. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Give each buffer and persistence boundary its own state.",
+        "After rename, ask which directory entry must survive a crash; a successful write is an earlier boundary."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-05-T23.12.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace a regular file with a pipe and show why the same synchronization API is inapplicable."
+        }
+      ],
+      "assessor_anchor": "#t2312a",
+      "facet_scope": {
+        "teaching": "Retained T23.12 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T23-05-T23.12.b",
+      "title": "Design update protocols using explicit synchronization and replacement steps.",
+      "objective": "T23.12.b",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-FSYNC",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "DESCRIPTION; RETURN VALUE; ERRORS"
+          ]
+        },
+        {
+          "id": "R-LSYS-WRITE",
+          "path": "research/v5/expansion/legacy_systems/resources.json",
+          "passages": [
+            "RETURN VALUE; ERRORS EINTR/EAGAIN/EPIPE; NOTES short transfers and durability"
+          ]
+        }
+      ],
+      "task": "Implement write-temp, file-fsync, rename and directory-fsync under a stable cooperating lock file. Keep old/new synthetic payloads, inject failure at each transition and show why locking the replaceable data inode splits ownership after rename.",
+      "purpose": "An advisory lock follows the pathname through replacement.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.12 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-05 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "An advisory lock follows the pathname through replacement. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: An advisory lock follows the pathname through replacement.",
+        "D2": "Implement write-temp, file-fsync, rename and directory-fsync under a stable cooperating lock file. Keep old/new synthetic payloads, inject failure at each transition and show why locking the replaceable data inode splits ownership after rename.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Introduce an uncooperative writer and identify the exact guarantee the advisory protocol cannot provide."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Locks attach to their documented object/lifetime; cooperating writers need a stable coordination object. The sequence's persistence claim is conditional on filesystem/device behavior.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Locks attach to their documented object/lifetime; cooperating writers need a stable coordination object. The sequence's persistence claim is conditional on filesystem/device behavior. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Introduce an uncooperative writer and identify the exact guarantee the advisory protocol cannot provide. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Give each buffer and persistence boundary its own state.",
+        "After rename, ask which directory entry must survive a crash; a successful write is an earlier boundary."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-05-T23.12.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Introduce an uncooperative writer and identify the exact guarantee the advisory protocol cannot provide."
+        }
+      ],
+      "assessor_anchor": "#t2312b",
+      "facet_scope": {
+        "teaching": "Retained T23.12 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T23-05-T23.12.c",
+      "title": "Test interrupted updates without assuming universal filesystem guarantees.",
+      "objective": "T23.12.c",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "F",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-FSYNC",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "DESCRIPTION; RETURN VALUE; ERRORS"
+          ]
+        },
+        {
+          "id": "R-LSYS-WRITE",
+          "path": "research/v5/expansion/legacy_systems/resources.json",
+          "passages": [
+            "RETURN VALUE; ERRORS EINTR/EAGAIN/EPIPE; NOTES short transfers and durability"
+          ]
+        }
+      ],
+      "task": "Terminate only the teaching writer after each successful update stage and record recovered old/new contents. Compare process-termination observations with the abstract crash-cut fixture and explicitly identify unsimulated power/cache loss.",
+      "purpose": "Killing a process tests every power-failure state.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.12 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-05 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Killing a process tests every power-failure state. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Killing a process tests every power-failure state.",
+        "D2": "Terminate only the teaching writer after each successful update stage and record recovered old/new contents. Compare process-termination observations with the abstract crash-cut fixture and explicitly identify unsimulated power/cache loss.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Specify a disposable-VM/block-device fault experiment and its required independent persistence oracle without running it on host storage."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Process death leaves the kernel/storage stack running. These observations cannot validate power-loss durability or undocumented write ordering.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Process death leaves the kernel/storage stack running. These observations cannot validate power-loss durability or undocumented write ordering. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Specify a disposable-VM/block-device fault experiment and its required independent persistence oracle without running it on host storage. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Give each buffer and persistence boundary its own state.",
+        "After rename, ask which directory entry must survive a crash; a successful write is an earlier boundary."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-05-T23.12.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Specify a disposable-VM/block-device fault experiment and its required independent persistence oracle without running it on host storage."
+        }
+      ],
+      "assessor_anchor": "#t2312c",
+      "facet_scope": {
+        "teaching": "Retained T23.12 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T23-05.md",
+  "status": {
+    "content": "authored",
+    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite tests do not prove absolute mastery.",
+      "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
+      "Historical optional labels do not exclude required expansion work."
+    ]
+  }
+}

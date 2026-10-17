@@ -1,0 +1,256 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legacy project assessment supplement version 1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "project",
+    "domain",
+    "title",
+    "shared_contracts",
+    "baseline_binding",
+    "environment",
+    "source_records",
+    "reference_gaps",
+    "supplied_artifacts",
+    "execution_support",
+    "criteria",
+    "assessor_analysis",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "project": {
+      "type": "string",
+      "pattern": "^PR-(T[0-9]{2}-[0-9]{2}|P[1-6]-0[12]|CAP-(LINUX|MCU)-0[1-4])$"
+    },
+    "domain": {
+      "type": "string",
+      "pattern": "^(T[0-9]{2}|INTEGRATION)$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "shared_contracts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "baseline_binding": {
+      "type": "object",
+      "required": [
+        "files",
+        "teaching",
+        "units",
+        "inspection_limits"
+      ],
+      "properties": {
+        "files": {
+          "type": "array"
+        },
+        "teaching": {
+          "type": "array"
+        },
+        "units": {
+          "type": "array"
+        },
+        "inspection_limits": {
+          "type": "array"
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "required": [
+        "language",
+        "target",
+        "profile",
+        "dependencies",
+        "toolchain"
+      ]
+    },
+    "source_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "path",
+          "passages"
+        ]
+      }
+    },
+    "reference_gaps": {
+      "type": "array"
+    },
+    "supplied_artifacts": {
+      "type": "array"
+    },
+    "execution_support": {
+      "type": "object",
+      "required": [
+        "kind",
+        "scope",
+        "tests",
+        "fresh_execution"
+      ]
+    },
+    "assessor_analysis": {
+      "type": "string"
+    },
+    "status": {
+      "type": "object",
+      "required": [
+        "content",
+        "execution",
+        "independent_review",
+        "learner_assessment",
+        "limitations"
+      ]
+    },
+    "criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "objective",
+          "families",
+          "task",
+          "purpose",
+          "prerequisites",
+          "reasoning",
+          "deliverables",
+          "verification",
+          "rubric",
+          "hints",
+          "variants",
+          "assessor_anchor",
+          "facet_scope",
+          "security",
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^AX-PR-(T[0-9]{2}-[0-9]{2}|P[1-6]-0[12]|CAP-(LINUX|MCU)-0[1-4])-T[0-9]{2}\\.[0-9]{2}\\.[a-z]$"
+          },
+          "objective": {
+            "type": "string",
+            "pattern": "^T[0-9]{2}\\.[0-9]{2}\\.[a-z]$"
+          },
+          "families": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "enum": [
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G",
+                "H",
+                "I",
+                "J"
+              ]
+            }
+          },
+          "task": {
+            "type": "string",
+            "minLength": 1
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1
+          },
+          "prerequisites": {
+            "type": "object",
+            "required": [
+              "knowledge",
+              "artifacts"
+            ]
+          },
+          "reasoning": {
+            "type": "array",
+            "minItems": 1
+          },
+          "deliverables": {
+            "type": "object",
+            "required": [
+              "D1",
+              "D2",
+              "D3",
+              "D4"
+            ]
+          },
+          "verification": {
+            "type": "object",
+            "required": [
+              "procedure",
+              "expected",
+              "pass",
+              "limits"
+            ]
+          },
+          "rubric": {
+            "type": "object",
+            "required": [
+              "0",
+              "1",
+              "2",
+              "3"
+            ]
+          },
+          "hints": {
+            "type": "array",
+            "minItems": 2
+          },
+          "variants": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "minimum_days",
+                "task"
+              ]
+            }
+          },
+          "assessor_anchor": {
+            "type": "string"
+          },
+          "facet_scope": {
+            "type": "object",
+            "required": [
+              "teaching",
+              "implementation_or_analysis",
+              "boundary_adversarial",
+              "independent_assessment",
+              "remaining"
+            ]
+          },
+          "security": {
+            "type": "object",
+            "required": [
+              "applicable",
+              "scope"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

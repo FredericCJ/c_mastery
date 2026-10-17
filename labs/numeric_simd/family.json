@@ -1,0 +1,2131 @@
+{
+  "version": 5,
+  "family": "numeric_simd",
+  "title": "Numerical contracts and SIMD from first principles",
+  "build_system": "cmake",
+  "assessor_root": "assessor/numeric_simd",
+  "modules": [
+    "T64"
+  ],
+  "projects": [
+    {
+      "id": "PR-T64-01",
+      "tests": [
+        "numeric_simd.q15"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement ns_q15(a,b) for signed Q1.15 operands: multiply exactly in int32_t, round the scaled result to nearest with ties away from zero, then saturate into [-32768,32767]. In particular -32768 times -32768 saturates to32767. Derive the range of every intermediate and distinguish quantization error from saturation.",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage."
+    },
+    {
+      "id": "PR-T64-02",
+      "tests": [
+        "numeric_simd.rounding"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement ns_round_even(numerator,denominator,out) for numerator in[-1000000,1000000] and denominator in[1,1000000]. Return the nearest integer, breaking exact ties toward an even integer; leave out unchanged on invalid input. Use integer quotient/remainder, with no floating conversion or rounding library.",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage."
+    },
+    {
+      "id": "PR-T64-03",
+      "tests": [
+        "numeric_simd.dot"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement ns_dot(a,b,n,out) for int16_t arrays and0<=n<=65535. Accumulate in int64_t and publish the exact sum; n==0 returns0 without reading either array. Reject n>65535 without changing out. No vector or BLAS library is permitted.",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage."
+    },
+    {
+      "id": "PR-T64-04",
+      "tests": [
+        "numeric_simd.compensated"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement ns_sum(a,n,out) using Neumaier compensated summation in the supplied order. Accept n<=65535 and finite inputs; reject any nonfinite intermediate or final result without modifying out. Empty input returns0. Assume binary64 and ordinary non-reassociated operations, and record these assumptions explicitly.",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage."
+    },
+    {
+      "id": "PR-T64-05",
+      "tests": [
+        "numeric_simd.norm"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement ns_norm(a,n,out) for at most65535 finite doubles using scaled sum of squares: retain scale and sumsq so intermediate squares are of ratios<=1. Empty/all-zero vectors return0. Reject nonfinite input or unrepresentable final norm without publishing output. fabs and sqrt are permitted primitives.",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage."
+    },
+    {
+      "id": "PR-T64-06",
+      "tests": [
+        "numeric_simd.matrix"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement ns_matmul(A,B,rows,inner,cols,C) for row-major int32_t arrays with each dimension1..8 and every input element in[-1024,1024]. Produce int64_t C. Reject invalid dimensions or elements before any C write; all arrays are live and disjoint. No matrix library is permitted.",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage."
+    },
+    {
+      "id": "PR-T64-07",
+      "tests": [
+        "numeric_simd.lanes"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement ns_add(a,b,n,out) saturating int16_t sums for n<=65535 with disjoint arrays. Widen each addition, clamp then narrow; handle every element including tails. Empty input succeeds without dereferencing arrays, invalid length fails before writes. Implement an explicit-vector adapter separately and compare it against this scalar oracle.",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage."
+    },
+    {
+      "id": "PR-T64-08",
+      "tests": [
+        "numeric_simd.tolerance"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement ns_close(actual,expected,atol,rtol) for finite values and finite tolerances with0<=atol and0<=rtol<=1. Use the mathematical target |actual-expected|<=atol+rtol*|expected| and define actual admission by the supplied rounded scaled comparison (boundary rounding is part of this contract), scaling to avoid overflow in difference or threshold. NaN and infinities are rejected, including equal infinities. This is an admission predicate, not proof of an algorithm error bound.",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage."
+    }
+  ],
+  "units": [
+    {
+      "project": "PR-T64-01",
+      "title": "Fixed-point scale, rounding and saturation",
+      "minutes": 240,
+      "objectives": [
+        "T64.01.a",
+        "T64.01.b",
+        "T64.01.c"
+      ],
+      "tests": [
+        "numeric_simd.q15"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_q15(a,b) for signed Q1.15 operands: multiply exactly in int32_t, round the scaled result to nearest with ties away from zero, then saturate into [-32768,32767]. In particular -32768 times -32768 saturates to32767. Derive the range of every intermediate and distinguish quantization error from saturation.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the product scale and prove int32_t multiplication and negation bounds before implementing absolute value. Separate saturation policy from the rounding rule.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-01.a",
+          "objective": "T64.01.a",
+          "criterion": "Derive and defend: Derive the product scale and prove int32_t multiplication and negation bounds before implementing absolute value. Separate saturation policy from the rounding rule.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the product scale and prove int32_t multiplication and negation bounds before implementing absolute value. Separate saturation policy from the rounding rule. Retain original source or derivation and counterexample.",
+            "3": "Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-01.b",
+          "objective": "T64.01.b",
+          "criterion": "Implement and investigate: Implement ns_q15(a,b) for signed Q1.15 operands: multiply exactly in int32_t, round the scaled result to nearest with ties away from zero, then saturate into [-32768,32767]. In particular -32768 times -32768 saturates to32767. Derive the range of every intermediate and distinguish quantization error from saturation.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_q15(a,b) for signed Q1.15 operands: multiply exactly in int32_t, round the scaled result to nearest with ties away from zero, then saturate into [-32768,32767]. In particular -32768 times -32768 saturates to32767. Derive the range of every intermediate and distinguish quantization error from saturation. Retain original source or derivation and counterexample.",
+            "3": "Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-01.c",
+          "objective": "T64.01.c",
+          "criterion": "Falsify and transfer: The mutant truncates toward zero, failing positive and negative half-way cases. A signed right shift is not a portable replacement for the specified rounding rule. Then Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant truncates toward zero, failing positive and negative half-way cases. A signed right shift is not a portable replacement for the specified rounding rule. Then Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants. Retain original source or derivation and counterexample.",
+            "3": "Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-01-transfer",
+          "minimum_days": 7,
+          "task": "Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-01.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-01A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement ns_q15(a,b) for signed Q1.15 operands: multiply exactly in int32_t, round the scaled result to nearest with ties away from zero, then saturate into [-32768,32767]. In particular -32768 times -32768 saturates to32767. Derive the range of every intermediate and distinguish quantization error from saturation.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive the product scale and prove int32_t multiplication and negation bounds before implementing absolute value. Separate saturation policy from the rounding rule."
+      ],
+      "checks": [
+        "The mutant truncates toward zero, failing positive and negative half-way cases. A signed right shift is not a portable replacement for the specified rounding rule.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T64-01",
+      "title": "Fixed-point scale, rounding and saturation",
+      "minutes": 240,
+      "objectives": [
+        "T64.01.a",
+        "T64.01.b",
+        "T64.01.c"
+      ],
+      "tests": [
+        "numeric_simd.q15"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_q15(a,b) for signed Q1.15 operands: multiply exactly in int32_t, round the scaled result to nearest with ties away from zero, then saturate into [-32768,32767]. In particular -32768 times -32768 saturates to32767. Derive the range of every intermediate and distinguish quantization error from saturation.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the product scale and prove int32_t multiplication and negation bounds before implementing absolute value. Separate saturation policy from the rounding rule.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-01.a",
+          "objective": "T64.01.a",
+          "criterion": "Derive and defend: Derive the product scale and prove int32_t multiplication and negation bounds before implementing absolute value. Separate saturation policy from the rounding rule.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the product scale and prove int32_t multiplication and negation bounds before implementing absolute value. Separate saturation policy from the rounding rule. Retain original source or derivation and counterexample.",
+            "3": "Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-01.b",
+          "objective": "T64.01.b",
+          "criterion": "Implement and investigate: Implement ns_q15(a,b) for signed Q1.15 operands: multiply exactly in int32_t, round the scaled result to nearest with ties away from zero, then saturate into [-32768,32767]. In particular -32768 times -32768 saturates to32767. Derive the range of every intermediate and distinguish quantization error from saturation.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_q15(a,b) for signed Q1.15 operands: multiply exactly in int32_t, round the scaled result to nearest with ties away from zero, then saturate into [-32768,32767]. In particular -32768 times -32768 saturates to32767. Derive the range of every intermediate and distinguish quantization error from saturation. Retain original source or derivation and counterexample.",
+            "3": "Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-01.c",
+          "objective": "T64.01.c",
+          "criterion": "Falsify and transfer: The mutant truncates toward zero, failing positive and negative half-way cases. A signed right shift is not a portable replacement for the specified rounding rule. Then Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant truncates toward zero, failing positive and negative half-way cases. A signed right shift is not a portable replacement for the specified rounding rule. Then Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants. Retain original source or derivation and counterexample.",
+            "3": "Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-01-transfer",
+          "minimum_days": 7,
+          "task": "Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-01.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-01B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant truncates toward zero, failing positive and negative half-way cases. A signed right shift is not a portable replacement for the specified rounding rule.",
+        "Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive the product scale and prove int32_t multiplication and negation bounds before implementing absolute value. Separate saturation policy from the rounding rule.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T64-02",
+      "title": "Exact rounding model and ties to even",
+      "minutes": 240,
+      "objectives": [
+        "T64.02.a",
+        "T64.02.b",
+        "T64.02.c"
+      ],
+      "tests": [
+        "numeric_simd.rounding"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_round_even(numerator,denominator,out) for numerator in[-1000000,1000000] and denominator in[1,1000000]. Return the nearest integer, breaking exact ties toward an even integer; leave out unchanged on invalid input. Use integer quotient/remainder, with no floating conversion or rounding library.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive nearest-neighbor intervals and parity at exact ties. Prove remainder doubling is avoided by comparing r with denominator-r, and explain the negative sign symmetry.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-02.a",
+          "objective": "T64.02.a",
+          "criterion": "Derive and defend: Derive nearest-neighbor intervals and parity at exact ties. Prove remainder doubling is avoided by comparing r with denominator-r, and explain the negative sign symmetry.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive nearest-neighbor intervals and parity at exact ties. Prove remainder doubling is avoided by comparing r with denominator-r, and explain the negative sign symmetry. Retain original source or derivation and counterexample.",
+            "3": "Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-02.b",
+          "objective": "T64.02.b",
+          "criterion": "Implement and investigate: Implement ns_round_even(numerator,denominator,out) for numerator in[-1000000,1000000] and denominator in[1,1000000]. Return the nearest integer, breaking exact ties toward an even integer; leave out unchanged on invalid input. Use integer quotient/remainder, with no floating conversion or rounding library.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_round_even(numerator,denominator,out) for numerator in[-1000000,1000000] and denominator in[1,1000000]. Return the nearest integer, breaking exact ties toward an even integer; leave out unchanged on invalid input. Use integer quotient/remainder, with no floating conversion or rounding library. Retain original source or derivation and counterexample.",
+            "3": "Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-02.c",
+          "objective": "T64.02.c",
+          "criterion": "Falsify and transfer: The mutant rounds every tie away from zero. A test corpus containing only odd lower endpoints misses the defect; a changed rounding mode cannot be assumed to affect every compiler-folded expression. Then Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant rounds every tie away from zero. A test corpus containing only odd lower endpoints misses the defect; a changed rounding mode cannot be assumed to affect every compiler-folded expression. Then Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding. Retain original source or derivation and counterexample.",
+            "3": "Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-02-transfer",
+          "minimum_days": 7,
+          "task": "Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-02.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-02A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement ns_round_even(numerator,denominator,out) for numerator in[-1000000,1000000] and denominator in[1,1000000]. Return the nearest integer, breaking exact ties toward an even integer; leave out unchanged on invalid input. Use integer quotient/remainder, with no floating conversion or rounding library.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive nearest-neighbor intervals and parity at exact ties. Prove remainder doubling is avoided by comparing r with denominator-r, and explain the negative sign symmetry."
+      ],
+      "checks": [
+        "The mutant rounds every tie away from zero. A test corpus containing only odd lower endpoints misses the defect; a changed rounding mode cannot be assumed to affect every compiler-folded expression.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T64-02",
+      "title": "Exact rounding model and ties to even",
+      "minutes": 240,
+      "objectives": [
+        "T64.02.a",
+        "T64.02.b",
+        "T64.02.c"
+      ],
+      "tests": [
+        "numeric_simd.rounding"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_round_even(numerator,denominator,out) for numerator in[-1000000,1000000] and denominator in[1,1000000]. Return the nearest integer, breaking exact ties toward an even integer; leave out unchanged on invalid input. Use integer quotient/remainder, with no floating conversion or rounding library.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive nearest-neighbor intervals and parity at exact ties. Prove remainder doubling is avoided by comparing r with denominator-r, and explain the negative sign symmetry.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-02.a",
+          "objective": "T64.02.a",
+          "criterion": "Derive and defend: Derive nearest-neighbor intervals and parity at exact ties. Prove remainder doubling is avoided by comparing r with denominator-r, and explain the negative sign symmetry.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive nearest-neighbor intervals and parity at exact ties. Prove remainder doubling is avoided by comparing r with denominator-r, and explain the negative sign symmetry. Retain original source or derivation and counterexample.",
+            "3": "Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-02.b",
+          "objective": "T64.02.b",
+          "criterion": "Implement and investigate: Implement ns_round_even(numerator,denominator,out) for numerator in[-1000000,1000000] and denominator in[1,1000000]. Return the nearest integer, breaking exact ties toward an even integer; leave out unchanged on invalid input. Use integer quotient/remainder, with no floating conversion or rounding library.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_round_even(numerator,denominator,out) for numerator in[-1000000,1000000] and denominator in[1,1000000]. Return the nearest integer, breaking exact ties toward an even integer; leave out unchanged on invalid input. Use integer quotient/remainder, with no floating conversion or rounding library. Retain original source or derivation and counterexample.",
+            "3": "Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-02.c",
+          "objective": "T64.02.c",
+          "criterion": "Falsify and transfer: The mutant rounds every tie away from zero. A test corpus containing only odd lower endpoints misses the defect; a changed rounding mode cannot be assumed to affect every compiler-folded expression. Then Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant rounds every tie away from zero. A test corpus containing only odd lower endpoints misses the defect; a changed rounding mode cannot be assumed to affect every compiler-folded expression. Then Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding. Retain original source or derivation and counterexample.",
+            "3": "Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-02-transfer",
+          "minimum_days": 7,
+          "task": "Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-02.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-02B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant rounds every tie away from zero. A test corpus containing only odd lower endpoints misses the defect; a changed rounding mode cannot be assumed to affect every compiler-folded expression.",
+        "Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive nearest-neighbor intervals and parity at exact ties. Prove remainder doubling is avoided by comparing r with denominator-r, and explain the negative sign symmetry.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T64-03",
+      "title": "Exact accumulation bounds",
+      "minutes": 240,
+      "objectives": [
+        "T64.03.a",
+        "T64.03.b",
+        "T64.03.c"
+      ],
+      "tests": [
+        "numeric_simd.dot"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_dot(a,b,n,out) for int16_t arrays and0<=n<=65535. Accumulate in int64_t and publish the exact sum; n==0 returns0 without reading either array. Reject n>65535 without changing out. No vector or BLAS library is permitted.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the maximum positive and negative product and n-times-product bound. Explain which intermediate width is required before multiplication and before addition.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-03.a",
+          "objective": "T64.03.a",
+          "criterion": "Derive and defend: Derive the maximum positive and negative product and n-times-product bound. Explain which intermediate width is required before multiplication and before addition.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the maximum positive and negative product and n-times-product bound. Explain which intermediate width is required before multiplication and before addition. Retain original source or derivation and counterexample.",
+            "3": "Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-03.b",
+          "objective": "T64.03.b",
+          "criterion": "Implement and investigate: Implement ns_dot(a,b,n,out) for int16_t arrays and0<=n<=65535. Accumulate in int64_t and publish the exact sum; n==0 returns0 without reading either array. Reject n>65535 without changing out. No vector or BLAS library is permitted.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_dot(a,b,n,out) for int16_t arrays and0<=n<=65535. Accumulate in int64_t and publish the exact sum; n==0 returns0 without reading either array. Reject n>65535 without changing out. No vector or BLAS library is permitted. Retain original source or derivation and counterexample.",
+            "3": "Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-03.c",
+          "objective": "T64.03.c",
+          "criterion": "Falsify and transfer: The mutant narrows the completed sum to32 bits. On a target with a different conversion behavior, report implementation-defined narrowing separately from the violated mathematical output contract. Then Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant narrows the completed sum to32 bits. On a target with a different conversion behavior, report implementation-defined narrowing separately from the violated mathematical output contract. Then Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness. Retain original source or derivation and counterexample.",
+            "3": "Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-03-transfer",
+          "minimum_days": 7,
+          "task": "Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-03.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-03A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement ns_dot(a,b,n,out) for int16_t arrays and0<=n<=65535. Accumulate in int64_t and publish the exact sum; n==0 returns0 without reading either array. Reject n>65535 without changing out. No vector or BLAS library is permitted.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive the maximum positive and negative product and n-times-product bound. Explain which intermediate width is required before multiplication and before addition."
+      ],
+      "checks": [
+        "The mutant narrows the completed sum to32 bits. On a target with a different conversion behavior, report implementation-defined narrowing separately from the violated mathematical output contract.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T64-03",
+      "title": "Exact accumulation bounds",
+      "minutes": 240,
+      "objectives": [
+        "T64.03.a",
+        "T64.03.b",
+        "T64.03.c"
+      ],
+      "tests": [
+        "numeric_simd.dot"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_dot(a,b,n,out) for int16_t arrays and0<=n<=65535. Accumulate in int64_t and publish the exact sum; n==0 returns0 without reading either array. Reject n>65535 without changing out. No vector or BLAS library is permitted.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the maximum positive and negative product and n-times-product bound. Explain which intermediate width is required before multiplication and before addition.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-03.a",
+          "objective": "T64.03.a",
+          "criterion": "Derive and defend: Derive the maximum positive and negative product and n-times-product bound. Explain which intermediate width is required before multiplication and before addition.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the maximum positive and negative product and n-times-product bound. Explain which intermediate width is required before multiplication and before addition. Retain original source or derivation and counterexample.",
+            "3": "Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-03.b",
+          "objective": "T64.03.b",
+          "criterion": "Implement and investigate: Implement ns_dot(a,b,n,out) for int16_t arrays and0<=n<=65535. Accumulate in int64_t and publish the exact sum; n==0 returns0 without reading either array. Reject n>65535 without changing out. No vector or BLAS library is permitted.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_dot(a,b,n,out) for int16_t arrays and0<=n<=65535. Accumulate in int64_t and publish the exact sum; n==0 returns0 without reading either array. Reject n>65535 without changing out. No vector or BLAS library is permitted. Retain original source or derivation and counterexample.",
+            "3": "Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-03.c",
+          "objective": "T64.03.c",
+          "criterion": "Falsify and transfer: The mutant narrows the completed sum to32 bits. On a target with a different conversion behavior, report implementation-defined narrowing separately from the violated mathematical output contract. Then Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant narrows the completed sum to32 bits. On a target with a different conversion behavior, report implementation-defined narrowing separately from the violated mathematical output contract. Then Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness. Retain original source or derivation and counterexample.",
+            "3": "Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-03-transfer",
+          "minimum_days": 7,
+          "task": "Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-03.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-03B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant narrows the completed sum to32 bits. On a target with a different conversion behavior, report implementation-defined narrowing separately from the violated mathematical output contract.",
+        "Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive the maximum positive and negative product and n-times-product bound. Explain which intermediate width is required before multiplication and before addition.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T64-04",
+      "title": "Compensated reduction and cancellation",
+      "minutes": 240,
+      "objectives": [
+        "T64.04.a",
+        "T64.04.b",
+        "T64.04.c"
+      ],
+      "tests": [
+        "numeric_simd.compensated"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_sum(a,n,out) using Neumaier compensated summation in the supplied order. Accept n<=65535 and finite inputs; reject any nonfinite intermediate or final result without modifying out. Empty input returns0. Assume binary64 and ordinary non-reassociated operations, and record these assumptions explicitly.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the correction for each magnitude ordering and identify every rounding point. Compare naive, compensated and exact-rational reference results without claiming a universal relative-error bound near a zero sum.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-04.a",
+          "objective": "T64.04.a",
+          "criterion": "Derive and defend: Derive the correction for each magnitude ordering and identify every rounding point. Compare naive, compensated and exact-rational reference results without claiming a universal relative-error bound near a zero sum.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the correction for each magnitude ordering and identify every rounding point. Compare naive, compensated and exact-rational reference results without claiming a universal relative-error bound near a zero sum. Retain original source or derivation and counterexample.",
+            "3": "Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-04.b",
+          "objective": "T64.04.b",
+          "criterion": "Implement and investigate: Implement ns_sum(a,n,out) using Neumaier compensated summation in the supplied order. Accept n<=65535 and finite inputs; reject any nonfinite intermediate or final result without modifying out. Empty input returns0. Assume binary64 and ordinary non-reassociated operations, and record these assumptions explicitly.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_sum(a,n,out) using Neumaier compensated summation in the supplied order. Accept n<=65535 and finite inputs; reject any nonfinite intermediate or final result without modifying out. Empty input returns0. Assume binary64 and ordinary non-reassociated operations, and record these assumptions explicitly. Retain original source or derivation and counterexample.",
+            "3": "Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-04.c",
+          "objective": "T64.04.c",
+          "criterion": "Falsify and transfer: The mutant drops compensation and returns0 for [1e16,1,-1e16]. Reassociation permitted by fast-math can invalidate the correction identity even when the source text is unchanged. Then Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant drops compensation and returns0 for [1e16,1,-1e16]. Reassociation permitted by fast-math can invalidate the correction identity even when the source text is unchanged. Then Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract. Retain original source or derivation and counterexample.",
+            "3": "Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-04-transfer",
+          "minimum_days": 7,
+          "task": "Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-04.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-04A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement ns_sum(a,n,out) using Neumaier compensated summation in the supplied order. Accept n<=65535 and finite inputs; reject any nonfinite intermediate or final result without modifying out. Empty input returns0. Assume binary64 and ordinary non-reassociated operations, and record these assumptions explicitly.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive the correction for each magnitude ordering and identify every rounding point. Compare naive, compensated and exact-rational reference results without claiming a universal relative-error bound near a zero sum."
+      ],
+      "checks": [
+        "The mutant drops compensation and returns0 for [1e16,1,-1e16]. Reassociation permitted by fast-math can invalidate the correction identity even when the source text is unchanged.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T64-04",
+      "title": "Compensated reduction and cancellation",
+      "minutes": 240,
+      "objectives": [
+        "T64.04.a",
+        "T64.04.b",
+        "T64.04.c"
+      ],
+      "tests": [
+        "numeric_simd.compensated"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_sum(a,n,out) using Neumaier compensated summation in the supplied order. Accept n<=65535 and finite inputs; reject any nonfinite intermediate or final result without modifying out. Empty input returns0. Assume binary64 and ordinary non-reassociated operations, and record these assumptions explicitly.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the correction for each magnitude ordering and identify every rounding point. Compare naive, compensated and exact-rational reference results without claiming a universal relative-error bound near a zero sum.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-04.a",
+          "objective": "T64.04.a",
+          "criterion": "Derive and defend: Derive the correction for each magnitude ordering and identify every rounding point. Compare naive, compensated and exact-rational reference results without claiming a universal relative-error bound near a zero sum.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the correction for each magnitude ordering and identify every rounding point. Compare naive, compensated and exact-rational reference results without claiming a universal relative-error bound near a zero sum. Retain original source or derivation and counterexample.",
+            "3": "Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-04.b",
+          "objective": "T64.04.b",
+          "criterion": "Implement and investigate: Implement ns_sum(a,n,out) using Neumaier compensated summation in the supplied order. Accept n<=65535 and finite inputs; reject any nonfinite intermediate or final result without modifying out. Empty input returns0. Assume binary64 and ordinary non-reassociated operations, and record these assumptions explicitly.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_sum(a,n,out) using Neumaier compensated summation in the supplied order. Accept n<=65535 and finite inputs; reject any nonfinite intermediate or final result without modifying out. Empty input returns0. Assume binary64 and ordinary non-reassociated operations, and record these assumptions explicitly. Retain original source or derivation and counterexample.",
+            "3": "Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-04.c",
+          "objective": "T64.04.c",
+          "criterion": "Falsify and transfer: The mutant drops compensation and returns0 for [1e16,1,-1e16]. Reassociation permitted by fast-math can invalidate the correction identity even when the source text is unchanged. Then Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant drops compensation and returns0 for [1e16,1,-1e16]. Reassociation permitted by fast-math can invalidate the correction identity even when the source text is unchanged. Then Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract. Retain original source or derivation and counterexample.",
+            "3": "Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-04-transfer",
+          "minimum_days": 7,
+          "task": "Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-04.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-04B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant drops compensation and returns0 for [1e16,1,-1e16]. Reassociation permitted by fast-math can invalidate the correction identity even when the source text is unchanged.",
+        "Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive the correction for each magnitude ordering and identify every rounding point. Compare naive, compensated and exact-rational reference results without claiming a universal relative-error bound near a zero sum.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T64-05",
+      "title": "Scaled norm and intermediate overflow",
+      "minutes": 240,
+      "objectives": [
+        "T64.05.a",
+        "T64.05.b",
+        "T64.05.c"
+      ],
+      "tests": [
+        "numeric_simd.norm"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_norm(a,n,out) for at most65535 finite doubles using scaled sum of squares: retain scale and sumsq so intermediate squares are of ratios<=1. Empty/all-zero vectors return0. Reject nonfinite input or unrepresentable final norm without publishing output. fabs and sqrt are permitted primitives.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "State the scale/sumsq invariant in real arithmetic and discuss floating error separately. Prove why the ratio is bounded and identify final overflow as distinct from avoidable intermediate overflow.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-05.a",
+          "objective": "T64.05.a",
+          "criterion": "Derive and defend: State the scale/sumsq invariant in real arithmetic and discuss floating error separately. Prove why the ratio is bounded and identify final overflow as distinct from avoidable intermediate overflow.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: State the scale/sumsq invariant in real arithmetic and discuss floating error separately. Prove why the ratio is bounded and identify final overflow as distinct from avoidable intermediate overflow. Retain original source or derivation and counterexample.",
+            "3": "Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-05.b",
+          "objective": "T64.05.b",
+          "criterion": "Implement and investigate: Implement ns_norm(a,n,out) for at most65535 finite doubles using scaled sum of squares: retain scale and sumsq so intermediate squares are of ratios<=1. Empty/all-zero vectors return0. Reject nonfinite input or unrepresentable final norm without publishing output. fabs and sqrt are permitted primitives.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_norm(a,n,out) for at most65535 finite doubles using scaled sum of squares: retain scale and sumsq so intermediate squares are of ratios<=1. Empty/all-zero vectors return0. Reject nonfinite input or unrepresentable final norm without publishing output. fabs and sqrt are permitted primitives. Retain original source or derivation and counterexample.",
+            "3": "Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-05.c",
+          "objective": "T64.05.c",
+          "criterion": "Falsify and transfer: The naive mutant squares3e200 before scaling and rejects a representable5e200 result. Testing only unit-scale data fails to distinguish the two algorithms. Then Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The naive mutant squares3e200 before scaling and rejects a representable5e200 result. Testing only unit-scale data fails to distinguish the two algorithms. Then Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract. Retain original source or derivation and counterexample.",
+            "3": "Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-05-transfer",
+          "minimum_days": 7,
+          "task": "Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-05.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-05A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement ns_norm(a,n,out) for at most65535 finite doubles using scaled sum of squares: retain scale and sumsq so intermediate squares are of ratios<=1. Empty/all-zero vectors return0. Reject nonfinite input or unrepresentable final norm without publishing output. fabs and sqrt are permitted primitives.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "State the scale/sumsq invariant in real arithmetic and discuss floating error separately. Prove why the ratio is bounded and identify final overflow as distinct from avoidable intermediate overflow."
+      ],
+      "checks": [
+        "The naive mutant squares3e200 before scaling and rejects a representable5e200 result. Testing only unit-scale data fails to distinguish the two algorithms.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T64-05",
+      "title": "Scaled norm and intermediate overflow",
+      "minutes": 240,
+      "objectives": [
+        "T64.05.a",
+        "T64.05.b",
+        "T64.05.c"
+      ],
+      "tests": [
+        "numeric_simd.norm"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_norm(a,n,out) for at most65535 finite doubles using scaled sum of squares: retain scale and sumsq so intermediate squares are of ratios<=1. Empty/all-zero vectors return0. Reject nonfinite input or unrepresentable final norm without publishing output. fabs and sqrt are permitted primitives.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "State the scale/sumsq invariant in real arithmetic and discuss floating error separately. Prove why the ratio is bounded and identify final overflow as distinct from avoidable intermediate overflow.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-05.a",
+          "objective": "T64.05.a",
+          "criterion": "Derive and defend: State the scale/sumsq invariant in real arithmetic and discuss floating error separately. Prove why the ratio is bounded and identify final overflow as distinct from avoidable intermediate overflow.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: State the scale/sumsq invariant in real arithmetic and discuss floating error separately. Prove why the ratio is bounded and identify final overflow as distinct from avoidable intermediate overflow. Retain original source or derivation and counterexample.",
+            "3": "Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-05.b",
+          "objective": "T64.05.b",
+          "criterion": "Implement and investigate: Implement ns_norm(a,n,out) for at most65535 finite doubles using scaled sum of squares: retain scale and sumsq so intermediate squares are of ratios<=1. Empty/all-zero vectors return0. Reject nonfinite input or unrepresentable final norm without publishing output. fabs and sqrt are permitted primitives.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_norm(a,n,out) for at most65535 finite doubles using scaled sum of squares: retain scale and sumsq so intermediate squares are of ratios<=1. Empty/all-zero vectors return0. Reject nonfinite input or unrepresentable final norm without publishing output. fabs and sqrt are permitted primitives. Retain original source or derivation and counterexample.",
+            "3": "Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-05.c",
+          "objective": "T64.05.c",
+          "criterion": "Falsify and transfer: The naive mutant squares3e200 before scaling and rejects a representable5e200 result. Testing only unit-scale data fails to distinguish the two algorithms. Then Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The naive mutant squares3e200 before scaling and rejects a representable5e200 result. Testing only unit-scale data fails to distinguish the two algorithms. Then Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract. Retain original source or derivation and counterexample.",
+            "3": "Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-05-transfer",
+          "minimum_days": 7,
+          "task": "Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-05.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-05B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The naive mutant squares3e200 before scaling and rejects a representable5e200 result. Testing only unit-scale data fails to distinguish the two algorithms.",
+        "Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "State the scale/sumsq invariant in real arithmetic and discuss floating error separately. Prove why the ratio is bounded and identify final overflow as distinct from avoidable intermediate overflow.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T64-06",
+      "title": "Matrix layout, bounds and transactional output",
+      "minutes": 240,
+      "objectives": [
+        "T64.06.a",
+        "T64.06.b",
+        "T64.06.c"
+      ],
+      "tests": [
+        "numeric_simd.matrix"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_matmul(A,B,rows,inner,cols,C) for row-major int32_t arrays with each dimension1..8 and every input element in[-1024,1024]. Produce int64_t C. Reject invalid dimensions or elements before any C write; all arrays are live and disjoint. No matrix library is permitted.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the three indexing expressions and accumulator bound; prove rejection is transactional. Count arithmetic and memory traffic under the stated row-major traversal before proposing a cache model.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-06.a",
+          "objective": "T64.06.a",
+          "criterion": "Derive and defend: Derive the three indexing expressions and accumulator bound; prove rejection is transactional. Count arithmetic and memory traffic under the stated row-major traversal before proposing a cache model.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the three indexing expressions and accumulator bound; prove rejection is transactional. Count arithmetic and memory traffic under the stated row-major traversal before proposing a cache model. Retain original source or derivation and counterexample.",
+            "3": "Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-06.b",
+          "objective": "T64.06.b",
+          "criterion": "Implement and investigate: Implement ns_matmul(A,B,rows,inner,cols,C) for row-major int32_t arrays with each dimension1..8 and every input element in[-1024,1024]. Produce int64_t C. Reject invalid dimensions or elements before any C write; all arrays are live and disjoint. No matrix library is permitted.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_matmul(A,B,rows,inner,cols,C) for row-major int32_t arrays with each dimension1..8 and every input element in[-1024,1024]. Produce int64_t C. Reject invalid dimensions or elements before any C write; all arrays are live and disjoint. No matrix library is permitted. Retain original source or derivation and counterexample.",
+            "3": "Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-06.c",
+          "objective": "T64.06.c",
+          "criterion": "Falsify and transfer: The mutant reuses column0 for every result column. Square or identity-only examples can hide layout errors; use rectangular and asymmetric values. Then Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant reuses column0 for every result column. Square or identity-only examples can hide layout errors; use rectangular and asymmetric values. Then Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs. Retain original source or derivation and counterexample.",
+            "3": "Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-06-transfer",
+          "minimum_days": 7,
+          "task": "Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-06.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-06A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement ns_matmul(A,B,rows,inner,cols,C) for row-major int32_t arrays with each dimension1..8 and every input element in[-1024,1024]. Produce int64_t C. Reject invalid dimensions or elements before any C write; all arrays are live and disjoint. No matrix library is permitted.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive the three indexing expressions and accumulator bound; prove rejection is transactional. Count arithmetic and memory traffic under the stated row-major traversal before proposing a cache model."
+      ],
+      "checks": [
+        "The mutant reuses column0 for every result column. Square or identity-only examples can hide layout errors; use rectangular and asymmetric values.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T64-06",
+      "title": "Matrix layout, bounds and transactional output",
+      "minutes": 240,
+      "objectives": [
+        "T64.06.a",
+        "T64.06.b",
+        "T64.06.c"
+      ],
+      "tests": [
+        "numeric_simd.matrix"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_matmul(A,B,rows,inner,cols,C) for row-major int32_t arrays with each dimension1..8 and every input element in[-1024,1024]. Produce int64_t C. Reject invalid dimensions or elements before any C write; all arrays are live and disjoint. No matrix library is permitted.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the three indexing expressions and accumulator bound; prove rejection is transactional. Count arithmetic and memory traffic under the stated row-major traversal before proposing a cache model.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-06.a",
+          "objective": "T64.06.a",
+          "criterion": "Derive and defend: Derive the three indexing expressions and accumulator bound; prove rejection is transactional. Count arithmetic and memory traffic under the stated row-major traversal before proposing a cache model.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the three indexing expressions and accumulator bound; prove rejection is transactional. Count arithmetic and memory traffic under the stated row-major traversal before proposing a cache model. Retain original source or derivation and counterexample.",
+            "3": "Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-06.b",
+          "objective": "T64.06.b",
+          "criterion": "Implement and investigate: Implement ns_matmul(A,B,rows,inner,cols,C) for row-major int32_t arrays with each dimension1..8 and every input element in[-1024,1024]. Produce int64_t C. Reject invalid dimensions or elements before any C write; all arrays are live and disjoint. No matrix library is permitted.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_matmul(A,B,rows,inner,cols,C) for row-major int32_t arrays with each dimension1..8 and every input element in[-1024,1024]. Produce int64_t C. Reject invalid dimensions or elements before any C write; all arrays are live and disjoint. No matrix library is permitted. Retain original source or derivation and counterexample.",
+            "3": "Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-06.c",
+          "objective": "T64.06.c",
+          "criterion": "Falsify and transfer: The mutant reuses column0 for every result column. Square or identity-only examples can hide layout errors; use rectangular and asymmetric values. Then Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant reuses column0 for every result column. Square or identity-only examples can hide layout errors; use rectangular and asymmetric values. Then Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs. Retain original source or derivation and counterexample.",
+            "3": "Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-06-transfer",
+          "minimum_days": 7,
+          "task": "Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-06.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-06B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant reuses column0 for every result column. Square or identity-only examples can hide layout errors; use rectangular and asymmetric values.",
+        "Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive the three indexing expressions and accumulator bound; prove rejection is transactional. Count arithmetic and memory traffic under the stated row-major traversal before proposing a cache model.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T64-07",
+      "title": "Saturating lanes and scalar tails",
+      "minutes": 240,
+      "objectives": [
+        "T64.07.a",
+        "T64.07.b",
+        "T64.07.c"
+      ],
+      "tests": [
+        "numeric_simd.lanes"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_add(a,b,n,out) saturating int16_t sums for n<=65535 with disjoint arrays. Widen each addition, clamp then narrow; handle every element including tails. Empty input succeeds without dereferencing arrays, invalid length fails before writes. Implement an explicit-vector adapter separately and compare it against this scalar oracle.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Specify lane width, widening, alignment and disjointness. Prove the vector body and scalar tail partition [0,n), and distinguish GCC vector operators from ISO C scalar promotions.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-07.a",
+          "objective": "T64.07.a",
+          "criterion": "Derive and defend: Specify lane width, widening, alignment and disjointness. Prove the vector body and scalar tail partition [0,n), and distinguish GCC vector operators from ISO C scalar promotions.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Specify lane width, widening, alignment and disjointness. Prove the vector body and scalar tail partition [0,n), and distinguish GCC vector operators from ISO C scalar promotions. Retain original source or derivation and counterexample.",
+            "3": "Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-07.b",
+          "objective": "T64.07.b",
+          "criterion": "Implement and investigate: Implement ns_add(a,b,n,out) saturating int16_t sums for n<=65535 with disjoint arrays. Widen each addition, clamp then narrow; handle every element including tails. Empty input succeeds without dereferencing arrays, invalid length fails before writes. Implement an explicit-vector adapter separately and compare it against this scalar oracle.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_add(a,b,n,out) saturating int16_t sums for n<=65535 with disjoint arrays. Widen each addition, clamp then narrow; handle every element including tails. Empty input succeeds without dereferencing arrays, invalid length fails before writes. Implement an explicit-vector adapter separately and compare it against this scalar oracle. Retain original source or derivation and counterexample.",
+            "3": "Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-07.c",
+          "objective": "T64.07.c",
+          "criterion": "Falsify and transfer: The mutant rounds n down to a four-lane boundary and leaves the tail unchanged. A benchmark using only multiples of the lane count can conceal this correctness failure. Then Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant rounds n down to a four-lane boundary and leaves the tail unchanged. A benchmark using only multiples of the lane count can conceal this correctness failure. Then Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions. Retain original source or derivation and counterexample.",
+            "3": "Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-07-transfer",
+          "minimum_days": 7,
+          "task": "Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-07.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-07A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement ns_add(a,b,n,out) saturating int16_t sums for n<=65535 with disjoint arrays. Widen each addition, clamp then narrow; handle every element including tails. Empty input succeeds without dereferencing arrays, invalid length fails before writes. Implement an explicit-vector adapter separately and compare it against this scalar oracle.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Specify lane width, widening, alignment and disjointness. Prove the vector body and scalar tail partition [0,n), and distinguish GCC vector operators from ISO C scalar promotions."
+      ],
+      "checks": [
+        "The mutant rounds n down to a four-lane boundary and leaves the tail unchanged. A benchmark using only multiples of the lane count can conceal this correctness failure.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T64-07",
+      "title": "Saturating lanes and scalar tails",
+      "minutes": 240,
+      "objectives": [
+        "T64.07.a",
+        "T64.07.b",
+        "T64.07.c"
+      ],
+      "tests": [
+        "numeric_simd.lanes"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_add(a,b,n,out) saturating int16_t sums for n<=65535 with disjoint arrays. Widen each addition, clamp then narrow; handle every element including tails. Empty input succeeds without dereferencing arrays, invalid length fails before writes. Implement an explicit-vector adapter separately and compare it against this scalar oracle.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Specify lane width, widening, alignment and disjointness. Prove the vector body and scalar tail partition [0,n), and distinguish GCC vector operators from ISO C scalar promotions.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-07.a",
+          "objective": "T64.07.a",
+          "criterion": "Derive and defend: Specify lane width, widening, alignment and disjointness. Prove the vector body and scalar tail partition [0,n), and distinguish GCC vector operators from ISO C scalar promotions.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Specify lane width, widening, alignment and disjointness. Prove the vector body and scalar tail partition [0,n), and distinguish GCC vector operators from ISO C scalar promotions. Retain original source or derivation and counterexample.",
+            "3": "Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-07.b",
+          "objective": "T64.07.b",
+          "criterion": "Implement and investigate: Implement ns_add(a,b,n,out) saturating int16_t sums for n<=65535 with disjoint arrays. Widen each addition, clamp then narrow; handle every element including tails. Empty input succeeds without dereferencing arrays, invalid length fails before writes. Implement an explicit-vector adapter separately and compare it against this scalar oracle.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_add(a,b,n,out) saturating int16_t sums for n<=65535 with disjoint arrays. Widen each addition, clamp then narrow; handle every element including tails. Empty input succeeds without dereferencing arrays, invalid length fails before writes. Implement an explicit-vector adapter separately and compare it against this scalar oracle. Retain original source or derivation and counterexample.",
+            "3": "Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-07.c",
+          "objective": "T64.07.c",
+          "criterion": "Falsify and transfer: The mutant rounds n down to a four-lane boundary and leaves the tail unchanged. A benchmark using only multiples of the lane count can conceal this correctness failure. Then Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant rounds n down to a four-lane boundary and leaves the tail unchanged. A benchmark using only multiples of the lane count can conceal this correctness failure. Then Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions. Retain original source or derivation and counterexample.",
+            "3": "Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-07-transfer",
+          "minimum_days": 7,
+          "task": "Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-07.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-07B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant rounds n down to a four-lane boundary and leaves the tail unchanged. A benchmark using only multiples of the lane count can conceal this correctness failure.",
+        "Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Specify lane width, widening, alignment and disjointness. Prove the vector body and scalar tail partition [0,n), and distinguish GCC vector operators from ISO C scalar promotions.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T64-08",
+      "title": "Accuracy admission and exceptional values",
+      "minutes": 240,
+      "objectives": [
+        "T64.08.a",
+        "T64.08.b",
+        "T64.08.c"
+      ],
+      "tests": [
+        "numeric_simd.tolerance"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_close(actual,expected,atol,rtol) for finite values and finite tolerances with0<=atol and0<=rtol<=1. Use the mathematical target |actual-expected|<=atol+rtol*|expected| and define actual admission by the supplied rounded scaled comparison (boundary rounding is part of this contract), scaling to avoid overflow in difference or threshold. NaN and infinities are rejected, including equal infinities. This is an admission predicate, not proof of an algorithm error bound.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the asymmetric expected-relative policy, near-zero behavior and exceptional-value handling. Explain rounding at the acceptance boundary and why a tolerance must come from a prior requirement or error analysis.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-08.a",
+          "objective": "T64.08.a",
+          "criterion": "Derive and defend: Derive the asymmetric expected-relative policy, near-zero behavior and exceptional-value handling. Explain rounding at the acceptance boundary and why a tolerance must come from a prior requirement or error analysis.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the asymmetric expected-relative policy, near-zero behavior and exceptional-value handling. Explain rounding at the acceptance boundary and why a tolerance must come from a prior requirement or error analysis. Retain original source or derivation and counterexample.",
+            "3": "Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-08.b",
+          "objective": "T64.08.b",
+          "criterion": "Implement and investigate: Implement ns_close(actual,expected,atol,rtol) for finite values and finite tolerances with0<=atol and0<=rtol<=1. Use the mathematical target |actual-expected|<=atol+rtol*|expected| and define actual admission by the supplied rounded scaled comparison (boundary rounding is part of this contract), scaling to avoid overflow in difference or threshold. NaN and infinities are rejected, including equal infinities. This is an admission predicate, not proof of an algorithm error bound.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_close(actual,expected,atol,rtol) for finite values and finite tolerances with0<=atol and0<=rtol<=1. Use the mathematical target |actual-expected|<=atol+rtol*|expected| and define actual admission by the supplied rounded scaled comparison (boundary rounding is part of this contract), scaling to avoid overflow in difference or threshold. NaN and infinities are rejected, including equal infinities. This is an admission predicate, not proof of an algorithm error bound. Retain original source or derivation and counterexample.",
+            "3": "Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-08.c",
+          "objective": "T64.08.c",
+          "criterion": "Falsify and transfer: The mutant removes the absolute component, rejecting a permitted near-zero error. Conversely a loose tolerance selected after seeing failures can hide a wrong algorithm. Then Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant removes the absolute component, rejecting a permitted near-zero error. Conversely a loose tolerance selected after seeing failures can hide a wrong algorithm. Then Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem. Retain original source or derivation and counterexample.",
+            "3": "Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-08-transfer",
+          "minimum_days": 7,
+          "task": "Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-08.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-08A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement ns_close(actual,expected,atol,rtol) for finite values and finite tolerances with0<=atol and0<=rtol<=1. Use the mathematical target |actual-expected|<=atol+rtol*|expected| and define actual admission by the supplied rounded scaled comparison (boundary rounding is part of this contract), scaling to avoid overflow in difference or threshold. NaN and infinities are rejected, including equal infinities. This is an admission predicate, not proof of an algorithm error bound.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive the asymmetric expected-relative policy, near-zero behavior and exceptional-value handling. Explain rounding at the acceptance boundary and why a tolerance must come from a prior requirement or error analysis."
+      ],
+      "checks": [
+        "The mutant removes the absolute component, rejecting a permitted near-zero error. Conversely a loose tolerance selected after seeing failures can hide a wrong algorithm.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T64-08",
+      "title": "Accuracy admission and exceptional values",
+      "minutes": 240,
+      "objectives": [
+        "T64.08.a",
+        "T64.08.b",
+        "T64.08.c"
+      ],
+      "tests": [
+        "numeric_simd.tolerance"
+      ],
+      "target_scope": "host",
+      "scope": "Implement ns_close(actual,expected,atol,rtol) for finite values and finite tolerances with0<=atol and0<=rtol<=1. Use the mathematical target |actual-expected|<=atol+rtol*|expected| and define actual admission by the supplied rounded scaled comparison (boundary rounding is part of this contract), scaling to avoid overflow in difference or threshold. NaN and infinities are rejected, including equal infinities. This is an admission predicate, not proof of an algorithm error bound.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the asymmetric expected-relative policy, near-zero behavior and exceptional-value handling. Explain rounding at the acceptance boundary and why a tolerance must come from a prior requirement or error analysis.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T64-08.a",
+          "objective": "T64.08.a",
+          "criterion": "Derive and defend: Derive the asymmetric expected-relative policy, near-zero behavior and exceptional-value handling. Explain rounding at the acceptance boundary and why a tolerance must come from a prior requirement or error analysis.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the asymmetric expected-relative policy, near-zero behavior and exceptional-value handling. Explain rounding at the acceptance boundary and why a tolerance must come from a prior requirement or error analysis. Retain original source or derivation and counterexample.",
+            "3": "Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-08.b",
+          "objective": "T64.08.b",
+          "criterion": "Implement and investigate: Implement ns_close(actual,expected,atol,rtol) for finite values and finite tolerances with0<=atol and0<=rtol<=1. Use the mathematical target |actual-expected|<=atol+rtol*|expected| and define actual admission by the supplied rounded scaled comparison (boundary rounding is part of this contract), scaling to avoid overflow in difference or threshold. NaN and infinities are rejected, including equal infinities. This is an admission predicate, not proof of an algorithm error bound.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement ns_close(actual,expected,atol,rtol) for finite values and finite tolerances with0<=atol and0<=rtol<=1. Use the mathematical target |actual-expected|<=atol+rtol*|expected| and define actual admission by the supplied rounded scaled comparison (boundary rounding is part of this contract), scaling to avoid overflow in difference or threshold. NaN and infinities are rejected, including equal infinities. This is an admission predicate, not proof of an algorithm error bound. Retain original source or derivation and counterexample.",
+            "3": "Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T64-08.c",
+          "objective": "T64.08.c",
+          "criterion": "Falsify and transfer: The mutant removes the absolute component, rejecting a permitted near-zero error. Conversely a loose tolerance selected after seeing failures can hide a wrong algorithm. Then Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant removes the absolute component, rejecting a permitted near-zero error. Conversely a loose tolerance selected after seeing failures can hide a wrong algorithm. Then Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem. Retain original source or derivation and counterexample.",
+            "3": "Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T64-08-transfer",
+          "minimum_days": 7,
+          "task": "Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem."
+        }
+      ],
+      "assessor_analysis": "assessor/numeric_simd/PR-T64-08.md",
+      "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage.",
+      "references": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation",
+          "purpose": "Actual representation/error and cancellation examples inspected in authorized edited reprint of Goldberg1991. Historical description is not the current IEEE standard.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons",
+          "purpose": "Actual vector type constraints, lane arithmetic, lack of scalar promotions and shift/subscript limits inspected. Compiler extension, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-GCCMATH",
+          "locator": "-fexcess-precision; -ffast-math; -funsafe-math-optimizations; -fassociative-math",
+          "purpose": "Rounding points, changed assumptions under fast math and reassociation effects inspected; no hardware throughput claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-NS-08B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant removes the absolute component, rejecting a permitted near-zero error. Conversely a loose tolerance selected after seeing failures can hide a wrong algorithm.",
+        "Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive the asymmetric expected-relative policy, near-zero behavior and exceptional-value handling. Explain rounding at the acceptance boundary and why a tolerance must come from a prior requirement or error analysis.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    }
+  ],
+  "tests": [
+    "numeric_simd.q15",
+    "numeric_simd.rounding",
+    "numeric_simd.dot",
+    "numeric_simd.compensated",
+    "numeric_simd.norm",
+    "numeric_simd.matrix",
+    "numeric_simd.lanes",
+    "numeric_simd.tolerance"
+  ],
+  "negative_controls": [
+    "numeric_simd.mutation.q15",
+    "numeric_simd.mutation.rounding",
+    "numeric_simd.mutation.dot",
+    "numeric_simd.mutation.compensated",
+    "numeric_simd.mutation.norm",
+    "numeric_simd.mutation.matrix",
+    "numeric_simd.mutation.lanes",
+    "numeric_simd.mutation.tolerance"
+  ],
+  "remaining_evidence": "Required extension evidence includes scalar versus explicit-vector differential tests, emitted assembly and target feature checks, fast-math counterexamples, reproducible resource/timing experiments and changed-size/data-layout transfer. Portable core tests alone do not establish SIMD execution or a performance advantage."
+}

@@ -14,7 +14,7 @@ from pathlib import Path
 from common import ROOT, anchor, read_json
 
 VOCAB = ROOT / 'curriculum/vocabulary'
-KINDS = {'iso-c', 'posix', 'linux', 'arm', 'elf-abi', 'toolchain', 'hardware', 'course', 'concurrency', 'numerical', 'security'}
+KINDS = {'iso-c', 'posix', 'linux', 'arm', 'elf-abi', 'toolchain', 'hardware', 'course', 'concurrency', 'numerical', 'security', 'programming-model'}
 REQUIRED = ('id', 'term', 'owner', 'definition', 'authority', 'kind')
 SKIP_LINE = re.compile(r'^\s*(#|<|\(|```|~~~|\||:::)')
 INLINE_SKIP = re.compile(r'`[^`\n]*`|\{[a-z]+\}`[^`\n]*`|\[[^\]\n]*\]\([^)\n]*\)|<[^>\n]+>|\*\*[^*\n]*:\*\*', re.M)
@@ -65,6 +65,14 @@ def validate(entries, resources, taxonomy):
             seen_terms[akey] = label
         if entry.get('kind') not in KINDS:
             errors.append(f'{label}: unknown kind {entry.get("kind")}')
+        notes = entry.get('edition_notes', [])
+        if not isinstance(notes, list) or any(not isinstance(n, dict) or not n.get('edition') or not n.get('note') for n in notes):
+            errors.append(f'{label}: edition_notes needs a list of edition/note records')
+        idiom = entry.get('idiom', [])
+        if not isinstance(idiom, list) or any(not isinstance(s, str) or not s.strip() for s in idiom):
+            errors.append(f'{label}: idiom needs a list of nonempty usage strings')
+        if 'idiomatic_usage' in entry:
+            errors.append(f'{label}: use the rendered idiom list, not idiomatic_usage')
         if entry.get('owner') != 'core' and entry.get('owner') not in domains:
             errors.append(f'{label}: unknown owner {entry.get("owner")}')
         for used in entry.get('also_used_in', []):
@@ -98,12 +106,23 @@ def validate(entries, resources, taxonomy):
                 errors.append(f'{label}: ISO C terms need edition_notes')
             if not any(str(a.get('resource_id', '')).lower().startswith(('r-wg14', 'r-sys-c-')) for a in authorities):
                 errors.append(f'{label}: ISO C terms need a WG14 authority')
-        for item in entry.get('distinguish_from', []):
-            if not item.get('term') or not item.get('distinction'):
+        distinctions = entry.get('distinguish_from', [])
+        if not isinstance(distinctions, list):
+            errors.append(f'{label}: distinguish_from needs a list of term/distinction records')
+            distinctions = []
+        for item in distinctions:
+            if not isinstance(item, dict) or any(not isinstance(item.get(k), str) or not item[k].strip()
+                                                 for k in ('term', 'distinction')):
                 errors.append(f'{label}: distinguish_from needs term and distinction')
-        for item in entry.get('avoid', []):
-            if not item.get('form') or not item.get('replace_with'):
+        avoided = entry.get('avoid', [])
+        if not isinstance(avoided, list):
+            errors.append(f'{label}: avoid needs a list of form/replace_with records')
+            avoided = []
+        for item in avoided:
+            if not isinstance(item, dict) or any(not isinstance(item.get(k), str) or not item[k].strip()
+                                                 for k in ('form', 'replace_with')):
                 errors.append(f'{label}: avoid needs form and replace_with')
+                continue
             try:
                 re.compile(item.get('form', ''))
             except re.error:

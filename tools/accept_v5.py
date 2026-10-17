@@ -31,6 +31,30 @@ def main():
             raise ValueError('Release count contract differs: ' + key)
     if counts.get('new_executable_units') != sum(total['new_executable_units'].values()):
         raise ValueError('Release count contract differs: new_executable_units')
+    expansion = edition.get('exercise_expansion')
+    if expansion:
+        from check_exercises_v5 import inspect as inspect_exercises
+        result = inspect_exercises()
+        if result['status'] != 'passed' or result['exercise_count'] != expansion['required_exercises']:
+            raise ValueError('Required exercise expansion is incomplete or stale')
+        from expansion_evidence import historical_errors
+        if historical_errors():
+            raise ValueError('Pre-expansion review history changed')
+        for name in expansion['required_batch_receipts']:
+            if name not in edition['required_receipts']:
+                raise ValueError('Required expansion evidence omitted from release gates: ' + name)
+        campaigns = read_json(ROOT / RECEIPTS / 'expansion_campaigns.json')
+        families = campaigns.get('families', [])
+        if (len(families) != len(edition['new_families'])
+                or {row['family'] for row in families if row.get('passed') is True} != set(edition['new_families'])):
+            raise ValueError('Every additive family needs its current scoped execution receipt')
+        for row in families:
+            path = ROOT / row['receipt']
+            if not path.is_file() or sha(path) != row['receipt_sha256']:
+                raise ValueError('Bound family observations changed: ' + row['family'])
+        modern = read_json(ROOT / RECEIPTS / 'modern_coverage.json')
+        if modern.get('resolved_census') != 100 or modern.get('unresolved_swe') or modern.get('unresolved_census'):
+            raise ValueError('Modern discovery dispositions do not resolve to complete assessment contracts')
     status = dict(edition['status'])
     physical = status.get('physical_validation')
     if physical != 'not-run':

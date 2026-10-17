@@ -1,0 +1,2147 @@
+{
+  "version": 1,
+  "family": "errors",
+  "title": "Error models and executable contracts",
+  "build_system": "cmake",
+  "assessor_root": "assessor/errors",
+  "projects": [
+    {
+      "id": "PR-T65-01",
+      "tests": [
+        "errors.optional"
+      ],
+      "scope": "Hosted mechanism anchors; full exercise reasoning, independent oracle campaigns and delayed transfer remain required."
+    },
+    {
+      "id": "PR-T65-02",
+      "tests": [
+        "errors.propagation"
+      ],
+      "scope": "Hosted mechanism anchors; full exercise reasoning, independent oracle campaigns and delayed transfer remain required."
+    },
+    {
+      "id": "PR-T65-03",
+      "tests": [
+        "errors.progress"
+      ],
+      "scope": "Hosted mechanism anchors; full exercise reasoning, independent oracle campaigns and delayed transfer remain required."
+    },
+    {
+      "id": "PR-T65-04",
+      "tests": [
+        "errors.composition"
+      ],
+      "scope": "Hosted mechanism anchors; full exercise reasoning, independent oracle campaigns and delayed transfer remain required."
+    },
+    {
+      "id": "PR-T65-05",
+      "tests": [
+        "errors.validation"
+      ],
+      "scope": "Hosted mechanism anchors; full exercise reasoning, independent oracle campaigns and delayed transfer remain required."
+    },
+    {
+      "id": "PR-T65-06",
+      "tests": [
+        "errors.boundary"
+      ],
+      "scope": "Hosted mechanism anchors; full exercise reasoning, independent oracle campaigns and delayed transfer remain required."
+    },
+    {
+      "id": "PR-T65-07",
+      "tests": [
+        "errors.arithmetic"
+      ],
+      "scope": "Hosted mechanism anchors; full exercise reasoning, independent oracle campaigns and delayed transfer remain required."
+    },
+    {
+      "id": "PR-T65-08",
+      "tests": [
+        "errors.contracts"
+      ],
+      "scope": "Hosted mechanism anchors; full exercise reasoning, independent oracle campaigns and delayed transfer remain required."
+    },
+    {
+      "id": "PR-T65-09",
+      "tests": [
+        "errors.refinement"
+      ],
+      "scope": "Hosted mechanism anchors; full exercise reasoning, independent oracle campaigns and delayed transfer remain required."
+    }
+  ],
+  "units": [
+    {
+      "id": "LAB-ER-01",
+      "project": "PR-T65-01",
+      "title": "Construct: Optional and Result representations without fictitious layout guarantees",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T65.01.a",
+        "T65.01.b",
+        "T65.01.c",
+        "T65.01.d"
+      ],
+      "tests": [
+        "errors.optional"
+      ],
+      "steps": [
+        "Derive the state cardinality of tagged versus zero-reserved optional values, including the lost present-zero state and valid result payload selection.",
+        "Implement total constructors and checked accessors while preserving output on rejected niche construction; do not copy uninitialized union members or compare padding."
+      ],
+      "checks": [
+        "Packing (value=0,present=1) into an output initially 91 rejects with 91 unchanged; (17,0) stores zero; UINT32_MAX is a valid present value. Unpacking zero produces ER_ABSENT. The full tagged alternative must distinguish absent from present zero.",
+        "Enumerate the reduced 8-bit model independently, then test actual UINT32_MAX and invalid discriminants. Measure sizeof and alignment on two available data models; a missing model is unavailable evidence. Kill premature-output-write and absence-uses-payload mutants."
+      ],
+      "reasoning": [
+        "Derive the state cardinality of tagged versus zero-reserved optional values, including the lost present-zero state and valid result payload selection."
+      ],
+      "deliverables": [
+        "Implement total constructors and checked accessors while preserving output on rejected niche construction; do not copy uninitialized union members or compare padding.",
+        "Enumerate the reduced 8-bit model independently, then test actual UINT32_MAX and invalid discriminants. Measure sizeof and alignment on two available data models; a missing model is unavailable evidence. Kill premature-output-write and absence-uses-payload mutants.",
+        "Change the payload to an owning resource whose zero ID is valid. Derive an ownership-bearing tagged option and show why the old niche and byte-copy rules fail. Compare the exact documented Rust Option representation cases with this C design; no blanket ABI equivalence is allowed."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-001-R1",
+          "objective": "T65.01.a",
+          "criterion": "Derive the state cardinality of tagged versus zero-reserved optional values, including the lost present-zero state and valid result payload selection.",
+          "levels": {
+            "0": "Incorrect or absent: Derive the state cardinality of tagged versus zero-reserved optional values, including the lost present-zero state and valid result payload selection.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-001-R2",
+          "objective": "T65.01.b",
+          "criterion": "Implement total constructors and checked accessors while preserving output on rejected niche construction; do not copy uninitialized union members or compare padding.",
+          "levels": {
+            "0": "Incorrect or absent: Implement total constructors and checked accessors while preserving output on rejected niche construction; do not copy uninitialized union members or compare padding.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-001-R3",
+          "objective": "T65.01.c",
+          "criterion": "Enumerate the reduced 8-bit model independently, then test actual UINT32_MAX and invalid discriminants. Measure sizeof and alignment on two available data models; a missing model is unavailable evidence. Kill premature-output-write and absence-uses-payload mutants.",
+          "levels": {
+            "0": "Incorrect or absent: Enumerate the reduced 8-bit model independently, then test actual UINT32_MAX and invalid discriminants. Measure sizeof and alignment on two available data models; a missing model is unavailable evidence. Kill premature-output-write and absence-uses-payload mutants.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-001-R4",
+          "objective": "T65.01.d",
+          "criterion": "Change the payload to an owning resource whose zero ID is valid. Derive an ownership-bearing tagged option and show why the old niche and byte-copy rules fail. Compare the exact documented Rust Option representation cases with this C design; no blanket ABI equivalence is allowed. Analyze void as an incomplete type with no values and _Noreturn as a function specifier. Compile a struct member of type void and an expression attempting to use a void result as a payload under strict C17 diagnostics; do not execute a falsely returning _Noreturn function. Construct a named one-state enum payload as a protocol-level unit and explain why it is not an uninhabited type or a general coercion rule.",
+          "levels": {
+            "0": "Incorrect or absent: Change the payload to an owning resource whose zero ID is valid. Derive an ownership-bearing tagged option and show why the old niche and byte-copy rules fail. Compare the exact documented Rust Option representation cases with this C design; no blanket ABI equivalence is allowed.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Change the payload to an owning resource whose zero ID is valid. Derive an ownership-bearing tagged option and show why the old niche and byte-copy rules fail. Compare the exact documented Rust Option representation cases with this C design; no blanket ABI equivalence is allowed.",
+        "Analyze void as an incomplete type with no values and _Noreturn as a function specifier. Compile a struct member of type void and an expression attempting to use a void result as a payload under strict C17 diagnostics; do not execute a falsely returning _Noreturn function. Construct a named one-state enum payload as a protocol-level unit and explain why it is not an uninhabited type or a general coercion rule."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-001.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted optional contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-02",
+      "project": "PR-T65-01",
+      "title": "Falsify and transfer: Optional and Result representations without fictitious layout guarantees",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T65.01.a",
+        "T65.01.b",
+        "T65.01.c",
+        "T65.01.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate the reduced 8-bit model independently, then test actual UINT32_MAX and invalid discriminants. Measure sizeof and alignment on two available data models; a missing model is unavailable evidence. Kill premature-output-write and absence-uses-payload mutants.",
+        "Change the payload to an owning resource whose zero ID is valid. Derive an ownership-bearing tagged option and show why the old niche and byte-copy rules fail. Compare the exact documented Rust Option representation cases with this C design; no blanket ABI equivalence is allowed."
+      ],
+      "checks": [
+        "Packing (value=0,present=1) into an output initially 91 rejects with 91 unchanged; (17,0) stores zero; UINT32_MAX is a valid present value. Unpacking zero produces ER_ABSENT. The full tagged alternative must distinguish absent from present zero.",
+        "Enumerate the reduced 8-bit model independently, then test actual UINT32_MAX and invalid discriminants. Measure sizeof and alignment on two available data models; a missing model is unavailable evidence. Kill premature-output-write and absence-uses-payload mutants."
+      ],
+      "reasoning": [
+        "Derive the state cardinality of tagged versus zero-reserved optional values, including the lost present-zero state and valid result payload selection."
+      ],
+      "deliverables": [
+        "Implement total constructors and checked accessors while preserving output on rejected niche construction; do not copy uninitialized union members or compare padding.",
+        "Enumerate the reduced 8-bit model independently, then test actual UINT32_MAX and invalid discriminants. Measure sizeof and alignment on two available data models; a missing model is unavailable evidence. Kill premature-output-write and absence-uses-payload mutants.",
+        "Change the payload to an owning resource whose zero ID is valid. Derive an ownership-bearing tagged option and show why the old niche and byte-copy rules fail. Compare the exact documented Rust Option representation cases with this C design; no blanket ABI equivalence is allowed."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-001-R1",
+          "objective": "T65.01.a",
+          "criterion": "Derive the state cardinality of tagged versus zero-reserved optional values, including the lost present-zero state and valid result payload selection.",
+          "levels": {
+            "0": "Incorrect or absent: Derive the state cardinality of tagged versus zero-reserved optional values, including the lost present-zero state and valid result payload selection.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-001-R2",
+          "objective": "T65.01.b",
+          "criterion": "Implement total constructors and checked accessors while preserving output on rejected niche construction; do not copy uninitialized union members or compare padding.",
+          "levels": {
+            "0": "Incorrect or absent: Implement total constructors and checked accessors while preserving output on rejected niche construction; do not copy uninitialized union members or compare padding.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-001-R3",
+          "objective": "T65.01.c",
+          "criterion": "Enumerate the reduced 8-bit model independently, then test actual UINT32_MAX and invalid discriminants. Measure sizeof and alignment on two available data models; a missing model is unavailable evidence. Kill premature-output-write and absence-uses-payload mutants.",
+          "levels": {
+            "0": "Incorrect or absent: Enumerate the reduced 8-bit model independently, then test actual UINT32_MAX and invalid discriminants. Measure sizeof and alignment on two available data models; a missing model is unavailable evidence. Kill premature-output-write and absence-uses-payload mutants.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-001-R4",
+          "objective": "T65.01.d",
+          "criterion": "Change the payload to an owning resource whose zero ID is valid. Derive an ownership-bearing tagged option and show why the old niche and byte-copy rules fail. Compare the exact documented Rust Option representation cases with this C design; no blanket ABI equivalence is allowed. Analyze void as an incomplete type with no values and _Noreturn as a function specifier. Compile a struct member of type void and an expression attempting to use a void result as a payload under strict C17 diagnostics; do not execute a falsely returning _Noreturn function. Construct a named one-state enum payload as a protocol-level unit and explain why it is not an uninhabited type or a general coercion rule.",
+          "levels": {
+            "0": "Incorrect or absent: Change the payload to an owning resource whose zero ID is valid. Derive an ownership-bearing tagged option and show why the old niche and byte-copy rules fail. Compare the exact documented Rust Option representation cases with this C design; no blanket ABI equivalence is allowed.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Change the payload to an owning resource whose zero ID is valid. Derive an ownership-bearing tagged option and show why the old niche and byte-copy rules fail. Compare the exact documented Rust Option representation cases with this C design; no blanket ABI equivalence is allowed.",
+        "Analyze void as an incomplete type with no values and _Noreturn as a function specifier. Compile a struct member of type void and an expression attempting to use a void result as a payload under strict C17 diagnostics; do not execute a falsely returning _Noreturn function. Construct a named one-state enum payload as a protocol-level unit and explain why it is not an uninhabited type or a general coercion rule."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-001.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted optional contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-03",
+      "project": "PR-T65-02",
+      "title": "Construct: Single-evaluation propagation and atomic parser publication",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T65.02.a",
+        "T65.02.b",
+        "T65.02.c",
+        "T65.02.d"
+      ],
+      "tests": [
+        "errors.propagation"
+      ],
+      "steps": [
+        "Explain which failure stage owns the error offset, and why early-return propagation is not transaction rollback or automatic cleanup.",
+        "Implement strict checked accumulation and two single-evaluation propagation forms without statement expressions, strto* or parser libraries."
+      ],
+      "checks": [
+        "1:65534 succeeds with 65535. 65536:0 fails RANGE at offset4; 1:2x fails INVALID at3; 1: fails at2; :1 fails at0. 1:65535 fails RANGE at7 and must not publish the first field.",
+        "Generate all strings of length0–6 over digits0,1,9,colon,x and compare with an independent grammar/integer model. Add UINT32 bounds and long zero prefixes. Record callback/expression counters to kill double evaluation and retain a canary output for every rejection; kill premature publication and trailing-input acceptance mutants."
+      ],
+      "reasoning": [
+        "Explain which failure stage owns the error offset, and why early-return propagation is not transaction rollback or automatic cleanup."
+      ],
+      "deliverables": [
+        "Implement strict checked accumulation and two single-evaluation propagation forms without statement expressions, strto* or parser libraries.",
+        "Generate all strings of length0–6 over digits0,1,9,colon,x and compare with an independent grammar/integer model. Add UINT32 bounds and long zero prefixes. Record callback/expression counters to kill double evaluation and retain a canary output for every rejection; kill premature publication and trailing-input acceptance mutants.",
+        "Replace the complete buffer with two incremental segments and preserve an explicit consumed position. Decide when an error position is absolute and when publication may occur; show a case where blindly returning the old error loses partial progress. The delayed variant adds a signed first field and forbids negative totals."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-002-R1",
+          "objective": "T65.02.a",
+          "criterion": "Explain which failure stage owns the error offset, and why early-return propagation is not transaction rollback or automatic cleanup.",
+          "levels": {
+            "0": "Incorrect or absent: Explain which failure stage owns the error offset, and why early-return propagation is not transaction rollback or automatic cleanup.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-002-R2",
+          "objective": "T65.02.b",
+          "criterion": "Implement strict checked accumulation and two single-evaluation propagation forms without statement expressions, strto* or parser libraries.",
+          "levels": {
+            "0": "Incorrect or absent: Implement strict checked accumulation and two single-evaluation propagation forms without statement expressions, strto* or parser libraries.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-002-R3",
+          "objective": "T65.02.c",
+          "criterion": "Generate all strings of length0–6 over digits0,1,9,colon,x and compare with an independent grammar/integer model. Add UINT32 bounds and long zero prefixes. Record callback/expression counters to kill double evaluation and retain a canary output for every rejection; kill premature publication and trailing-input acceptance mutants.",
+          "levels": {
+            "0": "Incorrect or absent: Generate all strings of length0–6 over digits0,1,9,colon,x and compare with an independent grammar/integer model. Add UINT32 bounds and long zero prefixes. Record callback/expression counters to kill double evaluation and retain a canary output for every rejection; kill premature publication and trailing-input acceptance mutants.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-002-R4",
+          "objective": "T65.02.d",
+          "criterion": "Replace the complete buffer with two incremental segments and preserve an explicit consumed position. Decide when an error position is absolute and when publication may occur; show a case where blindly returning the old error loses partial progress. The delayed variant adds a signed first field and forbids negative totals. Replace a proposed GNU statement-expression propagation macro with a C17 do-while statement macro taking an explicit output and goto label. Place it in an if/else and as an attempted initializer: explain why only the statement context is admitted. Count argument evaluation, test a name collision, and compare a static inline function when early return from the caller is unnecessary.",
+          "levels": {
+            "0": "Incorrect or absent: Replace the complete buffer with two incremental segments and preserve an explicit consumed position. Decide when an error position is absolute and when publication may occur; show a case where blindly returning the old error loses partial progress. The delayed variant adds a signed first field and forbids negative totals.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Replace the complete buffer with two incremental segments and preserve an explicit consumed position. Decide when an error position is absolute and when publication may occur; show a case where blindly returning the old error loses partial progress. The delayed variant adds a signed first field and forbids negative totals.",
+        "Replace a proposed GNU statement-expression propagation macro with a C17 do-while statement macro taking an explicit output and goto label. Place it in an if/else and as an attempted initializer: explain why only the statement context is admitted. Count argument evaluation, test a name collision, and compare a static inline function when early return from the caller is unnecessary."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-002.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted propagation contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-04",
+      "project": "PR-T65-02",
+      "title": "Falsify and transfer: Single-evaluation propagation and atomic parser publication",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T65.02.a",
+        "T65.02.b",
+        "T65.02.c",
+        "T65.02.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Generate all strings of length0–6 over digits0,1,9,colon,x and compare with an independent grammar/integer model. Add UINT32 bounds and long zero prefixes. Record callback/expression counters to kill double evaluation and retain a canary output for every rejection; kill premature publication and trailing-input acceptance mutants.",
+        "Replace the complete buffer with two incremental segments and preserve an explicit consumed position. Decide when an error position is absolute and when publication may occur; show a case where blindly returning the old error loses partial progress. The delayed variant adds a signed first field and forbids negative totals."
+      ],
+      "checks": [
+        "1:65534 succeeds with 65535. 65536:0 fails RANGE at offset4; 1:2x fails INVALID at3; 1: fails at2; :1 fails at0. 1:65535 fails RANGE at7 and must not publish the first field.",
+        "Generate all strings of length0–6 over digits0,1,9,colon,x and compare with an independent grammar/integer model. Add UINT32 bounds and long zero prefixes. Record callback/expression counters to kill double evaluation and retain a canary output for every rejection; kill premature publication and trailing-input acceptance mutants."
+      ],
+      "reasoning": [
+        "Explain which failure stage owns the error offset, and why early-return propagation is not transaction rollback or automatic cleanup."
+      ],
+      "deliverables": [
+        "Implement strict checked accumulation and two single-evaluation propagation forms without statement expressions, strto* or parser libraries.",
+        "Generate all strings of length0–6 over digits0,1,9,colon,x and compare with an independent grammar/integer model. Add UINT32 bounds and long zero prefixes. Record callback/expression counters to kill double evaluation and retain a canary output for every rejection; kill premature publication and trailing-input acceptance mutants.",
+        "Replace the complete buffer with two incremental segments and preserve an explicit consumed position. Decide when an error position is absolute and when publication may occur; show a case where blindly returning the old error loses partial progress. The delayed variant adds a signed first field and forbids negative totals."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-002-R1",
+          "objective": "T65.02.a",
+          "criterion": "Explain which failure stage owns the error offset, and why early-return propagation is not transaction rollback or automatic cleanup.",
+          "levels": {
+            "0": "Incorrect or absent: Explain which failure stage owns the error offset, and why early-return propagation is not transaction rollback or automatic cleanup.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-002-R2",
+          "objective": "T65.02.b",
+          "criterion": "Implement strict checked accumulation and two single-evaluation propagation forms without statement expressions, strto* or parser libraries.",
+          "levels": {
+            "0": "Incorrect or absent: Implement strict checked accumulation and two single-evaluation propagation forms without statement expressions, strto* or parser libraries.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-002-R3",
+          "objective": "T65.02.c",
+          "criterion": "Generate all strings of length0–6 over digits0,1,9,colon,x and compare with an independent grammar/integer model. Add UINT32 bounds and long zero prefixes. Record callback/expression counters to kill double evaluation and retain a canary output for every rejection; kill premature publication and trailing-input acceptance mutants.",
+          "levels": {
+            "0": "Incorrect or absent: Generate all strings of length0–6 over digits0,1,9,colon,x and compare with an independent grammar/integer model. Add UINT32 bounds and long zero prefixes. Record callback/expression counters to kill double evaluation and retain a canary output for every rejection; kill premature publication and trailing-input acceptance mutants.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-002-R4",
+          "objective": "T65.02.d",
+          "criterion": "Replace the complete buffer with two incremental segments and preserve an explicit consumed position. Decide when an error position is absolute and when publication may occur; show a case where blindly returning the old error loses partial progress. The delayed variant adds a signed first field and forbids negative totals. Replace a proposed GNU statement-expression propagation macro with a C17 do-while statement macro taking an explicit output and goto label. Place it in an if/else and as an attempted initializer: explain why only the statement context is admitted. Count argument evaluation, test a name collision, and compare a static inline function when early return from the caller is unnecessary.",
+          "levels": {
+            "0": "Incorrect or absent: Replace the complete buffer with two incremental segments and preserve an explicit consumed position. Decide when an error position is absolute and when publication may occur; show a case where blindly returning the old error loses partial progress. The delayed variant adds a signed first field and forbids negative totals.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Replace the complete buffer with two incremental segments and preserve an explicit consumed position. Decide when an error position is absolute and when publication may occur; show a case where blindly returning the old error loses partial progress. The delayed variant adds a signed first field and forbids negative totals.",
+        "Replace a proposed GNU statement-expression propagation macro with a C17 do-while statement macro taking an explicit output and goto label. Place it in an if/else and as an attempted initializer: explain why only the statement context is admitted. Count argument evaluation, test a name collision, and compare a static inline function when early return from the caller is unnecessary."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-002.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted propagation contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-05",
+      "project": "PR-T65-03",
+      "title": "Construct: Partial progress is a product, not an error alternative",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T65.03.a",
+        "T65.03.b",
+        "T65.03.c",
+        "T65.03.d"
+      ],
+      "tests": [
+        "errors.progress"
+      ],
+      "steps": [
+        "Derive a state table in which progress and terminal/error status are independent, and distinguish accepted bytes from durable bytes.",
+        "Implement a one-call bounded adapter with overflow-free relative-to-absolute progress conversion and explicit borrowed-buffer lifetime."
+      ],
+      "checks": [
+        "With length4,next0 and backend (2,AGAIN), return (2,AGAIN). Retrying from2 with (1,IO) returns (3,IO). A backend count2 offered only one byte violates the contract and returns the original next. Empty input does not call the sink.",
+        "Enumerate lengths0–5, valid and invalid next positions, backend counts0–6 and all status tags using a fake sink. Assert call counts, offered spans, no retry duplication and unchanged next on contract violations. Kill error-discards-progress and status-erasure mutants. Use a separate actual pipe adapter only as an additional OS experiment."
+      ],
+      "reasoning": [
+        "Derive a state table in which progress and terminal/error status are independent, and distinguish accepted bytes from durable bytes."
+      ],
+      "deliverables": [
+        "Implement a one-call bounded adapter with overflow-free relative-to-absolute progress conversion and explicit borrowed-buffer lifetime.",
+        "Enumerate lengths0–5, valid and invalid next positions, backend counts0–6 and all status tags using a fake sink. Assert call counts, offered spans, no retry duplication and unchanged next on contract violations. Kill error-discards-progress and status-erasure mutants. Use a separate actual pipe adapter only as an additional OS experiment.",
+        "Compose with io.stream and introduce a copied bounded staging buffer. Cancellation arrives after a short write: identify what can be retried, what stays owned and what cannot be rolled back. Delayed assessment changes the sink to commit bytes in separate durable epochs."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-003-R1",
+          "objective": "T65.03.a",
+          "criterion": "Derive a state table in which progress and terminal/error status are independent, and distinguish accepted bytes from durable bytes.",
+          "levels": {
+            "0": "Incorrect or absent: Derive a state table in which progress and terminal/error status are independent, and distinguish accepted bytes from durable bytes.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-003-R2",
+          "objective": "T65.03.b",
+          "criterion": "Implement a one-call bounded adapter with overflow-free relative-to-absolute progress conversion and explicit borrowed-buffer lifetime.",
+          "levels": {
+            "0": "Incorrect or absent: Implement a one-call bounded adapter with overflow-free relative-to-absolute progress conversion and explicit borrowed-buffer lifetime.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-003-R3",
+          "objective": "T65.03.c",
+          "criterion": "Enumerate lengths0–5, valid and invalid next positions, backend counts0–6 and all status tags using a fake sink. Assert call counts, offered spans, no retry duplication and unchanged next on contract violations. Kill error-discards-progress and status-erasure mutants. Use a separate actual pipe adapter only as an additional OS experiment.",
+          "levels": {
+            "0": "Incorrect or absent: Enumerate lengths0–5, valid and invalid next positions, backend counts0–6 and all status tags using a fake sink. Assert call counts, offered spans, no retry duplication and unchanged next on contract violations. Kill error-discards-progress and status-erasure mutants. Use a separate actual pipe adapter only as an additional OS experiment.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-003-R4",
+          "objective": "T65.03.d",
+          "criterion": "Compose with io.stream and introduce a copied bounded staging buffer. Cancellation arrives after a short write: identify what can be retried, what stays owned and what cannot be rolled back. Delayed assessment changes the sink to commit bytes in separate durable epochs.",
+          "levels": {
+            "0": "Incorrect or absent: Compose with io.stream and introduce a copied bounded staging buffer. Cancellation arrives after a short write: identify what can be retried, what stays owned and what cannot be rolled back. Delayed assessment changes the sink to commit bytes in separate durable epochs.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Compose with io.stream and introduce a copied bounded staging buffer. Cancellation arrives after a short write: identify what can be retried, what stays owned and what cannot be rolled back. Delayed assessment changes the sink to commit bytes in separate durable epochs."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-003.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted progress contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-06",
+      "project": "PR-T65-03",
+      "title": "Falsify and transfer: Partial progress is a product, not an error alternative",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T65.03.a",
+        "T65.03.b",
+        "T65.03.c",
+        "T65.03.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate lengths0–5, valid and invalid next positions, backend counts0–6 and all status tags using a fake sink. Assert call counts, offered spans, no retry duplication and unchanged next on contract violations. Kill error-discards-progress and status-erasure mutants. Use a separate actual pipe adapter only as an additional OS experiment.",
+        "Compose with io.stream and introduce a copied bounded staging buffer. Cancellation arrives after a short write: identify what can be retried, what stays owned and what cannot be rolled back. Delayed assessment changes the sink to commit bytes in separate durable epochs."
+      ],
+      "checks": [
+        "With length4,next0 and backend (2,AGAIN), return (2,AGAIN). Retrying from2 with (1,IO) returns (3,IO). A backend count2 offered only one byte violates the contract and returns the original next. Empty input does not call the sink.",
+        "Enumerate lengths0–5, valid and invalid next positions, backend counts0–6 and all status tags using a fake sink. Assert call counts, offered spans, no retry duplication and unchanged next on contract violations. Kill error-discards-progress and status-erasure mutants. Use a separate actual pipe adapter only as an additional OS experiment."
+      ],
+      "reasoning": [
+        "Derive a state table in which progress and terminal/error status are independent, and distinguish accepted bytes from durable bytes."
+      ],
+      "deliverables": [
+        "Implement a one-call bounded adapter with overflow-free relative-to-absolute progress conversion and explicit borrowed-buffer lifetime.",
+        "Enumerate lengths0–5, valid and invalid next positions, backend counts0–6 and all status tags using a fake sink. Assert call counts, offered spans, no retry duplication and unchanged next on contract violations. Kill error-discards-progress and status-erasure mutants. Use a separate actual pipe adapter only as an additional OS experiment.",
+        "Compose with io.stream and introduce a copied bounded staging buffer. Cancellation arrives after a short write: identify what can be retried, what stays owned and what cannot be rolled back. Delayed assessment changes the sink to commit bytes in separate durable epochs."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-003-R1",
+          "objective": "T65.03.a",
+          "criterion": "Derive a state table in which progress and terminal/error status are independent, and distinguish accepted bytes from durable bytes.",
+          "levels": {
+            "0": "Incorrect or absent: Derive a state table in which progress and terminal/error status are independent, and distinguish accepted bytes from durable bytes.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-003-R2",
+          "objective": "T65.03.b",
+          "criterion": "Implement a one-call bounded adapter with overflow-free relative-to-absolute progress conversion and explicit borrowed-buffer lifetime.",
+          "levels": {
+            "0": "Incorrect or absent: Implement a one-call bounded adapter with overflow-free relative-to-absolute progress conversion and explicit borrowed-buffer lifetime.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-003-R3",
+          "objective": "T65.03.c",
+          "criterion": "Enumerate lengths0–5, valid and invalid next positions, backend counts0–6 and all status tags using a fake sink. Assert call counts, offered spans, no retry duplication and unchanged next on contract violations. Kill error-discards-progress and status-erasure mutants. Use a separate actual pipe adapter only as an additional OS experiment.",
+          "levels": {
+            "0": "Incorrect or absent: Enumerate lengths0–5, valid and invalid next positions, backend counts0–6 and all status tags using a fake sink. Assert call counts, offered spans, no retry duplication and unchanged next on contract violations. Kill error-discards-progress and status-erasure mutants. Use a separate actual pipe adapter only as an additional OS experiment.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-003-R4",
+          "objective": "T65.03.d",
+          "criterion": "Compose with io.stream and introduce a copied bounded staging buffer. Cancellation arrives after a short write: identify what can be retried, what stays owned and what cannot be rolled back. Delayed assessment changes the sink to commit bytes in separate durable epochs.",
+          "levels": {
+            "0": "Incorrect or absent: Compose with io.stream and introduce a copied bounded staging buffer. Cancellation arrives after a short write: identify what can be retried, what stays owned and what cannot be rolled back. Delayed assessment changes the sink to commit bytes in separate durable epochs.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Compose with io.stream and introduce a copied bounded staging buffer. Cancellation arrives after a short write: identify what can be retried, what stays owned and what cannot be rolled back. Delayed assessment changes the sink to commit bytes in separate durable epochs."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-003.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted progress contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-07",
+      "project": "PR-T65-04",
+      "title": "Construct: Lazy Result composition and effect-sensitive laws",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T65.04.a",
+        "T65.04.b",
+        "T65.04.c",
+        "T65.04.d"
+      ],
+      "tests": [
+        "errors.composition"
+      ],
+      "steps": [
+        "State the preconditions for map identity/composition and and_then associativity, distinguishing pure laws from callback side effects and evaluation order.",
+        "Implement typed callback composition with one active union member, error preservation and exactly selected callback invocation."
+      ],
+      "checks": [
+        "Mapping increment over IO(offset7) invokes zero callbacks and preserves7. Mapping over OK(4) produces OK(5) after one invocation; then a rejecting callback produces RANGE(offset5). A subsequent then does not call its callback.",
+        "Exhaustively compare finite pure functions on payloads0–7 using an independent table oracle. Instrument observable callbacks and construct a counterexample to a proposed optimization that eagerly evaluates an unused branch. Kill error-callback and flattened-error-loss mutants; inspect indirect-call counts before timing."
+      ],
+      "reasoning": [
+        "State the preconditions for map identity/composition and and_then associativity, distinguishing pure laws from callback side effects and evaluation order."
+      ],
+      "deliverables": [
+        "Implement typed callback composition with one active union member, error preservation and exactly selected callback invocation.",
+        "Exhaustively compare finite pure functions on payloads0–7 using an independent table oracle. Instrument observable callbacks and construct a counterexample to a proposed optimization that eagerly evaluates an unused branch. Kill error-callback and flattened-error-loss mutants; inspect indirect-call counts before timing.",
+        "Introduce an owned payload with a destructor. Specify whether map borrows, consumes or clones; reject a design that silently duplicates ownership. Delayed assessment asks for an error-type conversion that preserves an inner cause and offset without allocation."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-004-R1",
+          "objective": "T65.04.a",
+          "criterion": "State the preconditions for map identity/composition and and_then associativity, distinguishing pure laws from callback side effects and evaluation order.",
+          "levels": {
+            "0": "Incorrect or absent: State the preconditions for map identity/composition and and_then associativity, distinguishing pure laws from callback side effects and evaluation order.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-004-R2",
+          "objective": "T65.04.b",
+          "criterion": "Implement typed callback composition with one active union member, error preservation and exactly selected callback invocation.",
+          "levels": {
+            "0": "Incorrect or absent: Implement typed callback composition with one active union member, error preservation and exactly selected callback invocation.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-004-R3",
+          "objective": "T65.04.c",
+          "criterion": "Exhaustively compare finite pure functions on payloads0–7 using an independent table oracle. Instrument observable callbacks and construct a counterexample to a proposed optimization that eagerly evaluates an unused branch. Kill error-callback and flattened-error-loss mutants; inspect indirect-call counts before timing.",
+          "levels": {
+            "0": "Incorrect or absent: Exhaustively compare finite pure functions on payloads0–7 using an independent table oracle. Instrument observable callbacks and construct a counterexample to a proposed optimization that eagerly evaluates an unused branch. Kill error-callback and flattened-error-loss mutants; inspect indirect-call counts before timing.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-004-R4",
+          "objective": "T65.04.d",
+          "criterion": "Introduce an owned payload with a destructor. Specify whether map borrows, consumes or clones; reject a design that silently duplicates ownership. Delayed assessment asks for an error-type conversion that preserves an inner cause and offset without allocation.",
+          "levels": {
+            "0": "Incorrect or absent: Introduce an owned payload with a destructor. Specify whether map borrows, consumes or clones; reject a design that silently duplicates ownership. Delayed assessment asks for an error-type conversion that preserves an inner cause and offset without allocation.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce an owned payload with a destructor. Specify whether map borrows, consumes or clones; reject a design that silently duplicates ownership. Delayed assessment asks for an error-type conversion that preserves an inner cause and offset without allocation."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-004.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted composition contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-08",
+      "project": "PR-T65-04",
+      "title": "Falsify and transfer: Lazy Result composition and effect-sensitive laws",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T65.04.a",
+        "T65.04.b",
+        "T65.04.c",
+        "T65.04.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Exhaustively compare finite pure functions on payloads0–7 using an independent table oracle. Instrument observable callbacks and construct a counterexample to a proposed optimization that eagerly evaluates an unused branch. Kill error-callback and flattened-error-loss mutants; inspect indirect-call counts before timing.",
+        "Introduce an owned payload with a destructor. Specify whether map borrows, consumes or clones; reject a design that silently duplicates ownership. Delayed assessment asks for an error-type conversion that preserves an inner cause and offset without allocation."
+      ],
+      "checks": [
+        "Mapping increment over IO(offset7) invokes zero callbacks and preserves7. Mapping over OK(4) produces OK(5) after one invocation; then a rejecting callback produces RANGE(offset5). A subsequent then does not call its callback.",
+        "Exhaustively compare finite pure functions on payloads0–7 using an independent table oracle. Instrument observable callbacks and construct a counterexample to a proposed optimization that eagerly evaluates an unused branch. Kill error-callback and flattened-error-loss mutants; inspect indirect-call counts before timing."
+      ],
+      "reasoning": [
+        "State the preconditions for map identity/composition and and_then associativity, distinguishing pure laws from callback side effects and evaluation order."
+      ],
+      "deliverables": [
+        "Implement typed callback composition with one active union member, error preservation and exactly selected callback invocation.",
+        "Exhaustively compare finite pure functions on payloads0–7 using an independent table oracle. Instrument observable callbacks and construct a counterexample to a proposed optimization that eagerly evaluates an unused branch. Kill error-callback and flattened-error-loss mutants; inspect indirect-call counts before timing.",
+        "Introduce an owned payload with a destructor. Specify whether map borrows, consumes or clones; reject a design that silently duplicates ownership. Delayed assessment asks for an error-type conversion that preserves an inner cause and offset without allocation."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-004-R1",
+          "objective": "T65.04.a",
+          "criterion": "State the preconditions for map identity/composition and and_then associativity, distinguishing pure laws from callback side effects and evaluation order.",
+          "levels": {
+            "0": "Incorrect or absent: State the preconditions for map identity/composition and and_then associativity, distinguishing pure laws from callback side effects and evaluation order.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-004-R2",
+          "objective": "T65.04.b",
+          "criterion": "Implement typed callback composition with one active union member, error preservation and exactly selected callback invocation.",
+          "levels": {
+            "0": "Incorrect or absent: Implement typed callback composition with one active union member, error preservation and exactly selected callback invocation.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-004-R3",
+          "objective": "T65.04.c",
+          "criterion": "Exhaustively compare finite pure functions on payloads0–7 using an independent table oracle. Instrument observable callbacks and construct a counterexample to a proposed optimization that eagerly evaluates an unused branch. Kill error-callback and flattened-error-loss mutants; inspect indirect-call counts before timing.",
+          "levels": {
+            "0": "Incorrect or absent: Exhaustively compare finite pure functions on payloads0–7 using an independent table oracle. Instrument observable callbacks and construct a counterexample to a proposed optimization that eagerly evaluates an unused branch. Kill error-callback and flattened-error-loss mutants; inspect indirect-call counts before timing.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-004-R4",
+          "objective": "T65.04.d",
+          "criterion": "Introduce an owned payload with a destructor. Specify whether map borrows, consumes or clones; reject a design that silently duplicates ownership. Delayed assessment asks for an error-type conversion that preserves an inner cause and offset without allocation.",
+          "levels": {
+            "0": "Incorrect or absent: Introduce an owned payload with a destructor. Specify whether map borrows, consumes or clones; reject a design that silently duplicates ownership. Delayed assessment asks for an error-type conversion that preserves an inner cause and offset without allocation.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce an owned payload with a destructor. Specify whether map borrows, consumes or clones; reject a design that silently duplicates ownership. Delayed assessment asks for an error-type conversion that preserves an inner cause and offset without allocation."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-004.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted composition contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-09",
+      "project": "PR-T65-05",
+      "title": "Construct: Bounded applicative validation and transactional configuration",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T65.05.a",
+        "T65.05.b",
+        "T65.05.c",
+        "T65.05.d"
+      ],
+      "tests": [
+        "errors.validation"
+      ],
+      "steps": [
+        "Explain why independent validation may accumulate errors while dependent checks require an admission order; define truncation independently of validity.",
+        "Implement bounded ordered diagnostics and all-or-nothing configuration publication, including structural-misuse behavior and output nonoverlap preconditions."
+      ],
+      "checks": [
+        "Input (-1,1025,0), capacity2 yields total3,stored2,truncated1 and error IDs[1,2], preserving the old configuration. Capacity0 still reports three errors. (150,1024,1) publishes successfully and emits none.",
+        "Enumerate boundary representatives [-1,0,1,150,151] for age, [-1,0,1024,1025] for quota and [0,1,4096,4097] for denominator across all capacities. Compare error IDs with an independent predicate list and byte/field canaries. Kill early-publication and first-error-only mutants."
+      ],
+      "reasoning": [
+        "Explain why independent validation may accumulate errors while dependent checks require an admission order; define truncation independently of validity."
+      ],
+      "deliverables": [
+        "Implement bounded ordered diagnostics and all-or-nothing configuration publication, including structural-misuse behavior and output nonoverlap preconditions.",
+        "Enumerate boundary representatives [-1,0,1,150,151] for age, [-1,0,1024,1025] for quota and [0,1,4096,4097] for denominator across all capacities. Compare error IDs with an independent predicate list and byte/field canaries. Kill early-publication and first-error-only mutants.",
+        "Add a dependent ratio constraint quota/denominator <= limit. Explain why checking it before denominator admission would be invalid, and retain independent field diagnostics before cross-field validation. Delayed assessment requires a bounded nested path for each error and a deterministic truncation policy."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-005-R1",
+          "objective": "T65.05.a",
+          "criterion": "Explain why independent validation may accumulate errors while dependent checks require an admission order; define truncation independently of validity.",
+          "levels": {
+            "0": "Incorrect or absent: Explain why independent validation may accumulate errors while dependent checks require an admission order; define truncation independently of validity.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-005-R2",
+          "objective": "T65.05.b",
+          "criterion": "Implement bounded ordered diagnostics and all-or-nothing configuration publication, including structural-misuse behavior and output nonoverlap preconditions.",
+          "levels": {
+            "0": "Incorrect or absent: Implement bounded ordered diagnostics and all-or-nothing configuration publication, including structural-misuse behavior and output nonoverlap preconditions.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-005-R3",
+          "objective": "T65.05.c",
+          "criterion": "Enumerate boundary representatives [-1,0,1,150,151] for age, [-1,0,1024,1025] for quota and [0,1,4096,4097] for denominator across all capacities. Compare error IDs with an independent predicate list and byte/field canaries. Kill early-publication and first-error-only mutants.",
+          "levels": {
+            "0": "Incorrect or absent: Enumerate boundary representatives [-1,0,1,150,151] for age, [-1,0,1024,1025] for quota and [0,1,4096,4097] for denominator across all capacities. Compare error IDs with an independent predicate list and byte/field canaries. Kill early-publication and first-error-only mutants.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-005-R4",
+          "objective": "T65.05.d",
+          "criterion": "Add a dependent ratio constraint quota/denominator <= limit. Explain why checking it before denominator admission would be invalid, and retain independent field diagnostics before cross-field validation. Delayed assessment requires a bounded nested path for each error and a deterministic truncation policy.",
+          "levels": {
+            "0": "Incorrect or absent: Add a dependent ratio constraint quota/denominator <= limit. Explain why checking it before denominator admission would be invalid, and retain independent field diagnostics before cross-field validation. Delayed assessment requires a bounded nested path for each error and a deterministic truncation policy.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add a dependent ratio constraint quota/denominator <= limit. Explain why checking it before denominator admission would be invalid, and retain independent field diagnostics before cross-field validation. Delayed assessment requires a bounded nested path for each error and a deterministic truncation policy."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-005.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted validation contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-10",
+      "project": "PR-T65-05",
+      "title": "Falsify and transfer: Bounded applicative validation and transactional configuration",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T65.05.a",
+        "T65.05.b",
+        "T65.05.c",
+        "T65.05.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate boundary representatives [-1,0,1,150,151] for age, [-1,0,1024,1025] for quota and [0,1,4096,4097] for denominator across all capacities. Compare error IDs with an independent predicate list and byte/field canaries. Kill early-publication and first-error-only mutants.",
+        "Add a dependent ratio constraint quota/denominator <= limit. Explain why checking it before denominator admission would be invalid, and retain independent field diagnostics before cross-field validation. Delayed assessment requires a bounded nested path for each error and a deterministic truncation policy."
+      ],
+      "checks": [
+        "Input (-1,1025,0), capacity2 yields total3,stored2,truncated1 and error IDs[1,2], preserving the old configuration. Capacity0 still reports three errors. (150,1024,1) publishes successfully and emits none.",
+        "Enumerate boundary representatives [-1,0,1,150,151] for age, [-1,0,1024,1025] for quota and [0,1,4096,4097] for denominator across all capacities. Compare error IDs with an independent predicate list and byte/field canaries. Kill early-publication and first-error-only mutants."
+      ],
+      "reasoning": [
+        "Explain why independent validation may accumulate errors while dependent checks require an admission order; define truncation independently of validity."
+      ],
+      "deliverables": [
+        "Implement bounded ordered diagnostics and all-or-nothing configuration publication, including structural-misuse behavior and output nonoverlap preconditions.",
+        "Enumerate boundary representatives [-1,0,1,150,151] for age, [-1,0,1024,1025] for quota and [0,1,4096,4097] for denominator across all capacities. Compare error IDs with an independent predicate list and byte/field canaries. Kill early-publication and first-error-only mutants.",
+        "Add a dependent ratio constraint quota/denominator <= limit. Explain why checking it before denominator admission would be invalid, and retain independent field diagnostics before cross-field validation. Delayed assessment requires a bounded nested path for each error and a deterministic truncation policy."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-005-R1",
+          "objective": "T65.05.a",
+          "criterion": "Explain why independent validation may accumulate errors while dependent checks require an admission order; define truncation independently of validity.",
+          "levels": {
+            "0": "Incorrect or absent: Explain why independent validation may accumulate errors while dependent checks require an admission order; define truncation independently of validity.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-005-R2",
+          "objective": "T65.05.b",
+          "criterion": "Implement bounded ordered diagnostics and all-or-nothing configuration publication, including structural-misuse behavior and output nonoverlap preconditions.",
+          "levels": {
+            "0": "Incorrect or absent: Implement bounded ordered diagnostics and all-or-nothing configuration publication, including structural-misuse behavior and output nonoverlap preconditions.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-005-R3",
+          "objective": "T65.05.c",
+          "criterion": "Enumerate boundary representatives [-1,0,1,150,151] for age, [-1,0,1024,1025] for quota and [0,1,4096,4097] for denominator across all capacities. Compare error IDs with an independent predicate list and byte/field canaries. Kill early-publication and first-error-only mutants.",
+          "levels": {
+            "0": "Incorrect or absent: Enumerate boundary representatives [-1,0,1,150,151] for age, [-1,0,1024,1025] for quota and [0,1,4096,4097] for denominator across all capacities. Compare error IDs with an independent predicate list and byte/field canaries. Kill early-publication and first-error-only mutants.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-005-R4",
+          "objective": "T65.05.d",
+          "criterion": "Add a dependent ratio constraint quota/denominator <= limit. Explain why checking it before denominator admission would be invalid, and retain independent field diagnostics before cross-field validation. Delayed assessment requires a bounded nested path for each error and a deterministic truncation policy.",
+          "levels": {
+            "0": "Incorrect or absent: Add a dependent ratio constraint quota/denominator <= limit. Explain why checking it before denominator admission would be invalid, and retain independent field diagnostics before cross-field validation. Delayed assessment requires a bounded nested path for each error and a deterministic truncation policy.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add a dependent ratio constraint quota/denominator <= limit. Explain why checking it before denominator admission would be invalid, and retain independent field diagnostics before cross-field validation. Delayed assessment requires a bounded nested path for each error and a deterministic truncation policy."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-005.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted validation contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-11",
+      "project": "PR-T65-06",
+      "title": "Construct: Typed nonlocal-jump boundary with explicit cleanup ownership",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T65.06.a",
+        "T65.06.b",
+        "T65.06.c",
+        "T65.06.d"
+      ],
+      "tests": [
+        "errors.boundary"
+      ],
+      "steps": [
+        "Classify setjmp placement, live destination, modified automatic locals, thread identity and variably modified scope requirements from the inspected draft clauses.",
+        "Implement a bounded explicit cleanup stack and typed jump-to-result boundary without pretending that longjmp unwinds C resources."
+      ],
+      "checks": [
+        "Register callbacks appending digits1 and2, then raise ER_THROWN: return THROWN with trace21, count0 and inactive frame. Normal return with callback1 also cleans it. A raise after er_run returns is rejected before any jump.",
+        "Inject failure before and after each registration, capacity exhaustion, normal return and every admitted raised code. Count cleanup exactly once and compare reverse-order traces. Compile optimized GCC/Clang variants. Analyze deliberately invalid saved-frame and changed-local snippets without treating their execution as an oracle; kill cleanup-omission and FIFO-cleanup mutants."
+      ],
+      "reasoning": [
+        "Classify setjmp placement, live destination, modified automatic locals, thread identity and variably modified scope requirements from the inspected draft clauses."
+      ],
+      "deliverables": [
+        "Implement a bounded explicit cleanup stack and typed jump-to-result boundary without pretending that longjmp unwinds C resources.",
+        "Inject failure before and after each registration, capacity exhaustion, normal return and every admitted raised code. Count cleanup exactly once and compare reverse-order traces. Compile optimized GCC/Clang variants. Analyze deliberately invalid saved-frame and changed-local snippets without treating their execution as an oracle; kill cleanup-omission and FIFO-cleanup mutants.",
+        "Compose with a resource acquisition API that fails after the third acquisition and with T66 cleanup.scope when available. Distinguish local rollback from effects already published externally. Delayed assessment nests two separate frames and requires inner-error conversion while preserving outer cleanup order."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-006-R1",
+          "objective": "T65.06.a",
+          "criterion": "Classify setjmp placement, live destination, modified automatic locals, thread identity and variably modified scope requirements from the inspected draft clauses.",
+          "levels": {
+            "0": "Incorrect or absent: Classify setjmp placement, live destination, modified automatic locals, thread identity and variably modified scope requirements from the inspected draft clauses.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-006-R2",
+          "objective": "T65.06.b",
+          "criterion": "Implement a bounded explicit cleanup stack and typed jump-to-result boundary without pretending that longjmp unwinds C resources.",
+          "levels": {
+            "0": "Incorrect or absent: Implement a bounded explicit cleanup stack and typed jump-to-result boundary without pretending that longjmp unwinds C resources.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-006-R3",
+          "objective": "T65.06.c",
+          "criterion": "Inject failure before and after each registration, capacity exhaustion, normal return and every admitted raised code. Count cleanup exactly once and compare reverse-order traces. Compile optimized GCC/Clang variants. Analyze deliberately invalid saved-frame and changed-local snippets without treating their execution as an oracle; kill cleanup-omission and FIFO-cleanup mutants.",
+          "levels": {
+            "0": "Incorrect or absent: Inject failure before and after each registration, capacity exhaustion, normal return and every admitted raised code. Count cleanup exactly once and compare reverse-order traces. Compile optimized GCC/Clang variants. Analyze deliberately invalid saved-frame and changed-local snippets without treating their execution as an oracle; kill cleanup-omission and FIFO-cleanup mutants.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-006-R4",
+          "objective": "T65.06.d",
+          "criterion": "Compose with a resource acquisition API that fails after the third acquisition and with T66 cleanup.scope when available. Distinguish local rollback from effects already published externally. Delayed assessment nests two separate frames and requires inner-error conversion while preserving outer cleanup order.",
+          "levels": {
+            "0": "Incorrect or absent: Compose with a resource acquisition API that fails after the third acquisition and with T66 cleanup.scope when available. Distinguish local rollback from effects already published externally. Delayed assessment nests two separate frames and requires inner-error conversion while preserving outer cleanup order.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Compose with a resource acquisition API that fails after the third acquisition and with T66 cleanup.scope when available. Distinguish local rollback from effects already published externally. Delayed assessment nests two separate frames and requires inner-error conversion while preserving outer cleanup order."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-006.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted boundary contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-12",
+      "project": "PR-T65-06",
+      "title": "Falsify and transfer: Typed nonlocal-jump boundary with explicit cleanup ownership",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T65.06.a",
+        "T65.06.b",
+        "T65.06.c",
+        "T65.06.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Inject failure before and after each registration, capacity exhaustion, normal return and every admitted raised code. Count cleanup exactly once and compare reverse-order traces. Compile optimized GCC/Clang variants. Analyze deliberately invalid saved-frame and changed-local snippets without treating their execution as an oracle; kill cleanup-omission and FIFO-cleanup mutants.",
+        "Compose with a resource acquisition API that fails after the third acquisition and with T66 cleanup.scope when available. Distinguish local rollback from effects already published externally. Delayed assessment nests two separate frames and requires inner-error conversion while preserving outer cleanup order."
+      ],
+      "checks": [
+        "Register callbacks appending digits1 and2, then raise ER_THROWN: return THROWN with trace21, count0 and inactive frame. Normal return with callback1 also cleans it. A raise after er_run returns is rejected before any jump.",
+        "Inject failure before and after each registration, capacity exhaustion, normal return and every admitted raised code. Count cleanup exactly once and compare reverse-order traces. Compile optimized GCC/Clang variants. Analyze deliberately invalid saved-frame and changed-local snippets without treating their execution as an oracle; kill cleanup-omission and FIFO-cleanup mutants."
+      ],
+      "reasoning": [
+        "Classify setjmp placement, live destination, modified automatic locals, thread identity and variably modified scope requirements from the inspected draft clauses."
+      ],
+      "deliverables": [
+        "Implement a bounded explicit cleanup stack and typed jump-to-result boundary without pretending that longjmp unwinds C resources.",
+        "Inject failure before and after each registration, capacity exhaustion, normal return and every admitted raised code. Count cleanup exactly once and compare reverse-order traces. Compile optimized GCC/Clang variants. Analyze deliberately invalid saved-frame and changed-local snippets without treating their execution as an oracle; kill cleanup-omission and FIFO-cleanup mutants.",
+        "Compose with a resource acquisition API that fails after the third acquisition and with T66 cleanup.scope when available. Distinguish local rollback from effects already published externally. Delayed assessment nests two separate frames and requires inner-error conversion while preserving outer cleanup order."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-006-R1",
+          "objective": "T65.06.a",
+          "criterion": "Classify setjmp placement, live destination, modified automatic locals, thread identity and variably modified scope requirements from the inspected draft clauses.",
+          "levels": {
+            "0": "Incorrect or absent: Classify setjmp placement, live destination, modified automatic locals, thread identity and variably modified scope requirements from the inspected draft clauses.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-006-R2",
+          "objective": "T65.06.b",
+          "criterion": "Implement a bounded explicit cleanup stack and typed jump-to-result boundary without pretending that longjmp unwinds C resources.",
+          "levels": {
+            "0": "Incorrect or absent: Implement a bounded explicit cleanup stack and typed jump-to-result boundary without pretending that longjmp unwinds C resources.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-006-R3",
+          "objective": "T65.06.c",
+          "criterion": "Inject failure before and after each registration, capacity exhaustion, normal return and every admitted raised code. Count cleanup exactly once and compare reverse-order traces. Compile optimized GCC/Clang variants. Analyze deliberately invalid saved-frame and changed-local snippets without treating their execution as an oracle; kill cleanup-omission and FIFO-cleanup mutants.",
+          "levels": {
+            "0": "Incorrect or absent: Inject failure before and after each registration, capacity exhaustion, normal return and every admitted raised code. Count cleanup exactly once and compare reverse-order traces. Compile optimized GCC/Clang variants. Analyze deliberately invalid saved-frame and changed-local snippets without treating their execution as an oracle; kill cleanup-omission and FIFO-cleanup mutants.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-006-R4",
+          "objective": "T65.06.d",
+          "criterion": "Compose with a resource acquisition API that fails after the third acquisition and with T66 cleanup.scope when available. Distinguish local rollback from effects already published externally. Delayed assessment nests two separate frames and requires inner-error conversion while preserving outer cleanup order.",
+          "levels": {
+            "0": "Incorrect or absent: Compose with a resource acquisition API that fails after the third acquisition and with T66 cleanup.scope when available. Distinguish local rollback from effects already published externally. Delayed assessment nests two separate frames and requires inner-error conversion while preserving outer cleanup order.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Compose with a resource acquisition API that fails after the third acquisition and with T66 cleanup.scope when available. Distinguish local rollback from effects already published externally. Delayed assessment nests two separate frames and requires inner-error conversion while preserving outer cleanup order."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-006.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted boundary contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-13",
+      "project": "PR-T65-07",
+      "title": "Construct: Arithmetic policy and serial-number partial order",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T65.07.a",
+        "T65.07.b",
+        "T65.07.c",
+        "T65.07.d"
+      ],
+      "tests": [
+        "errors.arithmetic"
+      ],
+      "steps": [
+        "Derive the difference between mathematical range, unsigned modular semantics, saturation and the bounded-window assumption of serial comparisons.",
+        "Implement transactional policy adapters and an explicitly partial serial comparator with representable intermediate expressions."
+      ],
+      "checks": [
+        "65535+1 gives rejection/0/65535 under checked/wrapping/saturating policies. Serial0 is forward of65535; 32768 versus0 is ambiguous. Derive a three-value cycle to refute use as an unrestricted sorting comparator.",
+        "Exhaustively enumerate an analogous 4-bit serial domain in an independent model, proving antisymmetry outside ambiguous pairs and finding nontransitive cycles. Test actual16-bit half-range neighbors and UINT32_MAX admission. Compare C17 manual checks with the separately inspected C23-draft checked arithmetic contract; kill write-before-reject and half-range-acceptance mutants."
+      ],
+      "reasoning": [
+        "Derive the difference between mathematical range, unsigned modular semantics, saturation and the bounded-window assumption of serial comparisons."
+      ],
+      "deliverables": [
+        "Implement transactional policy adapters and an explicitly partial serial comparator with representable intermediate expressions.",
+        "Exhaustively enumerate an analogous 4-bit serial domain in an independent model, proving antisymmetry outside ambiguous pairs and finding nontransitive cycles. Test actual16-bit half-range neighbors and UINT32_MAX admission. Compare C17 manual checks with the separately inspected C23-draft checked arithmetic contract; kill write-before-reject and half-range-acceptance mutants.",
+        "Use the comparator in a timer queue, then change the maximum residence from less than half-range to unbounded. Supply a concrete stale/new ambiguity and repair with epochs or a wider nonwrapping lifetime contract. Delayed assessment changes the counter width and requires a fresh proof, not constant substitution alone."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-007-R1",
+          "objective": "T65.07.a",
+          "criterion": "Derive the difference between mathematical range, unsigned modular semantics, saturation and the bounded-window assumption of serial comparisons.",
+          "levels": {
+            "0": "Incorrect or absent: Derive the difference between mathematical range, unsigned modular semantics, saturation and the bounded-window assumption of serial comparisons.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-007-R2",
+          "objective": "T65.07.b",
+          "criterion": "Implement transactional policy adapters and an explicitly partial serial comparator with representable intermediate expressions.",
+          "levels": {
+            "0": "Incorrect or absent: Implement transactional policy adapters and an explicitly partial serial comparator with representable intermediate expressions.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-007-R3",
+          "objective": "T65.07.c",
+          "criterion": "Exhaustively enumerate an analogous 4-bit serial domain in an independent model, proving antisymmetry outside ambiguous pairs and finding nontransitive cycles. Test actual16-bit half-range neighbors and UINT32_MAX admission. Compare C17 manual checks with the separately inspected C23-draft checked arithmetic contract; kill write-before-reject and half-range-acceptance mutants.",
+          "levels": {
+            "0": "Incorrect or absent: Exhaustively enumerate an analogous 4-bit serial domain in an independent model, proving antisymmetry outside ambiguous pairs and finding nontransitive cycles. Test actual16-bit half-range neighbors and UINT32_MAX admission. Compare C17 manual checks with the separately inspected C23-draft checked arithmetic contract; kill write-before-reject and half-range-acceptance mutants.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-007-R4",
+          "objective": "T65.07.d",
+          "criterion": "Use the comparator in a timer queue, then change the maximum residence from less than half-range to unbounded. Supply a concrete stale/new ambiguity and repair with epochs or a wider nonwrapping lifetime contract. Delayed assessment changes the counter width and requires a fresh proof, not constant substitution alone.",
+          "levels": {
+            "0": "Incorrect or absent: Use the comparator in a timer queue, then change the maximum residence from less than half-range to unbounded. Supply a concrete stale/new ambiguity and repair with epochs or a wider nonwrapping lifetime contract. Delayed assessment changes the counter width and requires a fresh proof, not constant substitution alone.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Use the comparator in a timer queue, then change the maximum residence from less than half-range to unbounded. Supply a concrete stale/new ambiguity and repair with epochs or a wider nonwrapping lifetime contract. Delayed assessment changes the counter width and requires a fresh proof, not constant substitution alone."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-007.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted arithmetic contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-14",
+      "project": "PR-T65-07",
+      "title": "Falsify and transfer: Arithmetic policy and serial-number partial order",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T65.07.a",
+        "T65.07.b",
+        "T65.07.c",
+        "T65.07.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Exhaustively enumerate an analogous 4-bit serial domain in an independent model, proving antisymmetry outside ambiguous pairs and finding nontransitive cycles. Test actual16-bit half-range neighbors and UINT32_MAX admission. Compare C17 manual checks with the separately inspected C23-draft checked arithmetic contract; kill write-before-reject and half-range-acceptance mutants.",
+        "Use the comparator in a timer queue, then change the maximum residence from less than half-range to unbounded. Supply a concrete stale/new ambiguity and repair with epochs or a wider nonwrapping lifetime contract. Delayed assessment changes the counter width and requires a fresh proof, not constant substitution alone."
+      ],
+      "checks": [
+        "65535+1 gives rejection/0/65535 under checked/wrapping/saturating policies. Serial0 is forward of65535; 32768 versus0 is ambiguous. Derive a three-value cycle to refute use as an unrestricted sorting comparator.",
+        "Exhaustively enumerate an analogous 4-bit serial domain in an independent model, proving antisymmetry outside ambiguous pairs and finding nontransitive cycles. Test actual16-bit half-range neighbors and UINT32_MAX admission. Compare C17 manual checks with the separately inspected C23-draft checked arithmetic contract; kill write-before-reject and half-range-acceptance mutants."
+      ],
+      "reasoning": [
+        "Derive the difference between mathematical range, unsigned modular semantics, saturation and the bounded-window assumption of serial comparisons."
+      ],
+      "deliverables": [
+        "Implement transactional policy adapters and an explicitly partial serial comparator with representable intermediate expressions.",
+        "Exhaustively enumerate an analogous 4-bit serial domain in an independent model, proving antisymmetry outside ambiguous pairs and finding nontransitive cycles. Test actual16-bit half-range neighbors and UINT32_MAX admission. Compare C17 manual checks with the separately inspected C23-draft checked arithmetic contract; kill write-before-reject and half-range-acceptance mutants.",
+        "Use the comparator in a timer queue, then change the maximum residence from less than half-range to unbounded. Supply a concrete stale/new ambiguity and repair with epochs or a wider nonwrapping lifetime contract. Delayed assessment changes the counter width and requires a fresh proof, not constant substitution alone."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-007-R1",
+          "objective": "T65.07.a",
+          "criterion": "Derive the difference between mathematical range, unsigned modular semantics, saturation and the bounded-window assumption of serial comparisons.",
+          "levels": {
+            "0": "Incorrect or absent: Derive the difference between mathematical range, unsigned modular semantics, saturation and the bounded-window assumption of serial comparisons.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-007-R2",
+          "objective": "T65.07.b",
+          "criterion": "Implement transactional policy adapters and an explicitly partial serial comparator with representable intermediate expressions.",
+          "levels": {
+            "0": "Incorrect or absent: Implement transactional policy adapters and an explicitly partial serial comparator with representable intermediate expressions.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-007-R3",
+          "objective": "T65.07.c",
+          "criterion": "Exhaustively enumerate an analogous 4-bit serial domain in an independent model, proving antisymmetry outside ambiguous pairs and finding nontransitive cycles. Test actual16-bit half-range neighbors and UINT32_MAX admission. Compare C17 manual checks with the separately inspected C23-draft checked arithmetic contract; kill write-before-reject and half-range-acceptance mutants.",
+          "levels": {
+            "0": "Incorrect or absent: Exhaustively enumerate an analogous 4-bit serial domain in an independent model, proving antisymmetry outside ambiguous pairs and finding nontransitive cycles. Test actual16-bit half-range neighbors and UINT32_MAX admission. Compare C17 manual checks with the separately inspected C23-draft checked arithmetic contract; kill write-before-reject and half-range-acceptance mutants.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-007-R4",
+          "objective": "T65.07.d",
+          "criterion": "Use the comparator in a timer queue, then change the maximum residence from less than half-range to unbounded. Supply a concrete stale/new ambiguity and repair with epochs or a wider nonwrapping lifetime contract. Delayed assessment changes the counter width and requires a fresh proof, not constant substitution alone.",
+          "levels": {
+            "0": "Incorrect or absent: Use the comparator in a timer queue, then change the maximum residence from less than half-range to unbounded. Supply a concrete stale/new ambiguity and repair with epochs or a wider nonwrapping lifetime contract. Delayed assessment changes the counter width and requires a fresh proof, not constant substitution alone.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Use the comparator in a timer queue, then change the maximum residence from less than half-range to unbounded. Supply a concrete stale/new ambiguity and repair with epochs or a wider nonwrapping lifetime contract. Delayed assessment changes the counter width and requires a fresh proof, not constant substitution alone."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-007.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted arithmetic contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-15",
+      "project": "PR-T65-08",
+      "title": "Construct: Contract off, observe and enforce modes with safe violation traces",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T65.08.a",
+        "T65.08.b",
+        "T65.08.c",
+        "T65.08.d"
+      ],
+      "tests": [
+        "errors.contracts"
+      ],
+      "steps": [
+        "Separate diagnostic observation, enforced rejection and C undefined behavior; explain why disabling assert can remove argument evaluation.",
+        "Implement explicit contract modes with bounded arithmetic, report-counter overflow handling and failure-side-effect accounting."
+      ],
+      "checks": [
+        "Starting counter90/reports0, adding20 in ENFORCE returns CONTRACT,90,1; OBSERVE then produces OK,100,2; OFF adds no report. With reports=SIZE_MAX an observed violation rejects without wraparound.",
+        "Enumerate all legal initial counters, amounts and modes against an independent integer model, checking both outputs and returned status. Compile separate assert(++counter) probes with and without NDEBUG, explaining why they are unsuitable for essential updates. Kill missing-report and enforce-still-commits mutants; the harmless attacker input is amount20 at counter90."
+      ],
+      "reasoning": [
+        "Separate diagnostic observation, enforced rejection and C undefined behavior; explain why disabling assert can remove argument evaluation."
+      ],
+      "deliverables": [
+        "Implement explicit contract modes with bounded arithmetic, report-counter overflow handling and failure-side-effect accounting.",
+        "Enumerate all legal initial counters, amounts and modes against an independent integer model, checking both outputs and returned status. Compile separate assert(++counter) probes with and without NDEBUG, explaining why they are unsuitable for essential updates. Kill missing-report and enforce-still-commits mutants; the harmless attacker input is amount20 at counter90.",
+        "Replace the safe clamped teaching effect with an operation whose precondition protects memory bounds. Determine which modes may legally call it and design an admitted wrapper that stays safe even when diagnostics are off. Delayed assessment introduces concurrent report ownership and requires a new synchronization contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-008-R1",
+          "objective": "T65.08.a",
+          "criterion": "Separate diagnostic observation, enforced rejection and C undefined behavior; explain why disabling assert can remove argument evaluation.",
+          "levels": {
+            "0": "Incorrect or absent: Separate diagnostic observation, enforced rejection and C undefined behavior; explain why disabling assert can remove argument evaluation.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-008-R2",
+          "objective": "T65.08.b",
+          "criterion": "Implement explicit contract modes with bounded arithmetic, report-counter overflow handling and failure-side-effect accounting.",
+          "levels": {
+            "0": "Incorrect or absent: Implement explicit contract modes with bounded arithmetic, report-counter overflow handling and failure-side-effect accounting.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-008-R3",
+          "objective": "T65.08.c",
+          "criterion": "Enumerate all legal initial counters, amounts and modes against an independent integer model, checking both outputs and returned status. Compile separate assert(++counter) probes with and without NDEBUG, explaining why they are unsuitable for essential updates. Kill missing-report and enforce-still-commits mutants; the harmless attacker input is amount20 at counter90.",
+          "levels": {
+            "0": "Incorrect or absent: Enumerate all legal initial counters, amounts and modes against an independent integer model, checking both outputs and returned status. Compile separate assert(++counter) probes with and without NDEBUG, explaining why they are unsuitable for essential updates. Kill missing-report and enforce-still-commits mutants; the harmless attacker input is amount20 at counter90.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-008-R4",
+          "objective": "T65.08.d",
+          "criterion": "Replace the safe clamped teaching effect with an operation whose precondition protects memory bounds. Determine which modes may legally call it and design an admitted wrapper that stays safe even when diagnostics are off. Delayed assessment introduces concurrent report ownership and requires a new synchronization contract.",
+          "levels": {
+            "0": "Incorrect or absent: Replace the safe clamped teaching effect with an operation whose precondition protects memory bounds. Determine which modes may legally call it and design an admitted wrapper that stays safe even when diagnostics are off. Delayed assessment introduces concurrent report ownership and requires a new synchronization contract.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Replace the safe clamped teaching effect with an operation whose precondition protects memory bounds. Determine which modes may legally call it and design an admitted wrapper that stays safe even when diagnostics are off. Delayed assessment introduces concurrent report ownership and requires a new synchronization contract."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-008.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted contracts contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-16",
+      "project": "PR-T65-08",
+      "title": "Falsify and transfer: Contract off, observe and enforce modes with safe violation traces",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T65.08.a",
+        "T65.08.b",
+        "T65.08.c",
+        "T65.08.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate all legal initial counters, amounts and modes against an independent integer model, checking both outputs and returned status. Compile separate assert(++counter) probes with and without NDEBUG, explaining why they are unsuitable for essential updates. Kill missing-report and enforce-still-commits mutants; the harmless attacker input is amount20 at counter90.",
+        "Replace the safe clamped teaching effect with an operation whose precondition protects memory bounds. Determine which modes may legally call it and design an admitted wrapper that stays safe even when diagnostics are off. Delayed assessment introduces concurrent report ownership and requires a new synchronization contract."
+      ],
+      "checks": [
+        "Starting counter90/reports0, adding20 in ENFORCE returns CONTRACT,90,1; OBSERVE then produces OK,100,2; OFF adds no report. With reports=SIZE_MAX an observed violation rejects without wraparound.",
+        "Enumerate all legal initial counters, amounts and modes against an independent integer model, checking both outputs and returned status. Compile separate assert(++counter) probes with and without NDEBUG, explaining why they are unsuitable for essential updates. Kill missing-report and enforce-still-commits mutants; the harmless attacker input is amount20 at counter90."
+      ],
+      "reasoning": [
+        "Separate diagnostic observation, enforced rejection and C undefined behavior; explain why disabling assert can remove argument evaluation."
+      ],
+      "deliverables": [
+        "Implement explicit contract modes with bounded arithmetic, report-counter overflow handling and failure-side-effect accounting.",
+        "Enumerate all legal initial counters, amounts and modes against an independent integer model, checking both outputs and returned status. Compile separate assert(++counter) probes with and without NDEBUG, explaining why they are unsuitable for essential updates. Kill missing-report and enforce-still-commits mutants; the harmless attacker input is amount20 at counter90.",
+        "Replace the safe clamped teaching effect with an operation whose precondition protects memory bounds. Determine which modes may legally call it and design an admitted wrapper that stays safe even when diagnostics are off. Delayed assessment introduces concurrent report ownership and requires a new synchronization contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-008-R1",
+          "objective": "T65.08.a",
+          "criterion": "Separate diagnostic observation, enforced rejection and C undefined behavior; explain why disabling assert can remove argument evaluation.",
+          "levels": {
+            "0": "Incorrect or absent: Separate diagnostic observation, enforced rejection and C undefined behavior; explain why disabling assert can remove argument evaluation.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-008-R2",
+          "objective": "T65.08.b",
+          "criterion": "Implement explicit contract modes with bounded arithmetic, report-counter overflow handling and failure-side-effect accounting.",
+          "levels": {
+            "0": "Incorrect or absent: Implement explicit contract modes with bounded arithmetic, report-counter overflow handling and failure-side-effect accounting.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-008-R3",
+          "objective": "T65.08.c",
+          "criterion": "Enumerate all legal initial counters, amounts and modes against an independent integer model, checking both outputs and returned status. Compile separate assert(++counter) probes with and without NDEBUG, explaining why they are unsuitable for essential updates. Kill missing-report and enforce-still-commits mutants; the harmless attacker input is amount20 at counter90.",
+          "levels": {
+            "0": "Incorrect or absent: Enumerate all legal initial counters, amounts and modes against an independent integer model, checking both outputs and returned status. Compile separate assert(++counter) probes with and without NDEBUG, explaining why they are unsuitable for essential updates. Kill missing-report and enforce-still-commits mutants; the harmless attacker input is amount20 at counter90.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-008-R4",
+          "objective": "T65.08.d",
+          "criterion": "Replace the safe clamped teaching effect with an operation whose precondition protects memory bounds. Determine which modes may legally call it and design an admitted wrapper that stays safe even when diagnostics are off. Delayed assessment introduces concurrent report ownership and requires a new synchronization contract.",
+          "levels": {
+            "0": "Incorrect or absent: Replace the safe clamped teaching effect with an operation whose precondition protects memory bounds. Determine which modes may legally call it and design an admitted wrapper that stays safe even when diagnostics are off. Delayed assessment introduces concurrent report ownership and requires a new synchronization contract.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Replace the safe clamped teaching effect with an operation whose precondition protects memory bounds. Determine which modes may legally call it and design an admitted wrapper that stays safe even when diagnostics are off. Delayed assessment introduces concurrent report ownership and requires a new synchronization contract."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-008.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted contracts contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-17",
+      "project": "PR-T65-09",
+      "title": "Construct: Canonical rational values and the boundary of runtime refinement",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T65.09.a",
+        "T65.09.b",
+        "T65.09.c",
+        "T65.09.d"
+      ],
+      "tests": [
+        "errors.refinement"
+      ],
+      "steps": [
+        "Prove value preservation, termination and canonical representation; distinguish a runtime predicate from a static refinement type.",
+        "Implement transactional rational normalization and a validated consumer, documenting public-struct mutation and alias ownership limitations."
+      ],
+      "checks": [
+        "6/8 becomes3/4; 0/13 becomes0/1; UINT32_MAX/UINT32_MAX becomes1/1. Failed3/0 preserves both prior fields. Explain why an observed valid object yesterday does not validate a mutable alias today.",
+        "Enumerate numerator0–255 and denominator0–255 using Python fractions or an independently derived cross-product/gcd oracle. Test actual extrema and consecutive Fibonacci values for worst Euclid step counts. Reject unreduced-output and noncanonical-zero mutants. Verify checked consumers reject fabricated denominator0 before division."
+      ],
+      "reasoning": [
+        "Prove value preservation, termination and canonical representation; distinguish a runtime predicate from a static refinement type."
+      ],
+      "deliverables": [
+        "Implement transactional rational normalization and a validated consumer, documenting public-struct mutation and alias ownership limitations.",
+        "Enumerate numerator0–255 and denominator0–255 using Python fractions or an independently derived cross-product/gcd oracle. Test actual extrema and consecutive Fibonacci values for worst Euclid step counts. Reject unreduced-output and noncanonical-zero mutants. Verify checked consumers reject fabricated denominator0 before division.",
+        "Introduce rational addition with bounded storage. Compare rejecting intermediate overflow with cross-cancellation that admits more mathematically representable results under a declared contract. Delayed assessment changes the representation to signed numerator and requires a proof covering the minimum signed value without abs overflow."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-009-R1",
+          "objective": "T65.09.a",
+          "criterion": "Prove value preservation, termination and canonical representation; distinguish a runtime predicate from a static refinement type.",
+          "levels": {
+            "0": "Incorrect or absent: Prove value preservation, termination and canonical representation; distinguish a runtime predicate from a static refinement type.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-009-R2",
+          "objective": "T65.09.b",
+          "criterion": "Implement transactional rational normalization and a validated consumer, documenting public-struct mutation and alias ownership limitations.",
+          "levels": {
+            "0": "Incorrect or absent: Implement transactional rational normalization and a validated consumer, documenting public-struct mutation and alias ownership limitations.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-009-R3",
+          "objective": "T65.09.c",
+          "criterion": "Enumerate numerator0–255 and denominator0–255 using Python fractions or an independently derived cross-product/gcd oracle. Test actual extrema and consecutive Fibonacci values for worst Euclid step counts. Reject unreduced-output and noncanonical-zero mutants. Verify checked consumers reject fabricated denominator0 before division.",
+          "levels": {
+            "0": "Incorrect or absent: Enumerate numerator0–255 and denominator0–255 using Python fractions or an independently derived cross-product/gcd oracle. Test actual extrema and consecutive Fibonacci values for worst Euclid step counts. Reject unreduced-output and noncanonical-zero mutants. Verify checked consumers reject fabricated denominator0 before division.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-009-R4",
+          "objective": "T65.09.d",
+          "criterion": "Introduce rational addition with bounded storage. Compare rejecting intermediate overflow with cross-cancellation that admits more mathematically representable results under a declared contract. Delayed assessment changes the representation to signed numerator and requires a proof covering the minimum signed value without abs overflow.",
+          "levels": {
+            "0": "Incorrect or absent: Introduce rational addition with bounded storage. Compare rejecting intermediate overflow with cross-cancellation that admits more mathematically representable results under a declared contract. Delayed assessment changes the representation to signed numerator and requires a proof covering the minimum signed value without abs overflow.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce rational addition with bounded storage. Compare rejecting intermediate overflow with cross-cancellation that admits more mathematically representable results under a declared contract. Delayed assessment changes the representation to signed numerator and requires a proof covering the minimum signed value without abs overflow."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-009.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted refinement contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    },
+    {
+      "id": "LAB-ER-18",
+      "project": "PR-T65-09",
+      "title": "Falsify and transfer: Canonical rational values and the boundary of runtime refinement",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T65.09.a",
+        "T65.09.b",
+        "T65.09.c",
+        "T65.09.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate numerator0–255 and denominator0–255 using Python fractions or an independently derived cross-product/gcd oracle. Test actual extrema and consecutive Fibonacci values for worst Euclid step counts. Reject unreduced-output and noncanonical-zero mutants. Verify checked consumers reject fabricated denominator0 before division.",
+        "Introduce rational addition with bounded storage. Compare rejecting intermediate overflow with cross-cancellation that admits more mathematically representable results under a declared contract. Delayed assessment changes the representation to signed numerator and requires a proof covering the minimum signed value without abs overflow."
+      ],
+      "checks": [
+        "6/8 becomes3/4; 0/13 becomes0/1; UINT32_MAX/UINT32_MAX becomes1/1. Failed3/0 preserves both prior fields. Explain why an observed valid object yesterday does not validate a mutable alias today.",
+        "Enumerate numerator0–255 and denominator0–255 using Python fractions or an independently derived cross-product/gcd oracle. Test actual extrema and consecutive Fibonacci values for worst Euclid step counts. Reject unreduced-output and noncanonical-zero mutants. Verify checked consumers reject fabricated denominator0 before division."
+      ],
+      "reasoning": [
+        "Prove value preservation, termination and canonical representation; distinguish a runtime predicate from a static refinement type."
+      ],
+      "deliverables": [
+        "Implement transactional rational normalization and a validated consumer, documenting public-struct mutation and alias ownership limitations.",
+        "Enumerate numerator0–255 and denominator0–255 using Python fractions or an independently derived cross-product/gcd oracle. Test actual extrema and consecutive Fibonacci values for worst Euclid step counts. Reject unreduced-output and noncanonical-zero mutants. Verify checked consumers reject fabricated denominator0 before division.",
+        "Introduce rational addition with bounded storage. Compare rejecting intermediate overflow with cross-cancellation that admits more mathematically representable results under a declared contract. Delayed assessment changes the representation to signed numerator and requires a proof covering the minimum signed value without abs overflow."
+      ],
+      "rubric": [
+        {
+          "id": "X-T65-009-R1",
+          "objective": "T65.09.a",
+          "criterion": "Prove value preservation, termination and canonical representation; distinguish a runtime predicate from a static refinement type.",
+          "levels": {
+            "0": "Incorrect or absent: Prove value preservation, termination and canonical representation; distinguish a runtime predicate from a static refinement type.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-009-R2",
+          "objective": "T65.09.b",
+          "criterion": "Implement transactional rational normalization and a validated consumer, documenting public-struct mutation and alias ownership limitations.",
+          "levels": {
+            "0": "Incorrect or absent: Implement transactional rational normalization and a validated consumer, documenting public-struct mutation and alias ownership limitations.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-009-R3",
+          "objective": "T65.09.c",
+          "criterion": "Enumerate numerator0–255 and denominator0–255 using Python fractions or an independently derived cross-product/gcd oracle. Test actual extrema and consecutive Fibonacci values for worst Euclid step counts. Reject unreduced-output and noncanonical-zero mutants. Verify checked consumers reject fabricated denominator0 before division.",
+          "levels": {
+            "0": "Incorrect or absent: Enumerate numerator0–255 and denominator0–255 using Python fractions or an independently derived cross-product/gcd oracle. Test actual extrema and consecutive Fibonacci values for worst Euclid step counts. Reject unreduced-output and noncanonical-zero mutants. Verify checked consumers reject fabricated denominator0 before division.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        },
+        {
+          "id": "X-T65-009-R4",
+          "objective": "T65.09.d",
+          "criterion": "Introduce rational addition with bounded storage. Compare rejecting intermediate overflow with cross-cancellation that admits more mathematically representable results under a declared contract. Delayed assessment changes the representation to signed numerator and requires a proof covering the minimum signed value without abs overflow.",
+          "levels": {
+            "0": "Incorrect or absent: Introduce rational addition with bounded storage. Compare rejecting intermediate overflow with cross-cancellation that admits more mathematically representable results under a declared contract. Delayed assessment changes the representation to signed numerator and requires a proof covering the minimum signed value without abs overflow.",
+            "1": "Nominal example only; cannot justify the mechanism or its boundary.",
+            "2": "Complete the stated criterion with a justified contract and independently checked evidence.",
+            "3": "Defend the changed-condition case without a worked solution, including a minimal counterexample and revised assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce rational addition with bounded storage. Compare rejecting intermediate overflow with cross-cancellation that admits more mathematically representable results under a declared contract. Delayed assessment changes the representation to signed numerator and requires a proof covering the minimum signed value without abs overflow."
+      ],
+      "assessor_analysis": "assessor/errors/analyses/X-T65-009.md",
+      "target_scope": "host",
+      "remaining_evidence": "Full objective reasoning, independently generated cases, macro/consumer alternatives, cost review and delayed transfer are not established by the public anchor.",
+      "scope": "Hosted refinement contract only.",
+      "references": [
+        {
+          "resource_id": "R-MOD-RESULT",
+          "locator": "Representation",
+          "purpose": "Compare explicit result representation and lazy failure propagation with the C implementation."
+        },
+        {
+          "resource_id": "R-MOD-OPTION",
+          "locator": "Representation",
+          "purpose": "Bound niche optimization claims and optional-value composition to the documented cases."
+        },
+        {
+          "resource_id": "R-MOD-C-JUMP-ASSERT",
+          "locator": "7.2p1–3 Diagnostics",
+          "purpose": "Require explicit diagnostic modes and valid nonlocal-jump/cleanup boundaries."
+        },
+        {
+          "resource_id": "R-MOD-RUST-DROP",
+          "locator": "destructors.intro",
+          "purpose": "Compare automatic language destruction and partial initialization with explicit C cleanup."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "X-T65-001",
+      "project": "PR-T65-01",
+      "tests": [
+        "errors.optional"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T65-002",
+      "project": "PR-T65-02",
+      "tests": [
+        "errors.propagation"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T65-003",
+      "project": "PR-T65-03",
+      "tests": [
+        "errors.progress"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T65-004",
+      "project": "PR-T65-04",
+      "tests": [
+        "errors.composition"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T65-005",
+      "project": "PR-T65-05",
+      "tests": [
+        "errors.validation"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T65-006",
+      "project": "PR-T65-06",
+      "tests": [
+        "errors.boundary"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T65-007",
+      "project": "PR-T65-07",
+      "tests": [
+        "errors.arithmetic"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T65-008",
+      "project": "PR-T65-08",
+      "tests": [
+        "errors.contracts"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T65-009",
+      "project": "PR-T65-09",
+      "tests": [
+        "errors.refinement"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    }
+  ],
+  "tests": [
+    "errors.optional",
+    "errors.propagation",
+    "errors.progress",
+    "errors.composition",
+    "errors.validation",
+    "errors.boundary",
+    "errors.arithmetic",
+    "errors.contracts",
+    "errors.refinement"
+  ],
+  "modules": [
+    "T65"
+  ],
+  "contract": "labs/errors/CONTRACTS.md",
+  "campaign": {
+    "producer": "tools/run_errors.py",
+    "receipt": "errors_campaign.json",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "ER_CHECK:",
+    "fixture_oracle": "tools/verify_errors_fixtures.py",
+    "oracle_driver": "errors-oracle-driver"
+  },
+  "dependencies": [],
+  "scope": "Hosted C17 pilot; actual observations and unexecuted written obligations remain separate."
+}

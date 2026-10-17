@@ -1,0 +1,241 @@
+{
+  "domains": [
+    {
+      "id": "T73",
+      "title": "Structured concurrency, channels and actors",
+      "depth": "Mechanism construction, falsification, composition and independent transfer",
+      "subtopics": [
+        {
+          "id": "T73.01",
+          "title": "Scope-owned child tasks and cooperative cancellation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T73.01.a",
+              "text": "Explain scope-owned task lifetime, failure aggregation and cooperative cancellation, including why a cancellation flag does not establish completion or a bounded join latency."
+            },
+            {
+              "id": "T73.01.b",
+              "text": "Derive admission/closing/quiescent states, implement spawn/join and deterministic error selection, then compose with the existing work.pool artifact without detached tasks or prematurely released contexts."
+            },
+            {
+              "id": "T73.01.c",
+              "text": "Inject failure before every admission, record thread/context ownership, join zero/one/eight children, reject ninth admission and late spawn. Use a barrier-controlled failure with siblings acknowledging cancellation and compare accepted/completed counts. Reject both missing-cancellation and swallowed-result mutants. Run separate TSan and demonstrate that eventual cancellation needs child checkpoints."
+            },
+            {
+              "id": "T73.01.d",
+              "text": "Add nested nurseries with a parent deadline: propagate cancellation down while joining upward, retaining contexts until every descendant is quiescent. Delayed assessment supplies two failures racing in different orders; keep deterministic creation-order reporting while preserving both errors in a bounded aggregate."
+            }
+          ]
+        },
+        {
+          "id": "T73.02",
+          "title": "Bounded CSP channels, rendezvous and atomic select",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T73.02.a",
+              "text": "Derive readiness, linearization, close/drain and cancellation semantics; compare deterministic selection with Go ready-case randomness and distinguish rendezvous acknowledgment from merely enqueuing an offer."
+            },
+            {
+              "id": "T73.02.b",
+              "text": "Implement buffered/rendezvous operations and select with a single predicate-registration boundary, explicit spurious-wakeup loops, finite tickets and quiescent destruction; retain coroutine frames until generation-specific disarm."
+            },
+            {
+              "id": "T73.02.c",
+              "text": "Test full/empty, both ready, one closed, all closed, close with buffered values, cancellation with blocked sender/receiver and accepted-versus-unaccepted rendezvous. Repeatedly inject spurious broadcasts. Capture event histories and verify no lost/duplicated accepted values. Reject send-after-close and skipped-buffer mutants; independently model sequential traces and use TSan for actual threads."
+            },
+            {
+              "id": "T73.02.d",
+              "text": "Change unsigned copies to owned buffers with a destructor: define ownership on failed send, close/drain and cancellation. Delayed assessment splits the hub into separately locked channels; derive a registration/recheck protocol that prevents a wakeup lost between observing empty and going to sleep, or justify retaining the common lock."
+            }
+          ]
+        },
+        {
+          "id": "T73.03",
+          "title": "Senders, receivers and immovable operation-state lifetimes",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T73.03.a",
+              "text": "Separate sender recipe, connected operation storage, start permission and completion ownership; identify the dated C++ proposal guarantees that an exposed C struct does not enforce."
+            },
+            {
+              "id": "T73.03.b",
+              "text": "Implement the serialized state protocol and backend lifetime adapter, including synchronous completion, cancellation races, callback reentrancy policy and exactly-once terminal release."
+            },
+            {
+              "id": "T73.03.c",
+              "text": "Enumerate invalid start/complete orders, value/error/stopped alternatives and cancellation-before-completion. Use a receiver that frees a heap state to detect post-callback access under ASan. Reject duplicate-completion and cancel-as-completion mutants. For a concurrent adapter, use one atomic winner and demonstrate that losers never inspect reclaimed storage without their own retained reference."
+            },
+            {
+              "id": "T73.03.d",
+              "text": "Allow an operation to complete inline during start and let the receiver destroy its enclosing object. Delayed assessment connects a chain of two operations; ensure the successor starts only after ownership transfers and no predecessor field is accessed after its receiver may have destroyed it."
+            }
+          ]
+        },
+        {
+          "id": "T73.04",
+          "title": "Actor incarnations, copied mailboxes and failure boundaries",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T73.04.a",
+              "text": "Explain mailbox ownership, actor identity across restart, run-to-completion serialization and the limit of let-it-crash recovery when effects have already escaped the actor."
+            },
+            {
+              "id": "T73.04.b",
+              "text": "Implement admission, dispatch, death and reincarnation with finite generation retirement; design the channel-to-actor executor boundary and message-drop ownership."
+            },
+            {
+              "id": "T73.04.c",
+              "text": "Test full mailbox, stale identity, nested step, failure with queued work, restart while alive and generation exhaustion. Reject stale-generation admission and retained-dead-mailbox mutants. Record effects before failure to show they are not rolled back. Compare actor serialization to a mutex-protected shared object under the same observable ordering."
+            },
+            {
+              "id": "T73.04.d",
+              "text": "Messages become owned buffers and handlers may enqueue to themselves: implement deterministic destruction of abandoned messages without recursive dispatch. Delayed assessment receives a late reply addressed to a previous incarnation after restart; route it to an explicit dead-letter sink and prevent delivery to the replacement actor."
+            }
+          ]
+        },
+        {
+          "id": "T73.05",
+          "title": "Supervision trees with restart budgets and ordered quiescence",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T73.05.a",
+              "text": "Derive restart topology, intensity accounting and the error-kernel boundary; explain why restarting healthy siblings may be necessary and why unlimited restart can amplify faults."
+            },
+            {
+              "id": "T73.05.b",
+              "text": "Implement ordered restart plans with bounded timestamp storage and an actor execution adapter that preserves quiescence and accounts for partial restart failure."
+            },
+            {
+              "id": "T73.05.c",
+              "text": "Independently enumerate all12 strategy/failed-child selections, test exact window boundary, backwards time, maximum timestamps and escalation permanence. Reject forward-stop and omitted-start mutants. Inject handler and restart failures, compare emitted action order and prove no restarted child observes a dependency that is still stopped."
+            },
+            {
+              "id": "T73.05.d",
+              "text": "Replace the flat four-child group with a two-level tree and distinct parent/child budgets. Delayed assessment makes child2 depend on child1 initialization and fail during restart; derive whether to escalate, roll back already restarted children or retain a documented degraded state."
+            }
+          ]
+        },
+        {
+          "id": "T73.06",
+          "title": "Bounded work stealing with an explicit C memory-order proof",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T73.06.a",
+              "text": "Identify linearization and ownership in owner/thief races, last-item arbitration, finite-index exhaustion and stale slot reads; distinguish SC correctness from weak-order proof and actual lock-free progress."
+            },
+            {
+              "id": "T73.06.b",
+              "text": "Derive a circular representation with monotonic nonwrapping indices and atomic slots; implement push/pop/steal with a proof for empty, full, last-item and reused-slot states."
+            },
+            {
+              "id": "T73.06.c",
+              "text": "Differentially compare1095 bounded sequential traces with Python deque, include repeated empty pops and capacity reuse, record concurrent invocation/response histories and check small histories for legal linearizations. Reject wrong-pop and omitted-steal-CAS mutants. Run TSan, inspect generated instructions and report atomic_is_lock_free; do not infer weak-memory correctness from x86 stress."
+            },
+            {
+              "id": "T73.06.d",
+              "text": "Weaken SC to acquire/release/fences one edge at a time, deriving a C memory-model argument and model-checker counterexamples before benchmarking. Delayed assessment changes payloads to pointers and permits array growth: add a reclamation scheme and prove a losing thief cannot dereference freed storage."
+            }
+          ]
+        },
+        {
+          "id": "T73.07",
+          "title": "TL2-style software transactions over actual C17 atomics",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T73.07.a",
+              "text": "Derive snapshot validation, write-set locking, abort restoration and the distinction between transaction isolation, atomic C accesses and memory reclamation; explain inconsistent-read hazards before commit."
+            },
+            {
+              "id": "T73.07.b",
+              "text": "Implement bounded read/write sets, read-your-writes, nonblocking lock acquisition and validated commit using the declared SC baseline; prove failed commits leave payload unchanged while allowing timestamp gaps."
+            },
+            {
+              "id": "T73.07.c",
+              "text": "Force conflict before a read, after a read and during partial lock acquisition; test repeated writes, empty/read-only transactions and timestamp exhaustion. Reject missing read validation and missing commit validation mutants. Use an independent serial-history model for small schedules, TSan for actual threads and fault hooks for every commit phase. Explain why atomic individual loads alone do not provide a coherent transaction."
+            },
+            {
+              "id": "T73.07.d",
+              "text": "Introduce a retryable callback with a synthetic log effect: stage it for commit or supply compensation rather than replaying it blindly. Delayed assessment allows dynamically allocated nodes and privatization; show why the fixed-cell proof says nothing about reclaimed node lifetime and design a compatible reclamation protocol."
+            }
+          ]
+        },
+        {
+          "id": "T73.08",
+          "title": "Multiversion visibility, reader pins and bounded reclamation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T73.08.a",
+              "text": "Derive version visibility and retention from reader lifetimes, distinguish repeatable snapshot reads from stronger isolation, and identify how a forgotten pin creates resource retention."
+            },
+            {
+              "id": "T73.08.b",
+              "text": "Implement timestamped publication, exact pin identity, visible-version selection and reclamation with a bounded-space proof under the four-reader assumption."
+            },
+            {
+              "id": "T73.08.c",
+              "text": "Enumerate pin/publish/read/drop traces against an independent immutable-history model, test four pins at different versions and a fifth refusal, stale slot reuse and generation retirement. Reject pin-ignorant collection and missing-generation mutants. Track retained version counts before/after releases and compare the mutex cost with read-copy-update assumptions."
+            },
+            {
+              "id": "T73.08.d",
+              "text": "Give each version separately owned payload storage whose clone can fail; publish only after full construction and preserve old readers on failure. Delayed assessment adds independent keys and predicate queries: construct write skew under snapshot isolation and explain what validation or locking would establish the stronger requested property."
+            }
+          ]
+        },
+        {
+          "id": "T73.09",
+          "title": "Sequence validation without racing ordinary C payloads",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T73.09.a",
+              "text": "Separate storage race freedom, coherent snapshot validation, writer serialization, retry bounds and counter lifetime; identify what SC proves and what a later weakened implementation must re-establish."
+            },
+            {
+              "id": "T73.09.b",
+              "text": "Derive the atomic representation and SC ordering argument, implement bounded retry and nonwrapping writer publication, and account for every output and failure effect."
+            },
+            {
+              "id": "T73.09.c",
+              "text": "Test odd/even transitions, zero retry, interrupted writer state, output canaries and counter exhaustion. Reject odd-sequence acceptance and omitted-payload-write mutants. Run actual concurrent stress and TSan while explaining that clean runs do not prove weak-order correctness. Inspect disassembly and compare lock-free status and fences with an equivalent mutex snapshot."
+            },
+            {
+              "id": "T73.09.d",
+              "text": "Derive a weaker-order version from explicit synchronization/fence reasoning and check it with a C memory-model tool before comparing costs. Delayed assessment uses pointer payloads and a reader that pauses after loading one pointer; add lifetime protection or reject the design, since sequence validation does not retain pointees."
+            }
+          ]
+        },
+        {
+          "id": "T73.10",
+          "title": "Demand signaling, terminal events and bounded reentrancy",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T73.10.a",
+              "text": "Derive demand accounting, signal ordering, cancellation and reentrancy limits; compare the original C subset to selected Reactive Streams rules without claiming interface or certification equivalence."
+            },
+            {
+              "id": "T73.10.b",
+              "text": "Implement explicit demand/terminal/delivering state, saturating unbounded arithmetic and callback ownership; construct a channel adapter that never delivers more items than requested."
+            },
+            {
+              "id": "T73.10.c",
+              "text": "Enumerate request/emit/cancel/end traces, test zero and maximum demand, callback requests/cancellation and recursive emission. Reject emission without credit and repeated-terminal mutants. Independently account for requested versus delivered finite items, retain callback context through return and test that end requires no demand."
+            },
+            {
+              "id": "T73.10.d",
+              "text": "Make signals originate on several threads: serialize them through one executor and retain the subscription until all in-flight signals quiesce. Delayed assessment introduces a slow subscriber and bounded channel capacity; compare blocking, dropping and failure policies under the same stated delivery contract, with T75 owning the overload decision."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

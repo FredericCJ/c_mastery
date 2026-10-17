@@ -6,6 +6,26 @@ appliance. Representation, algorithms, assembly, architecture, debugging,
 measurement, communications and concurrent execution recur as the systems grow.
 Every domain names its mechanisms in precise, idiomatic vocabulary.
 
+The required [exercise expansion](curriculum/v5/exercises/shared-contract.md)
+adds mechanism-specific workspaces, fixtures, separate assessor material and
+objective-specific evidence across retained and new domains. Required
+[legacy assessment supplements](curriculum/v5/expansion/legacy_assessments/shared-contract.md)
+deepen the original projects without changing their historical records, including
+subjects historically marked elective. The [depth audit](curriculum/v5/expansion/audit.md),
+[completion ledger](curriculum/v5/expansion/completion_ledger.json) and
+[remaining-work manifest](curriculum/v5/expansion/remaining_work.json) distinguish
+actual authoring, scoped execution and still-required work. Historical hours are
+descriptive; additional exercise work has no learner-time ceiling.
+
+```sh
+python -m cmastery init PR-T04-01 ../extent-depth --exercise X-T04-001
+python -m cmastery check ../extent-depth --exercise X-T04-001
+```
+
+Current integrated receipts live under `reviews/v5/expansion/integrated/`; earlier batch and pre-expansion
+reviews are retained byte-for-byte. Author test results are distinct from
+independent learner assessment and physical validation.
+
 Start with [the learning guide](curriculum/v4/guide.md), then
 [the offline workflow](curriculum/v4/workflow.md). The
 [complete Markdown curriculum](c_programming_mastery_curriculum.md) and generated
@@ -15,12 +35,18 @@ The fifth edition is an expansion on the accepted fourth edition (commit `be975e
 tag `curriculum-v4-2026-10-11`). `curriculum/edition.json` is the manifest: it
 records the preserved fourth-edition counts, the domains and laboratory families
 added so far, the receipts acceptance requires and the status of physical and
-learner evidence. `planning/overhaul_v5.md` states the authorized scope: eight new
-core domains (T57–T64), a physical-evidence campaign on the NUCLEO-F439ZI and
-NUCLEO-H745ZI-Q boards, and a vocabulary system for all domains. Until a domain is
-authored and accepted, the catalog is the fourth-edition catalog: 56 domains, 429
-projects, 1,881 objectives, 1,357 working units, 627 recall sets and 58 artifact
-contracts across 13 laboratory families, within 4,879 planned hours.
+learner evidence. [The overhaul](planning/overhaul_v5.md) and
+[modern-techniques plan](planning/modern_techniques_plan.md) now have authored
+domains T57–T76: 178 added projects and 653 added objectives, including 114 modern
+abstraction projects. Their source registers, contracts, laboratories and scoped
+campaigns retain explicit limits; authoring is not edition acceptance. The accepted
+baseline retains 56 domains, 429 projects, 1,881
+objectives, 1,357 working units and 58 artifact contracts. Its historical record
+contains 627 recall sets, 13 laboratory families and 4,879 planned hours. The
+current catalog and family counts are derived in the manifest and completion
+ledger. Additions have separate evidence and do not redefine those historical
+hours. Required F439/H745 and other physical observations, learner assessments
+and unexecuted changed-condition experiments remain distinct obligations.
 
 ## Start studying and implementing
 
@@ -69,7 +95,10 @@ and instrument metadata for later assessment.
 ## Build, verify and export
 
 Publishing requires the source checkout or `c_mastery_v5_sources.zip`. The learner
-bundle excludes author reviews and assessor implementations. Use
+bundle excludes author reviews, assessor implementations, and fifth-edition
+authoring recipes that contain solution analyses. Inspected source registers
+remain available in the learner bundle; complete audits and regeneration inputs
+belong to the source bundle. Use
 `c_mastery_v5_html.zip` for a ready-to-open handbook.
 
 ```powershell
@@ -83,8 +112,9 @@ On Linux, use the same locked publishing dependencies and run
 `python tools/build_v5.py`. Serve the result with
 `python -m http.server 8766 --bind 127.0.0.1 --directory build/html`.
 
-Current author checks and receipts live in `reviews/v5/`; `reviews/v2`, `reviews/v3`
-and `reviews/v4` are historical and are restored byte-for-byte after every build.
+Current author checks and receipts live in `reviews/v5/expansion/integrated/`. All 242
+pre-expansion tracked review files, including the old `reviews/v5/` records,
+are pinned and preserved byte-for-byte after every build.
 The build checks curriculum structure, preserved fourth-edition identities
 (`curriculum/v5/baseline.json`), manifest arithmetic, the local learner workflow,
 release guards, references and published outputs, including the prose normalizer

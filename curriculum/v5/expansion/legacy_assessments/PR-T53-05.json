@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "project": "PR-T53-05",
+  "domain": "T53",
+  "title": "SMP spinlocks and interrupt context — explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T53.md",
+        "sha256": "83254f89aa8114e1e9c07bb2b30436807e549a13f44da82d1886b9f66f28bbb2",
+        "passages": [
+          "Assigned substantive teaching passages and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T53-05.md",
+        "sha256": "778a5db56c4bfd0958d6a0d53c5dacd3afa4c0b528df956bff3ac05301ac1f83",
+        "passages": [
+          "Complete metadata, contract, steps, failure cases, acceptance and transfer"
+        ]
+      },
+      {
+        "path": "fixtures/os_v3/PR-T53-05.json",
+        "sha256": "fc668cd762b311215a2e270453c12a2319ff0ddea32f05d6897e8f14cffb2d7f",
+        "passages": [
+          "Complete synthetic input and expected output"
+        ]
+      },
+      {
+        "path": "research/v3/verify_fixtures.py",
+        "sha256": "1870228e17863b2f400262753f25d1d13d90ad6423c5705255f06c21ecb8a10a",
+        "passages": [
+          "compute branches for assigned T51/T52/T53 synthetic models; not learner or target execution"
+        ]
+      },
+      {
+        "path": "labs/kernel_smp/README.md",
+        "sha256": "7cbeff6914fcdf3e4c1064420f6cf9fe61da2be9353f295afd0cffe21071fed9",
+        "passages": [
+          "Actual target/dependency/ownership contracts and explicit evidence limitations"
+        ]
+      },
+      {
+        "path": "curriculum/v4/units.json",
+        "sha256": "0870499b5bedf02d4ae5e9efaf140f52e693c32c18e73b15b1f0ce11d22ba080",
+        "passages": [
+          "Assigned project unit objective/test links and substantive implementation steps"
+        ]
+      },
+      {
+        "path": "assessor/kernel_smp/smp.c",
+        "sha256": "d3b4b6d8d85c1ed6c47a1d0da592fc906193b75740cc2ad30b30d1b9dd61bb92",
+        "passages": [
+          "Discovery/local tables/AP startup and early cooperative scheduler/wake paths"
+        ]
+      },
+      {
+        "path": "assessor/kernel_smp/ap.S",
+        "sha256": "35d9e66c9642a11754d355ff2ee17e63e0759300e62fe880133823f602fdcbed",
+        "passages": [
+          "Complete original trampoline/context/interrupt assembly"
+        ]
+      },
+      {
+        "path": "assessor/kernel_smp/cmk2_model.c",
+        "sha256": "04985b4d2b85ff18c0190deedc5367e616abe3ed513910332eba29d0256f678b",
+        "passages": [
+          "Complete bounded MADT and channel model"
+        ]
+      },
+      {
+        "path": "assessor/kernel_smp/parallel_user.c",
+        "sha256": "7e426d9419515a95c781aa05f3ce81348b5e26e52d3645bf0ec3bb309b147f81",
+        "passages": [
+          "Complete fixed-job/fixed-DAG helper and partial startup failure paths"
+        ]
+      },
+      {
+        "path": "labs/kernel_smp/tests/cmk2_contracts.c",
+        "sha256": "c55c6407aa37f698fc11fade0802d4ed8d84046909bb1aa1b26e413c80614ee0",
+        "passages": [
+          "Complete MADT and channel tests"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T53.md",
+        "anchors": [
+          "T53.05"
+        ]
+      }
+    ],
+    "units": [
+      "U-T53-05-01",
+      "U-T53-05-02",
+      "U-T53-05-03"
+    ],
+    "inspection_limits": [
+      "All assigned module teaching, parent contract/steps/failure/acceptance and complete synthetic fixture inspected.",
+      "Unit objective/test mappings and each project substantive implementation step inspected; no complete historical learner portfolio review.",
+      "Exact bounded assessor/test scopes are recorded in the baseline bindings; no full implementation review inferred."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. C11 draft and edition comparisons are labeled; compiler atomics/assembly, ABI, ISA, OS and board contracts are distinct authorities.",
+    "target": "Original disposable x86-64 QEMU teaching guest, with separate host span/state models; exact machine/CPU/version recorded. No host-disk/network passthrough.",
+    "profile": "F",
+    "dependencies": "Retain strict parent E/F target restrictions: no linked libc, libgcc, compiler-rt, libatomic, HAL or preexisting kernel implements the taught mechanism. Host Python/verification and explicitly separate FreeRTOS/Linux comparisons are not target dependencies.",
+    "toolchain": [
+      "Record compiler, flags, optimization, target triple, linker map and actual helper/symbol closure.",
+      "Record emulator/board/kernel/config and clock source; unsupported targets and denied scheduling classes remain missing observations."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LCON-LOCKS",
+      "path": "research/v5/expansion/legacy_concurrency/resources.json",
+      "passages": [
+        "Simple test-and-set and ticket lock pseudocode",
+        "MCS list-based queuing lock pseudocode",
+        "Centralized sense-reversing barrier pseudocode"
+      ]
+    },
+    {
+      "id": "R-LRUN-C11-ATOMICS",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "7.17.3 paragraphs1–14 Order and consistency",
+        "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published exact C17/C23 comparisons and full platform standards beyond listed passages remain separately inspected obligations. N1570 is a C11 draft comparison.",
+    "No fresh complete baseline target campaign or learner portfolio is asserted by this authoring wave.",
+    "Physical timing, cache effects, electrical behavior and current CPU/board errata remain unvalidated.",
+    "ACPI6.6 retrieval returned403; current ACPI conformance is not newly established. Intel253668-060US is historical, not current errata."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T53-05.md",
+    "fixtures/os_v3/PR-T53-05.json",
+    "labs/kernel_smp/README.md",
+    "curriculum/guides/concurrent-system-contracts.md"
+  ],
+  "execution_support": {
+    "kind": "Retained concrete construction plus bounded model/host/guest anchors",
+    "scope": "Only each named test actual contract counts as existing executable support. The supplemental leaf investigations require their own evidence.",
+    "tests": [
+      "kernel_smp_guest_threads"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave; fixture oracle recomputation is reported separately"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T53-05-T53.05.a",
+      "title": "Derive and defend the state, ownership and ordering contract for smp spinlocks and interrupt context.",
+      "objective": "T53.05.a",
+      "families": [
+        "A",
+        "C",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-LOCKS",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "Simple test-and-set and ticket lock pseudocode",
+            "MCS list-based queuing lock pseudocode",
+            "Centralized sense-reversing barrier pseudocode"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        }
+      ],
+      "task": "Compare test-and-set, ticket and MCS representations: lock word; next/serving counters; queue nodes and tail. For4-bit tickets starting14, derive tickets14,15,0 and serving progression. State the bound preventing duplicate live tickets and MCS node reuse before unlock/handoff.",
+      "purpose": "A wrapping ticket counter is always safe regardless of outstanding acquisitions.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T53.05 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T53-04",
+          "PR-T53-05 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "A wrapping ticket counter is always safe regardless of outstanding acquisitions. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: A wrapping ticket counter is always safe regardless of outstanding acquisitions.",
+        "D2": "Compare test-and-set, ticket and MCS representations: lock word; next/serving counters; queue nodes and tail. For4-bit tickets starting14, derive tickets14,15,0 and serving progression. State the bound preventing duplicate live tickets and MCS node reuse before unlock/handoff.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Use one MCS node per CPU and analyze nested interrupt acquisition that reuses the same node."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "Modulo progression can work while each live ticket remains unique; admitting a full modulus of outstanding tickets can alias ownership. MCS nodes remain live through queue linkage and release, including interrupt/preemption effects. FIFO ticket admission does not guarantee CPU scheduling fairness.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "Modulo progression can work while each live ticket remains unique; admitting a full modulus of outstanding tickets can alias ownership. MCS nodes remain live through queue linkage and release, including interrupt/preemption effects. FIFO ticket admission does not guarantee CPU scheduling fairness. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Use one MCS node per CPU and analyze nested interrupt acquisition that reuses the same node. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "A waiting ticket or MCS node is still a live owned resource.",
+        "Keep local interrupt exclusion separate from inter-CPU exclusion."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T53-05-T53.05.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Use one MCS node per CPU and analyze nested interrupt acquisition that reuses the same node."
+        }
+      ],
+      "assessor_anchor": "#t5305a",
+      "facet_scope": {
+        "teaching": "Retained T53.05 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      }
+    },
+    {
+      "id": "AX-PR-T53-05-T53.05.b",
+      "title": "Implement test-and-set and ticket locks, then compare with an MCS queue-lock model. Add IRQ-save wrappers that restore the previous local mask and audit lock ordering.",
+      "objective": "T53.05.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-LOCKS",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "Simple test-and-set and ticket lock pseudocode",
+            "MCS list-based queuing lock pseudocode",
+            "Centralized sense-reversing barrier pseudocode"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        }
+      ],
+      "task": "Implement a lock plus IRQ-save wrapper restoring the previous local interrupt state. Show the deadlock if a local handler acquires a lock held by interrupted code; also show why disabling local interrupts does not exclude another CPU. Audit acquire/release ordering and native atomic helper closure.",
+      "purpose": "Local IRQ masking is an SMP lock, or unlock may always enable interrupts.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T53.05 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T53-04",
+          "PR-T53-05 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "Local IRQ masking is an SMP lock, or unlock may always enable interrupts. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: Local IRQ masking is an SMP lock, or unlock may always enable interrupts.",
+        "D2": "Implement a lock plus IRQ-save wrapper restoring the previous local interrupt state. Show the deadlock if a local handler acquires a lock held by interrupted code; also show why disabling local interrupts does not exclude another CPU. Audit acquire/release ordering and native atomic helper closure.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Nest two IRQ-save protected locks and derive the saved-state and global lock-order requirements."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "Masking controls only the local CPU and restoration must preserve preexisting mask state. Inter-CPU exclusion needs the shared atomic/lock protocol. ISR and task acquisition paths must share a declared lock order and context policy.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "Masking controls only the local CPU and restoration must preserve preexisting mask state. Inter-CPU exclusion needs the shared atomic/lock protocol. ISR and task acquisition paths must share a declared lock order and context policy. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Nest two IRQ-save protected locks and derive the saved-state and global lock-order requirements. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "A waiting ticket or MCS node is still a live owned resource.",
+        "Keep local interrupt exclusion separate from inter-CPU exclusion."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T53-05-T53.05.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Nest two IRQ-save protected locks and derive the saved-state and global lock-order requirements."
+        }
+      ],
+      "assessor_anchor": "#t5305b",
+      "facet_scope": {
+        "teaching": "Retained T53.05 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      }
+    },
+    {
+      "id": "AX-PR-T53-05-T53.05.c",
+      "title": "Run multiple CPUs updating a protected invariant and reject the local-mask-only faulty variant. Measure contention and wait distributions separately from correctness.",
+      "objective": "T53.05.c",
+      "families": [
+        "D",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LCON-LOCKS",
+          "path": "research/v5/expansion/legacy_concurrency/resources.json",
+          "passages": [
+            "Simple test-and-set and ticket lock pseudocode",
+            "MCS list-based queuing lock pseudocode",
+            "Centralized sense-reversing barrier pseudocode"
+          ]
+        },
+        {
+          "id": "R-LRUN-C11-ATOMICS",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "7.17.3 paragraphs1–14 Order and consistency",
+            "7.17.7.4 paragraphs1–7 atomic_compare_exchange"
+          ]
+        }
+      ],
+      "task": "Compare the three locks under equal protected work and participant counts, recording failed exchanges, waiting loads, latency and fairness assumptions. Use a missing-release-publication model mutant and a lock-order-cycle schedule. Separate cache traffic predictions from measured physical evidence.",
+      "purpose": "Fewer atomic instructions prove better performance and starvation freedom.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T53.05 teaching and project prerequisite chain",
+          "C17 object lifetime, integer and synchronization semantics distinguished from ABI/ISA/OS/library contracts"
+        ],
+        "artifacts": [
+          "PR-T53-04",
+          "PR-T53-05 learner-owned implementation or diagnostic dossier",
+          "Written prediction of the supplied fixture before consulting expected data"
+        ]
+      },
+      "reasoning": [
+        "Fewer atomic instructions prove better performance and starvation freedom. Refute it using the smallest relevant state/trace.",
+        "State preconditions, postconditions, representation invariant, ownership/lifetime, publication and failure boundaries for this task.",
+        "Derive bounded storage, work/progress and timing assumptions where applicable. Mark genuinely inapplicable quantities instead of inventing a timing guarantee."
+      ],
+      "deliverables": {
+        "D1": "Prediction and causal argument addressing: Fewer atomic instructions prove better performance and starvation freedom.",
+        "D2": "Compare the three locks under equal protected work and participant counts, recording failed exchanges, waiting loads, latency and fairness assumptions. Use a missing-release-publication model mutant and a lock-order-cycle schedule. Separate cache traffic predictions from measured physical evidence.",
+        "D3": "Exact source/model, commands or derivation, original inputs, raw observations, independently expected results and a criterion-specific falsification control. Separate missing tools/targets from observed outcomes.",
+        "D4": "Place participants across NUMA nodes and identify which measurements and node-lifetime assumptions require new evidence."
+      },
+      "verification": {
+        "procedure": "Predict before observing. Implement or derive every concrete task clause under the parent/shared contract; retain normal, boundary/failure and falsification evidence. Compare the specified expected argument, including negative outcomes and limitations, rather than only a checksum or old fixture. Bind versions, source/image hashes and the observation environment.",
+        "expected": "Waiting location, coherence traffic, preemption and critical-section size affect results. A queue lock may stall behind a descheduled owner. Finite stress and QEMU timings cannot prove fairness or physical scalability; preserve semantic equivalence before comparing costs.",
+        "pass": "Every task clause and expected causal distinction is supported by actual learner artifacts. Correct numbers with the stated misconception, missing ownership/failure behavior or unsupported target claims fail this objective.",
+        "limits": "New full criteria are unattempted. Baseline test names identify bounded support only; model, host, emulator, physical and learner evidence are not interchangeable."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifacts, violated containment/preconditions or a false semantic guarantee.",
+        "1": "Reproduces an ordinary case but cannot reject this leaf-specific misconception or explain its boundary.",
+        "2": "Waiting location, coherence traffic, preemption and critical-section size affect results. A queue lock may stall behind a descheduled owner. Finite stress and QEMU timings cannot prove fairness or physical scalability; preserve semantic equivalence before comparing costs. Supplies a distinct falsification control and the concrete task artifacts.",
+        "3": "Place participants across NUMA nodes and identify which measurements and node-lifetime assumptions require new evidence. Independently derives and verifies the changed obligations after the recorded delay."
+      },
+      "hints": [
+        "A waiting ticket or MCS node is still a live owned resource.",
+        "Keep local interrupt exclusion separate from inter-CPU exclusion."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T53-05-T53.05.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Place participants across NUMA nodes and identify which measurements and node-lifetime assumptions require new evidence."
+        }
+      ],
+      "assessor_anchor": "#t5305c",
+      "facet_scope": {
+        "teaching": "Retained T53.05 substantive teaching and the exact inspected passages recorded here.",
+        "implementation_or_analysis": "Parent construction remains required; this leaf adds the concrete investigation in task and D2. No historical executable unit/hour is added or replaced.",
+        "boundary_adversarial": "The task-specific invalid, changed, exhausted, delayed or conflicting state and its independent expected argument are assessed explicitly.",
+        "independent_assessment": "Per-objective level2 evidence and a separately delayed level3 changed-condition opportunity; no attempt, external reviewer or independence result is manufactured.",
+        "remaining": "Learner source/analysis, actual criterion evidence review and seven-day transfer remain unattempted. Unavailable references, broader experiments and physical claims remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs/models and synthetic data only. Kernel/privileged experiments use disposable dedicated VMs with no host-disk or network passthrough. Firmware work uses dedicated emulators/boards; this authoring task performs no flashing or host policy changes. Native undefined/racing mutants are modeled or isolated under an explicit teaching harness; no external target is authorized."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T53-05.md",
+  "status": {
+    "content": "authored",
+    "execution": "New full leaf investigations unattempted; no fresh full target campaign inferred from fixture or structural validation.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite passing evidence does not prove absolute mastery.",
+      "Accepted identities, units, source bytes, historical hours and receipts are preserved.",
+      "Delayed variants are required opportunities, not completed assessments."
+    ]
+  }
+}

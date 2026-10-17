@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "PR-T69-10",
+  "exercise": "X-T69-010",
+  "anchor": "dispatch.plugin",
+  "input_contract": "Implement DSLoaded open/acquire/release/close using only original test DSOs. Load an explicit local path with RTLD_NOW|RTLD_LOCAL, resolve the exported complete DSPlugin object, validate ABI1/sizeof/callbacks and maintain a bounded borrow count. Close must reject while API/code pointers are borrowed. Add original fixtures for missing symbol and incompatible size metadata, still backed by actual complete objects. Analyze constructor execution before validation and why version checks cannot sandbox malicious same-process code.",
+  "expected": "The ABI9 original fixture rejects and leaves the module empty. ABI1 opens; acquire then close returns busy. Its apply(17,3) returns20. Clear the borrowed pointer, release, and close empties handle/API. Never call a pointer after release/close to infer whether the loader really unmapped it.",
+  "independent_oracle": "Build DSOs and host separately with recorded flags. Use dlerror around symbol resolution and inspect dynamic symbols/dependencies. Retain handles after failed close and classify initialization side effects. All executable targets are original local DSOs; no external plugin/service load is authorized. No destructor, stale callback or invalid ABI is invoked after rejection.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "admitted_abi": 1,
+    "rejected_abi": 9,
+    "result": 20,
+    "borrowed_close": "busy"
+  },
+  "verification_method": "labs/dispatch/tests/verify_fixtures.py recomputes bounded arithmetic/ownership/authority expectations independently of reference C"
+}

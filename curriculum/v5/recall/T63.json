@@ -1,0 +1,469 @@
+{
+  "domain": "T63",
+  "sets": [
+    {
+      "id": "T63.01",
+      "title": "Spatial bounds and a harmless overwrite witness",
+      "objectives": [
+        "T63.01.a",
+        "T63.01.b",
+        "T63.01.c"
+      ],
+      "objective_text": {
+        "T63.01.a": "Derive and defend: Derive subtraction-form bounds without overflow and distinguish logical isolation from ISO C allocated-object bounds. State why a sentinel violation proves integrity failure only within the teaching model.",
+        "T63.01.b": "Implement and investigate: Implement md_write(arena,logical_capacity,offset,input,n) for an original32-byte arena. Reject capacity>31, offset>capacity or n>capacity-offset before any write; write only the admitted span. Byte31 is a sentinel outside the logical object. Compare with the supplied faulty teaching path that validates only the32-byte physical extent; attacker controls offset/n/data and harmless success is sentinel change.",
+        "T63.01.c": "Falsify and transfer: Repair capacity confusion and post-write checks. A canary that detects corruption afterward does not restore overwritten data or authorize the write. Then Split the logical object into a real heap allocation and run the isolated faulty path under ASan; compare deterministic model evidence with environment-dependent undefined execution and mitigation effects."
+      },
+      "projects": [
+        "PR-T63-01"
+      ],
+      "resource_ids": [
+        "R-B06-C11",
+        "R-B06-ASAN",
+        "R-B06-FORMAT"
+      ],
+      "variants": [
+        {
+          "id": "T63.01-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T63.01.a"
+          ],
+          "prompt": "Derive subtraction-form bounds without overflow and distinguish logical isolation from ISO C allocated-object bounds. State why a sentinel violation proves integrity failure only within the teaching model.",
+          "checklist": [
+            "Check n<=capacity-offset only after establishing offset<=capacity."
+          ]
+        },
+        {
+          "id": "T63.01-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T63.01.b"
+          ],
+          "prompt": "Repair capacity confusion and post-write checks. A canary that detects corruption afterward does not restore overwritten data or authorize the write.",
+          "checklist": [
+            "Implement md_write(arena,logical_capacity,offset,input,n) for an original32-byte arena. Reject capacity>31, offset>capacity or n>capacity-offset before any write; write only the admitted span. Byte31 is a sentinel outside the logical object. Compare with the supplied faulty teaching path that validates only the32-byte physical extent; attacker controls offset/n/data and harmless success is sentinel change."
+          ]
+        },
+        {
+          "id": "T63.01-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T63.01.c"
+          ],
+          "prompt": "Split the logical object into a real heap allocation and run the isolated faulty path under ASan; compare deterministic model evidence with environment-dependent undefined execution and mitigation effects.",
+          "checklist": [
+            "Derive subtraction-form bounds without overflow and distinguish logical isolation from ISO C allocated-object bounds. State why a sentinel violation proves integrity failure only within the teaching model."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T63.02",
+      "title": "Allocation arithmetic and truncation",
+      "objectives": [
+        "T63.02.a",
+        "T63.02.b",
+        "T63.02.c"
+      ],
+      "objective_text": {
+        "T63.02.a": "Derive and defend: Derive the allocation and subsequent access extents in the same value domain. Identify every narrowing conversion and the branch that incorrectly authorizes it.",
+        "T63.02.b": "Implement and investigate: Implement md_extent(count,stride,limit,out) using uint32_t inputs and uint64_t arithmetic; accept only product<=limit and product<=UINT32_MAX, publish the product on success, otherwise preserve out. Compare against a teaching allocator that truncates product to16 bits before checking. Do not actually allocate attacker-sized memory.",
+        "T63.02.c": "Falsify and transfer: The original local mutant requests8193 elements of8 bytes, validates a truncated8-byte allocation and would later copy65544 bytes. Demonstrate the admitted size mismatch without performing the dangerous copy. Then Change data model and add alignment/header overhead; rederive all multiplication/addition/conversion bounds and explain whether the same attacker input still reaches the defect."
+      },
+      "projects": [
+        "PR-T63-02"
+      ],
+      "resource_ids": [
+        "R-B06-C11",
+        "R-B06-ASAN",
+        "R-B06-FORMAT"
+      ],
+      "variants": [
+        {
+          "id": "T63.02-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T63.02.a"
+          ],
+          "prompt": "Derive the allocation and subsequent access extents in the same value domain. Identify every narrowing conversion and the branch that incorrectly authorizes it.",
+          "checklist": [
+            "A cast after overflow cannot reconstruct the lost value."
+          ]
+        },
+        {
+          "id": "T63.02-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T63.02.b"
+          ],
+          "prompt": "The original local mutant requests8193 elements of8 bytes, validates a truncated8-byte allocation and would later copy65544 bytes. Demonstrate the admitted size mismatch without performing the dangerous copy.",
+          "checklist": [
+            "Implement md_extent(count,stride,limit,out) using uint32_t inputs and uint64_t arithmetic; accept only product<=limit and product<=UINT32_MAX, publish the product on success, otherwise preserve out. Compare against a teaching allocator that truncates product to16 bits before checking. Do not actually allocate attacker-sized memory."
+          ]
+        },
+        {
+          "id": "T63.02-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T63.02.c"
+          ],
+          "prompt": "Change data model and add alignment/header overhead; rederive all multiplication/addition/conversion bounds and explain whether the same attacker input still reaches the defect.",
+          "checklist": [
+            "Derive the allocation and subsequent access extents in the same value domain. Identify every narrowing conversion and the branch that incorrectly authorizes it."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T63.03",
+      "title": "Temporal identity and stale access",
+      "objectives": [
+        "T63.03.a",
+        "T63.03.b",
+        "T63.03.c"
+      ],
+      "objective_text": {
+        "T63.03.a": "Derive and defend: Prove a stale token cannot authorize current-incarnation access, state the trusted token origin and require retirement before generation wrap. Compare with an actual heap use-after-free sanitizer target without treating allocator reuse as guaranteed.",
+        "T63.03.b": "Implement and investigate: Implement md_read(arena,claimed_generation,index,out): require live==1, matching generation and index<16 before publishing a byte. Failed reads leave out unchanged. The original arena remains allocated, so the stale-handle witness is defined C behavior; attacker retains an old token across reuse and attempts to read a new synthetic occupant.",
+        "T63.03.c": "Falsify and transfer: The mutant ignores generation and reveals a new occupant’s synthetic byte through an old token. This demonstrates a confidentiality violation in the target, not a read primitive against another process. Then Add asynchronous completion retaining a token, then release/reuse the slot before completion. Design cancellation and retirement so old callbacks cannot expose the new occupant."
+      },
+      "projects": [
+        "PR-T63-03"
+      ],
+      "resource_ids": [
+        "R-B06-C11",
+        "R-B06-ASAN",
+        "R-B06-FORMAT"
+      ],
+      "variants": [
+        {
+          "id": "T63.03-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T63.03.a"
+          ],
+          "prompt": "Prove a stale token cannot authorize current-incarnation access, state the trusted token origin and require retirement before generation wrap. Compare with an actual heap use-after-free sanitizer target without treating allocator reuse as guaranteed.",
+          "checklist": [
+            "Validate owner, live state and incarnation before forming a usable view."
+          ]
+        },
+        {
+          "id": "T63.03-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T63.03.b"
+          ],
+          "prompt": "The mutant ignores generation and reveals a new occupant’s synthetic byte through an old token. This demonstrates a confidentiality violation in the target, not a read primitive against another process.",
+          "checklist": [
+            "Implement md_read(arena,claimed_generation,index,out): require live==1, matching generation and index<16 before publishing a byte. Failed reads leave out unchanged. The original arena remains allocated, so the stale-handle witness is defined C behavior; attacker retains an old token across reuse and attempts to read a new synthetic occupant."
+          ]
+        },
+        {
+          "id": "T63.03-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T63.03.c"
+          ],
+          "prompt": "Add asynchronous completion retaining a token, then release/reuse the slot before completion. Design cancellation and retirement so old callbacks cannot expose the new occupant.",
+          "checklist": [
+            "Prove a stale token cannot authorize current-incarnation access, state the trusted token origin and require retirement before generation wrap. Compare with an actual heap use-after-free sanitizer target without treating allocator reuse as guaranteed."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T63.04",
+      "title": "Owned arena views and authorization",
+      "objectives": [
+        "T63.04.a",
+        "T63.04.b",
+        "T63.04.c"
+      ],
+      "objective_text": {
+        "T63.04.a": "Derive and defend: Specify representation, operations, ownership and failure semantics of a checked view. Identify exactly what runtime checks enforce and what trusted-caller discipline or external verification must guarantee.",
+        "T63.04.b": "Implement and investigate: Implement md_authorize(arena,principal,generation,begin,length): require live1, exact owner and generation, begin<=16 and length<=16-begin; return admission only, without exposing a pointer on failure. principal is supplied by a trusted harness channel, not copied from request bytes. Define the trusted boundary and compare with a forged-request owner field.",
+        "T63.04.c": "Falsify and transfer: The mutant validates generation and bounds but ignores principal ownership. The attacker can read another synthetic principal’s object without any memory error or sanitizer report. Then Compare the C view with a language-enforced borrow or capability mechanism; provide a concrete C counterexample showing forged structs or escaped pointers defeat an overstated equivalence claim."
+      },
+      "projects": [
+        "PR-T63-04"
+      ],
+      "resource_ids": [
+        "R-B06-C11",
+        "R-B06-ASAN",
+        "R-B06-FORMAT"
+      ],
+      "variants": [
+        {
+          "id": "T63.04-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T63.04.a"
+          ],
+          "prompt": "Specify representation, operations, ownership and failure semantics of a checked view. Identify exactly what runtime checks enforce and what trusted-caller discipline or external verification must guarantee.",
+          "checklist": [
+            "Never claim an ordinary C struct is an unforgeable capability."
+          ]
+        },
+        {
+          "id": "T63.04-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T63.04.b"
+          ],
+          "prompt": "The mutant validates generation and bounds but ignores principal ownership. The attacker can read another synthetic principal’s object without any memory error or sanitizer report.",
+          "checklist": [
+            "Implement md_authorize(arena,principal,generation,begin,length): require live1, exact owner and generation, begin<=16 and length<=16-begin; return admission only, without exposing a pointer on failure. principal is supplied by a trusted harness channel, not copied from request bytes. Define the trusted boundary and compare with a forged-request owner field."
+          ]
+        },
+        {
+          "id": "T63.04-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T63.04.c"
+          ],
+          "prompt": "Compare the C view with a language-enforced borrow or capability mechanism; provide a concrete C counterexample showing forged structs or escaped pointers defeat an overstated equivalence claim.",
+          "checklist": [
+            "Specify representation, operations, ownership and failure semantics of a checked view. Identify exactly what runtime checks enforce and what trusted-caller discipline or external verification must guarantee."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T63.05",
+      "title": "Bounded control-flow corruption analysis",
+      "objectives": [
+        "T63.05.a",
+        "T63.05.b",
+        "T63.05.c"
+      ],
+      "objective_text": {
+        "T63.05.a": "Derive and defend: State attacker control, target-local effect and limits. Distinguish data-only unauthorized dispatch from demonstrated arbitrary code execution; analyze control-flow integrity separately from operation authorization.",
+        "T63.05.b": "Implement and investigate: Implement md_dispatch(op,grant,sentinel) with op0 read-only no-op and op1 set sentinel77, allowed only when trusted grant==1. Reject unknown op and nonboolean grant before mutation. Analyze the supplied intentionally flawed dispatcher that checks only op range; attacker-controlled op1 without grant must change only the synthetic sentinel in the faulty build.",
+        "T63.05.c": "Falsify and transfer: A valid indirect-call target can still perform an unauthorized operation. Bounds checks and a control-flow whitelist do not replace the grant check. Then Add a table of three trusted callbacks and a corrupted index inside the original program; compare range checks, read-only dispatch tables and compiler CFI while recording only observed target effects."
+      },
+      "projects": [
+        "PR-T63-05"
+      ],
+      "resource_ids": [
+        "R-B06-C11",
+        "R-B06-ASAN",
+        "R-B06-FORMAT"
+      ],
+      "variants": [
+        {
+          "id": "T63.05-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T63.05.a"
+          ],
+          "prompt": "State attacker control, target-local effect and limits. Distinguish data-only unauthorized dispatch from demonstrated arbitrary code execution; analyze control-flow integrity separately from operation authorization.",
+          "checklist": [
+            "Valid control-flow edges can violate a higher-level authorization property."
+          ]
+        },
+        {
+          "id": "T63.05-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T63.05.b"
+          ],
+          "prompt": "A valid indirect-call target can still perform an unauthorized operation. Bounds checks and a control-flow whitelist do not replace the grant check.",
+          "checklist": [
+            "Implement md_dispatch(op,grant,sentinel) with op0 read-only no-op and op1 set sentinel77, allowed only when trusted grant==1. Reject unknown op and nonboolean grant before mutation. Analyze the supplied intentionally flawed dispatcher that checks only op range; attacker-controlled op1 without grant must change only the synthetic sentinel in the faulty build."
+          ]
+        },
+        {
+          "id": "T63.05-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T63.05.c"
+          ],
+          "prompt": "Add a table of three trusted callbacks and a corrupted index inside the original program; compare range checks, read-only dispatch tables and compiler CFI while recording only observed target effects.",
+          "checklist": [
+            "State attacker control, target-local effect and limits. Distinguish data-only unauthorized dispatch from demonstrated arbitrary code execution; analyze control-flow integrity separately from operation authorization."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T63.06",
+      "title": "Format-string authority and byte-preserving logging",
+      "objectives": [
+        "T63.06.a",
+        "T63.06.b",
+        "T63.06.c"
+      ],
+      "objective_text": {
+        "T63.06.a": "Derive and defend: Identify which argument is interpreted as a format and prove the repaired path treats attacker bytes as data. Discuss embedded NUL, truncation policy and logging integrity separately.",
+        "T63.06.b": "Implement and investigate: Implement md_log_copy(input,n,output,capacity) copying exact bytes and appending NUL, requiring n<capacity and no overlap; failure leaves output unchanged. Percent bytes have no interpretation. Compare an original isolated printf(user_format) target using the fixed synthetic string%n and a supplied local integer pointer with printf(\"%s\",user_text); the harmless witness is only that integer changing.",
+        "T63.06.c": "Falsify and transfer: Blindly replacing percent with a question mark suppresses the witness but corrupts the required logged bytes. The real repair separates interpreter control from untrusted data. Then Add structured binary logging with explicit length and escaping at display time; test embedded NUL and terminal-control bytes without confusing storage fidelity with safe rendering."
+      },
+      "projects": [
+        "PR-T63-06"
+      ],
+      "resource_ids": [
+        "R-B06-C11",
+        "R-B06-ASAN",
+        "R-B06-FORMAT"
+      ],
+      "variants": [
+        {
+          "id": "T63.06-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T63.06.a"
+          ],
+          "prompt": "Identify which argument is interpreted as a format and prove the repaired path treats attacker bytes as data. Discuss embedded NUL, truncation policy and logging integrity separately.",
+          "checklist": [
+            "Use a constant format or a byte-oriented sink; do not sanitize away data as a substitute for correct interpretation boundaries."
+          ]
+        },
+        {
+          "id": "T63.06-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T63.06.b"
+          ],
+          "prompt": "Blindly replacing percent with a question mark suppresses the witness but corrupts the required logged bytes. The real repair separates interpreter control from untrusted data.",
+          "checklist": [
+            "Implement md_log_copy(input,n,output,capacity) copying exact bytes and appending NUL, requiring n<capacity and no overlap; failure leaves output unchanged. Percent bytes have no interpretation. Compare an original isolated printf(user_format) target using the fixed synthetic string%n and a supplied local integer pointer with printf(\"%s\",user_text); the harmless witness is only that integer changing."
+          ]
+        },
+        {
+          "id": "T63.06-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T63.06.c"
+          ],
+          "prompt": "Add structured binary logging with explicit length and escaping at display time; test embedded NUL and terminal-control bytes without confusing storage fidelity with safe rendering.",
+          "checklist": [
+            "Identify which argument is interpreted as a format and prove the repaired path treats attacker bytes as data. Discuss embedded NUL, truncation policy and logging integrity separately."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T63.07",
+      "title": "Exactly-once release and error cleanup",
+      "objectives": [
+        "T63.07.a",
+        "T63.07.b",
+        "T63.07.c"
+      ],
+      "objective_text": {
+        "T63.07.a": "Derive and defend: Prove ownership conservation and exactly-one destructor call under every failure prefix. Explain why nulling one alias cannot revoke another copied raw pointer.",
+        "T63.07.b": "Implement and investigate: Implement md_release(MDOwner) requiring owned exactly1, setting owned0 and incrementing releases once. Repeat release returns0 unchanged. Reject a release counter atUINT_MAX before state change. Build an allocation/failure schedule with caller, queue and callback owners and record every transfer.",
+        "T63.07.c": "Falsify and transfer: The faulty cleanup path releases twice after ownership moved to a callback. Demonstrate the duplicate counter first, then separately observe an actual original double-free target under ASan. Then Introduce reentrant destruction and partial object construction; define callback restrictions or use detached cleanup state so recursive calls cannot double release."
+      },
+      "projects": [
+        "PR-T63-07"
+      ],
+      "resource_ids": [
+        "R-B06-C11",
+        "R-B06-ASAN",
+        "R-B06-FORMAT"
+      ],
+      "variants": [
+        {
+          "id": "T63.07-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T63.07.a"
+          ],
+          "prompt": "Prove ownership conservation and exactly-one destructor call under every failure prefix. Explain why nulling one alias cannot revoke another copied raw pointer.",
+          "checklist": [
+            "Model release as a terminal transition and reject every repeated transition."
+          ]
+        },
+        {
+          "id": "T63.07-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T63.07.b"
+          ],
+          "prompt": "The faulty cleanup path releases twice after ownership moved to a callback. Demonstrate the duplicate counter first, then separately observe an actual original double-free target under ASan.",
+          "checklist": [
+            "Implement md_release(MDOwner) requiring owned exactly1, setting owned0 and incrementing releases once. Repeat release returns0 unchanged. Reject a release counter atUINT_MAX before state change. Build an allocation/failure schedule with caller, queue and callback owners and record every transfer."
+          ]
+        },
+        {
+          "id": "T63.07-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T63.07.c"
+          ],
+          "prompt": "Introduce reentrant destruction and partial object construction; define callback restrictions or use detached cleanup state so recursive calls cannot double release.",
+          "checklist": [
+            "Prove ownership conservation and exactly-one destructor call under every failure prefix. Explain why nulling one alias cannot revoke another copied raw pointer."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T63.08",
+      "title": "Observable work, timing and mitigation limits",
+      "objectives": [
+        "T63.08.a",
+        "T63.08.b",
+        "T63.08.c"
+      ],
+      "objective_text": {
+        "T63.08.a": "Derive and defend: Separate functional equality, source-level work count, emitted branches and measured timing. State memory-validity, compiler and CPU assumptions and residual cache/power/speculation channels.",
+        "T63.08.b": "Implement and investigate: Implement md_equal(a,b,n,steps) scanning all n bytes, accumulating XOR difference, reporting steps=n and returning equality. Empty spans compare equal without dereference. Compare with an intentionally early-exit mutant using synthetic secrets only. Inspect optimized code and measure distributions without treating equal loop counts as a universal constant-time guarantee.",
+        "T63.08.c": "Falsify and transfer: The early-exit mutant reports only one step for a first-byte mismatch, leaking a prefix relation. ASan can remain clean because the defect is confidentiality, not invalid memory access. Then Change optimization, vectorization and unequal-length policy; derive what remains observable and compare hardened library behavior only as an external benchmark, not a replacement for the first-principles implementation."
+      },
+      "projects": [
+        "PR-T63-08"
+      ],
+      "resource_ids": [
+        "R-B06-C11",
+        "R-B06-ASAN",
+        "R-B06-FORMAT"
+      ],
+      "variants": [
+        {
+          "id": "T63.08-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T63.08.a"
+          ],
+          "prompt": "Separate functional equality, source-level work count, emitted branches and measured timing. State memory-validity, compiler and CPU assumptions and residual cache/power/speculation channels.",
+          "checklist": [
+            "Inspect the emitted program; a branchless-looking source is not a complete timing proof."
+          ]
+        },
+        {
+          "id": "T63.08-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T63.08.b"
+          ],
+          "prompt": "The early-exit mutant reports only one step for a first-byte mismatch, leaking a prefix relation. ASan can remain clean because the defect is confidentiality, not invalid memory access.",
+          "checklist": [
+            "Implement md_equal(a,b,n,steps) scanning all n bytes, accumulating XOR difference, reporting steps=n and returning equality. Empty spans compare equal without dereference. Compare with an intentionally early-exit mutant using synthetic secrets only. Inspect optimized code and measure distributions without treating equal loop counts as a universal constant-time guarantee."
+          ]
+        },
+        {
+          "id": "T63.08-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T63.08.c"
+          ],
+          "prompt": "Change optimization, vectorization and unequal-length policy; derive what remains observable and compare hardened library behavior only as an external benchmark, not a replacement for the first-principles implementation.",
+          "checklist": [
+            "Separate functional equality, source-level work count, emitted branches and measured timing. State memory-validity, compiler and CPU assumptions and residual cache/power/speculation channels."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    }
+  ]
+}

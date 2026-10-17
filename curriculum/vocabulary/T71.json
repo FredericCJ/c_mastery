@@ -1,0 +1,411 @@
+{
+  "schema_version": 5,
+  "domain": "T71",
+  "recall": {
+    "define": "Using the protocol lab representations, define typestate, staged builder completeness, a session transition, hierarchical-state least common ancestor, orthogonal region, run-to-completion and a driver capability.",
+    "distinguish": "Compare nominal C wrappers, runtime state admission and language-enforced consuming transitions. Explain why copying a wrapper or retaining a raw device pointer can invalidate a stronger typestate claim.",
+    "apply": "Inject an interrupted driver transition while an orthogonal state region has a queued event. Derive rollback ownership and event order, then explain which invalid calls need diagnostics and which need runtime rejection."
+  },
+  "entries": [
+    {
+      "id": "V-T71-consuming-transition",
+      "term": "consuming transition",
+      "kind": "programming-model",
+      "definition": "A protocol operation that invalidates one admitted token and produces a token for the resulting state, or retains a separate recovery obligation.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the consuming transition contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-typestate-token",
+      "term": "typestate token",
+      "kind": "programming-model",
+      "definition": "A wrapper identifying the currently admitted operations on a live object; this C model checks its generation at runtime.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the typestate token contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-recovery-required-state",
+      "term": "recovery-required state",
+      "kind": "programming-model",
+      "definition": "A state recording that partial effects prevent nominal reuse until an explicit recovery operation establishes its postcondition.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the recovery-required state contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-presence-mask",
+      "term": "presence mask",
+      "kind": "programming-model",
+      "definition": "A bitset recording which required fields have been supplied, separately from whether their values are valid together.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the presence mask contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-staged-builder",
+      "term": "staged builder",
+      "kind": "programming-model",
+      "definition": "An interface that exposes different construction operations according to which configuration stage has been reached.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the staged builder contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-binary-session",
+      "term": "binary session",
+      "kind": "programming-model",
+      "definition": "A communication protocol between exactly two endpoints with a specified sequence of complementary actions.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the binary session contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-session-duality",
+      "term": "session duality",
+      "kind": "programming-model",
+      "definition": "The relation obtained by exchanging send and receive actions while preserving the corresponding protocol progression.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the session duality contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-hierarchical-state-machine",
+      "term": "hierarchical state machine",
+      "kind": "programming-model",
+      "definition": "A state machine whose nested active states share event handling and whose transitions have defined ancestor-based entry and exit behavior.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the hierarchical state machine contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-run-to-completion-step",
+      "term": "run-to-completion step",
+      "kind": "programming-model",
+      "definition": "A dispatch interval during which one admitted event is handled before another event begins dispatch on the same machine.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the run-to-completion step contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-external-self-transition",
+      "term": "external self transition",
+      "kind": "programming-model",
+      "definition": "A transition whose source and target are the same state but which still executes that state’s exit and entry actions.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the external self transition contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-internal-transition",
+      "term": "internal transition",
+      "kind": "programming-model",
+      "definition": "An event reaction that does not exit and reenter the active state.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the internal transition contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-active-object",
+      "term": "active object",
+      "kind": "programming-model",
+      "definition": "A stateful object that owns an event queue and processes admitted events through a serialized dispatch policy.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the active object contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-stackless-protothread",
+      "term": "stackless protothread",
+      "kind": "programming-model",
+      "definition": "A resumable function that stores its continuation label and persistent data explicitly instead of retaining its native call stack.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the stackless protothread contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-memory-behavior-tree",
+      "term": "memory behavior tree",
+      "kind": "programming-model",
+      "definition": "A behavior tree whose composites remember the child at which execution suspended and skip earlier completed children on the next tick.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the memory behavior tree contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-running-leaf",
+      "term": "running leaf",
+      "kind": "programming-model",
+      "definition": "A behavior-tree leaf whose action has started but has not yet returned a terminal outcome.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the running leaf contract before using it."
+      ]
+    },
+    {
+      "id": "V-T71-abort-callback",
+      "term": "abort callback",
+      "kind": "programming-model",
+      "definition": "An operation that releases or cancels the resources of a still-running behavior-tree action under a specified exactly-once policy.",
+      "authority": [
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the abort callback contract before using it."
+      ]
+    }
+  ]
+}

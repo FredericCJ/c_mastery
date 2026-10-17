@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "id": "PR-T69-11",
+  "exercise": "X-T69-011",
+  "anchor": "dispatch.reload",
+  "input_contract": "Implement DSHost reload/collect with current and one retired DSLoaded owner, integer state and non-wrapping generation0–3. Stage candidate migration from old schema/state, then atomically transfer ownership and publish state only on success. The previous module remains owned in retired until explicit collection. Reject reload while current/candidate borrows exist, retired remains occupied or generation is exhausted. Plugin1 preserves state; plugin2 doubles admitted state0–500. Add a failure-injecting loader backend model for collection failure without passing invalid real loader handles.",
+  "expected": "Starting state7, load schema1 then schema2: state becomes14, generation2, candidate becomes empty and the former module is retired. Collect releases retired. With old state600, migration rejects and retains state600, generation2, current and candidate ownership unchanged.",
+  "independent_oracle": "Use both actual original DSOs for the admitted synchronous protocol and a deterministic backend model for failure stages that cannot safely be induced through real invalid handles. Inject candidate load/migration/collection failure; enumerate all borrow counts0–4 and finite generations. Record exactly which steps commit and which require recovery. Never unload a running callback as an experiment.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "committed_state": 14,
+    "generation": 2,
+    "failed_migration_preserves": 600
+  },
+  "verification_method": "labs/dispatch/tests/verify_fixtures.py recomputes bounded arithmetic/ownership/authority expectations independently of reference C"
+}

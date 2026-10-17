@@ -1,0 +1,107 @@
+{
+  "id": "T75",
+  "domain": {
+    "family": "resilience",
+    "prefix": "RZ",
+    "phase": 12,
+    "strand": "service",
+    "research_gate": "research/v5/modern/resilience_research_gate.json",
+    "imports": {
+      "PR-T75-01": [
+        "io.deadline",
+        "io.async"
+      ],
+      "PR-T75-02": [
+        "containers.ring",
+        "conc.channel",
+        "io.reactor"
+      ],
+      "PR-T75-03": [
+        "containers.ring",
+        "io.deadline",
+        "measurement.capture"
+      ],
+      "PR-T75-04": [
+        "io.deadline",
+        "measurement.capture"
+      ],
+      "PR-T75-05": [
+        "io.deadline",
+        "communications.tcp_fault",
+        "measurement.capture"
+      ],
+      "PR-T75-06": [
+        "io.async",
+        "measurement.capture"
+      ],
+      "PR-T75-07": [
+        "io.async",
+        "communications.tcp_fault",
+        "measurement.capture"
+      ],
+      "PR-T75-08": [
+        "ipc.local",
+        "io.stream",
+        "measurement.capture"
+      ],
+      "PR-T75-09": [
+        "io.deadline",
+        "io.async",
+        "ipc.local",
+        "io.reactor",
+        "communications.tcp_fault",
+        "containers.ring",
+        "measurement.capture",
+        "conc.channel"
+      ]
+    },
+    "artifacts": [
+      {
+        "id": "flow.deadline",
+        "producer": "PR-T75-01",
+        "contract": "Bounded parent deadline/cancellation propagation with explicit live-parent and completion-acknowledgement obligations; cross-host remaining-budget interpretation declares transport delay assumptions.",
+        "critical_objectives": [
+          "T75.01.a",
+          "T75.01.b",
+          "T75.01.c"
+        ]
+      },
+      {
+        "id": "flow.limiter",
+        "producer": "PR-T75-04",
+        "contract": "Checked lazy token refill with explicit integral/fractional units, burst capacity, monotonic time and admission failure bookkeeping; concurrency and scheduling are separate.",
+        "critical_objectives": [
+          "T75.04.a",
+          "T75.04.b",
+          "T75.04.c"
+        ]
+      },
+      {
+        "id": "flow.breaker",
+        "producer": "PR-T75-06",
+        "contract": "Health state plus separate bounded permit ownership, stale-epoch completion isolation and explicit cooldown/identity exhaustion; no forced cancellation or automatic fairness.",
+        "critical_objectives": [
+          "T75.06.a",
+          "T75.06.b",
+          "T75.06.c"
+        ]
+      }
+    ],
+    "decisions": {
+      "PR-T75-09": {
+        "question": "Which overload and retry policy preserves the telemetry effect/delivery contract under bounded resources?",
+        "alternatives": [
+          "reject before effect with explicit retry ownership",
+          "commit into a durable bounded outbox then drain",
+          "lossy/coalescing telemetry with an explicit weaker observation contract"
+        ],
+        "discriminator": "Whether lost or repeated notifications are allowed, what survives reset, and which owner retains outstanding work determine admissibility before latency comparison.",
+        "reversal_trigger": "Effects become irreversible, arrival rate exceeds drain indefinitely or a consumer requires durable notification acknowledgement."
+      }
+    }
+  },
+  "new_executable_counts": {
+    "RZ": 9
+  },
+  "fixture_oracles": []
+}

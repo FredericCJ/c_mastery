@@ -1,0 +1,25 @@
+{
+  "id": "PR-T73-06",
+  "description": "Bounded work stealing with an explicit C memory-order proof",
+  "input": {
+    "case": "stealing"
+  },
+  "expected": {
+    "contract": "Push7,push8,pop,steal,steal returns OK,OK,8,7,EMPTY. Eight live entries fill capacity and a ninth push leaves state unchanged. Empty pop preserves its output canary. Starting quiescent top=bottom=SIZE_MAX-1 makes push return OVERFLOW. Two thieves plus owner process4000 distinct IDs exactly once in the supplied threaded anchor."
+  },
+  "cases": [
+    {
+      "id": "deque-ends",
+      "kind": "stealing",
+      "input": "++pss",
+      "expected": "s0,s0,v2,v1,s1,"
+    },
+    {
+      "id": "deque-capacity",
+      "kind": "stealing",
+      "input": "+++++++++p",
+      "expected": "s0,s0,s0,s0,s0,s0,s0,s0,s2,v8,"
+    }
+  ],
+  "verification_method": "Deque and supervisor rows have independent Python models; other cases are named C semantic anchors and require the written independent assessment."
+}

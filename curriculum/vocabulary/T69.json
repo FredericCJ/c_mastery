@@ -1,0 +1,623 @@
+{
+  "schema_version": 5,
+  "domain": "T69",
+  "recall": {
+    "define": "Define receiver/table association, invocation capability, authority attenuation and loaded-code borrow.",
+    "distinguish": "Distinguish capture mode from invocation mode, opaque concrete identity from runtime erasure and quiescence from merely zero active calls.",
+    "apply": "A copied inline callable destroys a resource twice and a cache retains an old plugin method after reload. Identify ownership failures and design a combined repair."
+  },
+  "entries": [
+    {
+      "id": "V-T69-receiver-table-association",
+      "term": "receiver/table association",
+      "kind": "programming-model",
+      "definition": "The invariant that each erased object is interpreted only by operations for its actual concrete representation.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-TRAIT",
+          "locator": "type.trait-object.intro and unsized: implementor pointer and virtual method table",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "nonnull pointer",
+          "distinction": "A nonnull pointer only excludes the null value. Receiver/table association additionally requires that every selected operation interprets the live receiver as its actual concrete representation; an unrelated nonnull table can still violate that contract."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the receiver/table association invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.01",
+        "X-T69-001"
+      ],
+      "misconception": "A nonnull table alone cannot prove the object type matches."
+    },
+    {
+      "id": "V-T69-nominal-registration",
+      "term": "nominal interface registration",
+      "kind": "programming-model",
+      "definition": "An explicit association between a named concrete type and a named interface implementation.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-TRAIT-DECL",
+          "locator": "items.traits.intro and impls",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "structural signature match",
+          "distinction": "Structural signature matching checks the available operation shapes. Nominal registration explicitly associates named type and interface identities; neither matching signatures nor registration alone proves behavioral laws such as associativity."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the nominal interface registration invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.01",
+        "X-T69-001"
+      ],
+      "misconception": "Matching signatures do not prove interface laws."
+    },
+    {
+      "id": "V-T69-erased-view",
+      "term": "erased interface view",
+      "kind": "programming-model",
+      "definition": "Borrowed access to a concrete receiver together with operations that can act on it without exposing its type to the consumer.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-TRAIT",
+          "locator": "type.trait-object.intro and unsized: implementor pointer and virtual method table",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "owned existential",
+          "distinction": "The view borrows its receiver and operation table and must end before either expires. An owned existential also carries responsibility for the hidden concrete value and its destruction; erasing a type does not transfer that responsibility automatically."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the erased interface view invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.02",
+        "X-T69-002"
+      ],
+      "misconception": "Erasure does not transfer ownership or extend lifetime."
+    },
+    {
+      "id": "V-T69-embedded-table",
+      "term": "embedded operation table pointer",
+      "kind": "programming-model",
+      "definition": "Dispatch metadata stored within each concrete owner rather than only in an external view.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-TRAIT",
+          "locator": "type.trait-object.intro and unsized: implementor pointer and virtual method table",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "fat pointer",
+          "distinction": "An embedded table pointer occupies storage in each concrete owner. The external fat-pointer representation carries receiver and metadata together in the view; these choices have different layouts and access costs but neither supplies automatic lifetime checking in C."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the embedded operation table pointer invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.02",
+        "X-T69-002"
+      ],
+      "misconception": "Embedding metadata changes owner layout, not automatic lifetime checking."
+    },
+    {
+      "id": "V-T69-operation-dictionary",
+      "term": "operation dictionary",
+      "kind": "programming-model",
+      "definition": "An explicit collection of functions supplied as evidence of supported operations to a generic algorithm.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-KINDS",
+          "locator": "4.1.1 Kinds",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "algebraic law",
+          "distinction": "A dictionary supplies callable operations with compatible declared types. An algebraic law constrains their behavior over admitted values; the presence of a combine callback does not establish associativity, identity or effect-free evaluation."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the operation dictionary invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.03",
+        "X-T69-003"
+      ],
+      "misconception": "A dictionary signature does not prove associativity."
+    },
+    {
+      "id": "V-T69-invocation-capability",
+      "term": "closure invocation capability",
+      "kind": "programming-model",
+      "definition": "The access mode needed to invoke a closure: shared observation, mutation or consumption of its environment.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-RUST",
+          "locator": "Call traits and coercions: FnOnce, FnMut, Fn and move capture note",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "capture mode",
+          "distinction": "Capture mode determines how environment values are acquired or borrowed. Invocation capability determines whether a call observes, mutates or consumes that environment; capturing a value by ownership does not by itself require consuming every invocation."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the closure invocation capability invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.04",
+        "X-T69-004"
+      ],
+      "misconception": "Value capture alone does not imply consuming invocation."
+    },
+    {
+      "id": "V-T69-capture-environment",
+      "term": "capture environment",
+      "kind": "programming-model",
+      "definition": "Stored or borrowed values on which a closure body depends in addition to its explicit arguments.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-RUST",
+          "locator": "Call traits and coercions: FnOnce, FnMut, Fn and move capture note",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "deep copy",
+          "distinction": "An environment records the values needed by the body, which may include borrowed pointers. Deep copying would recursively create independent owned referents under an explicit policy; copying an environment containing a pointer preserves the alias, not an independent referent."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the capture environment invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.04",
+        "X-T69-004"
+      ],
+      "misconception": "Copying a pointer capture does not copy its referent."
+    },
+    {
+      "id": "V-T69-invocation-thunk",
+      "term": "invocation thunk",
+      "kind": "programming-model",
+      "definition": "An adapter that reconstructs the concrete call contract behind an erased callable signature.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-REF",
+          "locator": "func.wrap.ref.class paragraphs1–3: thunk and bound entity",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "arbitrary function cast",
+          "distinction": "A thunk is an actual adapter with the erased interface compatible function type; it decodes or recovers the concrete state and makes a correctly typed call. Casting an unrelated function pointer does not adapt its calling contract or make an incompatible call valid."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the invocation thunk invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.05",
+        "X-T69-005"
+      ],
+      "misconception": "A thunk must use a compatible declared function type."
+    },
+    {
+      "id": "V-T69-erased-call-owner",
+      "term": "erased callable owner",
+      "kind": "programming-model",
+      "definition": "A callable wrapper responsible for capture storage and explicit destruction/movement under its contract.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-MOVE",
+          "locator": "func.wrap.move.class paragraphs1–2: wrapper and small-object recommendation",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "borrowed callable",
+          "distinction": "The owner controls capture storage and the explicit move/destruction obligation. A borrowed callable provides invocation without taking that ownership; even an owning wrapper can retain borrowed references inside its capture whose lifetimes must be established separately."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the erased callable owner invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.05",
+        "X-T69-005"
+      ],
+      "misconception": "An owning wrapper can still contain a dangling borrowed referent."
+    },
+    {
+      "id": "V-T69-ordered-dispatch-key",
+      "term": "ordered dispatch key",
+      "kind": "programming-model",
+      "definition": "A tuple of dynamic argument identities whose order selects a registered operation.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-TRAIT-DECL",
+          "locator": "items.traits.intro and impls",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "unordered pair",
+          "distinction": "The key preserves the positions of dynamic argument identities, so (A,B) and (B,A) select separate entries. An unordered pair discards that order and is valid only when the registered operation and argument conversion explicitly support the resulting symmetry."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the ordered dispatch key invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.06",
+        "X-T69-006"
+      ],
+      "misconception": "Swapping argument types is not generally semantics-preserving."
+    },
+    {
+      "id": "V-T69-dispatch-cache-epoch",
+      "term": "dispatch cache epoch",
+      "kind": "programming-model",
+      "definition": "A version included in cached method decisions so mutations of the method universe can invalidate prior hits and misses.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-TRAIT-DECL",
+          "locator": "items.traits.intro and impls",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "cache hit count",
+          "distinction": "The epoch participates in cache validity and changes when the method universe changes, invalidating hits and misses. A hit count is diagnostic usage accounting and cannot identify the method-table version; epoch reuse needs retirement or another proven stale-entry policy."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the dispatch cache epoch invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.06",
+        "X-T69-006"
+      ],
+      "misconception": "A finite epoch must not silently make old entries current after wraparound."
+    },
+    {
+      "id": "V-T69-intrusive-membership",
+      "term": "intrusive membership",
+      "kind": "programming-model",
+      "definition": "Participation in a container through link storage embedded in the participating object.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-C-POINTERS",
+          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "payload ownership",
+          "distinction": "Embedded links establish container membership and constrain movement while linked. Payload ownership determines who may destroy or reclaim the object; unlinking may end membership without releasing payload ownership, and a container must not infer ownership merely from a link."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the intrusive membership invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.07",
+        "X-T69-007"
+      ],
+      "misconception": "The link does not authorize destroying or moving its payload."
+    },
+    {
+      "id": "V-T69-initial-member-recovery",
+      "term": "initial-member recovery",
+      "kind": "programming-model",
+      "definition": "Conversion of a pointer to an actual initial struct member back to its live containing struct under the first-member rule.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-C-POINTERS",
+          "locator": "6.3.2.3p1–2 and7–8 Pointer conversions",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "arbitrary-offset container_of",
+          "distinction": "Initial-member recovery starts from the actual first member of a still-live containing struct. Arbitrary-offset container_of subtracts a noninitial member offset and needs its own compiler/platform justification; a standalone sentinel of the member type has no containing payload to recover."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the initial-member recovery invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.07",
+        "X-T69-007"
+      ],
+      "misconception": "A standalone sentinel of the member type has no such containing payload."
+    },
+    {
+      "id": "V-T69-opaque-module-lease",
+      "term": "opaque module lease",
+      "kind": "programming-model",
+      "definition": "A live factory-issued reference whose hidden state may be used until its explicit close operation.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-OPAQUE",
+          "locator": "type.impl-trait.return.intro and constraint-body",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "generative type identity",
+          "distinction": "The lease is a runtime lifetime protocol for one factory-issued instance and ends at close. Generative type identity would distinguish fresh abstract types at the language level; an opaque C pointer type and a reused address do not create such distinct types or validate an expired lease."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the opaque module lease invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.08",
+        "X-T69-008"
+      ],
+      "misconception": "A reused address does not distinguish an expired lease."
+    },
+    {
+      "id": "V-T69-authority-attenuation",
+      "term": "authority attenuation",
+      "kind": "programming-model",
+      "definition": "Delegation that grants only a subset of the source authority under an enforcing boundary.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-SEL4",
+          "locator": "Background: capability definition, CNodes/CSlots and per-capability rights",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "permission amplification",
+          "distinction": "Attenuation removes rights from an existing authority under the enforcing protocol. Amplification adds authority that the source did not possess; the subset check must reject it, and caller-editable C fields alone are not an unforgeable enforcement boundary."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the authority attenuation invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.09",
+        "X-T69-009"
+      ],
+      "misconception": "A caller-editable rights struct is not by itself unforgeable."
+    },
+    {
+      "id": "V-T69-code-borrow",
+      "term": "loaded-code borrow",
+      "kind": "programming-model",
+      "definition": "An outstanding right to use a loaded module API or callback while its code/data owner remains loaded.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-DLOPEN",
+          "locator": "DESCRIPTION: path lookup, RTLD_NOW and RTLD_LOCAL",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "mapped address",
+          "distinction": "A loaded-code borrow is a protocol obligation to keep the owning module valid until all derived API and callback uses end. A mapped address describes current virtual-memory state; continued mapping after logical close does not renew the borrow or authorize stale calls."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the loaded-code borrow invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.10",
+        "X-T69-010"
+      ],
+      "misconception": "A retained mapping after close does not renew the protocol lifetime."
+    },
+    {
+      "id": "V-T69-reload-quiescence",
+      "term": "reload quiescence",
+      "kind": "programming-model",
+      "definition": "A declared state in which no admitted user can still invoke or access code/data scheduled for retirement.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-DLOPEN",
+          "locator": "DESCRIPTION: path lookup, RTLD_NOW and RTLD_LOCAL",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "no active stack frame",
+          "distinction": "Quiescence excludes every admitted future use of retiring code and data, including held API borrows and queued callbacks. Having no active stack frame excludes only calls executing at that instant and can leave future accesses possible."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the reload quiescence invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.11",
+        "X-T69-011"
+      ],
+      "misconception": "Queued callbacks and retained data may still prevent retirement."
+    },
+    {
+      "id": "V-T69-retired-module-owner",
+      "term": "retired module owner",
+      "kind": "programming-model",
+      "definition": "Explicit retained ownership of an old module after a new one is committed and before cleanup completes.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-DISPATCH-DLOPEN",
+          "locator": "DESCRIPTION: path lookup, RTLD_NOW and RTLD_LOCAL",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 protocol and bounded language/library comparison",
+          "note": "Original C representation protocol; no automatic language-level guarantee or foreign ABI is inherited."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "failed migration",
+          "distinction": "The retired owner records cleanup still owed after a successful replacement commit. Failed migration occurs before that commit and preserves the original ownership/state; failure to collect a retired module must not be reported as though migration never succeeded."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the retired module owner invariant before publishing the object or callback."
+      ],
+      "related": [
+        "T69.11",
+        "X-T69-011"
+      ],
+      "misconception": "Cleanup failure after commit does not mean the old state was never replaced."
+    }
+  ]
+}

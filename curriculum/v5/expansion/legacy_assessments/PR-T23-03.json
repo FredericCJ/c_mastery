@@ -1,0 +1,887 @@
+{
+  "schema_version": 1,
+  "project": "PR-T23-03",
+  "domain": "T23",
+  "title": "Mappings and relocatable shared records — explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T23.md",
+        "sha256": "d9ae48b509898d345050f9d4b6b5398ffa8d61c6c12dea664d13f7258ca7abe7",
+        "passages": [
+          "All assigned topic teaching and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T23-03.md",
+        "sha256": "42865edcea216e533184390000c19cab63b09ec156937ccc57f80f5891dd1e70",
+        "passages": [
+          "Metadata, Contract, Steps, Failure cases, Acceptance, Hints and changed-condition work"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T23-03.json",
+        "sha256": "bf5aa5cc568fbf86dc1ecf99a01c52d5071756758b43ea33fce3786dee982b43",
+        "passages": [
+          "Complete synthetic inputs and expected outputs"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "Exact branches used by the assigned synthetic fixture; not target execution"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/README.md",
+        "sha256": "ea69b7b3b3fc358afd7cc62e4f64c8e4eb68e07a1a8cb58e4b8e117ba3bcf580",
+        "passages": [
+          "Named implementation contracts and explicit execution/physical limitations"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/CONTRACTS.md",
+        "sha256": "37b5c55cf0473e98071ee1221cf5667e739923b227f22ccec6b80a49797d10c5",
+        "passages": [
+          "All operation contracts, preconditions, failure and ownership boundaries"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T23.md",
+        "anchors": [
+          "T23.08",
+          "T23.09",
+          "T23.10"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-HS-05",
+      "U-T23-03-02",
+      "U-T23-03-03",
+      "U-T23-03-04"
+    ],
+    "inspection_limits": [
+      "All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.",
+      "Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.",
+      "Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.",
+    "target": "Unprivileged Linux x86-64 for original hosted experiments; pure C memory models and restricted-profile target code retain their own contracts. Kernel execution only in a disposable VM.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.",
+      "Device/VM/tool unavailability is a missing observation, not a passing result."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LRUN-COND",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "DESCRIPTION: mutex release/reacquisition, predicate, dynamic binding, cancellation and absolute timeout"
+      ]
+    },
+    {
+      "id": "R-LRUN-MMAP",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "DESCRIPTION: mapping extent, offset, descriptor lifetime and protection",
+        "MAP_SHARED, MAP_PRIVATE, MAP_ANONYMOUS, MAP_FIXED_NOREPLACE and MAP_LOCKED"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
+    "Historical reading metadata is not promoted to a new source-inspection claim.",
+    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T23-03.md",
+    "fixtures/systems/PR-T23-03.json",
+    "tools/verify_systems_fixtures.py",
+    "labs/hosted_systems/README.md"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contracts and bounded partial anchors",
+    "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
+    "tests": [
+      "hosted_systems.mapping"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T23-03-T23.08.a",
+      "title": "Distinguish mappings, pages, faults, address space, and physical residency.",
+      "objective": "T23.08.a",
+      "families": [
+        "A",
+        "C",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-MMAP",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mapping extent, offset, descriptor lifetime and protection",
+            "MAP_SHARED, MAP_PRIVATE, MAP_ANONYMOUS, MAP_FIXED_NOREPLACE and MAP_LOCKED"
+          ]
+        }
+      ],
+      "task": "Map three anonymous pages without MAP_FIXED, touch only the middle page, and record address extent plus available residency/fault observations. Reject a report that equates successful mapping or one RSS sample with three committed physical pages.",
+      "purpose": "Virtual allocation proves current physical residency.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Virtual allocation proves current physical residency. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Virtual allocation proves current physical residency.",
+        "D2": "Map three anonymous pages without MAP_FIXED, touch only the middle page, and record address extent plus available residency/fault observations. Reject a report that equates successful mapping or one RSS sample with three committed physical pages.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Repeat with a file-backed private mapping and identify which pages may share storage before and after a write."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Extent, fault counts and residency are separate observations with sampling/platform limits; no memory-pressure exhaustion experiment is required.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Extent, fault counts and residency are separate observations with sampling/platform limits; no memory-pressure exhaustion experiment is required. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Repeat with a file-backed private mapping and identify which pages may share storage before and after a write. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate address-space reservation, backing and observed residency.",
+        "Ask which observation proves a page exists now and which says nothing about future faults or reclamation."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-03-T23.08.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Repeat with a file-backed private mapping and identify which pages may share storage before and after a write."
+        }
+      ],
+      "assessor_anchor": "#t2308a",
+      "facet_scope": {
+        "teaching": "Retained T23.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T23-03-T23.08.b",
+      "title": "Analyze anonymous mappings, copy-on-write, and protection changes.",
+      "objective": "T23.08.b",
+      "families": [
+        "A",
+        "C",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-MMAP",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mapping extent, offset, descriptor lifetime and protection",
+            "MAP_SHARED, MAP_PRIVATE, MAP_ANONYMOUS, MAP_FIXED_NOREPLACE and MAP_LOCKED"
+          ]
+        }
+      ],
+      "task": "Fork after initializing a private anonymous mapping; change one child byte and compare after wait. In a separate disposable child make a page inaccessible and observe only the classified termination, with core dumps disabled in that child.",
+      "purpose": "Copy-on-write and page protection are ISO C pointer permissions.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Copy-on-write and page protection are ISO C pointer permissions. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Copy-on-write and page protection are ISO C pointer permissions.",
+        "D2": "Fork after initializing a private anonymous mapping; change one child byte and compare after wait. In a separate disposable child make a page inaccessible and observe only the classified termination, with core dumps disabled in that child.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Replace MAP_PRIVATE with MAP_SHARED for the byte update while keeping synchronization explicit."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Private mapping changes and protection faults are OS mechanisms. The fault experiment demonstrates denied access, not a defined ISO C result or exploit.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Private mapping changes and protection faults are OS mechanisms. The fault experiment demonstrates denied access, not a defined ISO C result or exploit. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace MAP_PRIVATE with MAP_SHARED for the byte update while keeping synchronization explicit. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate address-space reservation, backing and observed residency.",
+        "Ask which observation proves a page exists now and which says nothing about future faults or reclamation."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-03-T23.08.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace MAP_PRIVATE with MAP_SHARED for the byte update while keeping synchronization explicit."
+        }
+      ],
+      "assessor_anchor": "#t2308b",
+      "facet_scope": {
+        "teaching": "Retained T23.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T23-03-T23.08.c",
+      "title": "Separate allocated virtual space from committed or resident memory.",
+      "objective": "T23.08.c",
+      "families": [
+        "A",
+        "C",
+        "F",
+        "H",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-MMAP",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mapping extent, offset, descriptor lifetime and protection",
+            "MAP_SHARED, MAP_PRIVATE, MAP_ANONYMOUS, MAP_FIXED_NOREPLACE and MAP_LOCKED"
+          ]
+        }
+      ],
+      "task": "Write a memory-accounting ledger for mapped bytes, touched pages, resident samples and process limits. Run a bounded untouched/touched comparison with fixed maximum 16 pages; include measurement noise and page-size discovery.",
+      "purpose": "A larger virtual mapping always causes the same physical allocation increase.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A larger virtual mapping always causes the same physical allocation increase. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A larger virtual mapping always causes the same physical allocation increase.",
+        "D2": "Write a memory-accounting ledger for mapped bytes, touched pages, resident samples and process limits. Run a bounded untouched/touched comparison with fixed maximum 16 pages; include measurement noise and page-size discovery.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Change page size or huge-page availability at analysis depth and state the revised accounting model without changing host policy."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "The observations support only the measured mapping/workload and chosen accounting interface; overcommit policy and future faults remain separate.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "The observations support only the measured mapping/workload and chosen accounting interface; overcommit policy and future faults remain separate. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Change page size or huge-page availability at analysis depth and state the revised accounting model without changing host policy. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate address-space reservation, backing and observed residency.",
+        "Ask which observation proves a page exists now and which says nothing about future faults or reclamation."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-03-T23.08.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change page size or huge-page availability at analysis depth and state the revised accounting model without changing host policy."
+        }
+      ],
+      "assessor_anchor": "#t2308c",
+      "facet_scope": {
+        "teaching": "Retained T23.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T23-03-T23.09.a",
+      "title": "Define mapping ownership, bounds, resizing, and cleanup.",
+      "objective": "T23.09.a",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-MMAP",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mapping extent, offset, descriptor lifetime and protection",
+            "MAP_SHARED, MAP_PRIVATE, MAP_ANONYMOUS, MAP_FIXED_NOREPLACE and MAP_LOCKED"
+          ]
+        }
+      ],
+      "task": "Implement an owned mapping descriptor carrying base, mapped length, logical file extent and cleanup state. Reject zero length, unaligned file offset and overflowing range before mmap; closing its fd must not invalidate a successful mapping.",
+      "purpose": "Descriptor and mapping lifetimes are identical.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.09 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Descriptor and mapping lifetimes are identical. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Descriptor and mapping lifetimes are identical.",
+        "D2": "Implement an owned mapping descriptor carrying base, mapped length, logical file extent and cleanup state. Reject zero length, unaligned file offset and overflowing range before mmap; closing its fd must not invalidate a successful mapping.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Add a remap operation that may move the base and invalidate all borrowed views explicitly."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Each successful acquisition has one cleanup; byte access is checked against current contract extent, not merely rounded mapped pages.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Each successful acquisition has one cleanup; byte access is checked against current contract extent, not merely rounded mapped pages. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a remap operation that may move the base and invalidate all borrowed views explicitly. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Keep logical file extent distinct from rounded mapping extent.",
+        "A successful mapping owns a separate lifetime; closing its descriptor and truncating its backing file are different transitions."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-03-T23.09.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a remap operation that may move the base and invalidate all borrowed views explicitly."
+        }
+      ],
+      "assessor_anchor": "#t2309a",
+      "facet_scope": {
+        "teaching": "Retained T23.09 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T23-03-T23.09.b",
+      "title": "Compare mapped access with explicit read/write behavior.",
+      "objective": "T23.09.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-MMAP",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mapping extent, offset, descriptor lifetime and protection",
+            "MAP_SHARED, MAP_PRIVATE, MAP_ANONYMOUS, MAP_FIXED_NOREPLACE and MAP_LOCKED"
+          ]
+        }
+      ],
+      "task": "Compare explicit reads and mapped reads over the same bounded file, including EOF inside a requested record. Report syscall errors versus process fault risks and access patterns, preserving an equivalent validation contract.",
+      "purpose": "Mapped access is simply read without a system call and without new failure modes.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.09 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Mapped access is simply read without a system call and without new failure modes. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Mapped access is simply read without a system call and without new failure modes.",
+        "D2": "Compare explicit reads and mapped reads over the same bounded file, including EOF inside a requested record. Report syscall errors versus process fault risks and access patterns, preserving an equivalent validation contract.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Change the workload to sparse random access and justify which measurement and failure controls must be repeated."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Mapping introduces address/lifetime and asynchronous file-size assumptions; a faster trace cannot excuse weaker bounds or error reporting.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Mapping introduces address/lifetime and asynchronous file-size assumptions; a faster trace cannot excuse weaker bounds or error reporting. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Change the workload to sparse random access and justify which measurement and failure controls must be repeated. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Keep logical file extent distinct from rounded mapping extent.",
+        "A successful mapping owns a separate lifetime; closing its descriptor and truncating its backing file are different transitions."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-03-T23.09.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Change the workload to sparse random access and justify which measurement and failure controls must be repeated."
+        }
+      ],
+      "assessor_anchor": "#t2309b",
+      "facet_scope": {
+        "teaching": "Retained T23.09 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T23-03-T23.09.c",
+      "title": "Analyze truncation, synchronization, and fault cases.",
+      "objective": "T23.09.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-MMAP",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mapping extent, offset, descriptor lifetime and protection",
+            "MAP_SHARED, MAP_PRIVATE, MAP_ANONYMOUS, MAP_FIXED_NOREPLACE and MAP_LOCKED"
+          ]
+        }
+      ],
+      "task": "In an original disposable child map two pages of a temporary file, coordinate parent truncation to one page, then access only the second mapped page. Capture the child status; keep a nontruncated control and cleanup all handles.",
+      "purpose": "Mapping fixes the file size until unmap.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.09 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Mapping fixes the file size until unmap. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Mapping fixes the file size until unmap.",
+        "D2": "In an original disposable child map two pages of a temporary file, coordinate parent truncation to one page, then access only the second mapped page. Capture the child status; keep a nontruncated control and cleanup all handles.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Replace truncation with another process writing within bounds and explain why synchronization and data consistency become different obligations."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "On the selected Linux mapping contract the beyond-file access can SIGBUS; fault classification and containment are required. SIGBUS is not arbitrary code execution.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "On the selected Linux mapping contract the beyond-file access can SIGBUS; fault classification and containment are required. SIGBUS is not arbitrary code execution. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace truncation with another process writing within bounds and explain why synchronization and data consistency become different obligations. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Keep logical file extent distinct from rounded mapping extent.",
+        "A successful mapping owns a separate lifetime; closing its descriptor and truncating its backing file are different transitions."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-03-T23.09.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace truncation with another process writing within bounds and explain why synchronization and data consistency become different obligations."
+        }
+      ],
+      "assessor_anchor": "#t2309c",
+      "facet_scope": {
+        "teaching": "Retained T23.09 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T23-03-T23.10.a",
+      "title": "Establish layout, initialization, and interprocess synchronization contracts.",
+      "objective": "T23.10.a",
+      "families": [
+        "B",
+        "C",
+        "F",
+        "G",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-COND",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mutex release/reacquisition, predicate, dynamic binding, cancellation and absolute timeout"
+          ]
+        },
+        {
+          "id": "R-LRUN-MMAP",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mapping extent, offset, descriptor lifetime and protection",
+            "MAP_SHARED, MAP_PRIVATE, MAP_ANONYMOUS, MAP_FIXED_NOREPLACE and MAP_LOCKED"
+          ]
+        }
+      ],
+      "task": "Define a fixed shared record with version, byte length, state and payload offsets. Give creation one owner and use an explicitly process-shared synchronization contract for publication. Inject a reader before initialization commits.",
+      "purpose": "MAP_SHARED makes metadata updates transactional.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.10 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "MAP_SHARED makes metadata updates transactional. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: MAP_SHARED makes metadata updates transactional.",
+        "D2": "Define a fixed shared record with version, byte length, state and payload offsets. Give creation one owner and use an explicitly process-shared synchronization contract for publication. Inject a reader before initialization commits.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Add a second concurrent initializer and derive a winner/cleanup protocol before allowing publication."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Initialization and publication require a protocol; readers reject uncommitted or incompatible state. Atomics need an applicable interprocess implementation contract, not an unsupported portable-C claim.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Initialization and publication require a protocol; readers reject uncommitted or incompatible state. Atomics need an applicable interprocess implementation contract, not an unsupported portable-C claim. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a second concurrent initializer and derive a winner/cleanup protocol before allowing publication. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Choose one initializer and one explicit publication event.",
+        "Offsets solve address relocation, while process-shared synchronization and owner-death policy solve different problems."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-03-T23.10.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a second concurrent initializer and derive a winner/cleanup protocol before allowing publication."
+        }
+      ],
+      "assessor_anchor": "#t2310a",
+      "facet_scope": {
+        "teaching": "Retained T23.10 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T23-03-T23.10.b",
+      "title": "Avoid process-local pointers in portable shared representations.",
+      "objective": "T23.10.b",
+      "families": [
+        "B",
+        "C",
+        "F",
+        "G",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-COND",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mutex release/reacquisition, predicate, dynamic binding, cancellation and absolute timeout"
+          ]
+        },
+        {
+          "id": "R-LRUN-MMAP",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mapping extent, offset, descriptor lifetime and protection",
+            "MAP_SHARED, MAP_PRIVATE, MAP_ANONYMOUS, MAP_FIXED_NOREPLACE and MAP_LOCKED"
+          ]
+        }
+      ],
+      "task": "Encode the record twice into distinct byte arrays mapped at unrelated bases. Validate offset<=extent and length<=extent-offset before forming views; compare logical fields with a bytewise oracle and reject offset wrap.",
+      "purpose": "A process-local pointer is a portable shared-memory representation.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.10 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A process-local pointer is a portable shared-memory representation. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A process-local pointer is a portable shared-memory representation.",
+        "D2": "Encode the record twice into distinct byte arrays mapped at unrelated bases. Validate offset<=extent and length<=extent-offset before forming views; compare logical fields with a bytewise oracle and reject offset wrap.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Move to an opposite-endian serialized record and replace native scalar loads with explicit decoding."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Checked offsets relocate; pointer bits and native structure padding do not form a cross-process/cross-ABI wire format.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Checked offsets relocate; pointer bits and native structure padding do not form a cross-process/cross-ABI wire format. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Move to an opposite-endian serialized record and replace native scalar loads with explicit decoding. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Choose one initializer and one explicit publication event.",
+        "Offsets solve address relocation, while process-shared synchronization and owner-death policy solve different problems."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-03-T23.10.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Move to an opposite-endian serialized record and replace native scalar loads with explicit decoding."
+        }
+      ],
+      "assessor_anchor": "#t2310b",
+      "facet_scope": {
+        "teaching": "Retained T23.10 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T23-03-T23.10.c",
+      "title": "Define ownership and cleanup after participant failure.",
+      "objective": "T23.10.c",
+      "families": [
+        "B",
+        "C",
+        "F",
+        "G",
+        "I",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-COND",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mutex release/reacquisition, predicate, dynamic binding, cancellation and absolute timeout"
+          ]
+        },
+        {
+          "id": "R-LRUN-MMAP",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mapping extent, offset, descriptor lifetime and protection",
+            "MAP_SHARED, MAP_PRIVATE, MAP_ANONYMOUS, MAP_FIXED_NOREPLACE and MAP_LOCKED"
+          ]
+        }
+      ],
+      "task": "Kill only the original participant child at each declared initialization/publication state. Define abandoned-record recovery, lock-owner death handling and who unlinks the shared object; never reset a live peer's state merely after a timeout.",
+      "purpose": "A participant timeout proves it can no longer use shared storage.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T23.10 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T23-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A participant timeout proves it can no longer use shared storage. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A participant timeout proves it can no longer use shared storage.",
+        "D2": "Kill only the original participant child at each declared initialization/publication state. Define abandoned-record recovery, lock-owner death handling and who unlinks the shared object; never reset a live peer's state merely after a timeout.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Permit restart with reused process identifiers and add a generation or session identity that does not rely on PID uniqueness over time."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Failure detection is not quiescence. Recovery needs ownership fencing or a process-shared robust contract and consistency repair, with uncertain states retained.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Failure detection is not quiescence. Recovery needs ownership fencing or a process-shared robust contract and consistency repair, with uncertain states retained. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Permit restart with reused process identifiers and add a generation or session identity that does not rely on PID uniqueness over time. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Choose one initializer and one explicit publication event.",
+        "Offsets solve address relocation, while process-shared synchronization and owner-death policy solve different problems."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T23-03-T23.10.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Permit restart with reused process identifiers and add a generation or session identity that does not rely on PID uniqueness over time."
+        }
+      ],
+      "assessor_anchor": "#t2310c",
+      "facet_scope": {
+        "teaching": "Retained T23.10 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T23-03.md",
+  "status": {
+    "content": "authored",
+    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite tests do not prove absolute mastery.",
+      "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
+      "Historical optional labels do not exclude required expansion work."
+    ]
+  }
+}

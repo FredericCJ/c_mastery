@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "PR-T75-06",
+  "exercise": "X-T75-006",
+  "anchor": "resilience.gate",
+  "input_contract": "Implement RZGate with separate closed/open/half-open health state and active-permit limit1..2. Two consecutive backend failures open for4 ticks; a single half-open probe decides recovery. Each permit carries owner, slot and nonwrapping generation; completion also uses its saved admission epoch so an old success cannot heal a new open period. Add a sliding-window failure-rate policy and a two-tenant bulkhead variant with explicitly reserved capacity, retaining neutral client-error outcomes.",
+  "expected": "With limit1, a second simultaneous admission returns BUSY even while CLOSED. Two classified failures open. An older outstanding success releases capacity but leaves the newer OPEN state unchanged. At cooldown equality one probe may enter, a second is BUSY, and successful probe closes. Repeated completion is STALE.",
+  "independent_oracle": "Enumerate admit/fail/succeed/neutral sequences through each finite generation. Test old admission before two failures, then a late success after OPEN. Check capacity and exactly-once release after every event. Use an original synthetic overload trace to demonstrate the missing-limit mutant permits excess work; the stale-epoch mutant reopens traffic after a declared trip. Observe counters/status only, not external service load.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "states": [
+      "CLOSED",
+      "OPEN",
+      "OPEN",
+      "HALF_OPEN",
+      "CLOSED"
+    ],
+    "limit1_second": "BUSY"
+  }
+}

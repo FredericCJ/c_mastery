@@ -1,0 +1,386 @@
+{
+  "schema_version": 5,
+  "domain": "T72",
+  "recall": {
+    "define": "Using the coroutine representations, define a suspended frame, continuation, defunctionalized tag, yield boundary, fiber stack, parser commitment, packrat memo entry and exactly-once completion.",
+    "distinguish": "Distinguish stackless resumable state from a separate fiber stack, callback cancellation intent from quiescent disarm, and parser backtracking from committed failure. Identify the owner of every suspended borrow.",
+    "apply": "Cancel an async frame after partial progress while a notification is queued, then transfer the parser to a mutable input window. Revise frame lifetime and memo invalidation arguments and construct a stale-resumption counterexample."
+  },
+  "entries": [
+    {
+      "id": "V-T72-pull-iterator",
+      "term": "pull iterator",
+      "kind": "programming-model",
+      "definition": "An interface in which the consumer requests each next value, allowing demand to control producer progress.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the pull iterator contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-iterator-fusion",
+      "term": "iterator fusion",
+      "kind": "programming-model",
+      "definition": "Combining iterator stages while preserving their value, consumption, evaluation and failure contracts.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the iterator fusion contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-internal-iteration",
+      "term": "internal iteration",
+      "kind": "programming-model",
+      "definition": "Iteration in which an operation drives traversal and invokes a consumer callback, including an explicitly typed early-exit policy.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the internal iteration contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-volcano-operator",
+      "term": "Volcano operator",
+      "kind": "programming-model",
+      "definition": "A query-processing operator with an open/next/close interface that produces values on downstream demand.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the Volcano operator contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-coroutine-frame",
+      "term": "coroutine frame",
+      "kind": "programming-model",
+      "definition": "Storage holding the control state and variables that must remain live across suspension.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the coroutine frame contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-generator-suspension",
+      "term": "generator suspension",
+      "kind": "programming-model",
+      "definition": "A point at which a generator returns a value or pending status while retaining the state needed for later progress.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the generator suspension contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-stackful-fiber",
+      "term": "stackful fiber",
+      "kind": "programming-model",
+      "definition": "A cooperative execution context with its own retained call stack and an explicitly specified context-switch ABI.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the stackful fiber contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-fiber-fake-stack",
+      "term": "fiber fake stack",
+      "kind": "programming-model",
+      "definition": "Sanitizer-managed storage that may hold locals for use-after-return detection independently of the architectural stack pointer.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the fiber fake stack contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-defunctionalization",
+      "term": "defunctionalization",
+      "kind": "programming-model",
+      "definition": "Replacing a finite family of continuation functions with tagged data describing their environments and a dispatcher interpreting those tags.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the defunctionalization contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-trampoline",
+      "term": "trampoline",
+      "kind": "programming-model",
+      "definition": "An iterative dispatcher that advances explicit continuation states without requiring one native recursive call per logical step.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the trampoline contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-parser-combinator",
+      "term": "parser combinator",
+      "kind": "programming-model",
+      "definition": "An operation that constructs a parser by composing smaller parsers under declared consumption and failure semantics.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the parser combinator contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-ordered-choice",
+      "term": "ordered choice",
+      "kind": "programming-model",
+      "definition": "A parsing operation that selects the first successful alternative and retries later alternatives only under its declared mismatch policy.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the ordered choice contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-nullable-repetition",
+      "term": "nullable repetition",
+      "kind": "programming-model",
+      "definition": "Repetition of a parser that can succeed without consuming input, requiring an explicit policy to prevent nonprogress.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the nullable repetition contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-packrat-memoization",
+      "term": "packrat memoization",
+      "kind": "programming-model",
+      "definition": "Caching parsing results by rule and input position together with every other semantic dependency admitted by the cache contract.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the packrat memoization contract before using it."
+      ]
+    },
+    {
+      "id": "V-T72-single-shot-continuation",
+      "term": "single-shot continuation",
+      "kind": "programming-model",
+      "definition": "A resumable control-and-environment value whose contract permits at most one successful consumption.",
+      "authority": [
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "inspection": "registry"
+        }
+      ],
+      "misconception": "The representation or name alone does not establish the ownership, failure or language-level guarantee.",
+      "edition_notes": [
+        {
+          "edition": "C17 model",
+          "note": "Original laboratory contract; ISO C, runtime checks and ABI extensions are distinguished explicitly."
+        }
+      ],
+      "distinguish_from": [],
+      "avoid": [],
+      "idiom": [
+        "State the single-shot continuation contract before using it."
+      ]
+    }
+  ]
+}

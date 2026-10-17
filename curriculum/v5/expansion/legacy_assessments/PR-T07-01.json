@@ -1,0 +1,773 @@
+{
+  "schema_version": 1,
+  "project": "PR-T07-01",
+  "domain": "T07",
+  "title": "Reconstruct the four-stage build — explicit depth assessments",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T07.md",
+        "sha256": "3c9ba94853f7e4e0274fc9f61279f533fa06d90024274913c53aa2289326e707",
+        "passages": [
+          "Topic teaching passages and reading guidance for T07.01, T07.02, T07.03"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T07-01.md",
+        "sha256": "1f62897bd05ef8d6b025585039e39b2ab096b3a3701b14b7048a16a0212ecf7b",
+        "passages": [
+          "Contract, Steps, Failure cases, Acceptance and linked-objective checklist"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T07-01.json",
+        "sha256": "a2a61662e64580b0f79d8ea7b872f8a2a92edefd66eac688d5ce06b2709c1cb9",
+        "passages": [
+          "Complete synthetic fixture and expected values"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "oracle branches used by this fixture; synthetic reference is not target execution"
+        ]
+      },
+      {
+        "path": "labs/foundations/tests/negative_compile.py",
+        "sha256": "1b1753c4d82e4b6131640d1214c9fcee9ae642d3f3772a7fcce85cd749dcdf00",
+        "passages": [
+          "Four positive/constraint compilation cases; no whole-build assessment"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T07.md",
+        "anchors": [
+          "T07.01",
+          "T07.02",
+          "T07.03"
+        ]
+      }
+    ],
+    "units": [
+      "U-T07-01-01",
+      "U-T07-01-02",
+      "U-T07-01-03"
+    ],
+    "inspection_limits": [
+      "Project contract/steps/checklists and module teaching inspected; source registers are not treated as actual book inspections.",
+      "Unit objective/test links and selected operation steps inspected; no fresh complete historical portfolio review.",
+      "No new execution or independent learner assessment in this authoring wave."
+    ]
+  },
+  "environment": {
+    "language": "Active C17 baseline. C11/C23 comparisons require their explicitly identified wording; GNU assembly, __int128, ELF and operating-system contracts are extensions/platform rules.",
+    "target": "Linux x86-64 SysV for executable host observations; foreign targets are compile/analysis-only unless explicitly supported and recorded.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile exactly. Host Python, build and binary inspection tools remain outside restricted target closures; no library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, CMake/Ninja/Make and binutils versions and effective flags",
+      "Unsupported target or instrumentation cells remain unavailable"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LSYS-CMAKE-CROSS",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "Cross Compiling; Cross Compiling for Linux; Cross Compiling using Clang, lines 93-159"
+      ]
+    },
+    {
+      "id": "R-LSYS-GCC-PRAGMA",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "6.5.13 diagnostic warning/error/ignored, push/pop and source-position rules"
+      ]
+    },
+    {
+      "id": "R-LSYS-GCC-STAGES",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "3.2 four stages, input suffixes, -E/-S/-c, -v/-### and -ffile-prefix-map"
+      ]
+    },
+    {
+      "id": "R-LSYS-GCC-WARN",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "3.9 opening warning control rules, lines 5-55"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact published C17/C23 text and private CS:APP/TLPI passages were not newly inspected.",
+    "Primary sources listed cover only the named passages; other parent references retain their historical status without a new inspection claim."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T07-01.md",
+    "fixtures/systems/PR-T07-01.json",
+    "tools/verify_systems_fixtures.py"
+  ],
+  "execution_support": {
+    "kind": "retained partial baseline laboratory anchors",
+    "scope": "Tests exercise only their named bounded cases; broad project acceptance and these supplemental criteria require separate evidence.",
+    "tests": [
+      "foundations.compile"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T07-01-T07.01.a",
+      "title": "Invoke preprocessing, compilation, assembly, and linking independently.",
+      "objective": "T07.01.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Write step.c containing int step(int x){return 3*x+BIAS;} and main.c declaring step and returning step(4)!=19; supply cfg.h defining BIAS as 7. Produce separate .i, .s, .o and final executable using explicit stages with cfg.h included only in step.c. Record every producer and exit status.",
+      "purpose": "A successful compiler invocation necessarily produced a runnable image.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T07.01 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T07-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A successful compiler invocation necessarily produced a runnable image. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A successful compiler invocation necessarily produced a runnable image.",
+        "D2": "Write step.c containing int step(int x){return 3*x+BIAS;} and main.c declaring step and returning step(4)!=19; supply cfg.h defining BIAS as 7. Produce separate .i, .s, .o and final executable using explicit stages with cfg.h included only in step.c. Record every producer and exit status.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Replace main with a separately supplied assembly entry and show which driver-provided startup responsibilities must now be supplied."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The defined input returns exit 0; preprocessing resolves BIAS, compilation produces assembly, assembly produces relocation-bearing objects, linking resolves step. Removing step.o fails at link, not preprocessing.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The defined input returns exit 0; preprocessing resolves BIAS, compilation produces assembly, assembly produces relocation-bearing objects, linking resolves step. Removing step.o fails at link, not preprocessing. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace main with a separately supplied assembly entry and show which driver-provided startup responsibilities must now be supplied. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Name the last stage that reads a header.",
+        "Compare the frozen preprocessed text before investigating assembler or linker inputs."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T07-01-T07.01.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace main with a separately supplied assembly entry and show which driver-provided startup responsibilities must now be supplied."
+        }
+      ],
+      "assessor_anchor": "#t0701a",
+      "facet_scope": {
+        "teaching": "Retained substantive T07.01 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T07-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T07-01-T07.01.b",
+      "title": "Explain each intermediate file and its consumers.",
+      "objective": "T07.01.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Retain step.i, change cfg.h to BIAS 9, and compile both the retained .i and a freshly preprocessed .c. Identify where the old value remains and attach the first differing artifact.",
+      "purpose": "Every downstream stage re-reads source headers.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T07.01 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T07-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Every downstream stage re-reads source headers. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Every downstream stage re-reads source headers.",
+        "D2": "Retain step.i, change cfg.h to BIAS 9, and compile both the retained .i and a freshly preprocessed .c. Identify where the old value remains and attach the first differing artifact.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Introduce a macro selected by a generated header and diagnose a stale .i even when all .c timestamps are fresh."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The frozen .i retains 7; the fresh path uses 9. Only preprocessing consumes that header. Object code is not a portable serialized C program.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The frozen .i retains 7; the fresh path uses 9. Only preprocessing consumes that header. Object code is not a portable serialized C program. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Introduce a macro selected by a generated header and diagnose a stale .i even when all .c timestamps are fresh. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Name the last stage that reads a header.",
+        "Compare the frozen preprocessed text before investigating assembler or linker inputs."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T07-01-T07.01.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Introduce a macro selected by a generated header and diagnose a stale .i even when all .c timestamps are fresh."
+        }
+      ],
+      "assessor_anchor": "#t0701b",
+      "facet_scope": {
+        "teaching": "Retained substantive T07.01 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T07-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T07-01-T07.01.c",
+      "title": "Reproduce a compiler-driver command using explicit stages.",
+      "objective": "T07.01.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Capture the actual driver's subprocesses for the two-TU program; reconstruct them with identical target, startup files, search paths and final link inputs. Compare behavior and explain any file-byte differences with section-level evidence.",
+      "purpose": "Replacing the compiler driver with ld and the same two object filenames reproduces its contract.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T07.01 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T07-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Replacing the compiler driver with ld and the same two object filenames reproduces its contract. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Replacing the compiler driver with ld and the same two object filenames reproduces its contract.",
+        "D2": "Capture the actual driver's subprocesses for the two-TU program; reconstruct them with identical target, startup files, search paths and final link inputs. Compare behavior and explain any file-byte differences with section-level evidence.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Reconstruct a static or PIE variant supported by the installed toolchain; identify changes to both compile and link assumptions."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Driver invocation contains additional target/runtime inputs; equal exit results do not prove byte identity. A failed explicit link must be attributed to a specific omitted input.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Driver invocation contains additional target/runtime inputs; equal exit results do not prove byte identity. A failed explicit link must be attributed to a specific omitted input. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Reconstruct a static or PIE variant supported by the installed toolchain; identify changes to both compile and link assumptions. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Name the last stage that reads a header.",
+        "Compare the frozen preprocessed text before investigating assembler or linker inputs."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T07-01-T07.01.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Reconstruct a static or PIE variant supported by the installed toolchain; identify changes to both compile and link assumptions."
+        }
+      ],
+      "assessor_anchor": "#t0701c",
+      "facet_scope": {
+        "teaching": "Retained substantive T07.01 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T07-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T07-01-T07.02.a",
+      "title": "Distinguish target triple, CPU, ISA features, and ABI.",
+      "objective": "T07.02.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Create an artifact manifest for native x86-64 Linux and compile-only Arm32 probes. Record target triple, ISA options, data model and object ABI separately; reject a mislabeled artifact before attempting execution.",
+      "purpose": "Changing -march changes the operating-system ABI and sysroot.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T07.02 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T07-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Changing -march changes the operating-system ABI and sysroot. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Changing -march changes the operating-system ABI and sysroot.",
+        "D2": "Create an artifact manifest for native x86-64 Linux and compile-only Arm32 probes. Record target triple, ISA options, data model and object ABI separately; reject a mislabeled artifact before attempting execution.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Compare two Arm objects with identical CPU instruction support but different floating-point calling conventions."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "An ISA option alone does not select startup objects, target libraries or call convention. ELF class/machine/attributes and driver target must agree with the manifest.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "An ISA option alone does not select startup objects, target libraries or call convention. ELF class/machine/attributes and driver target must agree with the manifest. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Compare two Arm objects with identical CPU instruction support but different floating-point calling conventions. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Classify the machine that runs each tool separately from the machine described by its output.",
+        "Compare driver target and selected search roots with the produced object attributes."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T07-01-T07.02.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Compare two Arm objects with identical CPU instruction support but different floating-point calling conventions."
+        }
+      ],
+      "assessor_anchor": "#t0702a",
+      "facet_scope": {
+        "teaching": "Retained substantive T07.02 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T07-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T07-01-T07.02.b",
+      "title": "Inspect implicit include paths, libraries, and startup objects.",
+      "objective": "T07.02.b",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "For the stage program capture compiler -v/-### and search-directory output; resolve each selected startup object and library to a path and hash. Run an independent clean directory build with a deliberately missing local library.",
+      "purpose": "Only explicit source paths are inputs to the build.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T07.02 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T07-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Only explicit source paths are inputs to the build. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Only explicit source paths are inputs to the build.",
+        "D2": "For the stage program capture compiler -v/-### and search-directory output; resolve each selected startup object and library to a path and hash. Run an independent clean directory build with a deliberately missing local library.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Change only a sysroot or compiler installation and identify which old artifact hashes and conclusions cannot be reused."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Implicit headers, startup objects and library selection affect provenance; the missing dependency must produce a specific failure, not a successful stale executable.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Implicit headers, startup objects and library selection affect provenance; the missing dependency must produce a specific failure, not a successful stale executable. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Change only a sysroot or compiler installation and identify which old artifact hashes and conclusions cannot be reused. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Classify the machine that runs each tool separately from the machine described by its output.",
+        "Compare driver target and selected search roots with the produced object attributes."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T07-01-T07.02.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Change only a sysroot or compiler installation and identify which old artifact hashes and conclusions cannot be reused."
+        }
+      ],
+      "assessor_anchor": "#t0702b",
+      "facet_scope": {
+        "teaching": "Retained substantive T07.02 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T07-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T07-01-T07.02.c",
+      "title": "Separate host tools from target executables during cross-compilation.",
+      "objective": "T07.02.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Provide a host generator that reads the ASCII file VALUE=7 and writes cfg.h, plus a target object consuming it. Mark every executable as host-runnable or target-only and retain configuration commands proving the target was never run.",
+      "purpose": "A cross-build can run any executable it has just compiled.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T07.02 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T07-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A cross-build can run any executable it has just compiled. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A cross-build can run any executable it has just compiled.",
+        "D2": "Provide a host generator that reads the ASCII file VALUE=7 and writes cfg.h, plus a target object consuming it. Mark every executable as host-runnable or target-only and retain configuration commands proving the target was never run.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Replace the generator with a separately compiled host C tool while the application compiler is a non-native target compiler."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Generation executes the host tool; compilation only consumes its bytes. A missing generator is configuration failure, not evidence that the target lacks a feature.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Generation executes the host tool; compilation only consumes its bytes. A missing generator is configuration failure, not evidence that the target lacks a feature. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace the generator with a separately compiled host C tool while the application compiler is a non-native target compiler. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Classify the machine that runs each tool separately from the machine described by its output.",
+        "Compare driver target and selected search roots with the produced object attributes."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T07-01-T07.02.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace the generator with a separately compiled host C tool while the application compiler is a non-native target compiler."
+        }
+      ],
+      "assessor_anchor": "#t0702c",
+      "facet_scope": {
+        "teaching": "Retained substantive T07.02 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T07-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T07-01-T07.03.a",
+      "title": "Select warnings according to target, edition, and project boundaries.",
+      "objective": "T07.03.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Create three isolated TUs: valid unsigned addition, unused parameter, and assignment to a const int. Define a GCC/Clang C17 policy that distinguishes accepted, expected-warning and required-diagnostic cases; add a signed-overflow example as analysis-only.",
+      "purpose": "Warning-free code is necessarily defined, and every warning is required by ISO C.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T07.03 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T07-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Warning-free code is necessarily defined, and every warning is required by ISO C. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Warning-free code is necessarily defined, and every warning is required by ISO C.",
+        "D2": "Create three isolated TUs: valid unsigned addition, unused parameter, and assignment to a const int. Define a GCC/Clang C17 policy that distinguishes accepted, expected-warning and required-diagnostic cases; add a signed-overflow example as analysis-only.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Port the policy to a compiler that spells or groups the warning differently without accepting a missing diagnostic."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Const assignment violates a constraint; unused-parameter policy is tool-specific; absence of diagnostics does not justify signed overflow. Record C17 and any C23 probe as distinct modes.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Const assignment violates a constraint; unused-parameter policy is tool-specific; absence of diagnostics does not justify signed overflow. Record C17 and any C23 probe as distinct modes. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Port the policy to a compiler that spells or groups the warning differently without accepting a missing diagnostic. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate a required language diagnostic from an optional warning policy.",
+        "Use a valid control and an out-of-scope warning to test both the runner and suppression boundary."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T07-01-T07.03.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Port the policy to a compiler that spells or groups the warning differently without accepting a missing diagnostic."
+        }
+      ],
+      "assessor_anchor": "#t0703a",
+      "facet_scope": {
+        "teaching": "Retained substantive T07.03 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T07-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T07-01-T07.03.b",
+      "title": "Test expected warnings and expected compilation failures.",
+      "objective": "T07.03.b",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Implement a compile-case runner that records command, positive control, diagnostic class and exit status for those three TUs. Inject a nonexistent compiler path and a missing include into the negative case.",
+      "purpose": "Any nonzero compiler exit validates an intended negative test.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T07.03 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T07-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Any nonzero compiler exit validates an intended negative test. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Any nonzero compiler exit validates an intended negative test.",
+        "D2": "Implement a compile-case runner that records command, positive control, diagnostic class and exit status for those three TUs. Inject a nonexistent compiler path and a missing include into the negative case.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Change a negative case to a link-time undefined symbol and prove the runner rejects a compile-stage-only success as incomplete evidence."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Infrastructure failure and the intended language diagnostic must be distinguishable; the valid control must compile under the same toolchain.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Infrastructure failure and the intended language diagnostic must be distinguishable; the valid control must compile under the same toolchain. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Change a negative case to a link-time undefined symbol and prove the runner rejects a compile-stage-only success as incomplete evidence. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate a required language diagnostic from an optional warning policy.",
+        "Use a valid control and an out-of-scope warning to test both the runner and suppression boundary."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T07-01-T07.03.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Change a negative case to a link-time undefined symbol and prove the runner rejects a compile-stage-only success as incomplete evidence."
+        }
+      ],
+      "assessor_anchor": "#t0703b",
+      "facet_scope": {
+        "teaching": "Retained substantive T07.03 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T07-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T07-01-T07.03.c",
+      "title": "Scope suppressions narrowly and document their justification.",
+      "objective": "T07.03.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Use GCC diagnostic push/ignored/pop around one justified unused-parameter shim; put another unused parameter outside the region and require its warning. Document the shim's API ownership and why the source cannot simply omit it.",
+      "purpose": "A file-wide suppression with a comment is narrow enough.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T07.03 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T07-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A file-wide suppression with a comment is narrow enough. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A file-wide suppression with a comment is narrow enough.",
+        "D2": "Use GCC diagnostic push/ignored/pop around one justified unused-parameter shim; put another unused parameter outside the region and require its warning. Document the shim's API ownership and why the source cannot simply omit it.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Replace the pragma with build-target-local options and show whether unrelated TUs remain protected."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The outer diagnostic remains observable; pragma state and location matter, while ISO C does not define this suppression API.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The outer diagnostic remains observable; pragma state and location matter, while ISO C does not define this suppression API. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace the pragma with build-target-local options and show whether unrelated TUs remain protected. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate a required language diagnostic from an optional warning policy.",
+        "Use a valid control and an out-of-scope warning to test both the runner and suppression boundary."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T07-01-T07.03.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace the pragma with build-target-local options and show whether unrelated TUs remain protected."
+        }
+      ],
+      "assessor_anchor": "#t0703c",
+      "facet_scope": {
+        "teaching": "Retained substantive T07.03 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T07-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T07-01.md",
+  "status": {
+    "content": "authored",
+    "execution": "not-run supplemental assessments",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite visible tests are not absolute mastery.",
+      "No baseline hours, IDs, source bytes or historical acceptance receipts changed."
+    ]
+  }
+}

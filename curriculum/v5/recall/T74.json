@@ -1,0 +1,797 @@
+{
+  "schema_version": 5,
+  "sets": [
+    {
+      "id": "T74.01",
+      "title": "Pointer tags, NaN payloads and representation trust boundaries",
+      "objectives": [
+        "T74.01.a",
+        "T74.01.b",
+        "T74.01.c",
+        "T74.01.d"
+      ],
+      "objective_text": {
+        "T74.01.a": "Derive disjoint number and integer bit partitions, pointer round-trip preconditions and negative decoding; classify portable arithmetic, implementation-defined pointer mapping and explicit IEEE-format assumptions.",
+        "T74.01.b": "Implement numeric NaN canonicalization, int32 boxing/unboxing and checked two-bit pointer tags from the exact contract. Build a discriminated-union alternative and a character-copy double bridge with verified format assumptions; never truncate a pointer into a payload.",
+        "T74.01.c": "Enumerate signed extrema and NaN payload collisions, signed zero, infinities, misaligned integer mappings and reserved bits. Reject missing-canonicalization and sign-loss mutants; compare integer decoding with Python integers and verify native pointer round trips only for admitted live objects.",
+        "T74.01.d": "Change to a capability-pointer target or a binary32-only implementation: derive an explicit handle representation and revise every pointer/NaN assumption. Delayed assessment introduces a serialized attacker-controlled NaN word; demonstrate why decoding it cannot authorize a host pointer."
+      },
+      "projects": [
+        "PR-T74-01"
+      ],
+      "variants": [
+        {
+          "id": "T74.01-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T74.01.a",
+            "T74.01.b",
+            "T74.01.c",
+            "T74.01.d"
+          ],
+          "prompt": "Derive disjoint number and integer bit partitions, pointer round-trip preconditions and negative decoding; classify portable arithmetic, implementation-defined pointer mapping and explicit IEEE-format assumptions.",
+          "checklist": [
+            "Derive disjoint number and integer bit partitions, pointer round-trip preconditions and negative decoding; classify portable arithmetic, implementation-defined pointer mapping and explicit IEEE-format assumptions.",
+            "Implement numeric NaN canonicalization, int32 boxing/unboxing and checked two-bit pointer tags from the exact contract. Build a discriminated-union alternative and a character-copy double bridge with verified format assumptions; never truncate a pointer into a payload.",
+            "Enumerate signed extrema and NaN payload collisions, signed zero, infinities, misaligned integer mappings and reserved bits. Reject missing-canonicalization and sign-loss mutants; compare integer decoding with Python integers and verify native pointer round trips only for admitted live objects.",
+            "Change to a capability-pointer target or a binary32-only implementation: derive an explicit handle representation and revise every pointer/NaN assumption. Delayed assessment introduces a serialized attacker-controlled NaN word; demonstrate why decoding it cannot authorize a host pointer."
+          ]
+        },
+        {
+          "id": "T74.01-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T74.01.a",
+            "T74.01.b",
+            "T74.01.c",
+            "T74.01.d"
+          ],
+          "prompt": "0x7ff9000000000042 as numeric input canonicalizes to0x7ff8000000000000; int32 minimum round-trips as -2147483648; negative zero remains0x8000000000000000. A low-bit-misaligned pointer rejects without changing output.",
+          "checklist": [
+            "Derive disjoint number and integer bit partitions, pointer round-trip preconditions and negative decoding; classify portable arithmetic, implementation-defined pointer mapping and explicit IEEE-format assumptions.",
+            "Implement numeric NaN canonicalization, int32 boxing/unboxing and checked two-bit pointer tags from the exact contract. Build a discriminated-union alternative and a character-copy double bridge with verified format assumptions; never truncate a pointer into a payload.",
+            "Enumerate signed extrema and NaN payload collisions, signed zero, infinities, misaligned integer mappings and reserved bits. Reject missing-canonicalization and sign-loss mutants; compare integer decoding with Python integers and verify native pointer round trips only for admitted live objects.",
+            "Change to a capability-pointer target or a binary32-only implementation: derive an explicit handle representation and revise every pointer/NaN assumption. Delayed assessment introduces a serialized attacker-controlled NaN word; demonstrate why decoding it cannot authorize a host pointer."
+          ]
+        },
+        {
+          "id": "T74.01-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T74.01.a",
+            "T74.01.b",
+            "T74.01.c",
+            "T74.01.d"
+          ],
+          "prompt": "Change to a capability-pointer target or a binary32-only implementation: derive an explicit handle representation and revise every pointer/NaN assumption. Delayed assessment introduces a serialized attacker-controlled NaN word; demonstrate why decoding it cannot authorize a host pointer.",
+          "checklist": [
+            "Derive disjoint number and integer bit partitions, pointer round-trip preconditions and negative decoding; classify portable arithmetic, implementation-defined pointer mapping and explicit IEEE-format assumptions.",
+            "Implement numeric NaN canonicalization, int32 boxing/unboxing and checked two-bit pointer tags from the exact contract. Build a discriminated-union alternative and a character-copy double bridge with verified format assumptions; never truncate a pointer into a payload.",
+            "Enumerate signed extrema and NaN payload collisions, signed zero, infinities, misaligned integer mappings and reserved bits. Reject missing-canonicalization and sign-loss mutants; compare integer decoding with Python integers and verify native pointer round trips only for admitted live objects.",
+            "Change to a capability-pointer target or a binary32-only implementation: derive an explicit handle representation and revise every pointer/NaN assumption. Delayed assessment introduces a serialized attacker-controlled NaN word; demonstrate why decoding it cannot authorize a host pointer."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T74.02",
+      "title": "Owned binary interning and collision-safe symbol identity",
+      "objectives": [
+        "T74.02.a",
+        "T74.02.b",
+        "T74.02.c",
+        "T74.02.d"
+      ],
+      "objective_text": {
+        "T74.02.a": "Explain canonical identity versus byte equality, table ownership, embedded-NUL handling and why collisions cannot prove equality. Distinguish strong intern retention from weak symbol tables.",
+        "T74.02.b": "Implement the eight-entry copied-string table with first-insertion IDs and atomic admission failure, then implement a hashed table with explicit collision chains or probing and transactional resizing; compare both on the same byte-string contract.",
+        "T74.02.c": "Generate binary strings including empty, embedded NUL and equal-length different bytes. Inject failure on hits and misses, exhaust capacity and preserve output/state snapshots. Reject length-only equality and ignored-admission-failure mutants; use a Python dictionary as an independent identity oracle.",
+        "T74.02.d": "Replace strong retention with weak interning linked to collector epochs, defining when IDs retire and whether reinterned bytes regain the same identity. Delayed assessment retains a symbol across a moving collection and forces an allocation failure during rehash."
+      },
+      "projects": [
+        "PR-T74-02"
+      ],
+      "variants": [
+        {
+          "id": "T74.02-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T74.02.a",
+            "T74.02.b",
+            "T74.02.c",
+            "T74.02.d"
+          ],
+          "prompt": "Explain canonical identity versus byte equality, table ownership, embedded-NUL handling and why collisions cannot prove equality. Distinguish strong intern retention from weak symbol tables.",
+          "checklist": [
+            "Explain canonical identity versus byte equality, table ownership, embedded-NUL handling and why collisions cannot prove equality. Distinguish strong intern retention from weak symbol tables.",
+            "Implement the eight-entry copied-string table with first-insertion IDs and atomic admission failure, then implement a hashed table with explicit collision chains or probing and transactional resizing; compare both on the same byte-string contract.",
+            "Generate binary strings including empty, embedded NUL and equal-length different bytes. Inject failure on hits and misses, exhaust capacity and preserve output/state snapshots. Reject length-only equality and ignored-admission-failure mutants; use a Python dictionary as an independent identity oracle.",
+            "Replace strong retention with weak interning linked to collector epochs, defining when IDs retire and whether reinterned bytes regain the same identity. Delayed assessment retains a symbol across a moving collection and forces an allocation failure during rehash."
+          ]
+        },
+        {
+          "id": "T74.02-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T74.02.a",
+            "T74.02.b",
+            "T74.02.c",
+            "T74.02.d"
+          ],
+          "prompt": "Bytes00,01 intern asID1 and00,02 asID2; a repeat00,01 returnsID1 even with failure injected. A new string under failure leaves used and output unchanged. NULL with length0 interns the empty string.",
+          "checklist": [
+            "Explain canonical identity versus byte equality, table ownership, embedded-NUL handling and why collisions cannot prove equality. Distinguish strong intern retention from weak symbol tables.",
+            "Implement the eight-entry copied-string table with first-insertion IDs and atomic admission failure, then implement a hashed table with explicit collision chains or probing and transactional resizing; compare both on the same byte-string contract.",
+            "Generate binary strings including empty, embedded NUL and equal-length different bytes. Inject failure on hits and misses, exhaust capacity and preserve output/state snapshots. Reject length-only equality and ignored-admission-failure mutants; use a Python dictionary as an independent identity oracle.",
+            "Replace strong retention with weak interning linked to collector epochs, defining when IDs retire and whether reinterned bytes regain the same identity. Delayed assessment retains a symbol across a moving collection and forces an allocation failure during rehash."
+          ]
+        },
+        {
+          "id": "T74.02-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T74.02.a",
+            "T74.02.b",
+            "T74.02.c",
+            "T74.02.d"
+          ],
+          "prompt": "Replace strong retention with weak interning linked to collector epochs, defining when IDs retire and whether reinterned bytes regain the same identity. Delayed assessment retains a symbol across a moving collection and forces an allocation failure during rehash.",
+          "checklist": [
+            "Explain canonical identity versus byte equality, table ownership, embedded-NUL handling and why collisions cannot prove equality. Distinguish strong intern retention from weak symbol tables.",
+            "Implement the eight-entry copied-string table with first-insertion IDs and atomic admission failure, then implement a hashed table with explicit collision chains or probing and transactional resizing; compare both on the same byte-string contract.",
+            "Generate binary strings including empty, embedded NUL and equal-length different bytes. Inject failure on hits and misses, exhaust capacity and preserve output/state snapshots. Reject length-only equality and ignored-admission-failure mutants; use a Python dictionary as an independent identity oracle.",
+            "Replace strong retention with weak interning linked to collector epochs, defining when IDs retire and whether reinterned bytes regain the same identity. Delayed assessment retains a symbol across a moving collection and forces an allocation failure during rehash."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T74.03",
+      "title": "Immutable hidden classes and reusable property transitions",
+      "objectives": [
+        "T74.03.a",
+        "T74.03.b",
+        "T74.03.c",
+        "T74.03.d"
+      ],
+      "objective_text": {
+        "T74.03.a": "Derive ordered layout descriptors and transition identity, distinguishing an equal property set from an equal storage layout. State ownership of shapes, receiver fields and transition caches.",
+        "T74.03.b": "Implement immutable four-field shapes in a16-shape arena, transition reuse by parent-plus-key and atomic capacity failure. Add a dictionary-mode alternative for deletion and compare its explicit lookup/invalidation contract.",
+        "T74.03.c": "Construct same-order and permuted-order receivers, update existing properties at full capacity, exhaust transition storage and test rollback. Reject parent-omission and omitted-receiver-transition mutants; independently compare every lookup with a property dictionary.",
+        "T74.03.d": "Add property deletion, attributes and a prototype chain. Derive which operations preserve shape identity and which invalidate caches. Delayed assessment permits shape ID reuse and requires a generation or epoch policy that rejects stale descriptors."
+      },
+      "projects": [
+        "PR-T74-03"
+      ],
+      "variants": [
+        {
+          "id": "T74.03-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T74.03.a",
+            "T74.03.b",
+            "T74.03.c",
+            "T74.03.d"
+          ],
+          "prompt": "Derive ordered layout descriptors and transition identity, distinguishing an equal property set from an equal storage layout. State ownership of shapes, receiver fields and transition caches.",
+          "checklist": [
+            "Derive ordered layout descriptors and transition identity, distinguishing an equal property set from an equal storage layout. State ownership of shapes, receiver fields and transition caches.",
+            "Implement immutable four-field shapes in a16-shape arena, transition reuse by parent-plus-key and atomic capacity failure. Add a dictionary-mode alternative for deletion and compare its explicit lookup/invalidation contract.",
+            "Construct same-order and permuted-order receivers, update existing properties at full capacity, exhaust transition storage and test rollback. Reject parent-omission and omitted-receiver-transition mutants; independently compare every lookup with a property dictionary.",
+            "Add property deletion, attributes and a prototype chain. Derive which operations preserve shape identity and which invalidate caches. Delayed assessment permits shape ID reuse and requires a generation or epoch policy that rejects stale descriptors."
+          ]
+        },
+        {
+          "id": "T74.03-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T74.03.a",
+            "T74.03.b",
+            "T74.03.c",
+            "T74.03.d"
+          ],
+          "prompt": "Objects built with keys1 then2 share shape; keys2 then1 have different offsets and a different shape. Updating an existing key changes only its value; adding a fifth distinct key returns FULL unchanged.",
+          "checklist": [
+            "Derive ordered layout descriptors and transition identity, distinguishing an equal property set from an equal storage layout. State ownership of shapes, receiver fields and transition caches.",
+            "Implement immutable four-field shapes in a16-shape arena, transition reuse by parent-plus-key and atomic capacity failure. Add a dictionary-mode alternative for deletion and compare its explicit lookup/invalidation contract.",
+            "Construct same-order and permuted-order receivers, update existing properties at full capacity, exhaust transition storage and test rollback. Reject parent-omission and omitted-receiver-transition mutants; independently compare every lookup with a property dictionary.",
+            "Add property deletion, attributes and a prototype chain. Derive which operations preserve shape identity and which invalidate caches. Delayed assessment permits shape ID reuse and requires a generation or epoch policy that rejects stale descriptors."
+          ]
+        },
+        {
+          "id": "T74.03-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T74.03.a",
+            "T74.03.b",
+            "T74.03.c",
+            "T74.03.d"
+          ],
+          "prompt": "Add property deletion, attributes and a prototype chain. Derive which operations preserve shape identity and which invalidate caches. Delayed assessment permits shape ID reuse and requires a generation or epoch policy that rejects stale descriptors.",
+          "checklist": [
+            "Derive ordered layout descriptors and transition identity, distinguishing an equal property set from an equal storage layout. State ownership of shapes, receiver fields and transition caches.",
+            "Implement immutable four-field shapes in a16-shape arena, transition reuse by parent-plus-key and atomic capacity failure. Add a dictionary-mode alternative for deletion and compare its explicit lookup/invalidation contract.",
+            "Construct same-order and permuted-order receivers, update existing properties at full capacity, exhaust transition storage and test rollback. Reject parent-omission and omitted-receiver-transition mutants; independently compare every lookup with a property dictionary.",
+            "Add property deletion, attributes and a prototype chain. Derive which operations preserve shape identity and which invalidate caches. Delayed assessment permits shape ID reuse and requires a generation or epoch policy that rejects stale descriptors."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T74.04",
+      "title": "Monomorphic and polymorphic inline-cache guards",
+      "objectives": [
+        "T74.04.a",
+        "T74.04.b",
+        "T74.04.c",
+        "T74.04.d"
+      ],
+      "objective_text": {
+        "T74.04.a": "Explain a cached lookup handler versus a cached value, and prove why owner, shape and property key jointly determine this model offset. Bound the cases in which immutable shapes remove invalidation needs.",
+        "T74.04.b": "Implement a two-entry polymorphic cache with monomorphic first state, sticky generic fallback, owner reset and current-receiver field loads. Compare always-generic lookup with the same output and missing-key effects.",
+        "T74.04.c": "Alternate receivers with different insertion orders and property names at one cache, update field values, switch arenas and test missing outputs. Reject missing-shape and missing-key guards; count hits/misses before timing equivalent workloads.",
+        "T74.04.d": "Add prototype-chain access or shape retirement with weak cache references, then design invalidation tokens and deoptimization fallback. Delayed assessment inserts an accessor whose callback mutates the receiver during lookup."
+      },
+      "projects": [
+        "PR-T74-04"
+      ],
+      "variants": [
+        {
+          "id": "T74.04-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T74.04.a",
+            "T74.04.b",
+            "T74.04.c",
+            "T74.04.d"
+          ],
+          "prompt": "Explain a cached lookup handler versus a cached value, and prove why owner, shape and property key jointly determine this model offset. Bound the cases in which immutable shapes remove invalidation needs.",
+          "checklist": [
+            "Explain a cached lookup handler versus a cached value, and prove why owner, shape and property key jointly determine this model offset. Bound the cases in which immutable shapes remove invalidation needs.",
+            "Implement a two-entry polymorphic cache with monomorphic first state, sticky generic fallback, owner reset and current-receiver field loads. Compare always-generic lookup with the same output and missing-key effects.",
+            "Alternate receivers with different insertion orders and property names at one cache, update field values, switch arenas and test missing outputs. Reject missing-shape and missing-key guards; count hits/misses before timing equivalent workloads.",
+            "Add prototype-chain access or shape retirement with weak cache references, then design invalidation tokens and deoptimization fallback. Delayed assessment inserts an accessor whose callback mutates the receiver during lookup."
+          ]
+        },
+        {
+          "id": "T74.04-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T74.04.a",
+            "T74.04.b",
+            "T74.04.c",
+            "T74.04.d"
+          ],
+          "prompt": "After caching key1 at offset0 in layout[1,2], key1 in layout[2,1] must read offset1. Looking up key2 in the first layout must read20, not the cached key1 value10; the third distinct pair selects generic mode.",
+          "checklist": [
+            "Explain a cached lookup handler versus a cached value, and prove why owner, shape and property key jointly determine this model offset. Bound the cases in which immutable shapes remove invalidation needs.",
+            "Implement a two-entry polymorphic cache with monomorphic first state, sticky generic fallback, owner reset and current-receiver field loads. Compare always-generic lookup with the same output and missing-key effects.",
+            "Alternate receivers with different insertion orders and property names at one cache, update field values, switch arenas and test missing outputs. Reject missing-shape and missing-key guards; count hits/misses before timing equivalent workloads.",
+            "Add prototype-chain access or shape retirement with weak cache references, then design invalidation tokens and deoptimization fallback. Delayed assessment inserts an accessor whose callback mutates the receiver during lookup."
+          ]
+        },
+        {
+          "id": "T74.04-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T74.04.a",
+            "T74.04.b",
+            "T74.04.c",
+            "T74.04.d"
+          ],
+          "prompt": "Add prototype-chain access or shape retirement with weak cache references, then design invalidation tokens and deoptimization fallback. Delayed assessment inserts an accessor whose callback mutates the receiver during lookup.",
+          "checklist": [
+            "Explain a cached lookup handler versus a cached value, and prove why owner, shape and property key jointly determine this model offset. Bound the cases in which immutable shapes remove invalidation needs.",
+            "Implement a two-entry polymorphic cache with monomorphic first state, sticky generic fallback, owner reset and current-receiver field loads. Compare always-generic lookup with the same output and missing-key effects.",
+            "Alternate receivers with different insertion orders and property names at one cache, update field values, switch arenas and test missing outputs. Reject missing-shape and missing-key guards; count hits/misses before timing equivalent workloads.",
+            "Add prototype-chain access or shape retirement with weak cache references, then design invalidation tokens and deoptimization fallback. Delayed assessment inserts an accessor whose callback mutates the receiver during lookup."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T74.05",
+      "title": "Incremental marking and root/store write barriers",
+      "objectives": [
+        "T74.05.a",
+        "T74.05.b",
+        "T74.05.c",
+        "T74.05.d"
+      ],
+      "objective_text": {
+        "T74.05.a": "Derive the no-black-to-white-edge invariant and distinguish incremental mutation between steps from concurrent mutation. Explain floating garbage and why root updates need their own barrier.",
+        "T74.05.b": "Implement begin, bounded scan steps, black-source stores and root insertion for the16-object graph. Build an explicit gray-worklist alternative with a capacity proof, and add immediate quiescent sweeping under a stated allocation policy.",
+        "T74.05.c": "Enumerate small graphs/root sets against graph reachability; stop after blackening a root, then insert a white child and add a new white root. Reject missing-object and missing-root barriers, test budget0, cycles and invalid edges, and account for scan work separately from elapsed time.",
+        "T74.05.d": "Permit allocation during an active cycle and compare black allocation, gray allocation and a restart policy. Delayed assessment replaces serialized mutation with a concurrent mutator; derive publication ordering and termination detection rather than adding volatile."
+      },
+      "projects": [
+        "PR-T74-05"
+      ],
+      "variants": [
+        {
+          "id": "T74.05-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T74.05.a",
+            "T74.05.b",
+            "T74.05.c",
+            "T74.05.d"
+          ],
+          "prompt": "Derive the no-black-to-white-edge invariant and distinguish incremental mutation between steps from concurrent mutation. Explain floating garbage and why root updates need their own barrier.",
+          "checklist": [
+            "Derive the no-black-to-white-edge invariant and distinguish incremental mutation between steps from concurrent mutation. Explain floating garbage and why root updates need their own barrier.",
+            "Implement begin, bounded scan steps, black-source stores and root insertion for the16-object graph. Build an explicit gray-worklist alternative with a capacity proof, and add immediate quiescent sweeping under a stated allocation policy.",
+            "Enumerate small graphs/root sets against graph reachability; stop after blackening a root, then insert a white child and add a new white root. Reject missing-object and missing-root barriers, test budget0, cycles and invalid edges, and account for scan work separately from elapsed time.",
+            "Permit allocation during an active cycle and compare black allocation, gray allocation and a restart policy. Delayed assessment replaces serialized mutation with a concurrent mutator; derive publication ordering and termination detection rather than adding volatile."
+          ]
+        },
+        {
+          "id": "T74.05-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T74.05.a",
+            "T74.05.b",
+            "T74.05.c",
+            "T74.05.d"
+          ],
+          "prompt": "With live1..4 and roots1,2, one step blackens1. A subsequent1→3 store grays3, adding root4 grays4, and the remaining three scans finish with all four black. Budget0 performs zero scans.",
+          "checklist": [
+            "Derive the no-black-to-white-edge invariant and distinguish incremental mutation between steps from concurrent mutation. Explain floating garbage and why root updates need their own barrier.",
+            "Implement begin, bounded scan steps, black-source stores and root insertion for the16-object graph. Build an explicit gray-worklist alternative with a capacity proof, and add immediate quiescent sweeping under a stated allocation policy.",
+            "Enumerate small graphs/root sets against graph reachability; stop after blackening a root, then insert a white child and add a new white root. Reject missing-object and missing-root barriers, test budget0, cycles and invalid edges, and account for scan work separately from elapsed time.",
+            "Permit allocation during an active cycle and compare black allocation, gray allocation and a restart policy. Delayed assessment replaces serialized mutation with a concurrent mutator; derive publication ordering and termination detection rather than adding volatile."
+          ]
+        },
+        {
+          "id": "T74.05-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T74.05.a",
+            "T74.05.b",
+            "T74.05.c",
+            "T74.05.d"
+          ],
+          "prompt": "Permit allocation during an active cycle and compare black allocation, gray allocation and a restart policy. Delayed assessment replaces serialized mutation with a concurrent mutator; derive publication ordering and termination detection rather than adding volatile.",
+          "checklist": [
+            "Derive the no-black-to-white-edge invariant and distinguish incremental mutation between steps from concurrent mutation. Explain floating garbage and why root updates need their own barrier.",
+            "Implement begin, bounded scan steps, black-source stores and root insertion for the16-object graph. Build an explicit gray-worklist alternative with a capacity proof, and add immediate quiescent sweeping under a stated allocation policy.",
+            "Enumerate small graphs/root sets against graph reachability; stop after blackening a root, then insert a white child and add a new white root. Reject missing-object and missing-root barriers, test budget0, cycles and invalid edges, and account for scan work separately from elapsed time.",
+            "Permit allocation during an active cycle and compare black allocation, gray allocation and a restart policy. Delayed assessment replaces serialized mutation with a concurrent mutator; derive publication ordering and termination detection rather than adding volatile."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T74.06",
+      "title": "Semispace evacuation, forwarding and promotion failure",
+      "objectives": [
+        "T74.06.a",
+        "T74.06.b",
+        "T74.06.c",
+        "T74.06.d"
+      ],
+      "objective_text": {
+        "T74.06.a": "Derive identity preservation under copying, forwarding uniqueness and the old-to-young root obligation. Explain the empirical generational hypothesis separately from the correctness of a minor collection.",
+        "T74.06.b": "Implement two young semispaces with first-survival aging, second-survival promotion, complete root/edge rewriting and atomic capacity failure. Replace the whole-state transaction copy with a preflight or rollback design while retaining the same failure contract.",
+        "T74.06.c": "Compare surviving payload identities and edge relations against graph reachability over all small graphs. Test cycles, aliases, old-only roots, two successive collections and promotion exhaustion. Reject skipped-old-roots and stale-root-rewrite mutants, measuring copied survivors rather than claiming every allocation is cheap.",
+        "T74.06.d": "Integrate card scanning and a major collector; choose a promotion policy under an adversarial long-lived workload and bounded old capacity. Delayed assessment adds large nonmovable objects and requires a precise pinning/fragmentation policy."
+      },
+      "projects": [
+        "PR-T74-06"
+      ],
+      "variants": [
+        {
+          "id": "T74.06-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T74.06.a",
+            "T74.06.b",
+            "T74.06.c",
+            "T74.06.d"
+          ],
+          "prompt": "Derive identity preservation under copying, forwarding uniqueness and the old-to-young root obligation. Explain the empirical generational hypothesis separately from the correctness of a minor collection.",
+          "checklist": [
+            "Derive identity preservation under copying, forwarding uniqueness and the old-to-young root obligation. Explain the empirical generational hypothesis separately from the correctness of a minor collection.",
+            "Implement two young semispaces with first-survival aging, second-survival promotion, complete root/edge rewriting and atomic capacity failure. Replace the whole-state transaction copy with a preflight or rollback design while retaining the same failure contract.",
+            "Compare surviving payload identities and edge relations against graph reachability over all small graphs. Test cycles, aliases, old-only roots, two successive collections and promotion exhaustion. Reject skipped-old-roots and stale-root-rewrite mutants, measuring copied survivors rather than claiming every allocation is cheap.",
+            "Integrate card scanning and a major collector; choose a promotion policy under an adversarial long-lived workload and bounded old capacity. Delayed assessment adds large nonmovable objects and requires a precise pinning/fragmentation policy."
+          ]
+        },
+        {
+          "id": "T74.06-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T74.06.a",
+            "T74.06.b",
+            "T74.06.c",
+            "T74.06.d"
+          ],
+          "prompt": "Roots reference young object3, which reaches2; an old object also reaches2. The first collection copies exactly two cells and preserves sharing; the second promotes both. Old-capacity1 on that second collection returns FULL with original heap and copied output unchanged.",
+          "checklist": [
+            "Derive identity preservation under copying, forwarding uniqueness and the old-to-young root obligation. Explain the empirical generational hypothesis separately from the correctness of a minor collection.",
+            "Implement two young semispaces with first-survival aging, second-survival promotion, complete root/edge rewriting and atomic capacity failure. Replace the whole-state transaction copy with a preflight or rollback design while retaining the same failure contract.",
+            "Compare surviving payload identities and edge relations against graph reachability over all small graphs. Test cycles, aliases, old-only roots, two successive collections and promotion exhaustion. Reject skipped-old-roots and stale-root-rewrite mutants, measuring copied survivors rather than claiming every allocation is cheap.",
+            "Integrate card scanning and a major collector; choose a promotion policy under an adversarial long-lived workload and bounded old capacity. Delayed assessment adds large nonmovable objects and requires a precise pinning/fragmentation policy."
+          ]
+        },
+        {
+          "id": "T74.06-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T74.06.a",
+            "T74.06.b",
+            "T74.06.c",
+            "T74.06.d"
+          ],
+          "prompt": "Integrate card scanning and a major collector; choose a promotion policy under an adversarial long-lived workload and bounded old capacity. Delayed assessment adds large nonmovable objects and requires a precise pinning/fragmentation policy.",
+          "checklist": [
+            "Derive identity preservation under copying, forwarding uniqueness and the old-to-young root obligation. Explain the empirical generational hypothesis separately from the correctness of a minor collection.",
+            "Implement two young semispaces with first-survival aging, second-survival promotion, complete root/edge rewriting and atomic capacity failure. Replace the whole-state transaction copy with a preflight or rollback design while retaining the same failure contract.",
+            "Compare surviving payload identities and edge relations against graph reachability over all small graphs. Test cycles, aliases, old-only roots, two successive collections and promotion exhaustion. Reject skipped-old-roots and stale-root-rewrite mutants, measuring copied survivors rather than claiming every allocation is cheap.",
+            "Integrate card scanning and a major collector; choose a promotion policy under an adversarial long-lived workload and bounded old capacity. Delayed assessment adds large nonmovable objects and requires a precise pinning/fragmentation policy."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T74.07",
+      "title": "Card marking and conservative remembered roots",
+      "objectives": [
+        "T74.07.a",
+        "T74.07.b",
+        "T74.07.c",
+        "T74.07.d"
+      ],
+      "objective_text": {
+        "T74.07.a": "Derive old-to-young completeness and distinguish safe false positives from unsafe false negatives. Explain why overwriting one field cannot clear a card shared by another field.",
+        "T74.07.b": "Implement two-object cards over eight old objects, store marking and dirty-card rescanning with retained young edges. Integrate it with the nursery through an explicit adapter, retaining full-old scanning as an independent reference.",
+        "T74.07.c": "Enumerate object/field/target stores, test two young edges sharing a card, overwrite one and then both, and count exactly four field scans per dirty card. Reject omitted marking and premature clearing mutants; compare survivor graphs with the full-scan nursery.",
+        "T74.07.d": "Add concurrent card scanning with a writer racing card clearing and design an epoch/double-buffer or synchronization protocol. Delayed assessment changes card size and cache-line placement; revise false-positive work and cache traffic measurements."
+      },
+      "projects": [
+        "PR-T74-07"
+      ],
+      "variants": [
+        {
+          "id": "T74.07-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T74.07.a",
+            "T74.07.b",
+            "T74.07.c",
+            "T74.07.d"
+          ],
+          "prompt": "Derive old-to-young completeness and distinguish safe false positives from unsafe false negatives. Explain why overwriting one field cannot clear a card shared by another field.",
+          "checklist": [
+            "Derive old-to-young completeness and distinguish safe false positives from unsafe false negatives. Explain why overwriting one field cannot clear a card shared by another field.",
+            "Implement two-object cards over eight old objects, store marking and dirty-card rescanning with retained young edges. Integrate it with the nursery through an explicit adapter, retaining full-old scanning as an independent reference.",
+            "Enumerate object/field/target stores, test two young edges sharing a card, overwrite one and then both, and count exactly four field scans per dirty card. Reject omitted marking and premature clearing mutants; compare survivor graphs with the full-scan nursery.",
+            "Add concurrent card scanning with a writer racing card clearing and design an epoch/double-buffer or synchronization protocol. Delayed assessment changes card size and cache-line placement; revise false-positive work and cache traffic measurements."
+          ]
+        },
+        {
+          "id": "T74.07-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T74.07.a",
+            "T74.07.b",
+            "T74.07.c",
+            "T74.07.d"
+          ],
+          "prompt": "Old object3 field1→young5 dirties card1; object2 field0→young7 shares it. Removing the first edge keeps the card dirty and root7 present; removing the second clears it after one four-field rescan.",
+          "checklist": [
+            "Derive old-to-young completeness and distinguish safe false positives from unsafe false negatives. Explain why overwriting one field cannot clear a card shared by another field.",
+            "Implement two-object cards over eight old objects, store marking and dirty-card rescanning with retained young edges. Integrate it with the nursery through an explicit adapter, retaining full-old scanning as an independent reference.",
+            "Enumerate object/field/target stores, test two young edges sharing a card, overwrite one and then both, and count exactly four field scans per dirty card. Reject omitted marking and premature clearing mutants; compare survivor graphs with the full-scan nursery.",
+            "Add concurrent card scanning with a writer racing card clearing and design an epoch/double-buffer or synchronization protocol. Delayed assessment changes card size and cache-line placement; revise false-positive work and cache traffic measurements."
+          ]
+        },
+        {
+          "id": "T74.07-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T74.07.a",
+            "T74.07.b",
+            "T74.07.c",
+            "T74.07.d"
+          ],
+          "prompt": "Add concurrent card scanning with a writer racing card clearing and design an epoch/double-buffer or synchronization protocol. Delayed assessment changes card size and cache-line placement; revise false-positive work and cache traffic measurements.",
+          "checklist": [
+            "Derive old-to-young completeness and distinguish safe false positives from unsafe false negatives. Explain why overwriting one field cannot clear a card shared by another field.",
+            "Implement two-object cards over eight old objects, store marking and dirty-card rescanning with retained young edges. Integrate it with the nursery through an explicit adapter, retaining full-old scanning as an independent reference.",
+            "Enumerate object/field/target stores, test two young edges sharing a card, overwrite one and then both, and count exactly four field scans per dirty card. Reject omitted marking and premature clearing mutants; compare survivor graphs with the full-scan nursery.",
+            "Add concurrent card scanning with a writer racing card clearing and design an epoch/double-buffer or synchronization protocol. Delayed assessment changes card size and cache-line placement; revise false-positive work and cache traffic measurements."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T74.08",
+      "title": "Handle-based compaction and forwarding aliases",
+      "objectives": [
+        "T74.08.a",
+        "T74.08.b",
+        "T74.08.c",
+        "T74.08.d"
+      ],
+      "objective_text": {
+        "T74.08.a": "Distinguish object identity, handle identity and physical slot, and derive when outstanding raw borrows prohibit movement. Explain forwarding for aliased handles and nested handle fields.",
+        "T74.08.b": "Implement stable physical packing of live payloads with old-slot forwarding and updating every handle alias, then add a pinned-object alternative with explicit fragmentation costs and a generation policy for reused handles.",
+        "T74.08.c": "Enumerate all small live masks and compare payload identity through handles before and after movement. Test holes, aliases, cycles through handles, empty/full heaps, and borrow rejection; reject omitted-handle-rewrite and ignored-borrow mutants.",
+        "T74.08.d": "Integrate a pool allocator and a foreign-function API that temporarily exposes raw pointers. Design pin/unpin lifetime and cancellation cleanup, and measure the tradeoff against copying handles. Delayed assessment allows handle-slot reuse with a stale external reference."
+      },
+      "projects": [
+        "PR-T74-08"
+      ],
+      "variants": [
+        {
+          "id": "T74.08-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T74.08.a",
+            "T74.08.b",
+            "T74.08.c",
+            "T74.08.d"
+          ],
+          "prompt": "Distinguish object identity, handle identity and physical slot, and derive when outstanding raw borrows prohibit movement. Explain forwarding for aliased handles and nested handle fields.",
+          "checklist": [
+            "Distinguish object identity, handle identity and physical slot, and derive when outstanding raw borrows prohibit movement. Explain forwarding for aliased handles and nested handle fields.",
+            "Implement stable physical packing of live payloads with old-slot forwarding and updating every handle alias, then add a pinned-object alternative with explicit fragmentation costs and a generation policy for reused handles.",
+            "Enumerate all small live masks and compare payload identity through handles before and after movement. Test holes, aliases, cycles through handles, empty/full heaps, and borrow rejection; reject omitted-handle-rewrite and ignored-borrow mutants.",
+            "Integrate a pool allocator and a foreign-function API that temporarily exposes raw pointers. Design pin/unpin lifetime and cancellation cleanup, and measure the tradeoff against copying handles. Delayed assessment allows handle-slot reuse with a stale external reference."
+          ]
+        },
+        {
+          "id": "T74.08-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T74.08.a",
+            "T74.08.b",
+            "T74.08.c",
+            "T74.08.d"
+          ],
+          "prompt": "Live physical slots2 and4 compact to1 and2. Two handles to slot2 both become1; a handle to4 becomes2, while payload fields naming handle3 retain that identity. Any outstanding borrow rejects unchanged.",
+          "checklist": [
+            "Distinguish object identity, handle identity and physical slot, and derive when outstanding raw borrows prohibit movement. Explain forwarding for aliased handles and nested handle fields.",
+            "Implement stable physical packing of live payloads with old-slot forwarding and updating every handle alias, then add a pinned-object alternative with explicit fragmentation costs and a generation policy for reused handles.",
+            "Enumerate all small live masks and compare payload identity through handles before and after movement. Test holes, aliases, cycles through handles, empty/full heaps, and borrow rejection; reject omitted-handle-rewrite and ignored-borrow mutants.",
+            "Integrate a pool allocator and a foreign-function API that temporarily exposes raw pointers. Design pin/unpin lifetime and cancellation cleanup, and measure the tradeoff against copying handles. Delayed assessment allows handle-slot reuse with a stale external reference."
+          ]
+        },
+        {
+          "id": "T74.08-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T74.08.a",
+            "T74.08.b",
+            "T74.08.c",
+            "T74.08.d"
+          ],
+          "prompt": "Integrate a pool allocator and a foreign-function API that temporarily exposes raw pointers. Design pin/unpin lifetime and cancellation cleanup, and measure the tradeoff against copying handles. Delayed assessment allows handle-slot reuse with a stale external reference.",
+          "checklist": [
+            "Distinguish object identity, handle identity and physical slot, and derive when outstanding raw borrows prohibit movement. Explain forwarding for aliased handles and nested handle fields.",
+            "Implement stable physical packing of live payloads with old-slot forwarding and updating every handle alias, then add a pinned-object alternative with explicit fragmentation costs and a generation policy for reused handles.",
+            "Enumerate all small live masks and compare payload identity through handles before and after movement. Test holes, aliases, cycles through handles, empty/full heaps, and borrow rejection; reject omitted-handle-rewrite and ignored-borrow mutants.",
+            "Integrate a pool allocator and a foreign-function API that temporarily exposes raw pointers. Design pin/unpin lifetime and cancellation cleanup, and measure the tradeoff against copying handles. Delayed assessment allows handle-slot reuse with a stale external reference."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T74.09",
+      "title": "Ephemeron fixed points and staged finalization",
+      "objectives": [
+        "T74.09.a",
+        "T74.09.b",
+        "T74.09.c",
+        "T74.09.d"
+      ],
+      "objective_text": {
+        "T74.09.a": "Derive conditional reachability of ephemeron values and why a value-to-key cycle cannot bootstrap liveness. Separate weak clearing, finalizer retention, resurrection and deterministic external-resource release.",
+        "T74.09.b": "Implement repeated ephemeron closure, weak clearing before finalizer retention, an explicit pending queue and at-most-once finalization identities. Build a synthetic finalizer driver that may resurrect an object and compare the chosen policy with Lua and CPython.",
+        "T74.09.c": "Enumerate small ephemeron relations/root sets independently, include reverse-ordered chains requiring multiple passes, value-key cycles, weak-only roots, pending-queue rejection and resurrection followed by later reclamation. Reject single-pass and missing-finalized-bit mutants.",
+        "T74.09.d": "Add a finalizer that fails while owning a synthetic resource and one that allocates; specify queue capacity, reentry and eventual cleanup without relying on prompt GC. Delayed assessment changes ephemeron values into graphs containing further ephemeron keys."
+      },
+      "projects": [
+        "PR-T74-09"
+      ],
+      "variants": [
+        {
+          "id": "T74.09-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T74.09.a",
+            "T74.09.b",
+            "T74.09.c",
+            "T74.09.d"
+          ],
+          "prompt": "Derive conditional reachability of ephemeron values and why a value-to-key cycle cannot bootstrap liveness. Separate weak clearing, finalizer retention, resurrection and deterministic external-resource release.",
+          "checklist": [
+            "Derive conditional reachability of ephemeron values and why a value-to-key cycle cannot bootstrap liveness. Separate weak clearing, finalizer retention, resurrection and deterministic external-resource release.",
+            "Implement repeated ephemeron closure, weak clearing before finalizer retention, an explicit pending queue and at-most-once finalization identities. Build a synthetic finalizer driver that may resurrect an object and compare the chosen policy with Lua and CPython.",
+            "Enumerate small ephemeron relations/root sets independently, include reverse-ordered chains requiring multiple passes, value-key cycles, weak-only roots, pending-queue rejection and resurrection followed by later reclamation. Reject single-pass and missing-finalized-bit mutants.",
+            "Add a finalizer that fails while owning a synthetic resource and one that allocates; specify queue capacity, reentry and eventual cleanup without relying on prompt GC. Delayed assessment changes ephemeron values into graphs containing further ephemeron keys."
+          ]
+        },
+        {
+          "id": "T74.09-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T74.09.a",
+            "T74.09.b",
+            "T74.09.c",
+            "T74.09.d"
+          ],
+          "prompt": "Pairs2→3 then1→2 with strong root1 retain all three only after a fixed point. A pair4→5 whose value5 points back to key4 dies without an external key root. A queued object clears weak references before one finalizer event and may be rooted before the next collection.",
+          "checklist": [
+            "Derive conditional reachability of ephemeron values and why a value-to-key cycle cannot bootstrap liveness. Separate weak clearing, finalizer retention, resurrection and deterministic external-resource release.",
+            "Implement repeated ephemeron closure, weak clearing before finalizer retention, an explicit pending queue and at-most-once finalization identities. Build a synthetic finalizer driver that may resurrect an object and compare the chosen policy with Lua and CPython.",
+            "Enumerate small ephemeron relations/root sets independently, include reverse-ordered chains requiring multiple passes, value-key cycles, weak-only roots, pending-queue rejection and resurrection followed by later reclamation. Reject single-pass and missing-finalized-bit mutants.",
+            "Add a finalizer that fails while owning a synthetic resource and one that allocates; specify queue capacity, reentry and eventual cleanup without relying on prompt GC. Delayed assessment changes ephemeron values into graphs containing further ephemeron keys."
+          ]
+        },
+        {
+          "id": "T74.09-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T74.09.a",
+            "T74.09.b",
+            "T74.09.c",
+            "T74.09.d"
+          ],
+          "prompt": "Add a finalizer that fails while owning a synthetic resource and one that allocates; specify queue capacity, reentry and eventual cleanup without relying on prompt GC. Delayed assessment changes ephemeron values into graphs containing further ephemeron keys.",
+          "checklist": [
+            "Derive conditional reachability of ephemeron values and why a value-to-key cycle cannot bootstrap liveness. Separate weak clearing, finalizer retention, resurrection and deterministic external-resource release.",
+            "Implement repeated ephemeron closure, weak clearing before finalizer retention, an explicit pending queue and at-most-once finalization identities. Build a synthetic finalizer driver that may resurrect an object and compare the chosen policy with Lua and CPython.",
+            "Enumerate small ephemeron relations/root sets independently, include reverse-ordered chains requiring multiple passes, value-key cycles, weak-only roots, pending-queue rejection and resurrection followed by later reclamation. Reject single-pass and missing-finalized-bit mutants.",
+            "Add a finalizer that fails while owning a synthetic resource and one that allocates; specify queue capacity, reentry and eventual cleanup without relying on prompt GC. Delayed assessment changes ephemeron values into graphs containing further ephemeron keys."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T74.10",
+      "title": "Trial deletion for reference-counted cycles",
+      "objectives": [
+        "T74.10.a",
+        "T74.10.b",
+        "T74.10.c",
+        "T74.10.d"
+      ],
+      "objective_text": {
+        "T74.10.a": "Derive residual external counts for a candidate subgraph, then prove why residual zero alone does not imply garbage. Preserve true counts while detecting a candidate reachability closure.",
+        "T74.10.b": "Implement copied trial counts, candidate-internal edge subtraction, rescue from positive residual seeds, and reclamation with decrements to surviving targets. Integrate ordinary zero-count cascading separately and compare with a tracing oracle.",
+        "T74.10.c": "Enumerate three-node graphs, external roots and candidate subsets, including self-cycles, shared descendants, parallel edges, externally protected cycles and inconsistent counts. Reject omitted subtraction and missing rescue closure; verify true survivor counts and exact reclaimed sets.",
+        "T74.10.d": "Add deferred decrements and candidate buffering, bounding pause and memory cost under repeated mutations. Delayed assessment introduces concurrent retain/release and asks which snapshots and synchronization are needed before a trial result can justify reclamation."
+      },
+      "projects": [
+        "PR-T74-10"
+      ],
+      "variants": [
+        {
+          "id": "T74.10-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T74.10.a",
+            "T74.10.b",
+            "T74.10.c",
+            "T74.10.d"
+          ],
+          "prompt": "Derive residual external counts for a candidate subgraph, then prove why residual zero alone does not imply garbage. Preserve true counts while detecting a candidate reachability closure.",
+          "checklist": [
+            "Derive residual external counts for a candidate subgraph, then prove why residual zero alone does not imply garbage. Preserve true counts while detecting a candidate reachability closure.",
+            "Implement copied trial counts, candidate-internal edge subtraction, rescue from positive residual seeds, and reclamation with decrements to surviving targets. Integrate ordinary zero-count cascading separately and compare with a tracing oracle.",
+            "Enumerate three-node graphs, external roots and candidate subsets, including self-cycles, shared descendants, parallel edges, externally protected cycles and inconsistent counts. Reject omitted subtraction and missing rescue closure; verify true survivor counts and exact reclaimed sets.",
+            "Add deferred decrements and candidate buffering, bounding pause and memory cost under repeated mutations. Delayed assessment introduces concurrent retain/release and asks which snapshots and synchronization are needed before a trial result can justify reclamation."
+          ]
+        },
+        {
+          "id": "T74.10-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T74.10.a",
+            "T74.10.b",
+            "T74.10.c",
+            "T74.10.d"
+          ],
+          "prompt": "A1↔2 cycle with true counts1,1 and no external root is reclaimed. Counts2,1 mean an external reference protects1 and therefore2, even though2 has residual zero. An outside-candidate reference conservatively protects its target.",
+          "checklist": [
+            "Derive residual external counts for a candidate subgraph, then prove why residual zero alone does not imply garbage. Preserve true counts while detecting a candidate reachability closure.",
+            "Implement copied trial counts, candidate-internal edge subtraction, rescue from positive residual seeds, and reclamation with decrements to surviving targets. Integrate ordinary zero-count cascading separately and compare with a tracing oracle.",
+            "Enumerate three-node graphs, external roots and candidate subsets, including self-cycles, shared descendants, parallel edges, externally protected cycles and inconsistent counts. Reject omitted subtraction and missing rescue closure; verify true survivor counts and exact reclaimed sets.",
+            "Add deferred decrements and candidate buffering, bounding pause and memory cost under repeated mutations. Delayed assessment introduces concurrent retain/release and asks which snapshots and synchronization are needed before a trial result can justify reclamation."
+          ]
+        },
+        {
+          "id": "T74.10-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T74.10.a",
+            "T74.10.b",
+            "T74.10.c",
+            "T74.10.d"
+          ],
+          "prompt": "Add deferred decrements and candidate buffering, bounding pause and memory cost under repeated mutations. Delayed assessment introduces concurrent retain/release and asks which snapshots and synchronization are needed before a trial result can justify reclamation.",
+          "checklist": [
+            "Derive residual external counts for a candidate subgraph, then prove why residual zero alone does not imply garbage. Preserve true counts while detecting a candidate reachability closure.",
+            "Implement copied trial counts, candidate-internal edge subtraction, rescue from positive residual seeds, and reclamation with decrements to surviving targets. Integrate ordinary zero-count cascading separately and compare with a tracing oracle.",
+            "Enumerate three-node graphs, external roots and candidate subsets, including self-cycles, shared descendants, parallel edges, externally protected cycles and inconsistent counts. Reject omitted subtraction and missing rescue closure; verify true survivor counts and exact reclaimed sets.",
+            "Add deferred decrements and candidate buffering, bounding pause and memory cost under repeated mutations. Delayed assessment introduces concurrent retain/release and asks which snapshots and synchronization are needed before a trial result can justify reclamation."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T74.11",
+      "title": "Precise root maps and derived-reference relocation",
+      "objectives": [
+        "T74.11.a",
+        "T74.11.b",
+        "T74.11.c",
+        "T74.11.d"
+      ],
+      "objective_text": {
+        "T74.11.a": "Derive complete root maps over initialized interpreter slots, distinguishing scalar lookalikes, duplicate copies and derived base-plus-offset references. Explain compiler statepoints versus manually maintained C roots.",
+        "T74.11.b": "Implement transactional map validation and relocation of every root copy, preserving scalar slots and one-past offsets. Integrate actual runtime.vm roots and temporaries through ADAPTERS.md, then construct and inspect an LLVM statepoint experiment as a separate compiler-dependent artifact.",
+        "T74.11.c": "Enumerate base/destination/offset combinations, exact maps, missing roots, uninitialized slots, missing forwarding and non-safepoint rejection. Reject omitted-map-validation and omitted-relocation mutants; inspect pre/post values and demonstrate why stale hidden compiler copies require compiler cooperation.",
+        "T74.11.d": "Add multiple interpreter frames, exceptions and foreign calls that can allocate. Design root registration/unregistration on every exit and safepoint poll protocol. Delayed assessment moves an object while two derived references and a scalar with equal bits are live."
+      },
+      "projects": [
+        "PR-T74-11"
+      ],
+      "variants": [
+        {
+          "id": "T74.11-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T74.11.a",
+            "T74.11.b",
+            "T74.11.c",
+            "T74.11.d"
+          ],
+          "prompt": "Derive complete root maps over initialized interpreter slots, distinguishing scalar lookalikes, duplicate copies and derived base-plus-offset references. Explain compiler statepoints versus manually maintained C roots.",
+          "checklist": [
+            "Derive complete root maps over initialized interpreter slots, distinguishing scalar lookalikes, duplicate copies and derived base-plus-offset references. Explain compiler statepoints versus manually maintained C roots.",
+            "Implement transactional map validation and relocation of every root copy, preserving scalar slots and one-past offsets. Integrate actual runtime.vm roots and temporaries through ADAPTERS.md, then construct and inspect an LLVM statepoint experiment as a separate compiler-dependent artifact.",
+            "Enumerate base/destination/offset combinations, exact maps, missing roots, uninitialized slots, missing forwarding and non-safepoint rejection. Reject omitted-map-validation and omitted-relocation mutants; inspect pre/post values and demonstrate why stale hidden compiler copies require compiler cooperation.",
+            "Add multiple interpreter frames, exceptions and foreign calls that can allocate. Design root registration/unregistration on every exit and safepoint poll protocol. Delayed assessment moves an object while two derived references and a scalar with equal bits are live."
+          ]
+        },
+        {
+          "id": "T74.11-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T74.11.a",
+            "T74.11.b",
+            "T74.11.c",
+            "T74.11.d"
+          ],
+          "prompt": "Two root slots with base2 offsets0 and8 and length8 relocate to base5, while scalar2 stays2. A map omitting one tagged root rejects; offset9 rejects the entire frame unchanged. One-past offset8 may be represented but not dereferenced.",
+          "checklist": [
+            "Derive complete root maps over initialized interpreter slots, distinguishing scalar lookalikes, duplicate copies and derived base-plus-offset references. Explain compiler statepoints versus manually maintained C roots.",
+            "Implement transactional map validation and relocation of every root copy, preserving scalar slots and one-past offsets. Integrate actual runtime.vm roots and temporaries through ADAPTERS.md, then construct and inspect an LLVM statepoint experiment as a separate compiler-dependent artifact.",
+            "Enumerate base/destination/offset combinations, exact maps, missing roots, uninitialized slots, missing forwarding and non-safepoint rejection. Reject omitted-map-validation and omitted-relocation mutants; inspect pre/post values and demonstrate why stale hidden compiler copies require compiler cooperation.",
+            "Add multiple interpreter frames, exceptions and foreign calls that can allocate. Design root registration/unregistration on every exit and safepoint poll protocol. Delayed assessment moves an object while two derived references and a scalar with equal bits are live."
+          ]
+        },
+        {
+          "id": "T74.11-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T74.11.a",
+            "T74.11.b",
+            "T74.11.c",
+            "T74.11.d"
+          ],
+          "prompt": "Add multiple interpreter frames, exceptions and foreign calls that can allocate. Design root registration/unregistration on every exit and safepoint poll protocol. Delayed assessment moves an object while two derived references and a scalar with equal bits are live.",
+          "checklist": [
+            "Derive complete root maps over initialized interpreter slots, distinguishing scalar lookalikes, duplicate copies and derived base-plus-offset references. Explain compiler statepoints versus manually maintained C roots.",
+            "Implement transactional map validation and relocation of every root copy, preserving scalar slots and one-past offsets. Integrate actual runtime.vm roots and temporaries through ADAPTERS.md, then construct and inspect an LLVM statepoint experiment as a separate compiler-dependent artifact.",
+            "Enumerate base/destination/offset combinations, exact maps, missing roots, uninitialized slots, missing forwarding and non-safepoint rejection. Reject omitted-map-validation and omitted-relocation mutants; inspect pre/post values and demonstrate why stale hidden compiler copies require compiler cooperation.",
+            "Add multiple interpreter frames, exceptions and foreign calls that can allocate. Design root registration/unregistration on every exit and safepoint poll protocol. Delayed assessment moves an object while two derived references and a scalar with equal bits are live."
+          ]
+        }
+      ]
+    }
+  ]
+}

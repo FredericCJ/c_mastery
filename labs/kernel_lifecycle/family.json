@@ -1,0 +1,2227 @@
+{
+  "version": 5,
+  "family": "kernel_lifecycle",
+  "title": "Linux kernel programming and lifetime boundaries",
+  "build_system": "cmake",
+  "assessor_root": "assessor/kernel_lifecycle",
+  "modules": [
+    "T57"
+  ],
+  "projects": [
+    {
+      "id": "PR-T57-01",
+      "tests": [
+        "kernel_lifecycle.unwind"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement kl_unwind for an ownership mask whose bits0,1,2 mean buffer, workqueue and registered endpoint. Return the decimal release trace with resource numbers3,2,1 in reverse order; unknown bits return0. Derive the acquire/fail matrix, then apply it to the supplied teaching module init labels.",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them."
+    },
+    {
+      "id": "PR-T57-02",
+      "tests": [
+        "kernel_lifecycle.copy"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement kl_copy into a live disjoint destination with capacity cap. Reject n>cap with -1 before writes; otherwise copy min(n,fault_after) bytes and return the completed count. The model input is ordinary accessible memory; a separate guest adapter must use copy_from_user and preserve its actual return convention.",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them."
+    },
+    {
+      "id": "PR-T57-03",
+      "tests": [
+        "kernel_lifecycle.refs"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement kl_ref with op0 acquire and op1 release for a live KLRef initialized to {1,0}. Reject unknown operations, zero/dead acquisition and UINT_MAX overflow; reject repeated release. Last release sets dead exactly once. Failed transitions preserve the struct. Map each transition to kref_init/get/put and protected lookup in the VM adapter.",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them."
+    },
+    {
+      "id": "PR-T57-04",
+      "tests": [
+        "kernel_lifecycle.locks"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all non-RT contexts and only task context in this restricted RT exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them."
+    },
+    {
+      "id": "PR-T57-05",
+      "tests": [
+        "kernel_lifecycle.work"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement kl_work for serialized state {queued,running,closed,released}. Events0 submit,1 begin,2 complete,3 close,4 release. Admission fails when closed or occupied; begin transfers queued to running; complete requires running; close is idempotent; release succeeds only once when closed and neither queued nor running. Rejected events preserve state.",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them."
+    },
+    {
+      "id": "PR-T57-06",
+      "tests": [
+        "kernel_lifecycle.grace"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement kl_grace with events0 enter reader bit id0..7,1 leave,2 retire,3 reclaim. Enter rejects duplicate IDs and admission after retirement; leave requires membership. Retirement is idempotent. Reclaim succeeds only after retirement with no readers and clears retired. This fixed-reader model is intentionally stronger than general RCU and must be mapped critically to the real primitive.",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them."
+    },
+    {
+      "id": "PR-T57-07",
+      "tests": [
+        "kernel_lifecycle.abi"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement kl_decode on octets [version=1,length=2,lo,hi]. Require exactly4 bytes, decode little-endian16 into unsigned output, and leave it unchanged on all rejection. Then design a fixed-width ioctl or read/write adapter without embedding host pointers, documenting compatibility behavior.",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them."
+    },
+    {
+      "id": "PR-T57-08",
+      "tests": [
+        "kernel_lifecycle.unload"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement kl_can_unload(open_handles,pending_callbacks,closed) returning true only for closed==1 and both counts zero. Reject closed>1. Integrate the previous model with the teaching module: enumerate every close, completion and last-put ordering and provide a guest unload dossier showing why no callback can reach released state or unloaded text.",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them."
+    }
+  ],
+  "units": [
+    {
+      "project": "PR-T57-01",
+      "title": "Failure-safe module initialization",
+      "minutes": 240,
+      "objectives": [
+        "T57.01.a",
+        "T57.01.b",
+        "T57.01.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.unwind"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_unwind for an ownership mask whose bits0,1,2 mean buffer, workqueue and registered endpoint. Return the decimal release trace with resource numbers3,2,1 in reverse order; unknown bits return0. Derive the acquire/fail matrix, then apply it to the supplied teaching module init labels.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Show each owned bit has exactly one release and no release precedes its dependents. Relate O(3) model work to the number of real acquisitions, including a failure before endpoint publication.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-01.a",
+          "objective": "T57.01.a",
+          "criterion": "Derive and defend: Show each owned bit has exactly one release and no release precedes its dependents. Relate O(3) model work to the number of real acquisitions, including a failure before endpoint publication.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Show each owned bit has exactly one release and no release precedes its dependents. Relate O(3) model work to the number of real acquisitions, including a failure before endpoint publication. Retain original source or derivation and counterexample.",
+            "3": "Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-01.b",
+          "objective": "T57.01.b",
+          "criterion": "Implement and investigate: Implement kl_unwind for an ownership mask whose bits0,1,2 mean buffer, workqueue and registered endpoint. Return the decimal release trace with resource numbers3,2,1 in reverse order; unknown bits return0. Derive the acquire/fail matrix, then apply it to the supplied teaching module init labels.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_unwind for an ownership mask whose bits0,1,2 mean buffer, workqueue and registered endpoint. Return the decimal release trace with resource numbers3,2,1 in reverse order; unknown bits return0. Derive the acquire/fail matrix, then apply it to the supplied teaching module init labels. Retain original source or derivation and counterexample.",
+            "3": "Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-01.c",
+          "objective": "T57.01.c",
+          "criterion": "Falsify and transfer: Repair forward-order cleanup and double release on a second failure label; a module that returns ENOMEM after leaking work is incorrect even if loading fails. Then Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair forward-order cleanup and double release on a second failure label; a module that returns ENOMEM after leaking work is incorrect even if loading fails. Then Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication. Retain original source or derivation and counterexample.",
+            "3": "Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-01-transfer",
+          "minimum_days": 7,
+          "task": "Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-01.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-01A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement kl_unwind for an ownership mask whose bits0,1,2 mean buffer, workqueue and registered endpoint. Return the decimal release trace with resource numbers3,2,1 in reverse order; unknown bits return0. Derive the acquire/fail matrix, then apply it to the supplied teaching module init labels.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Show each owned bit has exactly one release and no release precedes its dependents. Relate O(3) model work to the number of real acquisitions, including a failure before endpoint publication."
+      ],
+      "checks": [
+        "Repair forward-order cleanup and double release on a second failure label; a module that returns ENOMEM after leaking work is incorrect even if loading fails.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T57-01",
+      "title": "Failure-safe module initialization",
+      "minutes": 240,
+      "objectives": [
+        "T57.01.a",
+        "T57.01.b",
+        "T57.01.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.unwind"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_unwind for an ownership mask whose bits0,1,2 mean buffer, workqueue and registered endpoint. Return the decimal release trace with resource numbers3,2,1 in reverse order; unknown bits return0. Derive the acquire/fail matrix, then apply it to the supplied teaching module init labels.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Show each owned bit has exactly one release and no release precedes its dependents. Relate O(3) model work to the number of real acquisitions, including a failure before endpoint publication.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-01.a",
+          "objective": "T57.01.a",
+          "criterion": "Derive and defend: Show each owned bit has exactly one release and no release precedes its dependents. Relate O(3) model work to the number of real acquisitions, including a failure before endpoint publication.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Show each owned bit has exactly one release and no release precedes its dependents. Relate O(3) model work to the number of real acquisitions, including a failure before endpoint publication. Retain original source or derivation and counterexample.",
+            "3": "Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-01.b",
+          "objective": "T57.01.b",
+          "criterion": "Implement and investigate: Implement kl_unwind for an ownership mask whose bits0,1,2 mean buffer, workqueue and registered endpoint. Return the decimal release trace with resource numbers3,2,1 in reverse order; unknown bits return0. Derive the acquire/fail matrix, then apply it to the supplied teaching module init labels.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_unwind for an ownership mask whose bits0,1,2 mean buffer, workqueue and registered endpoint. Return the decimal release trace with resource numbers3,2,1 in reverse order; unknown bits return0. Derive the acquire/fail matrix, then apply it to the supplied teaching module init labels. Retain original source or derivation and counterexample.",
+            "3": "Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-01.c",
+          "objective": "T57.01.c",
+          "criterion": "Falsify and transfer: Repair forward-order cleanup and double release on a second failure label; a module that returns ENOMEM after leaking work is incorrect even if loading fails. Then Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair forward-order cleanup and double release on a second failure label; a module that returns ENOMEM after leaking work is incorrect even if loading fails. Then Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication. Retain original source or derivation and counterexample.",
+            "3": "Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-01-transfer",
+          "minimum_days": 7,
+          "task": "Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-01.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-01B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "Repair forward-order cleanup and double release on a second failure label; a module that returns ENOMEM after leaking work is incorrect even if loading fails.",
+        "Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Show each owned bit has exactly one release and no release precedes its dependents. Relate O(3) model work to the number of real acquisitions, including a failure before endpoint publication.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T57-02",
+      "title": "User-copy progress and ABI admission",
+      "minutes": 240,
+      "objectives": [
+        "T57.02.a",
+        "T57.02.b",
+        "T57.02.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.copy"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_copy into a live disjoint destination with capacity cap. Reject n>cap with -1 before writes; otherwise copy min(n,fault_after) bytes and return the completed count. The model input is ordinary accessible memory; a separate guest adapter must use copy_from_user and preserve its actual return convention.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "State ownership of unread input, modified prefix and untouched suffix. Explain why a partial-copy return cannot be reused as a negative errno and why cap admission precedes copying.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-02.a",
+          "objective": "T57.02.a",
+          "criterion": "Derive and defend: State ownership of unread input, modified prefix and untouched suffix. Explain why a partial-copy return cannot be reused as a negative errno and why cap admission precedes copying.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: State ownership of unread input, modified prefix and untouched suffix. Explain why a partial-copy return cannot be reused as a negative errno and why cap admission precedes copying. Retain original source or derivation and counterexample.",
+            "3": "Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-02.b",
+          "objective": "T57.02.b",
+          "criterion": "Implement and investigate: Implement kl_copy into a live disjoint destination with capacity cap. Reject n>cap with -1 before writes; otherwise copy min(n,fault_after) bytes and return the completed count. The model input is ordinary accessible memory; a separate guest adapter must use copy_from_user and preserve its actual return convention.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_copy into a live disjoint destination with capacity cap. Reject n>cap with -1 before writes; otherwise copy min(n,fault_after) bytes and return the completed count. The model input is ordinary accessible memory; a separate guest adapter must use copy_from_user and preserve its actual return convention. Retain original source or derivation and counterexample.",
+            "3": "Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-02.c",
+          "objective": "T57.02.c",
+          "criterion": "Falsify and transfer: A faulty wrapper returns the requested count after a partial copy and exposes stale bytes. Demonstrate the stale sentinel in the original local teaching endpoint without touching other processes. Then Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A faulty wrapper returns the requested count after a partial copy and exposes stale bytes. Demonstrate the stale sentinel in the original local teaching endpoint without touching other processes. Then Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible. Retain original source or derivation and counterexample.",
+            "3": "Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-02-transfer",
+          "minimum_days": 7,
+          "task": "Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-02.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-02A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement kl_copy into a live disjoint destination with capacity cap. Reject n>cap with -1 before writes; otherwise copy min(n,fault_after) bytes and return the completed count. The model input is ordinary accessible memory; a separate guest adapter must use copy_from_user and preserve its actual return convention.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "State ownership of unread input, modified prefix and untouched suffix. Explain why a partial-copy return cannot be reused as a negative errno and why cap admission precedes copying."
+      ],
+      "checks": [
+        "A faulty wrapper returns the requested count after a partial copy and exposes stale bytes. Demonstrate the stale sentinel in the original local teaching endpoint without touching other processes.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T57-02",
+      "title": "User-copy progress and ABI admission",
+      "minutes": 240,
+      "objectives": [
+        "T57.02.a",
+        "T57.02.b",
+        "T57.02.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.copy"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_copy into a live disjoint destination with capacity cap. Reject n>cap with -1 before writes; otherwise copy min(n,fault_after) bytes and return the completed count. The model input is ordinary accessible memory; a separate guest adapter must use copy_from_user and preserve its actual return convention.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "State ownership of unread input, modified prefix and untouched suffix. Explain why a partial-copy return cannot be reused as a negative errno and why cap admission precedes copying.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-02.a",
+          "objective": "T57.02.a",
+          "criterion": "Derive and defend: State ownership of unread input, modified prefix and untouched suffix. Explain why a partial-copy return cannot be reused as a negative errno and why cap admission precedes copying.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: State ownership of unread input, modified prefix and untouched suffix. Explain why a partial-copy return cannot be reused as a negative errno and why cap admission precedes copying. Retain original source or derivation and counterexample.",
+            "3": "Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-02.b",
+          "objective": "T57.02.b",
+          "criterion": "Implement and investigate: Implement kl_copy into a live disjoint destination with capacity cap. Reject n>cap with -1 before writes; otherwise copy min(n,fault_after) bytes and return the completed count. The model input is ordinary accessible memory; a separate guest adapter must use copy_from_user and preserve its actual return convention.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_copy into a live disjoint destination with capacity cap. Reject n>cap with -1 before writes; otherwise copy min(n,fault_after) bytes and return the completed count. The model input is ordinary accessible memory; a separate guest adapter must use copy_from_user and preserve its actual return convention. Retain original source or derivation and counterexample.",
+            "3": "Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-02.c",
+          "objective": "T57.02.c",
+          "criterion": "Falsify and transfer: A faulty wrapper returns the requested count after a partial copy and exposes stale bytes. Demonstrate the stale sentinel in the original local teaching endpoint without touching other processes. Then Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A faulty wrapper returns the requested count after a partial copy and exposes stale bytes. Demonstrate the stale sentinel in the original local teaching endpoint without touching other processes. Then Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible. Retain original source or derivation and counterexample.",
+            "3": "Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-02-transfer",
+          "minimum_days": 7,
+          "task": "Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-02.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-02B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A faulty wrapper returns the requested count after a partial copy and exposes stale bytes. Demonstrate the stale sentinel in the original local teaching endpoint without touching other processes.",
+        "Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "State ownership of unread input, modified prefix and untouched suffix. Explain why a partial-copy return cannot be reused as a negative errno and why cap admission precedes copying.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T57-03",
+      "title": "Reference acquisition before handoff",
+      "minutes": 240,
+      "objectives": [
+        "T57.03.a",
+        "T57.03.b",
+        "T57.03.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.refs"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_ref with op0 acquire and op1 release for a live KLRef initialized to {1,0}. Reject unknown operations, zero/dead acquisition and UINT_MAX overflow; reject repeated release. Last release sets dead exactly once. Failed transitions preserve the struct. Map each transition to kref_init/get/put and protected lookup in the VM adapter.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Associate every reference with a named owner; count conservation is initial plus successful acquires minus releases. Explain why a nonzero count cannot validate a pointer that may already be freed.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-03.a",
+          "objective": "T57.03.a",
+          "criterion": "Derive and defend: Associate every reference with a named owner; count conservation is initial plus successful acquires minus releases. Explain why a nonzero count cannot validate a pointer that may already be freed.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Associate every reference with a named owner; count conservation is initial plus successful acquires minus releases. Explain why a nonzero count cannot validate a pointer that may already be freed. Retain original source or derivation and counterexample.",
+            "3": "Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-03.b",
+          "objective": "T57.03.b",
+          "criterion": "Implement and investigate: Implement kl_ref with op0 acquire and op1 release for a live KLRef initialized to {1,0}. Reject unknown operations, zero/dead acquisition and UINT_MAX overflow; reject repeated release. Last release sets dead exactly once. Failed transitions preserve the struct. Map each transition to kref_init/get/put and protected lookup in the VM adapter.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_ref with op0 acquire and op1 release for a live KLRef initialized to {1,0}. Reject unknown operations, zero/dead acquisition and UINT_MAX overflow; reject repeated release. Last release sets dead exactly once. Failed transitions preserve the struct. Map each transition to kref_init/get/put and protected lookup in the VM adapter. Retain original source or derivation and counterexample.",
+            "3": "Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-03.c",
+          "objective": "T57.03.c",
+          "criterion": "Falsify and transfer: Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the race without creating valid ownership. Then Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the race without creating valid ownership. Then Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations. Retain original source or derivation and counterexample.",
+            "3": "Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-03-transfer",
+          "minimum_days": 7,
+          "task": "Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-03.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-03A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement kl_ref with op0 acquire and op1 release for a live KLRef initialized to {1,0}. Reject unknown operations, zero/dead acquisition and UINT_MAX overflow; reject repeated release. Last release sets dead exactly once. Failed transitions preserve the struct. Map each transition to kref_init/get/put and protected lookup in the VM adapter.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Associate every reference with a named owner; count conservation is initial plus successful acquires minus releases. Explain why a nonzero count cannot validate a pointer that may already be freed."
+      ],
+      "checks": [
+        "Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the race without creating valid ownership.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T57-03",
+      "title": "Reference acquisition before handoff",
+      "minutes": 240,
+      "objectives": [
+        "T57.03.a",
+        "T57.03.b",
+        "T57.03.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.refs"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_ref with op0 acquire and op1 release for a live KLRef initialized to {1,0}. Reject unknown operations, zero/dead acquisition and UINT_MAX overflow; reject repeated release. Last release sets dead exactly once. Failed transitions preserve the struct. Map each transition to kref_init/get/put and protected lookup in the VM adapter.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Associate every reference with a named owner; count conservation is initial plus successful acquires minus releases. Explain why a nonzero count cannot validate a pointer that may already be freed.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-03.a",
+          "objective": "T57.03.a",
+          "criterion": "Derive and defend: Associate every reference with a named owner; count conservation is initial plus successful acquires minus releases. Explain why a nonzero count cannot validate a pointer that may already be freed.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Associate every reference with a named owner; count conservation is initial plus successful acquires minus releases. Explain why a nonzero count cannot validate a pointer that may already be freed. Retain original source or derivation and counterexample.",
+            "3": "Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-03.b",
+          "objective": "T57.03.b",
+          "criterion": "Implement and investigate: Implement kl_ref with op0 acquire and op1 release for a live KLRef initialized to {1,0}. Reject unknown operations, zero/dead acquisition and UINT_MAX overflow; reject repeated release. Last release sets dead exactly once. Failed transitions preserve the struct. Map each transition to kref_init/get/put and protected lookup in the VM adapter.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_ref with op0 acquire and op1 release for a live KLRef initialized to {1,0}. Reject unknown operations, zero/dead acquisition and UINT_MAX overflow; reject repeated release. Last release sets dead exactly once. Failed transitions preserve the struct. Map each transition to kref_init/get/put and protected lookup in the VM adapter. Retain original source or derivation and counterexample.",
+            "3": "Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-03.c",
+          "objective": "T57.03.c",
+          "criterion": "Falsify and transfer: Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the race without creating valid ownership. Then Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the race without creating valid ownership. Then Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations. Retain original source or derivation and counterexample.",
+            "3": "Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-03-transfer",
+          "minimum_days": 7,
+          "task": "Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-03.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-03B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the race without creating valid ownership.",
+        "Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Associate every reference with a named owner; count conservation is initial plus successful acquires minus releases. Explain why a nonzero count cannot validate a pointer that may already be freed.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T57-04",
+      "title": "Context-sensitive locking",
+      "minutes": 240,
+      "objectives": [
+        "T57.04.a",
+        "T57.04.b",
+        "T57.04.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.locks"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all non-RT contexts and only task context in this restricted RT exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive preemption, migration, interrupt and inter-CPU exclusion separately. A lockdep trace is evidence for exercised lock-order paths, not a proof of all schedules.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-04.a",
+          "objective": "T57.04.a",
+          "criterion": "Derive and defend: Derive preemption, migration, interrupt and inter-CPU exclusion separately. A lockdep trace is evidence for exercised lock-order paths, not a proof of all schedules.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive preemption, migration, interrupt and inter-CPU exclusion separately. A lockdep trace is evidence for exercised lock-order paths, not a proof of all schedules. Retain original source or derivation and counterexample.",
+            "3": "Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-04.b",
+          "objective": "T57.04.b",
+          "criterion": "Implement and investigate: Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all non-RT contexts and only task context in this restricted RT exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all non-RT contexts and only task context in this restricted RT exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs. Retain original source or derivation and counterexample.",
+            "3": "Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-04.c",
+          "objective": "T57.04.c",
+          "criterion": "Falsify and transfer: Repair an RT hardirq path that uses ordinary spinlock_t and a second-core race hidden by local interrupt disabling. The host truth table assesses policy only. Then Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair an RT hardirq path that uses ordinary spinlock_t and a second-core race hidden by local interrupt disabling. The host truth table assesses policy only. Then Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces. Retain original source or derivation and counterexample.",
+            "3": "Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-04-transfer",
+          "minimum_days": 7,
+          "task": "Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-04.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-04A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all non-RT contexts and only task context in this restricted RT exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive preemption, migration, interrupt and inter-CPU exclusion separately. A lockdep trace is evidence for exercised lock-order paths, not a proof of all schedules."
+      ],
+      "checks": [
+        "Repair an RT hardirq path that uses ordinary spinlock_t and a second-core race hidden by local interrupt disabling. The host truth table assesses policy only.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T57-04",
+      "title": "Context-sensitive locking",
+      "minutes": 240,
+      "objectives": [
+        "T57.04.a",
+        "T57.04.b",
+        "T57.04.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.locks"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all non-RT contexts and only task context in this restricted RT exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive preemption, migration, interrupt and inter-CPU exclusion separately. A lockdep trace is evidence for exercised lock-order paths, not a proof of all schedules.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-04.a",
+          "objective": "T57.04.a",
+          "criterion": "Derive and defend: Derive preemption, migration, interrupt and inter-CPU exclusion separately. A lockdep trace is evidence for exercised lock-order paths, not a proof of all schedules.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive preemption, migration, interrupt and inter-CPU exclusion separately. A lockdep trace is evidence for exercised lock-order paths, not a proof of all schedules. Retain original source or derivation and counterexample.",
+            "3": "Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-04.b",
+          "objective": "T57.04.b",
+          "criterion": "Implement and investigate: Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all non-RT contexts and only task context in this restricted RT exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_lock_allowed(context,kind,rt) for conservative teaching policy: context0 task,1 hardirq,2 softirq; kind0 mutex,1 spinlock_t,2 raw_spinlock_t. Mutex is task-only; raw lock is allowed in all three; ordinary spin lock is allowed in all non-RT contexts and only task context in this restricted RT exercise. Reject out-of-range fields. Defend why the policy is deliberately narrower than all Linux APIs. Retain original source or derivation and counterexample.",
+            "3": "Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-04.c",
+          "objective": "T57.04.c",
+          "criterion": "Falsify and transfer: Repair an RT hardirq path that uses ordinary spinlock_t and a second-core race hidden by local interrupt disabling. The host truth table assesses policy only. Then Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair an RT hardirq path that uses ordinary spinlock_t and a second-core race hidden by local interrupt disabling. The host truth table assesses policy only. Then Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces. Retain original source or derivation and counterexample.",
+            "3": "Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-04-transfer",
+          "minimum_days": 7,
+          "task": "Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-04.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-04B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "Repair an RT hardirq path that uses ordinary spinlock_t and a second-core race hidden by local interrupt disabling. The host truth table assesses policy only.",
+        "Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive preemption, migration, interrupt and inter-CPU exclusion separately. A lockdep trace is evidence for exercised lock-order paths, not a proof of all schedules.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T57-05",
+      "title": "Work cancellation and terminal ownership",
+      "minutes": 240,
+      "objectives": [
+        "T57.05.a",
+        "T57.05.b",
+        "T57.05.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.work"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_work for serialized state {queued,running,closed,released}. Events0 submit,1 begin,2 complete,3 close,4 release. Admission fails when closed or occupied; begin transfers queued to running; complete requires running; close is idempotent; release succeeds only once when closed and neither queued nor running. Rejected events preserve state.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove release implies quiescence and closed admission. Compare cancellation return values with work ownership; do not hold a lock required by the worker while synchronously draining it.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-05.a",
+          "objective": "T57.05.a",
+          "criterion": "Derive and defend: Prove release implies quiescence and closed admission. Compare cancellation return values with work ownership; do not hold a lock required by the worker while synchronously draining it.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove release implies quiescence and closed admission. Compare cancellation return values with work ownership; do not hold a lock required by the worker while synchronously draining it. Retain original source or derivation and counterexample.",
+            "3": "Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-05.b",
+          "objective": "T57.05.b",
+          "criterion": "Implement and investigate: Implement kl_work for serialized state {queued,running,closed,released}. Events0 submit,1 begin,2 complete,3 close,4 release. Admission fails when closed or occupied; begin transfers queued to running; complete requires running; close is idempotent; release succeeds only once when closed and neither queued nor running. Rejected events preserve state.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_work for serialized state {queued,running,closed,released}. Events0 submit,1 begin,2 complete,3 close,4 release. Admission fails when closed or occupied; begin transfers queued to running; complete requires running; close is idempotent; release succeeds only once when closed and neither queued nor running. Rejected events preserve state. Retain original source or derivation and counterexample.",
+            "3": "Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-05.c",
+          "objective": "T57.05.c",
+          "criterion": "Falsify and transfer: A faulty release ignores running work after close; the sentinel release flag demonstrates premature destruction. A deadlock also occurs if teardown waits while holding the worker lock. Then Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A faulty release ignores running work after close; the sentinel release flag demonstrates premature destruction. A deadlock also occurs if teardown waits while holding the worker lock. Then Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point. Retain original source or derivation and counterexample.",
+            "3": "Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-05-transfer",
+          "minimum_days": 7,
+          "task": "Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-05.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-05A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement kl_work for serialized state {queued,running,closed,released}. Events0 submit,1 begin,2 complete,3 close,4 release. Admission fails when closed or occupied; begin transfers queued to running; complete requires running; close is idempotent; release succeeds only once when closed and neither queued nor running. Rejected events preserve state.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Prove release implies quiescence and closed admission. Compare cancellation return values with work ownership; do not hold a lock required by the worker while synchronously draining it."
+      ],
+      "checks": [
+        "A faulty release ignores running work after close; the sentinel release flag demonstrates premature destruction. A deadlock also occurs if teardown waits while holding the worker lock.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T57-05",
+      "title": "Work cancellation and terminal ownership",
+      "minutes": 240,
+      "objectives": [
+        "T57.05.a",
+        "T57.05.b",
+        "T57.05.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.work"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_work for serialized state {queued,running,closed,released}. Events0 submit,1 begin,2 complete,3 close,4 release. Admission fails when closed or occupied; begin transfers queued to running; complete requires running; close is idempotent; release succeeds only once when closed and neither queued nor running. Rejected events preserve state.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove release implies quiescence and closed admission. Compare cancellation return values with work ownership; do not hold a lock required by the worker while synchronously draining it.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-05.a",
+          "objective": "T57.05.a",
+          "criterion": "Derive and defend: Prove release implies quiescence and closed admission. Compare cancellation return values with work ownership; do not hold a lock required by the worker while synchronously draining it.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove release implies quiescence and closed admission. Compare cancellation return values with work ownership; do not hold a lock required by the worker while synchronously draining it. Retain original source or derivation and counterexample.",
+            "3": "Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-05.b",
+          "objective": "T57.05.b",
+          "criterion": "Implement and investigate: Implement kl_work for serialized state {queued,running,closed,released}. Events0 submit,1 begin,2 complete,3 close,4 release. Admission fails when closed or occupied; begin transfers queued to running; complete requires running; close is idempotent; release succeeds only once when closed and neither queued nor running. Rejected events preserve state.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_work for serialized state {queued,running,closed,released}. Events0 submit,1 begin,2 complete,3 close,4 release. Admission fails when closed or occupied; begin transfers queued to running; complete requires running; close is idempotent; release succeeds only once when closed and neither queued nor running. Rejected events preserve state. Retain original source or derivation and counterexample.",
+            "3": "Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-05.c",
+          "objective": "T57.05.c",
+          "criterion": "Falsify and transfer: A faulty release ignores running work after close; the sentinel release flag demonstrates premature destruction. A deadlock also occurs if teardown waits while holding the worker lock. Then Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A faulty release ignores running work after close; the sentinel release flag demonstrates premature destruction. A deadlock also occurs if teardown waits while holding the worker lock. Then Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point. Retain original source or derivation and counterexample.",
+            "3": "Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-05-transfer",
+          "minimum_days": 7,
+          "task": "Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-05.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-05B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A faulty release ignores running work after close; the sentinel release flag demonstrates premature destruction. A deadlock also occurs if teardown waits while holding the worker lock.",
+        "Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Prove release implies quiescence and closed admission. Compare cancellation return values with work ownership; do not hold a lock required by the worker while synchronously draining it.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T57-06",
+      "title": "RCU read-side lifetime model",
+      "minutes": 240,
+      "objectives": [
+        "T57.06.a",
+        "T57.06.b",
+        "T57.06.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.grace"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_grace with events0 enter reader bit id0..7,1 leave,2 retire,3 reclaim. Enter rejects duplicate IDs and admission after retirement; leave requires membership. Retirement is idempotent. Reclaim succeeds only after retirement with no readers and clears retired. This fixed-reader model is intentionally stronger than general RCU and must be mapped critically to the real primitive.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Show removal prevents new lookup while preexisting readers retain storage lifetime. Identify how refcount acquisition extends ownership beyond a read-side section and why the section alone does not do so.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-06.a",
+          "objective": "T57.06.a",
+          "criterion": "Derive and defend: Show removal prevents new lookup while preexisting readers retain storage lifetime. Identify how refcount acquisition extends ownership beyond a read-side section and why the section alone does not do so.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Show removal prevents new lookup while preexisting readers retain storage lifetime. Identify how refcount acquisition extends ownership beyond a read-side section and why the section alone does not do so. Retain original source or derivation and counterexample.",
+            "3": "Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-06.b",
+          "objective": "T57.06.b",
+          "criterion": "Implement and investigate: Implement kl_grace with events0 enter reader bit id0..7,1 leave,2 retire,3 reclaim. Enter rejects duplicate IDs and admission after retirement; leave requires membership. Retirement is idempotent. Reclaim succeeds only after retirement with no readers and clears retired. This fixed-reader model is intentionally stronger than general RCU and must be mapped critically to the real primitive.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_grace with events0 enter reader bit id0..7,1 leave,2 retire,3 reclaim. Enter rejects duplicate IDs and admission after retirement; leave requires membership. Retirement is idempotent. Reclaim succeeds only after retirement with no readers and clears retired. This fixed-reader model is intentionally stronger than general RCU and must be mapped critically to the real primitive. Retain original source or derivation and counterexample.",
+            "3": "Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-06.c",
+          "objective": "T57.06.c",
+          "criterion": "Falsify and transfer: Repair immediate reclamation on unlink; delayed arbitrary sleeps are not grace-period proofs. Host bitmask traces cannot validate actual RCU memory ordering. Then Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair immediate reclamation on unlink; delayed arbitrary sleeps are not grace-period proofs. Host bitmask traces cannot validate actual RCU memory ordering. Then Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation. Retain original source or derivation and counterexample.",
+            "3": "Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-06-transfer",
+          "minimum_days": 7,
+          "task": "Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-06.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-06A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement kl_grace with events0 enter reader bit id0..7,1 leave,2 retire,3 reclaim. Enter rejects duplicate IDs and admission after retirement; leave requires membership. Retirement is idempotent. Reclaim succeeds only after retirement with no readers and clears retired. This fixed-reader model is intentionally stronger than general RCU and must be mapped critically to the real primitive.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Show removal prevents new lookup while preexisting readers retain storage lifetime. Identify how refcount acquisition extends ownership beyond a read-side section and why the section alone does not do so."
+      ],
+      "checks": [
+        "Repair immediate reclamation on unlink; delayed arbitrary sleeps are not grace-period proofs. Host bitmask traces cannot validate actual RCU memory ordering.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T57-06",
+      "title": "RCU read-side lifetime model",
+      "minutes": 240,
+      "objectives": [
+        "T57.06.a",
+        "T57.06.b",
+        "T57.06.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.grace"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_grace with events0 enter reader bit id0..7,1 leave,2 retire,3 reclaim. Enter rejects duplicate IDs and admission after retirement; leave requires membership. Retirement is idempotent. Reclaim succeeds only after retirement with no readers and clears retired. This fixed-reader model is intentionally stronger than general RCU and must be mapped critically to the real primitive.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Show removal prevents new lookup while preexisting readers retain storage lifetime. Identify how refcount acquisition extends ownership beyond a read-side section and why the section alone does not do so.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-06.a",
+          "objective": "T57.06.a",
+          "criterion": "Derive and defend: Show removal prevents new lookup while preexisting readers retain storage lifetime. Identify how refcount acquisition extends ownership beyond a read-side section and why the section alone does not do so.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Show removal prevents new lookup while preexisting readers retain storage lifetime. Identify how refcount acquisition extends ownership beyond a read-side section and why the section alone does not do so. Retain original source or derivation and counterexample.",
+            "3": "Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-06.b",
+          "objective": "T57.06.b",
+          "criterion": "Implement and investigate: Implement kl_grace with events0 enter reader bit id0..7,1 leave,2 retire,3 reclaim. Enter rejects duplicate IDs and admission after retirement; leave requires membership. Retirement is idempotent. Reclaim succeeds only after retirement with no readers and clears retired. This fixed-reader model is intentionally stronger than general RCU and must be mapped critically to the real primitive.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_grace with events0 enter reader bit id0..7,1 leave,2 retire,3 reclaim. Enter rejects duplicate IDs and admission after retirement; leave requires membership. Retirement is idempotent. Reclaim succeeds only after retirement with no readers and clears retired. This fixed-reader model is intentionally stronger than general RCU and must be mapped critically to the real primitive. Retain original source or derivation and counterexample.",
+            "3": "Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-06.c",
+          "objective": "T57.06.c",
+          "criterion": "Falsify and transfer: Repair immediate reclamation on unlink; delayed arbitrary sleeps are not grace-period proofs. Host bitmask traces cannot validate actual RCU memory ordering. Then Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair immediate reclamation on unlink; delayed arbitrary sleeps are not grace-period proofs. Host bitmask traces cannot validate actual RCU memory ordering. Then Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation. Retain original source or derivation and counterexample.",
+            "3": "Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-06-transfer",
+          "minimum_days": 7,
+          "task": "Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-06.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-06B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "Repair immediate reclamation on unlink; delayed arbitrary sleeps are not grace-period proofs. Host bitmask traces cannot validate actual RCU memory ordering.",
+        "Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Show removal prevents new lookup while preexisting readers retain storage lifetime. Identify how refcount acquisition extends ownership beyond a read-side section and why the section alone does not do so.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T57-07",
+      "title": "Versioned kernel control records",
+      "minutes": 240,
+      "objectives": [
+        "T57.07.a",
+        "T57.07.b",
+        "T57.07.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.abi"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_decode on octets [version=1,length=2,lo,hi]. Require exactly4 bytes, decode little-endian16 into unsigned output, and leave it unchanged on all rejection. Then design a fixed-width ioctl or read/write adapter without embedding host pointers, documenting compatibility behavior.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Demonstrate exact-length admission and byte-order independence; distinguish ABI versioning from ISO C object representation and kernel/user pointer validation.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-07.a",
+          "objective": "T57.07.a",
+          "criterion": "Derive and defend: Demonstrate exact-length admission and byte-order independence; distinguish ABI versioning from ISO C object representation and kernel/user pointer validation.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Demonstrate exact-length admission and byte-order independence; distinguish ABI versioning from ISO C object representation and kernel/user pointer validation. Retain original source or derivation and counterexample.",
+            "3": "Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-07.b",
+          "objective": "T57.07.b",
+          "criterion": "Implement and investigate: Implement kl_decode on octets [version=1,length=2,lo,hi]. Require exactly4 bytes, decode little-endian16 into unsigned output, and leave it unchanged on all rejection. Then design a fixed-width ioctl or read/write adapter without embedding host pointers, documenting compatibility behavior.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_decode on octets [version=1,length=2,lo,hi]. Require exactly4 bytes, decode little-endian16 into unsigned output, and leave it unchanged on all rejection. Then design a fixed-width ioctl or read/write adapter without embedding host pointers, documenting compatibility behavior. Retain original source or derivation and counterexample.",
+            "3": "Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-07.c",
+          "objective": "T57.07.c",
+          "criterion": "Falsify and transfer: Repair acceptance of a mismatched embedded length and a cast of unaligned user bytes to a native struct. A correctly decoded version does not authorize an operation. Then Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair acceptance of a mismatched embedded length and a cast of unaligned user bytes to a native struct. A correctly decoded version does not authorize an operation. Then Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails. Retain original source or derivation and counterexample.",
+            "3": "Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-07-transfer",
+          "minimum_days": 7,
+          "task": "Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-07.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-07A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement kl_decode on octets [version=1,length=2,lo,hi]. Require exactly4 bytes, decode little-endian16 into unsigned output, and leave it unchanged on all rejection. Then design a fixed-width ioctl or read/write adapter without embedding host pointers, documenting compatibility behavior.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Demonstrate exact-length admission and byte-order independence; distinguish ABI versioning from ISO C object representation and kernel/user pointer validation."
+      ],
+      "checks": [
+        "Repair acceptance of a mismatched embedded length and a cast of unaligned user bytes to a native struct. A correctly decoded version does not authorize an operation.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T57-07",
+      "title": "Versioned kernel control records",
+      "minutes": 240,
+      "objectives": [
+        "T57.07.a",
+        "T57.07.b",
+        "T57.07.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.abi"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_decode on octets [version=1,length=2,lo,hi]. Require exactly4 bytes, decode little-endian16 into unsigned output, and leave it unchanged on all rejection. Then design a fixed-width ioctl or read/write adapter without embedding host pointers, documenting compatibility behavior.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Demonstrate exact-length admission and byte-order independence; distinguish ABI versioning from ISO C object representation and kernel/user pointer validation.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-07.a",
+          "objective": "T57.07.a",
+          "criterion": "Derive and defend: Demonstrate exact-length admission and byte-order independence; distinguish ABI versioning from ISO C object representation and kernel/user pointer validation.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Demonstrate exact-length admission and byte-order independence; distinguish ABI versioning from ISO C object representation and kernel/user pointer validation. Retain original source or derivation and counterexample.",
+            "3": "Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-07.b",
+          "objective": "T57.07.b",
+          "criterion": "Implement and investigate: Implement kl_decode on octets [version=1,length=2,lo,hi]. Require exactly4 bytes, decode little-endian16 into unsigned output, and leave it unchanged on all rejection. Then design a fixed-width ioctl or read/write adapter without embedding host pointers, documenting compatibility behavior.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_decode on octets [version=1,length=2,lo,hi]. Require exactly4 bytes, decode little-endian16 into unsigned output, and leave it unchanged on all rejection. Then design a fixed-width ioctl or read/write adapter without embedding host pointers, documenting compatibility behavior. Retain original source or derivation and counterexample.",
+            "3": "Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-07.c",
+          "objective": "T57.07.c",
+          "criterion": "Falsify and transfer: Repair acceptance of a mismatched embedded length and a cast of unaligned user bytes to a native struct. A correctly decoded version does not authorize an operation. Then Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair acceptance of a mismatched embedded length and a cast of unaligned user bytes to a native struct. A correctly decoded version does not authorize an operation. Then Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails. Retain original source or derivation and counterexample.",
+            "3": "Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-07-transfer",
+          "minimum_days": 7,
+          "task": "Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-07.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-07B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "Repair acceptance of a mismatched embedded length and a cast of unaligned user bytes to a native struct. A correctly decoded version does not authorize an operation.",
+        "Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Demonstrate exact-length admission and byte-order independence; distinguish ABI versioning from ISO C object representation and kernel/user pointer validation.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T57-08",
+      "title": "Unload defense and integrated lifetime audit",
+      "minutes": 240,
+      "objectives": [
+        "T57.08.a",
+        "T57.08.b",
+        "T57.08.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.unload"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_can_unload(open_handles,pending_callbacks,closed) returning true only for closed==1 and both counts zero. Reject closed>1. Integrate the previous model with the teaching module: enumerate every close, completion and last-put ordering and provide a guest unload dossier showing why no callback can reach released state or unloaded text.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Construct a global ownership graph and identify the linearization point of shutdown. Give separate evidence for module pinning, object release, callback quiescence and bounded wait policy.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-08.a",
+          "objective": "T57.08.a",
+          "criterion": "Derive and defend: Construct a global ownership graph and identify the linearization point of shutdown. Give separate evidence for module pinning, object release, callback quiescence and bounded wait policy.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Construct a global ownership graph and identify the linearization point of shutdown. Give separate evidence for module pinning, object release, callback quiescence and bounded wait policy. Retain original source or derivation and counterexample.",
+            "3": "Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-08.b",
+          "objective": "T57.08.b",
+          "criterion": "Implement and investigate: Implement kl_can_unload(open_handles,pending_callbacks,closed) returning true only for closed==1 and both counts zero. Reject closed>1. Integrate the previous model with the teaching module: enumerate every close, completion and last-put ordering and provide a guest unload dossier showing why no callback can reach released state or unloaded text.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_can_unload(open_handles,pending_callbacks,closed) returning true only for closed==1 and both counts zero. Reject closed>1. Integrate the previous model with the teaching module: enumerate every close, completion and last-put ordering and provide a guest unload dossier showing why no callback can reach released state or unloaded text. Retain original source or derivation and counterexample.",
+            "3": "Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-08.c",
+          "objective": "T57.08.c",
+          "criterion": "Falsify and transfer: A module unloads after the last open handle while a callback still retains its function pointer. Demonstrate rejection in the model; any guest fault stays inside the disposable VM. Then Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A module unloads after the last open handle while a callback still retains its function pointer. Demonstrate rejection in the model; any guest fault stays inside the disposable VM. Then Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders. Retain original source or derivation and counterexample.",
+            "3": "Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-08-transfer",
+          "minimum_days": 7,
+          "task": "Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-08.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-08A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement kl_can_unload(open_handles,pending_callbacks,closed) returning true only for closed==1 and both counts zero. Reject closed>1. Integrate the previous model with the teaching module: enumerate every close, completion and last-put ordering and provide a guest unload dossier showing why no callback can reach released state or unloaded text.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Construct a global ownership graph and identify the linearization point of shutdown. Give separate evidence for module pinning, object release, callback quiescence and bounded wait policy."
+      ],
+      "checks": [
+        "A module unloads after the last open handle while a callback still retains its function pointer. Demonstrate rejection in the model; any guest fault stays inside the disposable VM.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T57-08",
+      "title": "Unload defense and integrated lifetime audit",
+      "minutes": 240,
+      "objectives": [
+        "T57.08.a",
+        "T57.08.b",
+        "T57.08.c"
+      ],
+      "tests": [
+        "kernel_lifecycle.unload"
+      ],
+      "target_scope": "model",
+      "scope": "Implement kl_can_unload(open_handles,pending_callbacks,closed) returning true only for closed==1 and both counts zero. Reject closed>1. Integrate the previous model with the teaching module: enumerate every close, completion and last-put ordering and provide a guest unload dossier showing why no callback can reach released state or unloaded text.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Construct a global ownership graph and identify the linearization point of shutdown. Give separate evidence for module pinning, object release, callback quiescence and bounded wait policy.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T57-08.a",
+          "objective": "T57.08.a",
+          "criterion": "Derive and defend: Construct a global ownership graph and identify the linearization point of shutdown. Give separate evidence for module pinning, object release, callback quiescence and bounded wait policy.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Construct a global ownership graph and identify the linearization point of shutdown. Give separate evidence for module pinning, object release, callback quiescence and bounded wait policy. Retain original source or derivation and counterexample.",
+            "3": "Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-08.b",
+          "objective": "T57.08.b",
+          "criterion": "Implement and investigate: Implement kl_can_unload(open_handles,pending_callbacks,closed) returning true only for closed==1 and both counts zero. Reject closed>1. Integrate the previous model with the teaching module: enumerate every close, completion and last-put ordering and provide a guest unload dossier showing why no callback can reach released state or unloaded text.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement kl_can_unload(open_handles,pending_callbacks,closed) returning true only for closed==1 and both counts zero. Reject closed>1. Integrate the previous model with the teaching module: enumerate every close, completion and last-put ordering and provide a guest unload dossier showing why no callback can reach released state or unloaded text. Retain original source or derivation and counterexample.",
+            "3": "Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T57-08.c",
+          "objective": "T57.08.c",
+          "criterion": "Falsify and transfer: A module unloads after the last open handle while a callback still retains its function pointer. Demonstrate rejection in the model; any guest fault stays inside the disposable VM. Then Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A module unloads after the last open handle while a callback still retains its function pointer. Demonstrate rejection in the model; any guest fault stays inside the disposable VM. Then Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders. Retain original source or derivation and counterexample.",
+            "3": "Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T57-08-transfer",
+          "minimum_days": 7,
+          "task": "Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders."
+        }
+      ],
+      "assessor_analysis": "assessor/kernel_lifecycle/PR-T57-08.md",
+      "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them.",
+      "references": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU",
+          "purpose": "Initial reference, acquire before handoff, protected lookup and delayed reclamation; examples inspected. Kernel contract, not ISO C.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT",
+          "purpose": "Sleeping contexts, local exclusion versus inter-CPU exclusion, RT conversion and raw-lock constraints inspected.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines",
+          "purpose": "Threaded versus BH context, reclaim progress and ordered workqueue distinctions inspected; no kernel version compatibility claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-UCOPY",
+          "locator": "copy_to_user / copy_from_user / get_user / put_user",
+          "purpose": "Actual user-copy return convention and sleeping/context constraints inspected. Portable core reports completed bytes; kernel wrappers must convert uncopied counts explicitly.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-KL-08B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A module unloads after the last open handle while a callback still retains its function pointer. Demonstrate rejection in the model; any guest fault stays inside the disposable VM.",
+        "Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Construct a global ownership graph and identify the linearization point of shutdown. Give separate evidence for module pinning, object release, callback quiescence and bounded wait policy.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    }
+  ],
+  "tests": [
+    "kernel_lifecycle.unwind",
+    "kernel_lifecycle.copy",
+    "kernel_lifecycle.refs",
+    "kernel_lifecycle.locks",
+    "kernel_lifecycle.work",
+    "kernel_lifecycle.grace",
+    "kernel_lifecycle.abi",
+    "kernel_lifecycle.unload"
+  ],
+  "negative_controls": [
+    "kernel_lifecycle.mutation.unwind",
+    "kernel_lifecycle.mutation.copy",
+    "kernel_lifecycle.mutation.refs",
+    "kernel_lifecycle.mutation.locks",
+    "kernel_lifecycle.mutation.work",
+    "kernel_lifecycle.mutation.grace",
+    "kernel_lifecycle.mutation.abi",
+    "kernel_lifecycle.mutation.unload"
+  ],
+  "remaining_evidence": "Actual guest module build/load/unload, concurrent open/remove traces, allocation-fault injection and lockdep/KASAN observations remain mandatory target evidence; host model tests do not satisfy them."
+}

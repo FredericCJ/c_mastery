@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "id": "PR-T70-08",
+  "exercise": "X-T70-008",
+  "anchor": "dod.rope",
+  "input_contract": "Implement the DRope leaf/concat/flatten anchor with64 typed nodes, leaf length0–8 and maximum expanded length128. A rope is an ordered shared DAG: concatenating a root with itself must duplicate its logical bytes without mutating the shared leaf. Extend it with byte-index lookup and split, specifying allocation rollback and balancing separately. Implement two equal-byte-contract editing alternatives for a128-byte document: a gap buffer with explicit gap bounds and a piece table whose immutable original/add buffers are caller-owned and whose pieces are offset/length triples. Apply the same edit scripts to all three and a flat byte-list oracle. No Unicode scalar, grapheme or line-number equivalence is implied by byte offsets.",
+  "expected": "Leaves ab and cd concatenate to abcd; concatenating that root with itself flattens to abcdabcd while the ab leaf remains ab. Capacity7 rejects an8-byte flatten without touching the output canary or written. An empty leaf returns root0.",
+  "independent_oracle": "Generate edit traces length0–5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "sequence": [
+      97,
+      98,
+      99,
+      100,
+      97,
+      98,
+      99,
+      100
+    ],
+    "length": 8,
+    "preserved_leaf": [
+      97,
+      98
+    ]
+  },
+  "verification_method": "labs/dod/tests/verify_fixtures.py recomputes the bounded mathematical model independently of C"
+}

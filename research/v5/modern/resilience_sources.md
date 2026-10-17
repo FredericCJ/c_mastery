@@ -1,0 +1,9 @@
+# T75 bounded source inspection and reflection
+
+The author actually opened and read the passages listed in resilience_resources.json on2026-10-17 before authoring T75 taxonomy and projects. Broad searches located primary RPC, retry and timer documentation; focused reads separated lifecycle, capacity, time and identity guarantees. A bibliography, census or result snippet alone was not counted. The original timer paper sections5,6.1 and6.2 were read in the accessible PDF; its historical machine timings were not imported as measurements. No private corpus extracts are published.
+
+The selection changes the exercises: cancellation needs acknowledgement; relative cross-host budgets need transport-delay assumptions; a bounded queue is insufficient if pending producers are unbounded; timer-wheel average bookkeeping is not worst-case expiry cost; retry randomness does not establish safety; a health breaker does not impose a concurrency bound; a winning hedge leaves outstanding work; and deduplication does not authenticate clients or create durable exactly-once effects. Original finite models isolate these interactions and language-library comparisons remain evidence-bounded.
+
+The exact published C17 standard remains an access gap. The adopted implementation baseline stays C17. No production service, real credential, deployment, kernel setting or external target is part of this laboratory. No gRPC/Envoy/Go/Resilience4j mechanism implementation is imported into target code. They are comparison sources; target dependency imports are declared separately.
+
+Inspection is self-recorded authoring evidence, not independent review. Additional real IPC/reactor, thread races, network delay and durable-recovery experiments remain required wherever specified and are never inferred from virtual-clock state-model success.

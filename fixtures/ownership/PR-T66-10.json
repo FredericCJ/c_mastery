@@ -1,0 +1,62 @@
+{
+  "id": "PR-T66-10",
+  "description": "A checked façade around a trusted core: bounded tenant-isolation failure",
+  "input": {
+    "case": "facade"
+  },
+  "expected": {
+    "contract": "With 32-bit unsigned, offset=UINT_MAX-3,count8,value7 passes the flawed wrapped check and changes tenant1 indices12..15 from99 to7. The repaired API returns INVALID and leaves both tenants unchanged. This is a bounded integrity-property violation in original teaching code, not an out-of-bounds C access."
+  },
+  "cases": [
+    {
+      "id": "facade-16",
+      "kind": "facade",
+      "input": {
+        "bits": 32,
+        "offset": 4294967292,
+        "count": 8,
+        "value": 7
+      },
+      "expected": {
+        "flawed": [
+          7,
+          7,
+          7,
+          7,
+          1,
+          1,
+          1,
+          1,
+          99,
+          99,
+          99,
+          99,
+          7,
+          7,
+          7,
+          7
+        ],
+        "repaired_status": "INVALID",
+        "repaired": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          99,
+          99,
+          99,
+          99,
+          99,
+          99,
+          99,
+          99
+        ]
+      }
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

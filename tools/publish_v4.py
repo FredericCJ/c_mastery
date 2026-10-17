@@ -17,10 +17,11 @@ link_page = legacy.link_page
 def table(headers, rows):return legacy.table(headers, rows)
 
 
-def card(u):
+def card(u, edition=4):
     aid=anchor(u['id'])
+    time_label = 'Descriptive allocation; no study-time ceiling' if edition == 5 else 'Budget'
     out=[f'({aid})=\n### {u["id"]} — {u["title"]}',
-        f'**Budget:** {u["minutes"]} minutes inside {u["project"]}. **Evidence scope:** {u["target_scope"]}. **Support:** {u["scaffolding"]}.',
+        f'**{time_label}:** {u["minutes"]} minutes inside {u["project"]}. **Evidence scope:** {u["target_scope"]}. **Support:** {u["scaffolding"]}.',
         '**Requires:** '+(', '.join('{ref}`'+anchor(d)+'`' for d in u['requires']) or 'Entry knowledge only')+'.',
         '**Imports:** '+(', '.join('`'+a+'`' for a in u['imports']) or 'No implicit code dependency')+'.',
         '**New work:**\n\n'+'\n'.join(f'{i+1}. {s}' for i,s in enumerate(u['steps'])),
@@ -46,6 +47,8 @@ def card(u):
 
 
 def plain_roles(text):
+    from publish_links import plain_downloads
+    text=plain_downloads(text)
     text=re.sub(r'^\(([^\n]+)\)=[ \t]*$',lambda m:'<a id="'+anchor(m[1])+'"></a>',text,flags=re.M)
     text=re.sub(r'\{ref\}`([^`<>]+) <([^`<>]+)>`',lambda m:'['+m[1]+'](#'+anchor(m[2])+')',text)
     text=re.sub(r'\{ref\}`([^`]+)`',lambda m:'['+m[1]+'](#'+anchor(m[1])+')',text)
@@ -56,12 +59,25 @@ def plain_roles(text):
 
 def prepare(edition=4):
     tag=f'v{edition}';catalog=ROOT/f'curriculum/{tag}';receipts=ROOT/f'reviews/{tag}'
+    if edition == 5:
+        from v5_common import RECEIPTS
+        receipts = ROOT / RECEIPTS
     guides=catalog if (catalog/'guide.md').is_file() else V4
     source,html=legacy.prepare()
     data=read_json(catalog/'units.json');units={u['id']:u for u in data['units']};overlays=read_json(catalog/'project_overlays.json')['projects']
     arts=read_json(catalog/'artifacts.json')['artifacts'];recall=read_json(catalog/'recall.json')['sets'];summary=read_json(catalog/'summary.json')
     budget=read_json(catalog/'budget.json')
     merged=(ROOT/'c_programming_mastery_curriculum.md').read_text(encoding='utf-8')
+    if edition == 5:
+        index = source/'projects/index.md'
+        index_text = index.read_text(encoding='utf-8').replace(
+            'Each milestone has a 4–12-hour budget, an explicit contract and supplied data. Reading and delayed reassessment have separate budgets.',
+            'Project estimates and existing hour allocations are historical or descriptive accounting. Required expansion has no study-time ceiling; assessment depends on demonstrated evidence.')
+        write(index, index_text)
+        merged = merged.replace('| Budget | Disposition | Profile |', '| Descriptive hours | Disposition | Profile |')
+        for page in (source/'projects').glob('PR-*.md'):
+            write(page, page.read_text(encoding='utf-8').replace(
+                '| Budget | Disposition | Profile |', '| Descriptive hours | Disposition | Profile |'))
     merged=merged.replace('# C Programming Mastery\n',f'# C Programming Mastery {edition}\n',1)
     stale='Advanced kernel work, modern lock-free reclamation, production cryptography, every balanced-tree family and every allocator family are extensions.'
     corrected='Advanced kernel work and modern lock-free reclamation retain their required v3 dispositions. Other elective subjects retain their explicitly recorded dispositions.'
@@ -121,7 +137,7 @@ def prepare(edition=4):
         def historical(m):return '<details><summary>Historical v3 working card (use the '+tag+' units above)</summary>\n\n'+m[0]+'\n\n</details>\n\n'
         original=re.sub(r'^## Working card\n.*?(?=^## |\Z)',historical,original,flags=re.M|re.S)
         block=f'## V{edition} working units\n\n'+overlay['legacy_notice']+'\n\n**Engineering question:** '+overlay['engineering_question']+'\n\n'
-        block+='\n'.join(card(units[uid]) for uid in overlay['units'])+'\n## Retained full project contract\n\n'
+        block+='\n'.join(card(units[uid], edition=edition) for uid in overlay['units'])+'\n## Retained full project contract\n\n'
         block=link_page(block)
         # Keep the historical title and budget, then the new normative unit route.
         pos=original.find('\n\n',original.find('# '))+2
@@ -135,6 +151,15 @@ def prepare(edition=4):
     if not research.is_file():research=ROOT/'research/v4/search_reflection.md'
     reflection='('+tag+'-research)=\n'+research.read_text(encoding='utf-8')
     write(source/'learning/research.md',reflection);docs.append('learning/research');supplements.append(reflection)
+    if edition == 5:
+        from publish_exercises_v5 import prepare as exercise_pages
+        extra_docs, extra_sections, merged = exercise_pages(source, merged)
+        docs += extra_docs
+        supplements += extra_sections
+        from publish_legacy_assessments_v5 import prepare as legacy_assessment_pages
+        extra_docs, extra_sections, merged = legacy_assessment_pages(source, merged)
+        docs += extra_docs
+        supplements += extra_sections
     intro=f'({tag}-index)=\n# C Mastery {edition}\n\n'+f'{summary["domains"]} domains · {summary["projects"]} projects · {summary["units"]} working units · {summary["new_executable_units"]} new executable units · {summary["recall_sets"]} recall sets.\n\n'
     intro+='Start with {ref}`'+tag+'-guide`, use {ref}`'+tag+'-workflow`, and follow {ref}`'+tag+'-route`. Grow a shared toolbox, Linux telemetry/service, firmware gateway and VM/store kernel appliance.\n\n'
     intro+='```{toctree}\n:maxdepth: 1\n\n'+'\n'.join(d.removeprefix('learning/') for d in docs)+'\n```\n'
@@ -171,6 +196,9 @@ def prepare(edition=4):
 
 def main(edition=4):
     receipts=ROOT/f'reviews/v{edition}'
+    if edition == 5:
+        from v5_common import RECEIPTS
+        receipts = ROOT / RECEIPTS
     source,html=prepare(edition)
     if html.resolve()!=ROOT.resolve()/'build'/'html':raise ValueError('Unsafe generated output')
     if html.exists():shutil.rmtree(html)

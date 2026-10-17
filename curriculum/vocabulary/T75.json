@@ -1,0 +1,657 @@
+{
+  "schema_version": 5,
+  "domain": "T75",
+  "recall": {
+    "define": "Define deadline, remaining budget, retry budget, fencing and quiescence.",
+    "distinguish": "Distinguish admission from effect/delivery, cancellation from acknowledgement and rate from concurrent capacity.",
+    "apply": "A timed-out request commits, a hedge wins, and its loser remains active while a queue is full. Trace every retained resource and legal recovery."
+  },
+  "entries": [
+    {
+      "id": "V-T75-deadline",
+      "term": "request deadline",
+      "kind": "programming-model",
+      "definition": "A time bound in a specified clock domain after which a request no longer admits waiting or work under its contract.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-GRPC-DEADLINE",
+          "locator": "Overview; Deadlines on the Server; Deadline Propagation",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "timeout",
+          "distinction": "A deadline names an expiry instant in one clock domain; a timeout specifies the duration of a particular wait or operation. Repeated waits must use the remaining duration to preserve the same deadline, and neither expiry nor a timed-out wait proves the operation stopped."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the deadline invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.01",
+        "X-T75-001"
+      ],
+      "misconception": "A raw monotonic timestamp cannot be compared across unrelated hosts."
+    },
+    {
+      "id": "V-T75-remaining-budget",
+      "term": "remaining budget",
+      "kind": "programming-model",
+      "definition": "A duration still available after accounting for elapsed work and declared propagation costs.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-GRPC-DEADLINE",
+          "locator": "Overview; Deadlines on the Server; Deadline Propagation",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "fresh timeout",
+          "distinction": "Remaining budget deducts work already elapsed and the declared propagation costs from one inherited allowance. Starting each hop with a fresh full timeout resets that accounting and can extend the end-to-end duration; transport delay still needs an explicit bound or uncertainty statement."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the remaining budget invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.01",
+        "X-T75-001"
+      ],
+      "misconception": "Giving every hop a new full timeout extends the end-to-end budget."
+    },
+    {
+      "id": "V-T75-cancellation-ack",
+      "term": "cancellation acknowledgement",
+      "kind": "programming-model",
+      "definition": "Evidence that a previously admitted operation has reached a terminal state and released its borrowing obligations.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-GO-CONTEXT",
+          "locator": "WithDeadline: earlier parent deadline and cancellation",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "cancellation request",
+          "distinction": "A request changes cancellation state and asks an operation to stop. Acknowledgement establishes the terminal access/release event required by the adapter; RZScope cancellation alone supplies no such completion event and cannot authorize freeing borrowed storage."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the cancellation acknowledgement invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.01",
+        "X-T75-001"
+      ],
+      "misconception": "Setting a cancellation flag does not permit freeing worker state."
+    },
+    {
+      "id": "V-T75-backpressure",
+      "term": "backpressure",
+      "kind": "programming-model",
+      "definition": "A protocol that makes producer progress depend on consumer capacity rather than allowing unconstrained outstanding work.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-GRPC-FLOW",
+          "locator": "Overview: receiver capacity, write completion and buffering",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "packet loss",
+          "distinction": "Backpressure constrains admission or producer progress using receiver capacity. Packet loss merely describes missing delivery and can occur without any capacity feedback. RZ_BLOCK retains a pending offer, whereas RZ_DROP consumes that offer without enqueueing it; the number of pending producers must also be bounded."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the backpressure invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.02",
+        "X-T75-002"
+      ],
+      "misconception": "A bounded queue can coexist with unbounded producer-held memory."
+    },
+    {
+      "id": "V-T75-overload-policy",
+      "term": "overload policy",
+      "kind": "programming-model",
+      "definition": "The declared behavior when offered work exceeds available admission capacity.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-GRPC-FLOW",
+          "locator": "Overview: receiver capacity, write completion and buffering",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "throughput optimization",
+          "distinction": "An overload policy specifies observable behavior when capacity is exhausted: wait, reject, drop, overwrite or coalesce. Throughput optimization concerns processing cost under a fixed correctness contract; substituting coalescing for reliable delivery changes that contract even if the measured rate improves."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the overload policy invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.02",
+        "X-T75-002"
+      ],
+      "misconception": "Dropping and coalescing change observations even if throughput improves."
+    },
+    {
+      "id": "V-T75-credit",
+      "term": "flow credit",
+      "kind": "programming-model",
+      "definition": "An explicit permission to consume a bounded amount of receiver capacity, conserved across admission and release.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-GRPC-FLOW",
+          "locator": "Overview: receiver capacity, write completion and buffering",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "acknowledgement of effect",
+          "distinction": "A flow credit authorizes bounded admission and is returned according to the capacity-release protocol. It is not evidence that the corresponding application effect committed: RZService distinguishes notification capacity, effect commit, channel acceptance and consumer delivery."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the flow credit invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.02",
+        "X-T75-002"
+      ],
+      "misconception": "A capacity credit does not mean an application effect completed."
+    },
+    {
+      "id": "V-T75-wheel-bucket",
+      "term": "timer-wheel bucket",
+      "kind": "programming-model",
+      "definition": "A group of candidate timers selected by a modular time index; a full expiry discriminator distinguishes different revolutions.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-WHEEL",
+          "locator": "Section5 pp29-30: bounded wheel and doubly linked cancellation",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "deadline equality",
+          "distinction": "Bucket selection compares time modulo the wheel size, so different absolute expiries share a bucket. With four buckets, due times1 and5 both map to bucket1; the tick1 visit must still test the full due time before reporting the timer due at5."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the timer-wheel bucket invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.03",
+        "X-T75-003"
+      ],
+      "misconception": "Sharing a bucket does not make timers due together."
+    },
+    {
+      "id": "V-T75-cascade",
+      "term": "timer cascade",
+      "kind": "programming-model",
+      "definition": "Movement of a coarse timer into a finer timing level as its expiry approaches.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-WHEEL",
+          "locator": "Section5 pp29-30: bounded wheel and doubly linked cancellation",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "callback execution",
+          "distinction": "A cascade in the required hierarchical-wheel extension moves a timer into a finer scheduling level while preserving its identity and absolute due time. It does not run the callback or itself establish expiry. The supplied one-level anchor only returns due-slot bits and invokes no callbacks."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the timer cascade invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.03",
+        "X-T75-003"
+      ],
+      "misconception": "Cascading a timer does not itself imply its deadline has arrived."
+    },
+    {
+      "id": "V-T75-burst-credit",
+      "term": "burst credit",
+      "kind": "programming-model",
+      "definition": "Stored token capacity that permits a bounded admission burst beyond the replenishment rate over a short interval.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-TBF",
+          "locator": "ALGORITHM: initial burst, steady refill, finite queue and peak bucket",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "concurrency limit",
+          "distinction": "Burst credit is stored token capacity spent at admission and replenished with elapsed time. A concurrency limit instead caps operations that still retain active permits; slow operations can accumulate despite a bounded admission rate unless that separate ownership limit is enforced."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the burst credit invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.04",
+        "X-T75-004"
+      ],
+      "misconception": "A rate bound does not limit all long-running active requests."
+    },
+    {
+      "id": "V-T75-lazy-refill",
+      "term": "lazy refill",
+      "kind": "programming-model",
+      "definition": "Computing accumulated resource credit at an observed time rather than updating it on every clock tick.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-TBF",
+          "locator": "ALGORITHM: initial burst, steady refill, finite queue and peak bucket",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "unbounded credit",
+          "distinction": "Lazy refill computes accrued tokens when the bucket is observed, but clamps them to the declared capacity. Arbitrarily long idle time cannot create unlimited credit; the overflow-safe calculation must saturate before an overflowing elapsed-times-rate multiplication."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the lazy refill invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.04",
+        "X-T75-004"
+      ],
+      "misconception": "Long idle time fills only to the declared capacity."
+    },
+    {
+      "id": "V-T75-retry-budget",
+      "term": "retry budget",
+      "kind": "programming-model",
+      "definition": "A limit on extra attempts or resources spent after an original request fails or becomes uncertain.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-RETRY",
+          "locator": "Timeouts: whole-call scope and connection setup",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "backoff delay",
+          "distinction": "The retry budget bounds admitted extra attempts or their shared resource cost. Backoff only changes their scheduling delay: even a zero-delay retry consumes one RZRetry attempt, and an increasing delay sequence alone does not establish a finite attempt count."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the retry budget invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.05",
+        "X-T75-005"
+      ],
+      "misconception": "Increasing delays alone does not bound total attempts."
+    },
+    {
+      "id": "V-T75-jitter",
+      "term": "retry jitter",
+      "kind": "programming-model",
+      "definition": "Variation in retry scheduling intended to reduce correlated simultaneous demand under a stated randomization model.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-RETRY",
+          "locator": "Timeouts: whole-call scope and connection setup",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "idempotency",
+          "distinction": "Jitter spreads attempted start times according to a stated draw model. Idempotency concerns the effect of repeated requests; random delays do not prevent duplicate effects. RZRetry requires a separate safe-to-repeat assertion, and RZReceiver supplies only its explicitly bounded deduplication guarantee."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the retry jitter invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.05",
+        "X-T75-005"
+      ],
+      "misconception": "Random timing does not make duplicate side effects safe."
+    },
+    {
+      "id": "V-T75-half-open-probe",
+      "term": "half-open probe",
+      "kind": "programming-model",
+      "definition": "A bounded admission used to test recovery after a circuit breaker open period.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-BREAKER",
+          "locator": "Introduction and failure-rate state transitions",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "all callers released",
+          "distinction": "A half-open probe is one controlled current-epoch request after cooldown, not permission for every waiting caller to run. RZGate allows at most one such probe while retaining its separate active-permit limit; old-epoch completions release capacity without deciding the new epoch's health."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the half-open probe invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.06",
+        "X-T75-006"
+      ],
+      "misconception": "Expiry of cooldown must not release an unlimited probe burst."
+    },
+    {
+      "id": "V-T75-bulkhead",
+      "term": "bulkhead",
+      "kind": "programming-model",
+      "definition": "An admission boundary that limits simultaneous retained resource ownership, optionally reserving capacity between tenants.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-BULKHEAD",
+          "locator": "Configure a Bulkhead: maxConcurrentCalls and maxWaitDuration",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "failure-rate window",
+          "distinction": "A bulkhead counts active retained permits until terminal completion. A failure-rate window summarizes outcomes to decide health/admission policy and does not itself bound active work. RZGate combines a one-or-two-permit bulkhead with a separate consecutive-failure rule; its sliding-window variant must preserve that separation."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the bulkhead invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.06",
+        "X-T75-006"
+      ],
+      "misconception": "A health sample window is not a concurrent-execution limit."
+    },
+    {
+      "id": "V-T75-hedge",
+      "term": "hedged request",
+      "kind": "programming-model",
+      "definition": "An additional overlapping attempt intended to obtain an acceptable response sooner while retaining ownership of every started attempt.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-HEDGE",
+          "locator": "Retry semantics: overall timeout and retry budgets",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "sequential retry",
+          "distinction": "A hedge deliberately admits another attempt while the original may remain active. A strictly sequential retry starts only after the prior attempt terminates; a timeout by itself does not prove that termination. RZHedge may publish a winner while still retaining the losing attempt until its own completion."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the hedged request invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.07",
+        "X-T75-007"
+      ],
+      "misconception": "Choosing a winner does not terminate the loser."
+    },
+    {
+      "id": "V-T75-quiescence",
+      "term": "operation quiescence",
+      "kind": "programming-model",
+      "definition": "The state in which every started operation has terminated its access to the resources proposed for reclamation.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-GO-CONTEXT",
+          "locator": "WithDeadline: earlier parent deadline and cancellation",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "result availability",
+          "distinction": "Result availability means a response can be consumed; quiescence means every started attempt has ended its access to the retained resources. An RZHedge winner makes the result available immediately, but a cancellation request to its loser does not set that loser's completion bit."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the operation quiescence invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.07",
+        "X-T75-007"
+      ],
+      "misconception": "A useful result can be available while another attempt still borrows memory."
+    },
+    {
+      "id": "V-T75-dedup-window",
+      "term": "deduplication window",
+      "kind": "programming-model",
+      "definition": "The explicitly bounded retention interval in which a request identity maps to its original effect and result.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-IDEMPOTENCE",
+          "locator": "Reducing client complexity: caller request identifier and atomic token/effect",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "indefinite exactly-once",
+          "distinction": "A deduplication window retains an original request/result mapping only for its specified lifetime. RZReceiver expires records at age>=window, so the same identifier may apply again afterward; volatile retention also does not survive restart or establish indefinite exactly-once effects."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the deduplication window invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.08",
+        "X-T75-008"
+      ],
+      "misconception": "An expired identity may be admitted again."
+    },
+    {
+      "id": "V-T75-fencing-token",
+      "term": "fencing token",
+      "kind": "programming-model",
+      "definition": "A monotonically ordered authority marker checked by the protected resource to reject writes from older owners.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-FENCING",
+          "locator": "Making the lock safe with fencing: resource checks increasing tokens",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "random lease ID",
+          "distinction": "A fencing token carries an order that the protected resource actually checks against its highest admitted authority. A random lease ID can distinguish holders without ordering them, so uniqueness alone cannot reject an older holder after a newer owner acts. Token issuance, authentication and restart ordering remain separate obligations."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the fencing token invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.08",
+        "X-T75-008"
+      ],
+      "misconception": "Uniqueness does not establish an ordering or prevent a stale write."
+    },
+    {
+      "id": "V-T75-outbox",
+      "term": "committed notification outbox",
+      "kind": "programming-model",
+      "definition": "Owned notification state reserved or durably recorded alongside an effect so later delivery has an explicit recovery path.",
+      "authority": [
+        {
+          "resource_id": "R-MOD-RZ-IDEMPOTENCE",
+          "locator": "Reducing client complexity: caller request identifier and atomic token/effect",
+          "inspection": "registry"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 mechanism and bounded library comparison",
+          "note": "Runtime protocol and explicit ownership assumptions; ISO C does not automatically implement the service guarantee."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "successful send",
+          "distinction": "An outbox retains responsibility for an effect's notification across a failed or delayed send. A successful local send establishes only the transport's stated acceptance, not consumer delivery or durable effect/notification commit. RZService reserves a volatile pending slot before committing its synthetic effect; crash-safe outbox recovery is a separate required extension."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "State the committed notification outbox invariant before selecting a representation or accepting work."
+      ],
+      "related": [
+        "T75.09",
+        "X-T75-009"
+      ],
+      "misconception": "Volatile queued state does not survive a crash merely because the effect committed."
+    }
+  ]
+}

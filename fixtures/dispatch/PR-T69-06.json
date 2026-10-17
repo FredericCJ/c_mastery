@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "PR-T69-06",
+  "exercise": "X-T69-006",
+  "anchor": "dispatch.multiple",
+  "input_contract": "Implement a3x3 ordered binary-method table and one-entry cache. A cache is bound to one DSMethods object; its key includes ordered type pair and non-wrapping table epoch. Epoch1 is empty; each admitted registration/removal increments it and epoch3 forbids further changes. Add a two-entry cache and compare direct table lookup. Specify a separate subtype fallback graph and reject ambiguous equally specific matches instead of silently choosing registration order.",
+  "expected": "Register subtraction for(0,1): arguments10,2 produce8; reversed types(1,0) are unsupported. Replace the same entry with addition: the old cached result must be invalidated and produce12. A third registration rejects at the finite epoch limit.",
+  "independent_oracle": "Use an uncached dictionary keyed by ordered pair and version as the independent oracle. Replay every sequence of up to4 registrations/calls over types0–2 and methods add/subtract/missing, respecting finite epochs. Record cache hits/misses separately from correctness. Add a new table identity while retaining cache storage to demonstrate why ownership binding matters.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "before": 8,
+    "reversed": "unsupported",
+    "after": 12,
+    "final_epoch": 3
+  },
+  "verification_method": "labs/dispatch/tests/verify_fixtures.py recomputes bounded arithmetic/ownership/authority expectations independently of reference C"
+}

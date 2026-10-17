@@ -42,11 +42,16 @@ def table(headers, rows):
 def reading_rows(readings, resource_map):
     return [[f'[{html.escape(resource_map[r["resource_id"]]["title"])}](../references/{r["resource_id"]}.md)', r['locator'], r['purpose'], str(r['hours'])] for r in readings]
 
-def publication_links(body):
+def publication_links(body, current=None, page=None, contracts=None):
     # Canonical projects live two directories below the project root; generated
     # pages live one below the generated source root. Downloads are copied by Sphinx.
     body = re.sub(r'\{ref\}`(T\d{2}\.\d{2}\.[a-z][a-z0-9_-]*)`',
         lambda m:'{ref}`'+m[1]+' <'+m[1]+'>`',body)
+    if page is not None:
+        from publish_contracts_v5 import registered
+        from publish_links import links
+        return links(body, current=current, page=page, source=SOURCE,
+                     contracts=registered() if contracts is None else contracts, root=ROOT)
     return re.sub(r'\[([^\[\]\r\n]+)\]\((?:\.\./){1,2}((?:fixtures/[^)\r\n]+|research/enhancement/networking_contracts\.json))\)',
         lambda m:'{download}`'+m[1].replace('`','')+' <../'+m[2]+'>`',body)
 
@@ -73,7 +78,13 @@ def prepare():
     errors, coverage = check_data(taxonomy, modules, projects, resources)
     if errors:
         raise ValueError('\n'.join(errors))
+    entries, documents = vocabulary.load()
+    vocabulary_errors, _ = vocabulary.validate(entries, resources, taxonomy)
+    if vocabulary_errors:
+        raise ValueError('\n'.join(vocabulary_errors))
     require_research_gates()
+    from publish_contracts_v5 import registered
+    shared_contracts = registered()
     program = read_json(ROOT / 'curriculum/program.json')
     route_errors=check_program_order(program['order'],modules,projects)
     if route_errors: raise ValueError('\n'.join(route_errors))
@@ -114,7 +125,8 @@ def prepare():
     guide_order=['third-edition','second-edition','entry','project-route','roadmap','component-contracts','concurrent-system-contracts','enhancement','communication-stacks','performance-debugging','standards','profiles','inventory','laboratory','assessment','integrations','reading','workload','audit']
     guide_paths=sorted((ROOT / 'curriculum/guides').glob('*.md'),key=lambda p:(guide_order.index(p.stem) if p.stem in guide_order else 99,p.stem))
     for path in guide_paths:
-        content = link_page(publication_links(path.read_text(encoding='utf-8')))
+        content = link_page(publication_links(path.read_text(encoding='utf-8'),
+                            path.relative_to(ROOT).as_posix(), 'guides/' + path.name, shared_contracts))
         write(SOURCE / 'guides' / path.name, label('guide-'+path.stem) + content)
         guides.append('guides/'+path.stem)
         standalone.append('<a id="guide-'+path.stem+'"></a>\n\n'+content)
@@ -129,7 +141,8 @@ def prepare():
         if meta['prelude_objectives']:
             front += '**Required selected foundations:** ' + ', '.join(f'{{ref}}`{k} <{k}>`' for k in meta['prelude_objectives']) + '. Complete those leaves before the dependent project; the rest of the referenced domain need not be finished.\n\n'
         front += table(['Reading','Implementation','Verification','Assessment','Consolidation'], [[meta['workload'][k] for k in ['reading','implementation','verification','assessment','consolidation']]]) + '\n'
-        canonical_body=publication_links(re.sub(r'\A# [^\n]*\n+','',m['body']))
+        canonical_body=publication_links(re.sub(r'\A# [^\n]*\n+','',m['body']),
+                                          m['path'].relative_to(ROOT).as_posix(), 'modules/' + key + '.md', shared_contracts)
         body = add_objectives(canonical_body, domain, coverage)
         front += body + '\n## Assigned source passages\n\n' + table(['Resource','Inspected locator','Purpose','Hours'],reading_rows(meta['readings'],resource_map))
         front += '\n## Project directory\n\n' + '\n'.join(f'- [{p}: {projects[p]["meta"]["title"]}](../projects/{p}.md)' for p in meta['projects']) + '\n'
@@ -156,7 +169,8 @@ def prepare():
             content+='**Project-specific foundation policy:** '+meta.get('prelude_policy','Use the project route for the selected foundations at this milestone.')+'\n\n'
         if meta.get('optional_runtime_prelude_objectives'):
             content+='**Foundations for the optional runtime route:** '+', '.join(f'{{ref}}`{p} <{p}>`' for p in meta['optional_runtime_prelude_objectives'])+'. Complete these leaves before the optional target experiment. They do not gate the core captured/static certificate; their work remains in its original module.\n\n'
-        canonical_body=publication_links(re.sub(r'\A# [^\n]*\n+','',project['body']))
+        canonical_body=publication_links(re.sub(r'\A# [^\n]*\n+','',project['body']),
+                                          project['path'].relative_to(ROOT).as_posix(), 'projects/' + key + '.md', shared_contracts)
         content+='**Covered topics:** '+', '.join(f'{{ref}}`{t}`' for t in meta['topics'])+'.\n\n'+canonical_body
         content+='\n## Supplied fixtures\n\n'
         for fixture in meta['fixtures']:
@@ -184,10 +198,10 @@ def prepare():
         ins=r['inspection']
         content+='## Evidence and limits\n\n'+'**Check date:** '+ins['date']+'. **Method:** '+ins['method']+'.\n\n'+ins['scope']+'\n\n**Limits:** '+str(ins.get('limits') or 'Bounded inspection; no whole-work reading claim.')+'\n\n'
         content+='## Teaching backlinks\n\n'+'\n'.join('- ['+k+'](../modules/'+k+'.md)' for k,m in modules.items() if any(a['resource_id']==r['id'] for a in m['meta']['readings']))+'\n'
+        content = publication_links(content, page='references/' + r['id'] + '.md', contracts=shared_contracts)
         write(SOURCE/'references'/ (r['id']+'.md'),content)
         standalone.append(content.replace(label(r['id']),'<a id="'+anchor(r['id'])+'"></a>\n\n'))
     glossary_docs=[]
-    entries,documents=vocabulary.load()
     if entries:
         owners=['core']+sorted(o for o in documents if o!='core')
         for owner in owners:
@@ -228,6 +242,8 @@ def prepare():
     merged=re.sub(r'\((?:\.\./)?guides/([^/()]+)\.md\)',lambda m:'(#guide-'+anchor(m[1])+')',merged)
     merged=re.sub(r'\(('+'|'.join(re.escape(p.stem) for p in guide_paths)+r')\.md\)',lambda m:'(#guide-'+anchor(m[1])+')',merged)
     merged=re.sub(r'^\((T\d{2}(?:\.\d{2}(?:\.[a-z][a-z0-9_-]*)?)?)\)=[ \t]*$',lambda m:'\n<a id="'+anchor(m[1])+'"></a>\n',merged,flags=re.M)
+    from publish_links import plain_downloads
+    merged=plain_downloads(merged)
     merged=re.sub(r'\{download\}`([^`]+) <\.\./([^>]+)>`',r'[\1](\2)',merged)
     merged=re.sub(r'\[Download unsolved family scaffold\]\(labdownloads/([a-z0-9_-]+)\.zip\)',r'[Unsolved family scaffold](labs/\1/README.md)',merged)
     merged=vocabulary.plain_terms(merged)

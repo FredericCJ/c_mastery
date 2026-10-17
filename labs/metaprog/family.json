@@ -1,0 +1,2178 @@
+{
+  "version": 1,
+  "family": "metaprog",
+  "title": "Metaprogramming, reflection and law-driven generation",
+  "build_system": "cmake",
+  "assessor_root": "assessor/metaprog",
+  "projects": [
+    {
+      "id": "PR-T68-01",
+      "tests": [
+        "metaprog.mono"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T68-02",
+      "tests": [
+        "metaprog.constraints"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T68-03",
+      "tests": [
+        "metaprog.policies"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T68-04",
+      "tests": [
+        "metaprog.variadic"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T68-05",
+      "tests": [
+        "metaprog.generic"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T68-06",
+      "tests": [
+        "metaprog.reflection"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T68-07",
+      "tests": [
+        "metaprog.laws"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T68-08",
+      "tests": [
+        "metaprog.formatting"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T68-09",
+      "tests": [
+        "metaprog.hygiene"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T68-10",
+      "tests": [
+        "metaprog.buildgraph"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    }
+  ],
+  "units": [
+    {
+      "id": "LAB-MP-01",
+      "project": "PR-T68-01",
+      "title": "Construct: Template-header monomorphization and associated types",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T68.01.a",
+        "T68.01.b",
+        "T68.01.c",
+        "T68.01.d"
+      ],
+      "tests": [
+        "metaprog.mono"
+      ],
+      "steps": [
+        "Explain how repeated template-header inclusion generates distinct typed functions, how associated element/ring types must agree, and why token substitution has no trait-implementation proof or automatic instantiation isolation.",
+        "Derive head<count/capacity invariants, occupied logical slots and output ownership. Compare generated specialization with Rust generic/associated-type obligations and show a mismatched ring/element instantiation diagnosed by C. Explain why a template include guard would silently suppress the second instantiation and why internal macro names can collide."
+      ],
+      "checks": [
+        "Push0..3, pop0, push4, then pop1..4. Both scalar and pair instances preserve every semantic field. Full/empty operations leave their designated output/control state unchanged.",
+        "Run metaprog.mono and inspect preprocessed two-instance source. Kill incorrect-tail-index and stationary-head mutants. Compile and link two translation units using declarations to detect accidental multiple definitions; record generated symbol count and text size separately from handwritten equivalents under the same capacity/failure contract."
+      ],
+      "reasoning": [
+        "Explain how repeated template-header inclusion generates distinct typed functions, how associated element/ring types must agree, and why token substitution has no trait-implementation proof or automatic instantiation isolation."
+      ],
+      "deliverables": [
+        "Derive head<count/capacity invariants, occupied logical slots and output ownership. Compare generated specialization with Rust generic/associated-type obligations and show a mismatched ring/element instantiation diagnosed by C. Explain why a template include guard would silently suppress the second instantiation and why internal macro names can collide.",
+        "Run metaprog.mono and inspect preprocessed two-instance source. Kill incorrect-tail-index and stationary-head mutants. Compile and link two translation units using declarations to detect accidental multiple definitions; record generated symbol count and text size separately from handwritten equivalents under the same capacity/failure contract.",
+        "Instantiate a ring of owning objects with fallible clone/drop callbacks. Derive rollback on failed push and destruction order on clear; compare monomorphized and erased implementations with equal semantics and measured code growth."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-001-R1",
+          "objective": "T68.01.a",
+          "criterion": "Explain how repeated template-header inclusion generates distinct typed functions, how associated element/ring types must agree, and why token substitution has no trait-implementation proof or automatic instantiation isolation.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-001-R2",
+          "objective": "T68.01.b",
+          "criterion": "Derive head<count/capacity invariants, occupied logical slots and output ownership. Compare generated specialization with Rust generic/associated-type obligations and show a mismatched ring/element instantiation diagnosed by C. Explain why a template include guard would silently suppress the second instantiation and why internal macro names can collide.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-001-R3",
+          "objective": "T68.01.c",
+          "criterion": "Run metaprog.mono and inspect preprocessed two-instance source. Kill incorrect-tail-index and stationary-head mutants. Compile and link two translation units using declarations to detect accidental multiple definitions; record generated symbol count and text size separately from handwritten equivalents under the same capacity/failure contract.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-001-R4",
+          "objective": "T68.01.d",
+          "criterion": "Instantiate a ring of owning objects with fallible clone/drop callbacks. Derive rollback on failed push and destruction order on clear; compare monomorphized and erased implementations with equal semantics and measured code growth.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Instantiate a ring of owning objects with fallible clone/drop callbacks. Derive rollback on failed push and destruction order on clear; compare monomorphized and erased implementations with equal semantics and measured code growth."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-001.md",
+      "target_scope": "host",
+      "scope": "Explain how repeated template-header inclusion generates distinct typed functions, how associated element/ring types must agree, and why token substitution has no trait-implementation proof or automatic instantiation isolation.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-GENERICS",
+          "locator": "Const generics introduction, allowed types and standalone use restrictions",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-ASSOCIATED",
+          "locator": "Associated types declaration, definition and Container example",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-02",
+      "project": "PR-T68-01",
+      "title": "Falsify and transfer: Template-header monomorphization and associated types",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T68.01.a",
+        "T68.01.b",
+        "T68.01.c",
+        "T68.01.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Run metaprog.mono and inspect preprocessed two-instance source. Kill incorrect-tail-index and stationary-head mutants. Compile and link two translation units using declarations to detect accidental multiple definitions; record generated symbol count and text size separately from handwritten equivalents under the same capacity/failure contract.",
+        "Instantiate a ring of owning objects with fallible clone/drop callbacks. Derive rollback on failed push and destruction order on clear; compare monomorphized and erased implementations with equal semantics and measured code growth."
+      ],
+      "checks": [
+        "Push0..3, pop0, push4, then pop1..4. Both scalar and pair instances preserve every semantic field. Full/empty operations leave their designated output/control state unchanged.",
+        "Run metaprog.mono and inspect preprocessed two-instance source. Kill incorrect-tail-index and stationary-head mutants. Compile and link two translation units using declarations to detect accidental multiple definitions; record generated symbol count and text size separately from handwritten equivalents under the same capacity/failure contract."
+      ],
+      "reasoning": [
+        "Explain how repeated template-header inclusion generates distinct typed functions, how associated element/ring types must agree, and why token substitution has no trait-implementation proof or automatic instantiation isolation."
+      ],
+      "deliverables": [
+        "Derive head<count/capacity invariants, occupied logical slots and output ownership. Compare generated specialization with Rust generic/associated-type obligations and show a mismatched ring/element instantiation diagnosed by C. Explain why a template include guard would silently suppress the second instantiation and why internal macro names can collide.",
+        "Run metaprog.mono and inspect preprocessed two-instance source. Kill incorrect-tail-index and stationary-head mutants. Compile and link two translation units using declarations to detect accidental multiple definitions; record generated symbol count and text size separately from handwritten equivalents under the same capacity/failure contract.",
+        "Instantiate a ring of owning objects with fallible clone/drop callbacks. Derive rollback on failed push and destruction order on clear; compare monomorphized and erased implementations with equal semantics and measured code growth."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-001-R1",
+          "objective": "T68.01.a",
+          "criterion": "Explain how repeated template-header inclusion generates distinct typed functions, how associated element/ring types must agree, and why token substitution has no trait-implementation proof or automatic instantiation isolation.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-001-R2",
+          "objective": "T68.01.b",
+          "criterion": "Derive head<count/capacity invariants, occupied logical slots and output ownership. Compare generated specialization with Rust generic/associated-type obligations and show a mismatched ring/element instantiation diagnosed by C. Explain why a template include guard would silently suppress the second instantiation and why internal macro names can collide.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-001-R3",
+          "objective": "T68.01.c",
+          "criterion": "Run metaprog.mono and inspect preprocessed two-instance source. Kill incorrect-tail-index and stationary-head mutants. Compile and link two translation units using declarations to detect accidental multiple definitions; record generated symbol count and text size separately from handwritten equivalents under the same capacity/failure contract.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-001-R4",
+          "objective": "T68.01.d",
+          "criterion": "Instantiate a ring of owning objects with fallible clone/drop callbacks. Derive rollback on failed push and destruction order on clear; compare monomorphized and erased implementations with equal semantics and measured code growth.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Instantiate a ring of owning objects with fallible clone/drop callbacks. Derive rollback on failed push and destruction order on clear; compare monomorphized and erased implementations with equal semantics and measured code growth."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-001.md",
+      "target_scope": "host",
+      "scope": "Explain how repeated template-header inclusion generates distinct typed functions, how associated element/ring types must agree, and why token substitution has no trait-implementation proof or automatic instantiation isolation.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-GENERICS",
+          "locator": "Const generics introduction, allowed types and standalone use restrictions",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-ASSOCIATED",
+          "locator": "Associated types declaration, definition and Container example",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-03",
+      "project": "PR-T68-02",
+      "title": "Construct: Constraint probes and constant storage parameters",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T68.02.a",
+        "T68.02.b",
+        "T68.02.c",
+        "T68.02.d"
+      ],
+      "tests": [
+        "metaprog.constraints"
+      ],
+      "steps": [
+        "Separate a required C constraint diagnostic, a chosen -Werror rejection, and a runtime range guard; show which properties constant-size generic storage can check before execution.",
+        "Derive count<=SIZE_MAX/width before multiplication and the independent budget bound. Explain why C17 _Static_assert requires an integer constant expression, VLA support differs from fixed arrays, and syntactically valid macros do not impose an abstract trait. Compare the inspected Rust const-generic type/use restrictions without claiming arbitrary compile-time evaluation equivalence."
+      ],
+      "checks": [
+        "count4,width8,limit32 yields32;limit31fails. SIZE_MAX*2 fails before overflow; count0 or width0 is outside this storage contract.",
+        "Run metaprog.constraints and compile the negative constraint probes expecting a named diagnostic, not a link failure. Kill multiplication-overflow omission and storage-budget omission independently. Test size_t-width changes analytically and inspect whether published C23 wording is available before attributing a C2x compiler behavior to the standard."
+      ],
+      "reasoning": [
+        "Separate a required C constraint diagnostic, a chosen -Werror rejection, and a runtime range guard; show which properties constant-size generic storage can check before execution."
+      ],
+      "deliverables": [
+        "Derive count<=SIZE_MAX/width before multiplication and the independent budget bound. Explain why C17 _Static_assert requires an integer constant expression, VLA support differs from fixed arrays, and syntactically valid macros do not impose an abstract trait. Compare the inspected Rust const-generic type/use restrictions without claiming arbitrary compile-time evaluation equivalence.",
+        "Run metaprog.constraints and compile the negative constraint probes expecting a named diagnostic, not a link failure. Kill multiplication-overflow omission and storage-budget omission independently. Test size_t-width changes analytically and inspect whether published C23 wording is available before attributing a C2x compiler behavior to the standard.",
+        "Support a compile-time power-of-two ring capacity and a runtime fallback. Derive which optimization can use masking, reject an invalid constant capacity, and ensure a nonconstant caller cannot bypass runtime validation."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-002-R1",
+          "objective": "T68.02.a",
+          "criterion": "Separate a required C constraint diagnostic, a chosen -Werror rejection, and a runtime range guard; show which properties constant-size generic storage can check before execution.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-002-R2",
+          "objective": "T68.02.b",
+          "criterion": "Derive count<=SIZE_MAX/width before multiplication and the independent budget bound. Explain why C17 _Static_assert requires an integer constant expression, VLA support differs from fixed arrays, and syntactically valid macros do not impose an abstract trait. Compare the inspected Rust const-generic type/use restrictions without claiming arbitrary compile-time evaluation equivalence.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-002-R3",
+          "objective": "T68.02.c",
+          "criterion": "Run metaprog.constraints and compile the negative constraint probes expecting a named diagnostic, not a link failure. Kill multiplication-overflow omission and storage-budget omission independently. Test size_t-width changes analytically and inspect whether published C23 wording is available before attributing a C2x compiler behavior to the standard.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-002-R4",
+          "objective": "T68.02.d",
+          "criterion": "Support a compile-time power-of-two ring capacity and a runtime fallback. Derive which optimization can use masking, reject an invalid constant capacity, and ensure a nonconstant caller cannot bypass runtime validation.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Support a compile-time power-of-two ring capacity and a runtime fallback. Derive which optimization can use masking, reject an invalid constant capacity, and ensure a nonconstant caller cannot bypass runtime validation."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-002.md",
+      "target_scope": "host",
+      "scope": "Separate a required C constraint diagnostic, a chosen -Werror rejection, and a runtime range guard; show which properties constant-size generic storage can check before execution.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-GENERICS",
+          "locator": "Const generics introduction, allowed types and standalone use restrictions",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-04",
+      "project": "PR-T68-02",
+      "title": "Falsify and transfer: Constraint probes and constant storage parameters",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T68.02.a",
+        "T68.02.b",
+        "T68.02.c",
+        "T68.02.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Run metaprog.constraints and compile the negative constraint probes expecting a named diagnostic, not a link failure. Kill multiplication-overflow omission and storage-budget omission independently. Test size_t-width changes analytically and inspect whether published C23 wording is available before attributing a C2x compiler behavior to the standard.",
+        "Support a compile-time power-of-two ring capacity and a runtime fallback. Derive which optimization can use masking, reject an invalid constant capacity, and ensure a nonconstant caller cannot bypass runtime validation."
+      ],
+      "checks": [
+        "count4,width8,limit32 yields32;limit31fails. SIZE_MAX*2 fails before overflow; count0 or width0 is outside this storage contract.",
+        "Run metaprog.constraints and compile the negative constraint probes expecting a named diagnostic, not a link failure. Kill multiplication-overflow omission and storage-budget omission independently. Test size_t-width changes analytically and inspect whether published C23 wording is available before attributing a C2x compiler behavior to the standard."
+      ],
+      "reasoning": [
+        "Separate a required C constraint diagnostic, a chosen -Werror rejection, and a runtime range guard; show which properties constant-size generic storage can check before execution."
+      ],
+      "deliverables": [
+        "Derive count<=SIZE_MAX/width before multiplication and the independent budget bound. Explain why C17 _Static_assert requires an integer constant expression, VLA support differs from fixed arrays, and syntactically valid macros do not impose an abstract trait. Compare the inspected Rust const-generic type/use restrictions without claiming arbitrary compile-time evaluation equivalence.",
+        "Run metaprog.constraints and compile the negative constraint probes expecting a named diagnostic, not a link failure. Kill multiplication-overflow omission and storage-budget omission independently. Test size_t-width changes analytically and inspect whether published C23 wording is available before attributing a C2x compiler behavior to the standard.",
+        "Support a compile-time power-of-two ring capacity and a runtime fallback. Derive which optimization can use masking, reject an invalid constant capacity, and ensure a nonconstant caller cannot bypass runtime validation."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-002-R1",
+          "objective": "T68.02.a",
+          "criterion": "Separate a required C constraint diagnostic, a chosen -Werror rejection, and a runtime range guard; show which properties constant-size generic storage can check before execution.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-002-R2",
+          "objective": "T68.02.b",
+          "criterion": "Derive count<=SIZE_MAX/width before multiplication and the independent budget bound. Explain why C17 _Static_assert requires an integer constant expression, VLA support differs from fixed arrays, and syntactically valid macros do not impose an abstract trait. Compare the inspected Rust const-generic type/use restrictions without claiming arbitrary compile-time evaluation equivalence.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-002-R3",
+          "objective": "T68.02.c",
+          "criterion": "Run metaprog.constraints and compile the negative constraint probes expecting a named diagnostic, not a link failure. Kill multiplication-overflow omission and storage-budget omission independently. Test size_t-width changes analytically and inspect whether published C23 wording is available before attributing a C2x compiler behavior to the standard.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-002-R4",
+          "objective": "T68.02.d",
+          "criterion": "Support a compile-time power-of-two ring capacity and a runtime fallback. Derive which optimization can use masking, reject an invalid constant capacity, and ensure a nonconstant caller cannot bypass runtime validation.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Support a compile-time power-of-two ring capacity and a runtime fallback. Derive which optimization can use masking, reject an invalid constant capacity, and ensure a nonconstant caller cannot bypass runtime validation."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-002.md",
+      "target_scope": "host",
+      "scope": "Separate a required C constraint diagnostic, a chosen -Werror rejection, and a runtime range guard; show which properties constant-size generic storage can check before execution.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-GENERICS",
+          "locator": "Const generics introduction, allowed types and standalone use restrictions",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-05",
+      "project": "PR-T68-03",
+      "title": "Construct: Policy composition with explicit failure semantics",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T68.03.a",
+        "T68.03.b",
+        "T68.03.c",
+        "T68.03.d"
+      ],
+      "tests": [
+        "metaprog.policies"
+      ],
+      "steps": [
+        "Explain how a policy changes the operation contract and therefore the permitted performance comparison; distinguish compile-time specialization from runtime policy dispatch.",
+        "Prove value<=limit before subtracting limit-value, and define how a single input greater thanlimit is handled. Inputs/outputs are disjoint. State no allocation, single-threaded execution and failure publication at the end. Compare a policy parameter with Rust const parameters/trait-associated behavior only at the documented boundary."
+      ],
+      "checks": [
+        "Inputs[7,5],limit10: rejecting policyfails unchanged; saturating policyreturns10. Empty inputreturns0 under eitherpolicy.",
+        "Run metaprog.policies and inject every prefix crossing the limit. Kill accidental-saturation-for-rejection and wrong-empty-identity mutants. Inspect specialized and dynamic assembly and benchmark only comparisons preserving the same overflow and empty-input contracts."
+      ],
+      "reasoning": [
+        "Explain how a policy changes the operation contract and therefore the permitted performance comparison; distinguish compile-time specialization from runtime policy dispatch."
+      ],
+      "deliverables": [
+        "Prove value<=limit before subtracting limit-value, and define how a single input greater thanlimit is handled. Inputs/outputs are disjoint. State no allocation, single-threaded execution and failure publication at the end. Compare a policy parameter with Rust const parameters/trait-associated behavior only at the documented boundary.",
+        "Run metaprog.policies and inject every prefix crossing the limit. Kill accidental-saturation-for-rejection and wrong-empty-identity mutants. Inspect specialized and dynamic assembly and benchmark only comparisons preserving the same overflow and empty-input contracts.",
+        "Compose reduction with a caller-defined projection and fallible element acquisition. Specify evaluation order, callback side effects, rollback limits and whether saturation may short-circuit without skipping required effects."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-003-R1",
+          "objective": "T68.03.a",
+          "criterion": "Explain how a policy changes the operation contract and therefore the permitted performance comparison; distinguish compile-time specialization from runtime policy dispatch.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-003-R2",
+          "objective": "T68.03.b",
+          "criterion": "Prove value<=limit before subtracting limit-value, and define how a single input greater thanlimit is handled. Inputs/outputs are disjoint. State no allocation, single-threaded execution and failure publication at the end. Compare a policy parameter with Rust const parameters/trait-associated behavior only at the documented boundary.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-003-R3",
+          "objective": "T68.03.c",
+          "criterion": "Run metaprog.policies and inject every prefix crossing the limit. Kill accidental-saturation-for-rejection and wrong-empty-identity mutants. Inspect specialized and dynamic assembly and benchmark only comparisons preserving the same overflow and empty-input contracts.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-003-R4",
+          "objective": "T68.03.d",
+          "criterion": "Compose reduction with a caller-defined projection and fallible element acquisition. Specify evaluation order, callback side effects, rollback limits and whether saturation may short-circuit without skipping required effects.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Compose reduction with a caller-defined projection and fallible element acquisition. Specify evaluation order, callback side effects, rollback limits and whether saturation may short-circuit without skipping required effects."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-003.md",
+      "target_scope": "host",
+      "scope": "Explain how a policy changes the operation contract and therefore the permitted performance comparison; distinguish compile-time specialization from runtime policy dispatch.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-GENERICS",
+          "locator": "Const generics introduction, allowed types and standalone use restrictions",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-06",
+      "project": "PR-T68-03",
+      "title": "Falsify and transfer: Policy composition with explicit failure semantics",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T68.03.a",
+        "T68.03.b",
+        "T68.03.c",
+        "T68.03.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Run metaprog.policies and inject every prefix crossing the limit. Kill accidental-saturation-for-rejection and wrong-empty-identity mutants. Inspect specialized and dynamic assembly and benchmark only comparisons preserving the same overflow and empty-input contracts.",
+        "Compose reduction with a caller-defined projection and fallible element acquisition. Specify evaluation order, callback side effects, rollback limits and whether saturation may short-circuit without skipping required effects."
+      ],
+      "checks": [
+        "Inputs[7,5],limit10: rejecting policyfails unchanged; saturating policyreturns10. Empty inputreturns0 under eitherpolicy.",
+        "Run metaprog.policies and inject every prefix crossing the limit. Kill accidental-saturation-for-rejection and wrong-empty-identity mutants. Inspect specialized and dynamic assembly and benchmark only comparisons preserving the same overflow and empty-input contracts."
+      ],
+      "reasoning": [
+        "Explain how a policy changes the operation contract and therefore the permitted performance comparison; distinguish compile-time specialization from runtime policy dispatch."
+      ],
+      "deliverables": [
+        "Prove value<=limit before subtracting limit-value, and define how a single input greater thanlimit is handled. Inputs/outputs are disjoint. State no allocation, single-threaded execution and failure publication at the end. Compare a policy parameter with Rust const parameters/trait-associated behavior only at the documented boundary.",
+        "Run metaprog.policies and inject every prefix crossing the limit. Kill accidental-saturation-for-rejection and wrong-empty-identity mutants. Inspect specialized and dynamic assembly and benchmark only comparisons preserving the same overflow and empty-input contracts.",
+        "Compose reduction with a caller-defined projection and fallible element acquisition. Specify evaluation order, callback side effects, rollback limits and whether saturation may short-circuit without skipping required effects."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-003-R1",
+          "objective": "T68.03.a",
+          "criterion": "Explain how a policy changes the operation contract and therefore the permitted performance comparison; distinguish compile-time specialization from runtime policy dispatch.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-003-R2",
+          "objective": "T68.03.b",
+          "criterion": "Prove value<=limit before subtracting limit-value, and define how a single input greater thanlimit is handled. Inputs/outputs are disjoint. State no allocation, single-threaded execution and failure publication at the end. Compare a policy parameter with Rust const parameters/trait-associated behavior only at the documented boundary.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-003-R3",
+          "objective": "T68.03.c",
+          "criterion": "Run metaprog.policies and inject every prefix crossing the limit. Kill accidental-saturation-for-rejection and wrong-empty-identity mutants. Inspect specialized and dynamic assembly and benchmark only comparisons preserving the same overflow and empty-input contracts.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-003-R4",
+          "objective": "T68.03.d",
+          "criterion": "Compose reduction with a caller-defined projection and fallible element acquisition. Specify evaluation order, callback side effects, rollback limits and whether saturation may short-circuit without skipping required effects.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Compose reduction with a caller-defined projection and fallible element acquisition. Specify evaluation order, callback side effects, rollback limits and whether saturation may short-circuit without skipping required effects."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-003.md",
+      "target_scope": "host",
+      "scope": "Explain how a policy changes the operation contract and therefore the permitted performance comparison; distinguish compile-time specialization from runtime policy dispatch.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-GENERICS",
+          "locator": "Const generics introduction, allowed types and standalone use restrictions",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-07",
+      "project": "PR-T68-04",
+      "title": "Construct: Portable C17 variadic machinery and single evaluation",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T68.04.a",
+        "T68.04.b",
+        "T68.04.c",
+        "T68.04.d"
+      ],
+      "tests": [
+        "metaprog.variadic"
+      ],
+      "steps": [
+        "Derive a bounded1..4argument dispatch macro without __VA_OPT__ or GNU comma deletion, and distinguish single evaluation from the unspecified order of function arguments.",
+        "Show token substitution, rescan, selector position and parentheses for each admitted arity. Explain why an empty token argument differs from omitted variadic arguments in C17, and why this lab deliberately has a distinct zero-argument entry. Compare N3033 proposal semantics without presenting a proposal as the inspected final C23 standard."
+      ],
+      "checks": [
+        "seed7 andarity0..4 produce sums0,7,15,24,34 with evaluation counts0,1,2,3,4. Arity5fails preserving bothoutputs. No argument-order claim is made.",
+        "Run metaprog.variadic, inspect -E output, and compile strict C17 probes. Kill duplicate-evaluation and incorrect-zero-identity mutants. Add arguments with commas protected by parentheses and demonstrate an unsafe unparenthesized form in a diagnostic-only target; retain a separate C2x __VA_OPT__ observation."
+      ],
+      "reasoning": [
+        "Derive a bounded1..4argument dispatch macro without __VA_OPT__ or GNU comma deletion, and distinguish single evaluation from the unspecified order of function arguments."
+      ],
+      "deliverables": [
+        "Show token substitution, rescan, selector position and parentheses for each admitted arity. Explain why an empty token argument differs from omitted variadic arguments in C17, and why this lab deliberately has a distinct zero-argument entry. Compare N3033 proposal semantics without presenting a proposal as the inspected final C23 standard.",
+        "Run metaprog.variadic, inspect -E output, and compile strict C17 probes. Kill duplicate-evaluation and incorrect-zero-identity mutants. Add arguments with commas protected by parentheses and demonstrate an unsafe unparenthesized form in a diagnostic-only target; retain a separate C2x __VA_OPT__ observation.",
+        "Build a bounded logging dispatcher that optionally attaches source metadata, with a distinct zero-field operation. Preserve single evaluation and type checking while making expansion limits explicit; diagnose unsupported arity without compiler-specific comma extensions."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-004-R1",
+          "objective": "T68.04.a",
+          "criterion": "Derive a bounded1..4argument dispatch macro without __VA_OPT__ or GNU comma deletion, and distinguish single evaluation from the unspecified order of function arguments.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-004-R2",
+          "objective": "T68.04.b",
+          "criterion": "Show token substitution, rescan, selector position and parentheses for each admitted arity. Explain why an empty token argument differs from omitted variadic arguments in C17, and why this lab deliberately has a distinct zero-argument entry. Compare N3033 proposal semantics without presenting a proposal as the inspected final C23 standard.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-004-R3",
+          "objective": "T68.04.c",
+          "criterion": "Run metaprog.variadic, inspect -E output, and compile strict C17 probes. Kill duplicate-evaluation and incorrect-zero-identity mutants. Add arguments with commas protected by parentheses and demonstrate an unsafe unparenthesized form in a diagnostic-only target; retain a separate C2x __VA_OPT__ observation.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-004-R4",
+          "objective": "T68.04.d",
+          "criterion": "Build a bounded logging dispatcher that optionally attaches source metadata, with a distinct zero-field operation. Preserve single evaluation and type checking while making expansion limits explicit; diagnose unsupported arity without compiler-specific comma extensions.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Build a bounded logging dispatcher that optionally attaches source metadata, with a distinct zero-field operation. Preserve single evaluation and type checking while making expansion limits explicit; diagnose unsupported arity without compiler-specific comma extensions."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-004.md",
+      "target_scope": "host",
+      "scope": "Derive a bounded1..4argument dispatch macro without __VA_OPT__ or GNU comma deletion, and distinguish single evaluation from the unspecified order of function arguments.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-VAOPT",
+          "locator": "Summary; Problem; Discussion of __VA_OPT__ proposal",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-08",
+      "project": "PR-T68-04",
+      "title": "Falsify and transfer: Portable C17 variadic machinery and single evaluation",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T68.04.a",
+        "T68.04.b",
+        "T68.04.c",
+        "T68.04.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Run metaprog.variadic, inspect -E output, and compile strict C17 probes. Kill duplicate-evaluation and incorrect-zero-identity mutants. Add arguments with commas protected by parentheses and demonstrate an unsafe unparenthesized form in a diagnostic-only target; retain a separate C2x __VA_OPT__ observation.",
+        "Build a bounded logging dispatcher that optionally attaches source metadata, with a distinct zero-field operation. Preserve single evaluation and type checking while making expansion limits explicit; diagnose unsupported arity without compiler-specific comma extensions."
+      ],
+      "checks": [
+        "seed7 andarity0..4 produce sums0,7,15,24,34 with evaluation counts0,1,2,3,4. Arity5fails preserving bothoutputs. No argument-order claim is made.",
+        "Run metaprog.variadic, inspect -E output, and compile strict C17 probes. Kill duplicate-evaluation and incorrect-zero-identity mutants. Add arguments with commas protected by parentheses and demonstrate an unsafe unparenthesized form in a diagnostic-only target; retain a separate C2x __VA_OPT__ observation."
+      ],
+      "reasoning": [
+        "Derive a bounded1..4argument dispatch macro without __VA_OPT__ or GNU comma deletion, and distinguish single evaluation from the unspecified order of function arguments."
+      ],
+      "deliverables": [
+        "Show token substitution, rescan, selector position and parentheses for each admitted arity. Explain why an empty token argument differs from omitted variadic arguments in C17, and why this lab deliberately has a distinct zero-argument entry. Compare N3033 proposal semantics without presenting a proposal as the inspected final C23 standard.",
+        "Run metaprog.variadic, inspect -E output, and compile strict C17 probes. Kill duplicate-evaluation and incorrect-zero-identity mutants. Add arguments with commas protected by parentheses and demonstrate an unsafe unparenthesized form in a diagnostic-only target; retain a separate C2x __VA_OPT__ observation.",
+        "Build a bounded logging dispatcher that optionally attaches source metadata, with a distinct zero-field operation. Preserve single evaluation and type checking while making expansion limits explicit; diagnose unsupported arity without compiler-specific comma extensions."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-004-R1",
+          "objective": "T68.04.a",
+          "criterion": "Derive a bounded1..4argument dispatch macro without __VA_OPT__ or GNU comma deletion, and distinguish single evaluation from the unspecified order of function arguments.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-004-R2",
+          "objective": "T68.04.b",
+          "criterion": "Show token substitution, rescan, selector position and parentheses for each admitted arity. Explain why an empty token argument differs from omitted variadic arguments in C17, and why this lab deliberately has a distinct zero-argument entry. Compare N3033 proposal semantics without presenting a proposal as the inspected final C23 standard.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-004-R3",
+          "objective": "T68.04.c",
+          "criterion": "Run metaprog.variadic, inspect -E output, and compile strict C17 probes. Kill duplicate-evaluation and incorrect-zero-identity mutants. Add arguments with commas protected by parentheses and demonstrate an unsafe unparenthesized form in a diagnostic-only target; retain a separate C2x __VA_OPT__ observation.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-004-R4",
+          "objective": "T68.04.d",
+          "criterion": "Build a bounded logging dispatcher that optionally attaches source metadata, with a distinct zero-field operation. Preserve single evaluation and type checking while making expansion limits explicit; diagnose unsupported arity without compiler-specific comma extensions.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Build a bounded logging dispatcher that optionally attaches source metadata, with a distinct zero-field operation. Preserve single evaluation and type checking while making expansion limits explicit; diagnose unsupported arity without compiler-specific comma extensions."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-004.md",
+      "target_scope": "host",
+      "scope": "Derive a bounded1..4argument dispatch macro without __VA_OPT__ or GNU comma deletion, and distinguish single evaluation from the unspecified order of function arguments.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-VAOPT",
+          "locator": "Summary; Problem; Discussion of __VA_OPT__ proposal",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-09",
+      "project": "PR-T68-05",
+      "title": "Construct: Generic customization with cv-preserving receivers",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T68.05.a",
+        "T68.05.b",
+        "T68.05.c",
+        "T68.05.d"
+      ],
+      "tests": [
+        "metaprog.generic"
+      ],
+      "steps": [
+        "Explain why selecting a function designator with _Generic and calling it afterward preserves typed receiver checking, while invalid unselected expressions can still require diagnostics.",
+        "Distinguish top-level pointer qualifiers from pointed-to const and state the compatible-type association restrictions. The controlling expression is not evaluated; only the selected call argument is evaluated. Explain why the generic selection should choose valid function names rather than embed branch-specific invalid field operations."
+      ],
+      "checks": [
+        "Mutable7 and const9 produce316 with2evaluations and unchanged pointees. Selecting the mutable policy for the const receiver produces the wrong semantic marker even if a cast lets it compile.",
+        "Run metaprog.generic and compile unsupported-type/const-write diagnostic probes. Kill const-receiver-policy substitution and extra controlling-expression evaluation mutants. Check GCC and Clang with C17, and record implementation differences involving top-level qualifiers as observations requiring precise source interpretation."
+      ],
+      "reasoning": [
+        "Explain why selecting a function designator with _Generic and calling it afterward preserves typed receiver checking, while invalid unselected expressions can still require diagnostics."
+      ],
+      "deliverables": [
+        "Distinguish top-level pointer qualifiers from pointed-to const and state the compatible-type association restrictions. The controlling expression is not evaluated; only the selected call argument is evaluated. Explain why the generic selection should choose valid function names rather than embed branch-specific invalid field operations.",
+        "Run metaprog.generic and compile unsupported-type/const-write diagnostic probes. Kill const-receiver-policy substitution and extra controlling-expression evaluation mutants. Check GCC and Clang with C17, and record implementation differences involving top-level qualifiers as observations requiring precise source interpretation.",
+        "Add volatile device-view receivers through explicit APIs. Separate permitted volatile access, side effects and ordering from constness; inspect emitted accesses and avoid claiming that volatile supplies synchronization or device barriers."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-005-R1",
+          "objective": "T68.05.a",
+          "criterion": "Explain why selecting a function designator with _Generic and calling it afterward preserves typed receiver checking, while invalid unselected expressions can still require diagnostics.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-005-R2",
+          "objective": "T68.05.b",
+          "criterion": "Distinguish top-level pointer qualifiers from pointed-to const and state the compatible-type association restrictions. The controlling expression is not evaluated; only the selected call argument is evaluated. Explain why the generic selection should choose valid function names rather than embed branch-specific invalid field operations.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-005-R3",
+          "objective": "T68.05.c",
+          "criterion": "Run metaprog.generic and compile unsupported-type/const-write diagnostic probes. Kill const-receiver-policy substitution and extra controlling-expression evaluation mutants. Check GCC and Clang with C17, and record implementation differences involving top-level qualifiers as observations requiring precise source interpretation.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-005-R4",
+          "objective": "T68.05.d",
+          "criterion": "Add volatile device-view receivers through explicit APIs. Separate permitted volatile access, side effects and ordering from constness; inspect emitted accesses and avoid claiming that volatile supplies synchronization or device barriers.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add volatile device-view receivers through explicit APIs. Separate permitted volatile access, side effects and ordering from constness; inspect emitted accesses and avoid claiming that volatile supplies synchronization or device barriers."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-005.md",
+      "target_scope": "host",
+      "scope": "Explain why selecting a function designator with _Generic and calling it afterward preserves typed receiver checking, while invalid unselected expressions can still require diagnostics.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-10",
+      "project": "PR-T68-05",
+      "title": "Falsify and transfer: Generic customization with cv-preserving receivers",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T68.05.a",
+        "T68.05.b",
+        "T68.05.c",
+        "T68.05.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Run metaprog.generic and compile unsupported-type/const-write diagnostic probes. Kill const-receiver-policy substitution and extra controlling-expression evaluation mutants. Check GCC and Clang with C17, and record implementation differences involving top-level qualifiers as observations requiring precise source interpretation.",
+        "Add volatile device-view receivers through explicit APIs. Separate permitted volatile access, side effects and ordering from constness; inspect emitted accesses and avoid claiming that volatile supplies synchronization or device barriers."
+      ],
+      "checks": [
+        "Mutable7 and const9 produce316 with2evaluations and unchanged pointees. Selecting the mutable policy for the const receiver produces the wrong semantic marker even if a cast lets it compile.",
+        "Run metaprog.generic and compile unsupported-type/const-write diagnostic probes. Kill const-receiver-policy substitution and extra controlling-expression evaluation mutants. Check GCC and Clang with C17, and record implementation differences involving top-level qualifiers as observations requiring precise source interpretation."
+      ],
+      "reasoning": [
+        "Explain why selecting a function designator with _Generic and calling it afterward preserves typed receiver checking, while invalid unselected expressions can still require diagnostics."
+      ],
+      "deliverables": [
+        "Distinguish top-level pointer qualifiers from pointed-to const and state the compatible-type association restrictions. The controlling expression is not evaluated; only the selected call argument is evaluated. Explain why the generic selection should choose valid function names rather than embed branch-specific invalid field operations.",
+        "Run metaprog.generic and compile unsupported-type/const-write diagnostic probes. Kill const-receiver-policy substitution and extra controlling-expression evaluation mutants. Check GCC and Clang with C17, and record implementation differences involving top-level qualifiers as observations requiring precise source interpretation.",
+        "Add volatile device-view receivers through explicit APIs. Separate permitted volatile access, side effects and ordering from constness; inspect emitted accesses and avoid claiming that volatile supplies synchronization or device barriers."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-005-R1",
+          "objective": "T68.05.a",
+          "criterion": "Explain why selecting a function designator with _Generic and calling it afterward preserves typed receiver checking, while invalid unselected expressions can still require diagnostics.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-005-R2",
+          "objective": "T68.05.b",
+          "criterion": "Distinguish top-level pointer qualifiers from pointed-to const and state the compatible-type association restrictions. The controlling expression is not evaluated; only the selected call argument is evaluated. Explain why the generic selection should choose valid function names rather than embed branch-specific invalid field operations.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-005-R3",
+          "objective": "T68.05.c",
+          "criterion": "Run metaprog.generic and compile unsupported-type/const-write diagnostic probes. Kill const-receiver-policy substitution and extra controlling-expression evaluation mutants. Check GCC and Clang with C17, and record implementation differences involving top-level qualifiers as observations requiring precise source interpretation.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-005-R4",
+          "objective": "T68.05.d",
+          "criterion": "Add volatile device-view receivers through explicit APIs. Separate permitted volatile access, side effects and ordering from constness; inspect emitted accesses and avoid claiming that volatile supplies synchronization or device barriers.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add volatile device-view receivers through explicit APIs. Separate permitted volatile access, side effects and ordering from constness; inspect emitted accesses and avoid claiming that volatile supplies synchronization or device barriers."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-005.md",
+      "target_scope": "host",
+      "scope": "Explain why selecting a function designator with _Generic and calling it afterward preserves typed receiver checking, while invalid unselected expressions can still require diagnostics.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-11",
+      "project": "PR-T68-06",
+      "title": "Construct: Single-source field reflection and explicit wire operations",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T68.06.a",
+        "T68.06.b",
+        "T68.06.c",
+        "T68.06.d"
+      ],
+      "tests": [
+        "metaprog.reflection"
+      ],
+      "steps": [
+        "Derive declarations, field names, offsets and wire operations from one authoritative field list without confusing implementation layout reflection with a portable serialization format.",
+        "Explain stringification/token substitution and why the field list is a local schema, not arbitrary introspection of undeclared C types. Distinguish native field offset, native sizeof, wire width and schema identity. Compare the declared generated interface with language macro/derive facilities; no C++26 reflection claim is inferred without inspected final specification."
+      ],
+      "checks": [
+        "Record{code0x1234,value0x89abcdef} encodes12 34 89 AB CD EF. Descriptor count2, offsets areoffsetof(MPRecord,code/value), independent of wire positions0/2.",
+        "Run metaprog.reflection and regenerate a changed schema in a temporary workspace. Kill endian reversal and missing-field-descriptor mutants. Compile under altered packing/alignment only as an implementation-specific comparison and retain canonical wire bytes unchanged."
+      ],
+      "reasoning": [
+        "Derive declarations, field names, offsets and wire operations from one authoritative field list without confusing implementation layout reflection with a portable serialization format."
+      ],
+      "deliverables": [
+        "Explain stringification/token substitution and why the field list is a local schema, not arbitrary introspection of undeclared C types. Distinguish native field offset, native sizeof, wire width and schema identity. Compare the declared generated interface with language macro/derive facilities; no C++26 reflection claim is inferred without inspected final specification.",
+        "Run metaprog.reflection and regenerate a changed schema in a temporary workspace. Kill endian reversal and missing-field-descriptor mutants. Compile under altered packing/alignment only as an implementation-specific comparison and retain canonical wire bytes unchanged.",
+        "Add an optional tagged field and derive decode, equality, validation and visitor operations. Define migration/version rules and demonstrate a stale generated consumer that still compiles; design a build-time schema fingerprint check that catches it."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-006-R1",
+          "objective": "T68.06.a",
+          "criterion": "Derive declarations, field names, offsets and wire operations from one authoritative field list without confusing implementation layout reflection with a portable serialization format.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-006-R2",
+          "objective": "T68.06.b",
+          "criterion": "Explain stringification/token substitution and why the field list is a local schema, not arbitrary introspection of undeclared C types. Distinguish native field offset, native sizeof, wire width and schema identity. Compare the declared generated interface with language macro/derive facilities; no C++26 reflection claim is inferred without inspected final specification.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-006-R3",
+          "objective": "T68.06.c",
+          "criterion": "Run metaprog.reflection and regenerate a changed schema in a temporary workspace. Kill endian reversal and missing-field-descriptor mutants. Compile under altered packing/alignment only as an implementation-specific comparison and retain canonical wire bytes unchanged.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-006-R4",
+          "objective": "T68.06.d",
+          "criterion": "Add an optional tagged field and derive decode, equality, validation and visitor operations. Define migration/version rules and demonstrate a stale generated consumer that still compiles; design a build-time schema fingerprint check that catches it.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add an optional tagged field and derive decode, equality, validation and visitor operations. Define migration/version rules and demonstrate a stale generated consumer that still compiles; design a build-time schema fingerprint check that catches it."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-006.md",
+      "target_scope": "host",
+      "scope": "Derive declarations, field names, offsets and wire operations from one authoritative field list without confusing implementation layout reflection with a portable serialization format.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-MACRO",
+          "locator": "Transcribing; metavariables; repetitions; mixed-site hygiene",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-12",
+      "project": "PR-T68-06",
+      "title": "Falsify and transfer: Single-source field reflection and explicit wire operations",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T68.06.a",
+        "T68.06.b",
+        "T68.06.c",
+        "T68.06.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Run metaprog.reflection and regenerate a changed schema in a temporary workspace. Kill endian reversal and missing-field-descriptor mutants. Compile under altered packing/alignment only as an implementation-specific comparison and retain canonical wire bytes unchanged.",
+        "Add an optional tagged field and derive decode, equality, validation and visitor operations. Define migration/version rules and demonstrate a stale generated consumer that still compiles; design a build-time schema fingerprint check that catches it."
+      ],
+      "checks": [
+        "Record{code0x1234,value0x89abcdef} encodes12 34 89 AB CD EF. Descriptor count2, offsets areoffsetof(MPRecord,code/value), independent of wire positions0/2.",
+        "Run metaprog.reflection and regenerate a changed schema in a temporary workspace. Kill endian reversal and missing-field-descriptor mutants. Compile under altered packing/alignment only as an implementation-specific comparison and retain canonical wire bytes unchanged."
+      ],
+      "reasoning": [
+        "Derive declarations, field names, offsets and wire operations from one authoritative field list without confusing implementation layout reflection with a portable serialization format."
+      ],
+      "deliverables": [
+        "Explain stringification/token substitution and why the field list is a local schema, not arbitrary introspection of undeclared C types. Distinguish native field offset, native sizeof, wire width and schema identity. Compare the declared generated interface with language macro/derive facilities; no C++26 reflection claim is inferred without inspected final specification.",
+        "Run metaprog.reflection and regenerate a changed schema in a temporary workspace. Kill endian reversal and missing-field-descriptor mutants. Compile under altered packing/alignment only as an implementation-specific comparison and retain canonical wire bytes unchanged.",
+        "Add an optional tagged field and derive decode, equality, validation and visitor operations. Define migration/version rules and demonstrate a stale generated consumer that still compiles; design a build-time schema fingerprint check that catches it."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-006-R1",
+          "objective": "T68.06.a",
+          "criterion": "Derive declarations, field names, offsets and wire operations from one authoritative field list without confusing implementation layout reflection with a portable serialization format.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-006-R2",
+          "objective": "T68.06.b",
+          "criterion": "Explain stringification/token substitution and why the field list is a local schema, not arbitrary introspection of undeclared C types. Distinguish native field offset, native sizeof, wire width and schema identity. Compare the declared generated interface with language macro/derive facilities; no C++26 reflection claim is inferred without inspected final specification.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-006-R3",
+          "objective": "T68.06.c",
+          "criterion": "Run metaprog.reflection and regenerate a changed schema in a temporary workspace. Kill endian reversal and missing-field-descriptor mutants. Compile under altered packing/alignment only as an implementation-specific comparison and retain canonical wire bytes unchanged.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-006-R4",
+          "objective": "T68.06.d",
+          "criterion": "Add an optional tagged field and derive decode, equality, validation and visitor operations. Define migration/version rules and demonstrate a stale generated consumer that still compiles; design a build-time schema fingerprint check that catches it.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add an optional tagged field and derive decode, equality, validation and visitor operations. Define migration/version rules and demonstrate a stale generated consumer that still compiles; design a build-time schema fingerprint check that catches it."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-006.md",
+      "target_scope": "host",
+      "scope": "Derive declarations, field names, offsets and wire operations from one authoritative field list without confusing implementation layout reflection with a portable serialization format.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-MACRO",
+          "locator": "Transcribing; metavariables; repetitions; mixed-site hygiene",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-13",
+      "project": "PR-T68-07",
+      "title": "Construct: Derived equality, hashing and shrinking law counterexamples",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T68.07.a",
+        "T68.07.b",
+        "T68.07.c",
+        "T68.07.d"
+      ],
+      "tests": [
+        "metaprog.laws"
+      ],
+      "steps": [
+        "Explain the equality-implies-equal-hash law, why cached/nonsemantic fields must be excluded consistently, and what deterministic generation plus shrinking establishes and leaves unproved.",
+        "Prove reflexivity/symmetry/transitivity obligations separately from hashing and collisions. Specify FNV parameters and unsigned64 wrap; this is not a cryptographic integrity claim. The shrinking order finds a local minimum under decrement moves, not necessarily a globally simplest witness for arbitrary nonmonotone predicates. Callback/context must remain live, deterministic and side-effect controlled."
+      ],
+      "checks": [
+        "Keys(1,2,cache0) and(1,2,cache9) compareequal and hash equally; (1,3,0) differs. Propertyx+y<5 over0..8 yields a failing pair ofsum5. Reflexivity finds no failure in the bounded domain.",
+        "Run metaprog.laws, independently recompute canonical hashes and enumerate bounded law triples. Kill equality-ignores-y and hash-includes-cache mutants. Inject a deliberately wrong equality/hash callback through the learner testing.faults adapter and retain a minimized witness; explain why equal hashes do not imply equal keys."
+      ],
+      "reasoning": [
+        "Explain the equality-implies-equal-hash law, why cached/nonsemantic fields must be excluded consistently, and what deterministic generation plus shrinking establishes and leaves unproved."
+      ],
+      "deliverables": [
+        "Prove reflexivity/symmetry/transitivity obligations separately from hashing and collisions. Specify FNV parameters and unsigned64 wrap; this is not a cryptographic integrity claim. The shrinking order finds a local minimum under decrement moves, not necessarily a globally simplest witness for arbitrary nonmonotone predicates. Callback/context must remain live, deterministic and side-effect controlled.",
+        "Run metaprog.laws, independently recompute canonical hashes and enumerate bounded law triples. Kill equality-ignores-y and hash-includes-cache mutants. Inject a deliberately wrong equality/hash callback through the learner testing.faults adapter and retain a minimized witness; explain why equal hashes do not imply equal keys.",
+        "Add an allocation-failing string owner and generators for operation traces. Shrink while preserving preconditions and the same failure class; compare bytewise, semantic and normalized-text equality contracts before deriving hashes."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-007-R1",
+          "objective": "T68.07.a",
+          "criterion": "Explain the equality-implies-equal-hash law, why cached/nonsemantic fields must be excluded consistently, and what deterministic generation plus shrinking establishes and leaves unproved.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-007-R2",
+          "objective": "T68.07.b",
+          "criterion": "Prove reflexivity/symmetry/transitivity obligations separately from hashing and collisions. Specify FNV parameters and unsigned64 wrap; this is not a cryptographic integrity claim. The shrinking order finds a local minimum under decrement moves, not necessarily a globally simplest witness for arbitrary nonmonotone predicates. Callback/context must remain live, deterministic and side-effect controlled.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-007-R3",
+          "objective": "T68.07.c",
+          "criterion": "Run metaprog.laws, independently recompute canonical hashes and enumerate bounded law triples. Kill equality-ignores-y and hash-includes-cache mutants. Inject a deliberately wrong equality/hash callback through the learner testing.faults adapter and retain a minimized witness; explain why equal hashes do not imply equal keys.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-007-R4",
+          "objective": "T68.07.d",
+          "criterion": "Add an allocation-failing string owner and generators for operation traces. Shrink while preserving preconditions and the same failure class; compare bytewise, semantic and normalized-text equality contracts before deriving hashes.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add an allocation-failing string owner and generators for operation traces. Shrink while preserving preconditions and the same failure class; compare bytewise, semantic and normalized-text equality contracts before deriving hashes."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-007.md",
+      "target_scope": "host",
+      "scope": "Explain the equality-implies-equal-hash law, why cached/nonsemantic fields must be excluded consistently, and what deterministic generation plus shrinking establishes and leaves unproved.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-HASH",
+          "locator": "Implementing Hash; Hash and Eq; Prefix collisions; Portability",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-14",
+      "project": "PR-T68-07",
+      "title": "Falsify and transfer: Derived equality, hashing and shrinking law counterexamples",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T68.07.a",
+        "T68.07.b",
+        "T68.07.c",
+        "T68.07.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Run metaprog.laws, independently recompute canonical hashes and enumerate bounded law triples. Kill equality-ignores-y and hash-includes-cache mutants. Inject a deliberately wrong equality/hash callback through the learner testing.faults adapter and retain a minimized witness; explain why equal hashes do not imply equal keys.",
+        "Add an allocation-failing string owner and generators for operation traces. Shrink while preserving preconditions and the same failure class; compare bytewise, semantic and normalized-text equality contracts before deriving hashes."
+      ],
+      "checks": [
+        "Keys(1,2,cache0) and(1,2,cache9) compareequal and hash equally; (1,3,0) differs. Propertyx+y<5 over0..8 yields a failing pair ofsum5. Reflexivity finds no failure in the bounded domain.",
+        "Run metaprog.laws, independently recompute canonical hashes and enumerate bounded law triples. Kill equality-ignores-y and hash-includes-cache mutants. Inject a deliberately wrong equality/hash callback through the learner testing.faults adapter and retain a minimized witness; explain why equal hashes do not imply equal keys."
+      ],
+      "reasoning": [
+        "Explain the equality-implies-equal-hash law, why cached/nonsemantic fields must be excluded consistently, and what deterministic generation plus shrinking establishes and leaves unproved."
+      ],
+      "deliverables": [
+        "Prove reflexivity/symmetry/transitivity obligations separately from hashing and collisions. Specify FNV parameters and unsigned64 wrap; this is not a cryptographic integrity claim. The shrinking order finds a local minimum under decrement moves, not necessarily a globally simplest witness for arbitrary nonmonotone predicates. Callback/context must remain live, deterministic and side-effect controlled.",
+        "Run metaprog.laws, independently recompute canonical hashes and enumerate bounded law triples. Kill equality-ignores-y and hash-includes-cache mutants. Inject a deliberately wrong equality/hash callback through the learner testing.faults adapter and retain a minimized witness; explain why equal hashes do not imply equal keys.",
+        "Add an allocation-failing string owner and generators for operation traces. Shrink while preserving preconditions and the same failure class; compare bytewise, semantic and normalized-text equality contracts before deriving hashes."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-007-R1",
+          "objective": "T68.07.a",
+          "criterion": "Explain the equality-implies-equal-hash law, why cached/nonsemantic fields must be excluded consistently, and what deterministic generation plus shrinking establishes and leaves unproved.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-007-R2",
+          "objective": "T68.07.b",
+          "criterion": "Prove reflexivity/symmetry/transitivity obligations separately from hashing and collisions. Specify FNV parameters and unsigned64 wrap; this is not a cryptographic integrity claim. The shrinking order finds a local minimum under decrement moves, not necessarily a globally simplest witness for arbitrary nonmonotone predicates. Callback/context must remain live, deterministic and side-effect controlled.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-007-R3",
+          "objective": "T68.07.c",
+          "criterion": "Run metaprog.laws, independently recompute canonical hashes and enumerate bounded law triples. Kill equality-ignores-y and hash-includes-cache mutants. Inject a deliberately wrong equality/hash callback through the learner testing.faults adapter and retain a minimized witness; explain why equal hashes do not imply equal keys.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-007-R4",
+          "objective": "T68.07.d",
+          "criterion": "Add an allocation-failing string owner and generators for operation traces. Shrink while preserving preconditions and the same failure class; compare bytewise, semantic and normalized-text equality contracts before deriving hashes.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add an allocation-failing string owner and generators for operation traces. Shrink while preserving preconditions and the same failure class; compare bytewise, semantic and normalized-text equality contracts before deriving hashes."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-007.md",
+      "target_scope": "host",
+      "scope": "Explain the equality-implies-equal-hash law, why cached/nonsemantic fields must be excluded consistently, and what deterministic generation plus shrinking establishes and leaves unproved.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-HASH",
+          "locator": "Implementing Hash; Hash and Eq; Prefix collisions; Portability",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-15",
+      "project": "PR-T68-08",
+      "title": "Construct: Typed formatting and transactional bounded sinks",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T68.08.a",
+        "T68.08.b",
+        "T68.08.c",
+        "T68.08.d"
+      ],
+      "tests": [
+        "metaprog.formatting"
+      ],
+      "steps": [
+        "Distinguish compile-time argument-category checking from compile-time parsing of an arbitrary format string, and prove bounded sink failure does not publish partial output.",
+        "Derive the10digit bound for UINT32_MAX and reverse temporary digits only after capacity admission. For text, prove scan stops on insufficient capacity without publishing a prefix. Compare C++ basic_format_string constant-evaluation compatibility with this narrower C factory: it enforces argument categories, not arbitrary formatting grammar or backing lifetime."
+      ],
+      "checks": [
+        "Appenduint32zero yieldsbyte30; appendliteral%n yieldspercent/n, with no conversion interpretation. Appending4294967295 to a sink with9freebytes fails unchanged; with10freebytes writes exactly10digits.",
+        "Run metaprog.formatting, compile an unsupported MP_ARG category probe, and test every capacity0..11. Kill failure-used-count modification and zero-as-empty-output mutants. Compare against an independent decimal-string oracle and a guard-filled output suffix; distinguish valid text termination preconditions from bound checking."
+      ],
+      "reasoning": [
+        "Distinguish compile-time argument-category checking from compile-time parsing of an arbitrary format string, and prove bounded sink failure does not publish partial output."
+      ],
+      "deliverables": [
+        "Derive the10digit bound for UINT32_MAX and reverse temporary digits only after capacity admission. For text, prove scan stops on insufficient capacity without publishing a prefix. Compare C++ basic_format_string constant-evaluation compatibility with this narrower C factory: it enforces argument categories, not arbitrary formatting grammar or backing lifetime.",
+        "Run metaprog.formatting, compile an unsupported MP_ARG category probe, and test every capacity0..11. Kill failure-used-count modification and zero-as-empty-output mutants. Compare against an independent decimal-string oracle and a guard-filled output suffix; distinguish valid text termination preconditions from bound checking.",
+        "Add a parsed format DSL with typed placeholder descriptors and partial streaming sinks. Specify format validation separately from argument typing, and make partial writes/retry offsets explicit rather than silently keeping the transactional API promise."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-008-R1",
+          "objective": "T68.08.a",
+          "criterion": "Distinguish compile-time argument-category checking from compile-time parsing of an arbitrary format string, and prove bounded sink failure does not publish partial output.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-008-R2",
+          "objective": "T68.08.b",
+          "criterion": "Derive the10digit bound for UINT32_MAX and reverse temporary digits only after capacity admission. For text, prove scan stops on insufficient capacity without publishing a prefix. Compare C++ basic_format_string constant-evaluation compatibility with this narrower C factory: it enforces argument categories, not arbitrary formatting grammar or backing lifetime.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-008-R3",
+          "objective": "T68.08.c",
+          "criterion": "Run metaprog.formatting, compile an unsupported MP_ARG category probe, and test every capacity0..11. Kill failure-used-count modification and zero-as-empty-output mutants. Compare against an independent decimal-string oracle and a guard-filled output suffix; distinguish valid text termination preconditions from bound checking.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-008-R4",
+          "objective": "T68.08.d",
+          "criterion": "Add a parsed format DSL with typed placeholder descriptors and partial streaming sinks. Specify format validation separately from argument typing, and make partial writes/retry offsets explicit rather than silently keeping the transactional API promise.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add a parsed format DSL with typed placeholder descriptors and partial streaming sinks. Specify format validation separately from argument typing, and make partial writes/retry offsets explicit rather than silently keeping the transactional API promise."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-008.md",
+      "target_scope": "host",
+      "scope": "Distinguish compile-time argument-category checking from compile-time parsing of an arbitrary format string, and prove bounded sink failure does not publish partial output.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-FORMAT",
+          "locator": "basic_format_string consteval constructor and compatibility remarks; runtime format path",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-16",
+      "project": "PR-T68-08",
+      "title": "Falsify and transfer: Typed formatting and transactional bounded sinks",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T68.08.a",
+        "T68.08.b",
+        "T68.08.c",
+        "T68.08.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Run metaprog.formatting, compile an unsupported MP_ARG category probe, and test every capacity0..11. Kill failure-used-count modification and zero-as-empty-output mutants. Compare against an independent decimal-string oracle and a guard-filled output suffix; distinguish valid text termination preconditions from bound checking.",
+        "Add a parsed format DSL with typed placeholder descriptors and partial streaming sinks. Specify format validation separately from argument typing, and make partial writes/retry offsets explicit rather than silently keeping the transactional API promise."
+      ],
+      "checks": [
+        "Appenduint32zero yieldsbyte30; appendliteral%n yieldspercent/n, with no conversion interpretation. Appending4294967295 to a sink with9freebytes fails unchanged; with10freebytes writes exactly10digits.",
+        "Run metaprog.formatting, compile an unsupported MP_ARG category probe, and test every capacity0..11. Kill failure-used-count modification and zero-as-empty-output mutants. Compare against an independent decimal-string oracle and a guard-filled output suffix; distinguish valid text termination preconditions from bound checking."
+      ],
+      "reasoning": [
+        "Distinguish compile-time argument-category checking from compile-time parsing of an arbitrary format string, and prove bounded sink failure does not publish partial output."
+      ],
+      "deliverables": [
+        "Derive the10digit bound for UINT32_MAX and reverse temporary digits only after capacity admission. For text, prove scan stops on insufficient capacity without publishing a prefix. Compare C++ basic_format_string constant-evaluation compatibility with this narrower C factory: it enforces argument categories, not arbitrary formatting grammar or backing lifetime.",
+        "Run metaprog.formatting, compile an unsupported MP_ARG category probe, and test every capacity0..11. Kill failure-used-count modification and zero-as-empty-output mutants. Compare against an independent decimal-string oracle and a guard-filled output suffix; distinguish valid text termination preconditions from bound checking.",
+        "Add a parsed format DSL with typed placeholder descriptors and partial streaming sinks. Specify format validation separately from argument typing, and make partial writes/retry offsets explicit rather than silently keeping the transactional API promise."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-008-R1",
+          "objective": "T68.08.a",
+          "criterion": "Distinguish compile-time argument-category checking from compile-time parsing of an arbitrary format string, and prove bounded sink failure does not publish partial output.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-008-R2",
+          "objective": "T68.08.b",
+          "criterion": "Derive the10digit bound for UINT32_MAX and reverse temporary digits only after capacity admission. For text, prove scan stops on insufficient capacity without publishing a prefix. Compare C++ basic_format_string constant-evaluation compatibility with this narrower C factory: it enforces argument categories, not arbitrary formatting grammar or backing lifetime.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-008-R3",
+          "objective": "T68.08.c",
+          "criterion": "Run metaprog.formatting, compile an unsupported MP_ARG category probe, and test every capacity0..11. Kill failure-used-count modification and zero-as-empty-output mutants. Compare against an independent decimal-string oracle and a guard-filled output suffix; distinguish valid text termination preconditions from bound checking.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-008-R4",
+          "objective": "T68.08.d",
+          "criterion": "Add a parsed format DSL with typed placeholder descriptors and partial streaming sinks. Specify format validation separately from argument typing, and make partial writes/retry offsets explicit rather than silently keeping the transactional API promise.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add a parsed format DSL with typed placeholder descriptors and partial streaming sinks. Specify format validation separately from argument typing, and make partial writes/retry offsets explicit rather than silently keeping the transactional API promise."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-008.md",
+      "target_scope": "host",
+      "scope": "Distinguish compile-time argument-category checking from compile-time parsing of an arbitrary format string, and prove bounded sink failure does not publish partial output.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-FORMAT",
+          "locator": "basic_format_string consteval constructor and compatibility remarks; runtime format path",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-17",
+      "project": "PR-T68-09",
+      "title": "Construct: A bounded hygienic token expander written in C",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T68.09.a",
+        "T68.09.b",
+        "T68.09.c",
+        "T68.09.d"
+      ],
+      "tests": [
+        "metaprog.hygiene"
+      ],
+      "steps": [
+        "Explain variable capture using symbol identity plus syntax context, and distinguish preserving call-site argument context from assigning a fresh context to introduced bindings.",
+        "Define identifier equality as(symbol,context), track binding/reference identities through an expansion, and show how call-site symbol7/context5 remains distinct from introducedsymbol7/context12. Explain nested expansion context retention and finite namespace exhaustion. Compare the inspected Rust mixed-site hygiene rules precisely; the model uses an explicit stronger uniform context scheme for introduced names."
+      ],
+      "checks": [
+        "Pattern[introduced7,arg0,introduced7],argument(symbol7,context5),next12 producescontexts12,5,12 andnext13. ExhaustedUINT_MAX, insufficient output capacity or bad argument index leaves state unchanged.",
+        "Run metaprog.hygiene and compare against an independent token/context transformer. Kill retagged-call-site-argument and wrapping-context mutants. Build a tiny environment resolver to demonstrate harmless capture: the flawed output resolves the argument to the introduced synthetic binding instead of its caller binding. Retain corrected and flawed token traces."
+      ],
+      "reasoning": [
+        "Explain variable capture using symbol identity plus syntax context, and distinguish preserving call-site argument context from assigning a fresh context to introduced bindings."
+      ],
+      "deliverables": [
+        "Define identifier equality as(symbol,context), track binding/reference identities through an expansion, and show how call-site symbol7/context5 remains distinct from introducedsymbol7/context12. Explain nested expansion context retention and finite namespace exhaustion. Compare the inspected Rust mixed-site hygiene rules precisely; the model uses an explicit stronger uniform context scheme for introduced names.",
+        "Run metaprog.hygiene and compare against an independent token/context transformer. Kill retagged-call-site-argument and wrapping-context mutants. Build a tiny environment resolver to demonstrate harmless capture: the flawed output resolves the argument to the introduced synthetic binding instead of its caller binding. Retain corrected and flawed token traces.",
+        "Add nested macros, repetition with equal-length metavariables and a depth/token expansion budget. Specify intentional capture escapes explicitly, prove budget consumption, and distinguish nontermination prevention from complete macro-language equivalence."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-009-R1",
+          "objective": "T68.09.a",
+          "criterion": "Explain variable capture using symbol identity plus syntax context, and distinguish preserving call-site argument context from assigning a fresh context to introduced bindings.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-009-R2",
+          "objective": "T68.09.b",
+          "criterion": "Define identifier equality as(symbol,context), track binding/reference identities through an expansion, and show how call-site symbol7/context5 remains distinct from introducedsymbol7/context12. Explain nested expansion context retention and finite namespace exhaustion. Compare the inspected Rust mixed-site hygiene rules precisely; the model uses an explicit stronger uniform context scheme for introduced names.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-009-R3",
+          "objective": "T68.09.c",
+          "criterion": "Run metaprog.hygiene and compare against an independent token/context transformer. Kill retagged-call-site-argument and wrapping-context mutants. Build a tiny environment resolver to demonstrate harmless capture: the flawed output resolves the argument to the introduced synthetic binding instead of its caller binding. Retain corrected and flawed token traces.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-009-R4",
+          "objective": "T68.09.d",
+          "criterion": "Add nested macros, repetition with equal-length metavariables and a depth/token expansion budget. Specify intentional capture escapes explicitly, prove budget consumption, and distinguish nontermination prevention from complete macro-language equivalence.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add nested macros, repetition with equal-length metavariables and a depth/token expansion budget. Specify intentional capture escapes explicitly, prove budget consumption, and distinguish nontermination prevention from complete macro-language equivalence."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-009.md",
+      "target_scope": "host",
+      "scope": "Explain variable capture using symbol identity plus syntax context, and distinguish preserving call-site argument context from assigning a fresh context to introduced bindings.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-MACRO",
+          "locator": "Transcribing; metavariables; repetitions; mixed-site hygiene",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-18",
+      "project": "PR-T68-09",
+      "title": "Falsify and transfer: A bounded hygienic token expander written in C",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T68.09.a",
+        "T68.09.b",
+        "T68.09.c",
+        "T68.09.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Run metaprog.hygiene and compare against an independent token/context transformer. Kill retagged-call-site-argument and wrapping-context mutants. Build a tiny environment resolver to demonstrate harmless capture: the flawed output resolves the argument to the introduced synthetic binding instead of its caller binding. Retain corrected and flawed token traces.",
+        "Add nested macros, repetition with equal-length metavariables and a depth/token expansion budget. Specify intentional capture escapes explicitly, prove budget consumption, and distinguish nontermination prevention from complete macro-language equivalence."
+      ],
+      "checks": [
+        "Pattern[introduced7,arg0,introduced7],argument(symbol7,context5),next12 producescontexts12,5,12 andnext13. ExhaustedUINT_MAX, insufficient output capacity or bad argument index leaves state unchanged.",
+        "Run metaprog.hygiene and compare against an independent token/context transformer. Kill retagged-call-site-argument and wrapping-context mutants. Build a tiny environment resolver to demonstrate harmless capture: the flawed output resolves the argument to the introduced synthetic binding instead of its caller binding. Retain corrected and flawed token traces."
+      ],
+      "reasoning": [
+        "Explain variable capture using symbol identity plus syntax context, and distinguish preserving call-site argument context from assigning a fresh context to introduced bindings."
+      ],
+      "deliverables": [
+        "Define identifier equality as(symbol,context), track binding/reference identities through an expansion, and show how call-site symbol7/context5 remains distinct from introducedsymbol7/context12. Explain nested expansion context retention and finite namespace exhaustion. Compare the inspected Rust mixed-site hygiene rules precisely; the model uses an explicit stronger uniform context scheme for introduced names.",
+        "Run metaprog.hygiene and compare against an independent token/context transformer. Kill retagged-call-site-argument and wrapping-context mutants. Build a tiny environment resolver to demonstrate harmless capture: the flawed output resolves the argument to the introduced synthetic binding instead of its caller binding. Retain corrected and flawed token traces.",
+        "Add nested macros, repetition with equal-length metavariables and a depth/token expansion budget. Specify intentional capture escapes explicitly, prove budget consumption, and distinguish nontermination prevention from complete macro-language equivalence."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-009-R1",
+          "objective": "T68.09.a",
+          "criterion": "Explain variable capture using symbol identity plus syntax context, and distinguish preserving call-site argument context from assigning a fresh context to introduced bindings.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-009-R2",
+          "objective": "T68.09.b",
+          "criterion": "Define identifier equality as(symbol,context), track binding/reference identities through an expansion, and show how call-site symbol7/context5 remains distinct from introducedsymbol7/context12. Explain nested expansion context retention and finite namespace exhaustion. Compare the inspected Rust mixed-site hygiene rules precisely; the model uses an explicit stronger uniform context scheme for introduced names.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-009-R3",
+          "objective": "T68.09.c",
+          "criterion": "Run metaprog.hygiene and compare against an independent token/context transformer. Kill retagged-call-site-argument and wrapping-context mutants. Build a tiny environment resolver to demonstrate harmless capture: the flawed output resolves the argument to the introduced synthetic binding instead of its caller binding. Retain corrected and flawed token traces.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-009-R4",
+          "objective": "T68.09.d",
+          "criterion": "Add nested macros, repetition with equal-length metavariables and a depth/token expansion budget. Specify intentional capture escapes explicitly, prove budget consumption, and distinguish nontermination prevention from complete macro-language equivalence.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add nested macros, repetition with equal-length metavariables and a depth/token expansion budget. Specify intentional capture escapes explicitly, prove budget consumption, and distinguish nontermination prevention from complete macro-language equivalence."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-009.md",
+      "target_scope": "host",
+      "scope": "Explain variable capture using symbol identity plus syntax context, and distinguish preserving call-site argument context from assigning a fresh context to introduced bindings.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-MACRO",
+          "locator": "Transcribing; metavariables; repetitions; mixed-site hygiene",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-19",
+      "project": "PR-T68-10",
+      "title": "Construct: Declarative build graphs and deterministic table generation",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T68.10.a",
+        "T68.10.b",
+        "T68.10.c",
+        "T68.10.d"
+      ],
+      "tests": [
+        "metaprog.buildgraph"
+      ],
+      "steps": [
+        "Derive build ordering separately from action invalidation, identify hidden inputs, and explain why a content key is only as complete and collision-resistant as its declared input model.",
+        "Prove Kahn-style readiness and termination, show how dependency content propagates into consumers, and distinguish source identity from timestamp ordering. Compare Ninja explicit/implicit/order-only dependency semantics and command-line rebuild tracking. The educational FNV key is not collision-resistant; require full input equality or a suitable cryptographic digest before any untrusted shared cache use."
+      ],
+      "checks": [
+        "Two nodes0->1 executeorder[0,1]. Changingnode0configuration changes bothkeys. A cycle0<->1 fails with previous outputs unchanged. Generated source retains all64bits of eachkey and is reproducible byte-for-byte.",
+        "Run metaprog.buildgraph and independent Python topological/hash reconstruction. Kill omitted-configuration and omitted-dependency-key mutants. Compile/run the generated C table consumer, permute input storage without changing logical IDs, and inject a missing implicit dependency to demonstrate stale generated metadata."
+      ],
+      "reasoning": [
+        "Derive build ordering separately from action invalidation, identify hidden inputs, and explain why a content key is only as complete and collision-resistant as its declared input model."
+      ],
+      "deliverables": [
+        "Prove Kahn-style readiness and termination, show how dependency content propagates into consumers, and distinguish source identity from timestamp ordering. Compare Ninja explicit/implicit/order-only dependency semantics and command-line rebuild tracking. The educational FNV key is not collision-resistant; require full input equality or a suitable cryptographic digest before any untrusted shared cache use.",
+        "Run metaprog.buildgraph and independent Python topological/hash reconstruction. Kill omitted-configuration and omitted-dependency-key mutants. Compile/run the generated C table consumer, permute input storage without changing logical IDs, and inject a missing implicit dependency to demonstrate stale generated metadata.",
+        "Introduce an incremental cache with toolchain, environment, include-file and schema dependencies. Simulate crashes during artifact publication and hash collisions; define atomic replacement and full-input verification. Compare a parallel scheduler only after establishing dependency and output ownership."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-010-R1",
+          "objective": "T68.10.a",
+          "criterion": "Derive build ordering separately from action invalidation, identify hidden inputs, and explain why a content key is only as complete and collision-resistant as its declared input model.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-010-R2",
+          "objective": "T68.10.b",
+          "criterion": "Prove Kahn-style readiness and termination, show how dependency content propagates into consumers, and distinguish source identity from timestamp ordering. Compare Ninja explicit/implicit/order-only dependency semantics and command-line rebuild tracking. The educational FNV key is not collision-resistant; require full input equality or a suitable cryptographic digest before any untrusted shared cache use.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-010-R3",
+          "objective": "T68.10.c",
+          "criterion": "Run metaprog.buildgraph and independent Python topological/hash reconstruction. Kill omitted-configuration and omitted-dependency-key mutants. Compile/run the generated C table consumer, permute input storage without changing logical IDs, and inject a missing implicit dependency to demonstrate stale generated metadata.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-010-R4",
+          "objective": "T68.10.d",
+          "criterion": "Introduce an incremental cache with toolchain, environment, include-file and schema dependencies. Simulate crashes during artifact publication and hash collisions; define atomic replacement and full-input verification. Compare a parallel scheduler only after establishing dependency and output ownership.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce an incremental cache with toolchain, environment, include-file and schema dependencies. Simulate crashes during artifact publication and hash collisions; define atomic replacement and full-input verification. Compare a parallel scheduler only after establishing dependency and output ownership."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-010.md",
+      "target_scope": "host",
+      "scope": "Derive build ordering separately from action invalidation, identify hidden inputs, and explain why a content key is only as complete and collision-resistant as its declared input model.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-NINJA",
+          "locator": "Comparison to Make command-line dependency; The Ninja log; Build dependencies explicit, implicit and order-only",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-MP-20",
+      "project": "PR-T68-10",
+      "title": "Falsify and transfer: Declarative build graphs and deterministic table generation",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T68.10.a",
+        "T68.10.b",
+        "T68.10.c",
+        "T68.10.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Run metaprog.buildgraph and independent Python topological/hash reconstruction. Kill omitted-configuration and omitted-dependency-key mutants. Compile/run the generated C table consumer, permute input storage without changing logical IDs, and inject a missing implicit dependency to demonstrate stale generated metadata.",
+        "Introduce an incremental cache with toolchain, environment, include-file and schema dependencies. Simulate crashes during artifact publication and hash collisions; define atomic replacement and full-input verification. Compare a parallel scheduler only after establishing dependency and output ownership."
+      ],
+      "checks": [
+        "Two nodes0->1 executeorder[0,1]. Changingnode0configuration changes bothkeys. A cycle0<->1 fails with previous outputs unchanged. Generated source retains all64bits of eachkey and is reproducible byte-for-byte.",
+        "Run metaprog.buildgraph and independent Python topological/hash reconstruction. Kill omitted-configuration and omitted-dependency-key mutants. Compile/run the generated C table consumer, permute input storage without changing logical IDs, and inject a missing implicit dependency to demonstrate stale generated metadata."
+      ],
+      "reasoning": [
+        "Derive build ordering separately from action invalidation, identify hidden inputs, and explain why a content key is only as complete and collision-resistant as its declared input model."
+      ],
+      "deliverables": [
+        "Prove Kahn-style readiness and termination, show how dependency content propagates into consumers, and distinguish source identity from timestamp ordering. Compare Ninja explicit/implicit/order-only dependency semantics and command-line rebuild tracking. The educational FNV key is not collision-resistant; require full input equality or a suitable cryptographic digest before any untrusted shared cache use.",
+        "Run metaprog.buildgraph and independent Python topological/hash reconstruction. Kill omitted-configuration and omitted-dependency-key mutants. Compile/run the generated C table consumer, permute input storage without changing logical IDs, and inject a missing implicit dependency to demonstrate stale generated metadata.",
+        "Introduce an incremental cache with toolchain, environment, include-file and schema dependencies. Simulate crashes during artifact publication and hash collisions; define atomic replacement and full-input verification. Compare a parallel scheduler only after establishing dependency and output ownership."
+      ],
+      "rubric": [
+        {
+          "id": "X-T68-010-R1",
+          "objective": "T68.10.a",
+          "criterion": "Derive build ordering separately from action invalidation, identify hidden inputs, and explain why a content key is only as complete and collision-resistant as its declared input model.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-010-R2",
+          "objective": "T68.10.b",
+          "criterion": "Prove Kahn-style readiness and termination, show how dependency content propagates into consumers, and distinguish source identity from timestamp ordering. Compare Ninja explicit/implicit/order-only dependency semantics and command-line rebuild tracking. The educational FNV key is not collision-resistant; require full input equality or a suitable cryptographic digest before any untrusted shared cache use.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-010-R3",
+          "objective": "T68.10.c",
+          "criterion": "Run metaprog.buildgraph and independent Python topological/hash reconstruction. Kill omitted-configuration and omitted-dependency-key mutants. Compile/run the generated C table consumer, permute input storage without changing logical IDs, and inject a missing implicit dependency to demonstrate stale generated metadata.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T68-010-R4",
+          "objective": "T68.10.d",
+          "criterion": "Introduce an incremental cache with toolchain, environment, include-file and schema dependencies. Simulate crashes during artifact publication and hash collisions; define atomic replacement and full-input verification. Compare a parallel scheduler only after establishing dependency and output ownership.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce an incremental cache with toolchain, environment, include-file and schema dependencies. Simulate crashes during artifact publication and hash collisions; define atomic replacement and full-input verification. Compare a parallel scheduler only after establishing dependency and output ownership."
+      ],
+      "assessor_analysis": "assessor/metaprog/analyses/X-T68-010.md",
+      "target_scope": "host",
+      "scope": "Derive build ordering separately from action invalidation, identify hidden inputs, and explain why a content key is only as complete and collision-resistant as its declared input model.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-ADMP-NINJA",
+          "locator": "Comparison to Make command-line dependency; The Ninja log; Build dependencies explicit, implicit and order-only",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-ADMP-C11",
+          "locator": "6.5.1.1 paragraphs2-4 generic selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "X-T68-001",
+      "project": "PR-T68-01",
+      "tests": [
+        "metaprog.mono"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T68-002",
+      "project": "PR-T68-02",
+      "tests": [
+        "metaprog.constraints"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T68-003",
+      "project": "PR-T68-03",
+      "tests": [
+        "metaprog.policies"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T68-004",
+      "project": "PR-T68-04",
+      "tests": [
+        "metaprog.variadic"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T68-005",
+      "project": "PR-T68-05",
+      "tests": [
+        "metaprog.generic"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T68-006",
+      "project": "PR-T68-06",
+      "tests": [
+        "metaprog.reflection"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T68-007",
+      "project": "PR-T68-07",
+      "tests": [
+        "metaprog.laws"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T68-008",
+      "project": "PR-T68-08",
+      "tests": [
+        "metaprog.formatting"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T68-009",
+      "project": "PR-T68-09",
+      "tests": [
+        "metaprog.hygiene"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T68-010",
+      "project": "PR-T68-10",
+      "tests": [
+        "metaprog.buildgraph"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    }
+  ],
+  "tests": [
+    "metaprog.mono",
+    "metaprog.constraints",
+    "metaprog.policies",
+    "metaprog.variadic",
+    "metaprog.generic",
+    "metaprog.reflection",
+    "metaprog.laws",
+    "metaprog.formatting",
+    "metaprog.hygiene",
+    "metaprog.buildgraph"
+  ],
+  "modules": [
+    "T68"
+  ],
+  "contract": "labs/metaprog/CONTRACTS.md",
+  "campaign": {
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "MP_CHECK",
+    "fixture_oracle": "tools/verify_metaprog_fixtures.py",
+    "oracle_driver": "oracle-driver",
+    "report": "reviews/v5/expansion/b07/metaprog_campaign.json",
+    "producer": "tools/run_metaprog.py",
+    "receipt": "metaprog_campaign.json"
+  },
+  "dependencies": [],
+  "scope": "Hosted mechanism evidence only; no independent learner or strict target acceptance."
+}

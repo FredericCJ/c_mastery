@@ -1,0 +1,11 @@
+# T72 bounded source inspection and reflection
+
+The actual modern plan, census topic passages, existing contracts and the named primary passages in coroutines_resources.json were read before these specifications. Broad navigation located language counterparts; focused reads checked ownership, failure and ABI boundaries. Public-page bytes were fetched separately only to pin identity; a hash is not a claim of whole-document inspection.
+
+The public N1570 text supports only its explicitly named C11-draft clauses. Exact published C17 remains unavailable; C17 is retained as implementation baseline and no unsupported edition delta is asserted. Source scope is recorded per exercise. Unheld books remain discovery leads.
+
+The reference implementations and public anchors were authored before the full independent campaigns. T71 core code was started before the T72 stack-switch annotation spike: this is a recorded sequence deviation, not retrospective compliance. The actual GCC plain/ASan/TSan fiber spike ran; an initial ASan assertion about a local address failed because of fake stacks, and the corrected probe inspects architectural RSP while separately testing local lifetime. Final source-bound campaigns, not this narrative, determine current execution evidence.
+
+These sources support narrower claims than blanket safety or equivalence. Runtime generations require live storage; copied C handles are not moves; parser memoization requires cache identity; detector annotations do not prove assembly; physical device quiescence is an external fact. Required alternatives, full imported-system composition and delayed independent transfer stay open until their artifacts are actually assessed.
+
+Further campaign diagnosis: T71 Clang -Werror exposed misleading test indentation, repaired without disabling the warning. T72 unoptimized TSan exposed an out-of-line annotation helper returning after the logical fiber switch; forcing that tiny helper inline places the annotation immediately before the assembly switch and removes the unmatched detector function-exit. A subsequent actual Debug TSan fiber run passed. The initially selected lld linker was unavailable; the declared audit now uses the installed GNU arm-none-eabi-ld, with no installation or host setting change.

@@ -1,0 +1,241 @@
+{
+  "domains": [
+    {
+      "id": "T68",
+      "title": "Metaprogramming, reflection and law-driven generation",
+      "depth": "Mechanism construction, falsification, composition and independent transfer",
+      "subtopics": [
+        {
+          "id": "T68.01",
+          "title": "Template-header monomorphization and associated types",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T68.01.a",
+              "text": "Explain how repeated template-header inclusion generates distinct typed functions, how associated element/ring types must agree, and why token substitution has no trait-implementation proof or automatic instantiation isolation."
+            },
+            {
+              "id": "T68.01.b",
+              "text": "Derive head<count/capacity invariants, occupied logical slots and output ownership. Compare generated specialization with Rust generic/associated-type obligations and show a mismatched ring/element instantiation diagnosed by C. Explain why a template include guard would silently suppress the second instantiation and why internal macro names can collide."
+            },
+            {
+              "id": "T68.01.c",
+              "text": "Run metaprog.mono and inspect preprocessed two-instance source. Kill incorrect-tail-index and stationary-head mutants. Compile and link two translation units using declarations to detect accidental multiple definitions; record generated symbol count and text size separately from handwritten equivalents under the same capacity/failure contract."
+            },
+            {
+              "id": "T68.01.d",
+              "text": "Instantiate a ring of owning objects with fallible clone/drop callbacks. Derive rollback on failed push and destruction order on clear; compare monomorphized and erased implementations with equal semantics and measured code growth."
+            }
+          ]
+        },
+        {
+          "id": "T68.02",
+          "title": "Constraint probes and constant storage parameters",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T68.02.a",
+              "text": "Separate a required C constraint diagnostic, a chosen -Werror rejection, and a runtime range guard; show which properties constant-size generic storage can check before execution."
+            },
+            {
+              "id": "T68.02.b",
+              "text": "Derive count<=SIZE_MAX/width before multiplication and the independent budget bound. Explain why C17 _Static_assert requires an integer constant expression, VLA support differs from fixed arrays, and syntactically valid macros do not impose an abstract trait. Compare the inspected Rust const-generic type/use restrictions without claiming arbitrary compile-time evaluation equivalence."
+            },
+            {
+              "id": "T68.02.c",
+              "text": "Run metaprog.constraints and compile the negative constraint probes expecting a named diagnostic, not a link failure. Kill multiplication-overflow omission and storage-budget omission independently. Test size_t-width changes analytically and inspect whether published C23 wording is available before attributing a C2x compiler behavior to the standard."
+            },
+            {
+              "id": "T68.02.d",
+              "text": "Support a compile-time power-of-two ring capacity and a runtime fallback. Derive which optimization can use masking, reject an invalid constant capacity, and ensure a nonconstant caller cannot bypass runtime validation."
+            }
+          ]
+        },
+        {
+          "id": "T68.03",
+          "title": "Policy composition with explicit failure semantics",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T68.03.a",
+              "text": "Explain how a policy changes the operation contract and therefore the permitted performance comparison; distinguish compile-time specialization from runtime policy dispatch."
+            },
+            {
+              "id": "T68.03.b",
+              "text": "Prove value<=limit before subtracting limit-value, and define how a single input greater thanlimit is handled. Inputs/outputs are disjoint. State no allocation, single-threaded execution and failure publication at the end. Compare a policy parameter with Rust const parameters/trait-associated behavior only at the documented boundary."
+            },
+            {
+              "id": "T68.03.c",
+              "text": "Run metaprog.policies and inject every prefix crossing the limit. Kill accidental-saturation-for-rejection and wrong-empty-identity mutants. Inspect specialized and dynamic assembly and benchmark only comparisons preserving the same overflow and empty-input contracts."
+            },
+            {
+              "id": "T68.03.d",
+              "text": "Compose reduction with a caller-defined projection and fallible element acquisition. Specify evaluation order, callback side effects, rollback limits and whether saturation may short-circuit without skipping required effects."
+            }
+          ]
+        },
+        {
+          "id": "T68.04",
+          "title": "Portable C17 variadic machinery and single evaluation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T68.04.a",
+              "text": "Derive a bounded1..4argument dispatch macro without __VA_OPT__ or GNU comma deletion, and distinguish single evaluation from the unspecified order of function arguments."
+            },
+            {
+              "id": "T68.04.b",
+              "text": "Show token substitution, rescan, selector position and parentheses for each admitted arity. Explain why an empty token argument differs from omitted variadic arguments in C17, and why this lab deliberately has a distinct zero-argument entry. Compare N3033 proposal semantics without presenting a proposal as the inspected final C23 standard."
+            },
+            {
+              "id": "T68.04.c",
+              "text": "Run metaprog.variadic, inspect -E output, and compile strict C17 probes. Kill duplicate-evaluation and incorrect-zero-identity mutants. Add arguments with commas protected by parentheses and demonstrate an unsafe unparenthesized form in a diagnostic-only target; retain a separate C2x __VA_OPT__ observation."
+            },
+            {
+              "id": "T68.04.d",
+              "text": "Build a bounded logging dispatcher that optionally attaches source metadata, with a distinct zero-field operation. Preserve single evaluation and type checking while making expansion limits explicit; diagnose unsupported arity without compiler-specific comma extensions."
+            }
+          ]
+        },
+        {
+          "id": "T68.05",
+          "title": "Generic customization with cv-preserving receivers",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T68.05.a",
+              "text": "Explain why selecting a function designator with _Generic and calling it afterward preserves typed receiver checking, while invalid unselected expressions can still require diagnostics."
+            },
+            {
+              "id": "T68.05.b",
+              "text": "Distinguish top-level pointer qualifiers from pointed-to const and state the compatible-type association restrictions. The controlling expression is not evaluated; only the selected call argument is evaluated. Explain why the generic selection should choose valid function names rather than embed branch-specific invalid field operations."
+            },
+            {
+              "id": "T68.05.c",
+              "text": "Run metaprog.generic and compile unsupported-type/const-write diagnostic probes. Kill const-receiver-policy substitution and extra controlling-expression evaluation mutants. Check GCC and Clang with C17, and record implementation differences involving top-level qualifiers as observations requiring precise source interpretation."
+            },
+            {
+              "id": "T68.05.d",
+              "text": "Add volatile device-view receivers through explicit APIs. Separate permitted volatile access, side effects and ordering from constness; inspect emitted accesses and avoid claiming that volatile supplies synchronization or device barriers."
+            }
+          ]
+        },
+        {
+          "id": "T68.06",
+          "title": "Single-source field reflection and explicit wire operations",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T68.06.a",
+              "text": "Derive declarations, field names, offsets and wire operations from one authoritative field list without confusing implementation layout reflection with a portable serialization format."
+            },
+            {
+              "id": "T68.06.b",
+              "text": "Explain stringification/token substitution and why the field list is a local schema, not arbitrary introspection of undeclared C types. Distinguish native field offset, native sizeof, wire width and schema identity. Compare the declared generated interface with language macro/derive facilities; no C++26 reflection claim is inferred without inspected final specification."
+            },
+            {
+              "id": "T68.06.c",
+              "text": "Run metaprog.reflection and regenerate a changed schema in a temporary workspace. Kill endian reversal and missing-field-descriptor mutants. Compile under altered packing/alignment only as an implementation-specific comparison and retain canonical wire bytes unchanged."
+            },
+            {
+              "id": "T68.06.d",
+              "text": "Add an optional tagged field and derive decode, equality, validation and visitor operations. Define migration/version rules and demonstrate a stale generated consumer that still compiles; design a build-time schema fingerprint check that catches it."
+            }
+          ]
+        },
+        {
+          "id": "T68.07",
+          "title": "Derived equality, hashing and shrinking law counterexamples",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T68.07.a",
+              "text": "Explain the equality-implies-equal-hash law, why cached/nonsemantic fields must be excluded consistently, and what deterministic generation plus shrinking establishes and leaves unproved."
+            },
+            {
+              "id": "T68.07.b",
+              "text": "Prove reflexivity/symmetry/transitivity obligations separately from hashing and collisions. Specify FNV parameters and unsigned64 wrap; this is not a cryptographic integrity claim. The shrinking order finds a local minimum under decrement moves, not necessarily a globally simplest witness for arbitrary nonmonotone predicates. Callback/context must remain live, deterministic and side-effect controlled."
+            },
+            {
+              "id": "T68.07.c",
+              "text": "Run metaprog.laws, independently recompute canonical hashes and enumerate bounded law triples. Kill equality-ignores-y and hash-includes-cache mutants. Inject a deliberately wrong equality/hash callback through the learner testing.faults adapter and retain a minimized witness; explain why equal hashes do not imply equal keys."
+            },
+            {
+              "id": "T68.07.d",
+              "text": "Add an allocation-failing string owner and generators for operation traces. Shrink while preserving preconditions and the same failure class; compare bytewise, semantic and normalized-text equality contracts before deriving hashes."
+            }
+          ]
+        },
+        {
+          "id": "T68.08",
+          "title": "Typed formatting and transactional bounded sinks",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T68.08.a",
+              "text": "Distinguish compile-time argument-category checking from compile-time parsing of an arbitrary format string, and prove bounded sink failure does not publish partial output."
+            },
+            {
+              "id": "T68.08.b",
+              "text": "Derive the10digit bound for UINT32_MAX and reverse temporary digits only after capacity admission. For text, prove scan stops on insufficient capacity without publishing a prefix. Compare C++ basic_format_string constant-evaluation compatibility with this narrower C factory: it enforces argument categories, not arbitrary formatting grammar or backing lifetime."
+            },
+            {
+              "id": "T68.08.c",
+              "text": "Run metaprog.formatting, compile an unsupported MP_ARG category probe, and test every capacity0..11. Kill failure-used-count modification and zero-as-empty-output mutants. Compare against an independent decimal-string oracle and a guard-filled output suffix; distinguish valid text termination preconditions from bound checking."
+            },
+            {
+              "id": "T68.08.d",
+              "text": "Add a parsed format DSL with typed placeholder descriptors and partial streaming sinks. Specify format validation separately from argument typing, and make partial writes/retry offsets explicit rather than silently keeping the transactional API promise."
+            }
+          ]
+        },
+        {
+          "id": "T68.09",
+          "title": "A bounded hygienic token expander written in C",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T68.09.a",
+              "text": "Explain variable capture using symbol identity plus syntax context, and distinguish preserving call-site argument context from assigning a fresh context to introduced bindings."
+            },
+            {
+              "id": "T68.09.b",
+              "text": "Define identifier equality as(symbol,context), track binding/reference identities through an expansion, and show how call-site symbol7/context5 remains distinct from introducedsymbol7/context12. Explain nested expansion context retention and finite namespace exhaustion. Compare the inspected Rust mixed-site hygiene rules precisely; the model uses an explicit stronger uniform context scheme for introduced names."
+            },
+            {
+              "id": "T68.09.c",
+              "text": "Run metaprog.hygiene and compare against an independent token/context transformer. Kill retagged-call-site-argument and wrapping-context mutants. Build a tiny environment resolver to demonstrate harmless capture: the flawed output resolves the argument to the introduced synthetic binding instead of its caller binding. Retain corrected and flawed token traces."
+            },
+            {
+              "id": "T68.09.d",
+              "text": "Add nested macros, repetition with equal-length metavariables and a depth/token expansion budget. Specify intentional capture escapes explicitly, prove budget consumption, and distinguish nontermination prevention from complete macro-language equivalence."
+            }
+          ]
+        },
+        {
+          "id": "T68.10",
+          "title": "Declarative build graphs and deterministic table generation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T68.10.a",
+              "text": "Derive build ordering separately from action invalidation, identify hidden inputs, and explain why a content key is only as complete and collision-resistant as its declared input model."
+            },
+            {
+              "id": "T68.10.b",
+              "text": "Prove Kahn-style readiness and termination, show how dependency content propagates into consumers, and distinguish source identity from timestamp ordering. Compare Ninja explicit/implicit/order-only dependency semantics and command-line rebuild tracking. The educational FNV key is not collision-resistant; require full input equality or a suitable cryptographic digest before any untrusted shared cache use."
+            },
+            {
+              "id": "T68.10.c",
+              "text": "Run metaprog.buildgraph and independent Python topological/hash reconstruction. Kill omitted-configuration and omitted-dependency-key mutants. Compile/run the generated C table consumer, permute input storage without changing logical IDs, and inject a missing implicit dependency to demonstrate stale generated metadata."
+            },
+            {
+              "id": "T68.10.d",
+              "text": "Introduce an incremental cache with toolchain, environment, include-file and schema dependencies. Simulate crashes during artifact publication and hash collisions; define atomic replacement and full-input verification. Compare a parallel scheduler only after establishing dependency and output ownership."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

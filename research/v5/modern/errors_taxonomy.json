@@ -1,0 +1,218 @@
+{
+  "domains": [
+    {
+      "id": "T65",
+      "title": "Error models and executable contracts",
+      "depth": "Mechanism implementation, falsification and independent transfer",
+      "subtopics": [
+        {
+          "id": "T65.01",
+          "title": "Optional and Result representations without fictitious layout guarantees",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T65.01.a",
+              "text": "Derive the state cardinality of tagged versus zero-reserved optional values, including the lost present-zero state and valid result payload selection."
+            },
+            {
+              "id": "T65.01.b",
+              "text": "Implement total constructors and checked accessors while preserving output on rejected niche construction; do not copy uninitialized union members or compare padding."
+            },
+            {
+              "id": "T65.01.c",
+              "text": "Enumerate the reduced 8-bit model independently, then test actual UINT32_MAX and invalid discriminants. Measure sizeof and alignment on two available data models; a missing model is unavailable evidence. Kill premature-output-write and absence-uses-payload mutants."
+            },
+            {
+              "id": "T65.01.d",
+              "text": "Change the payload to an owning resource whose zero ID is valid. Derive an ownership-bearing tagged option and show why the old niche and byte-copy rules fail. Compare the exact documented Rust Option representation cases with this C design; no blanket ABI equivalence is allowed. Analyze void as an incomplete type with no values and _Noreturn as a function specifier. Compile a struct member of type void and an expression attempting to use a void result as a payload under strict C17 diagnostics; do not execute a falsely returning _Noreturn function. Construct a named one-state enum payload as a protocol-level unit and explain why it is not an uninhabited type or a general coercion rule."
+            }
+          ]
+        },
+        {
+          "id": "T65.02",
+          "title": "Single-evaluation propagation and atomic parser publication",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T65.02.a",
+              "text": "Explain which failure stage owns the error offset, and why early-return propagation is not transaction rollback or automatic cleanup."
+            },
+            {
+              "id": "T65.02.b",
+              "text": "Implement strict checked accumulation and two single-evaluation propagation forms without statement expressions, strto* or parser libraries."
+            },
+            {
+              "id": "T65.02.c",
+              "text": "Generate all strings of length0–6 over digits0,1,9,colon,x and compare with an independent grammar/integer model. Add UINT32 bounds and long zero prefixes. Record callback/expression counters to kill double evaluation and retain a canary output for every rejection; kill premature publication and trailing-input acceptance mutants."
+            },
+            {
+              "id": "T65.02.d",
+              "text": "Replace the complete buffer with two incremental segments and preserve an explicit consumed position. Decide when an error position is absolute and when publication may occur; show a case where blindly returning the old error loses partial progress. The delayed variant adds a signed first field and forbids negative totals. Replace a proposed GNU statement-expression propagation macro with a C17 do-while statement macro taking an explicit output and goto label. Place it in an if/else and as an attempted initializer: explain why only the statement context is admitted. Count argument evaluation, test a name collision, and compare a static inline function when early return from the caller is unnecessary."
+            }
+          ]
+        },
+        {
+          "id": "T65.03",
+          "title": "Partial progress is a product, not an error alternative",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T65.03.a",
+              "text": "Derive a state table in which progress and terminal/error status are independent, and distinguish accepted bytes from durable bytes."
+            },
+            {
+              "id": "T65.03.b",
+              "text": "Implement a one-call bounded adapter with overflow-free relative-to-absolute progress conversion and explicit borrowed-buffer lifetime."
+            },
+            {
+              "id": "T65.03.c",
+              "text": "Enumerate lengths0–5, valid and invalid next positions, backend counts0–6 and all status tags using a fake sink. Assert call counts, offered spans, no retry duplication and unchanged next on contract violations. Kill error-discards-progress and status-erasure mutants. Use a separate actual pipe adapter only as an additional OS experiment."
+            },
+            {
+              "id": "T65.03.d",
+              "text": "Compose with io.stream and introduce a copied bounded staging buffer. Cancellation arrives after a short write: identify what can be retried, what stays owned and what cannot be rolled back. Delayed assessment changes the sink to commit bytes in separate durable epochs."
+            }
+          ]
+        },
+        {
+          "id": "T65.04",
+          "title": "Lazy Result composition and effect-sensitive laws",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T65.04.a",
+              "text": "State the preconditions for map identity/composition and and_then associativity, distinguishing pure laws from callback side effects and evaluation order."
+            },
+            {
+              "id": "T65.04.b",
+              "text": "Implement typed callback composition with one active union member, error preservation and exactly selected callback invocation."
+            },
+            {
+              "id": "T65.04.c",
+              "text": "Exhaustively compare finite pure functions on payloads0–7 using an independent table oracle. Instrument observable callbacks and construct a counterexample to a proposed optimization that eagerly evaluates an unused branch. Kill error-callback and flattened-error-loss mutants; inspect indirect-call counts before timing."
+            },
+            {
+              "id": "T65.04.d",
+              "text": "Introduce an owned payload with a destructor. Specify whether map borrows, consumes or clones; reject a design that silently duplicates ownership. Delayed assessment asks for an error-type conversion that preserves an inner cause and offset without allocation."
+            }
+          ]
+        },
+        {
+          "id": "T65.05",
+          "title": "Bounded applicative validation and transactional configuration",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T65.05.a",
+              "text": "Explain why independent validation may accumulate errors while dependent checks require an admission order; define truncation independently of validity."
+            },
+            {
+              "id": "T65.05.b",
+              "text": "Implement bounded ordered diagnostics and all-or-nothing configuration publication, including structural-misuse behavior and output nonoverlap preconditions."
+            },
+            {
+              "id": "T65.05.c",
+              "text": "Enumerate boundary representatives [-1,0,1,150,151] for age, [-1,0,1024,1025] for quota and [0,1,4096,4097] for denominator across all capacities. Compare error IDs with an independent predicate list and byte/field canaries. Kill early-publication and first-error-only mutants."
+            },
+            {
+              "id": "T65.05.d",
+              "text": "Add a dependent ratio constraint quota/denominator <= limit. Explain why checking it before denominator admission would be invalid, and retain independent field diagnostics before cross-field validation. Delayed assessment requires a bounded nested path for each error and a deterministic truncation policy."
+            }
+          ]
+        },
+        {
+          "id": "T65.06",
+          "title": "Typed nonlocal-jump boundary with explicit cleanup ownership",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T65.06.a",
+              "text": "Classify setjmp placement, live destination, modified automatic locals, thread identity and variably modified scope requirements from the inspected draft clauses."
+            },
+            {
+              "id": "T65.06.b",
+              "text": "Implement a bounded explicit cleanup stack and typed jump-to-result boundary without pretending that longjmp unwinds C resources."
+            },
+            {
+              "id": "T65.06.c",
+              "text": "Inject failure before and after each registration, capacity exhaustion, normal return and every admitted raised code. Count cleanup exactly once and compare reverse-order traces. Compile optimized GCC/Clang variants. Analyze deliberately invalid saved-frame and changed-local snippets without treating their execution as an oracle; kill cleanup-omission and FIFO-cleanup mutants."
+            },
+            {
+              "id": "T65.06.d",
+              "text": "Compose with a resource acquisition API that fails after the third acquisition and with T66 cleanup.scope when available. Distinguish local rollback from effects already published externally. Delayed assessment nests two separate frames and requires inner-error conversion while preserving outer cleanup order."
+            }
+          ]
+        },
+        {
+          "id": "T65.07",
+          "title": "Arithmetic policy and serial-number partial order",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T65.07.a",
+              "text": "Derive the difference between mathematical range, unsigned modular semantics, saturation and the bounded-window assumption of serial comparisons."
+            },
+            {
+              "id": "T65.07.b",
+              "text": "Implement transactional policy adapters and an explicitly partial serial comparator with representable intermediate expressions."
+            },
+            {
+              "id": "T65.07.c",
+              "text": "Exhaustively enumerate an analogous 4-bit serial domain in an independent model, proving antisymmetry outside ambiguous pairs and finding nontransitive cycles. Test actual16-bit half-range neighbors and UINT32_MAX admission. Compare C17 manual checks with the separately inspected C23-draft checked arithmetic contract; kill write-before-reject and half-range-acceptance mutants."
+            },
+            {
+              "id": "T65.07.d",
+              "text": "Use the comparator in a timer queue, then change the maximum residence from less than half-range to unbounded. Supply a concrete stale/new ambiguity and repair with epochs or a wider nonwrapping lifetime contract. Delayed assessment changes the counter width and requires a fresh proof, not constant substitution alone."
+            }
+          ]
+        },
+        {
+          "id": "T65.08",
+          "title": "Contract off, observe and enforce modes with safe violation traces",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T65.08.a",
+              "text": "Separate diagnostic observation, enforced rejection and C undefined behavior; explain why disabling assert can remove argument evaluation."
+            },
+            {
+              "id": "T65.08.b",
+              "text": "Implement explicit contract modes with bounded arithmetic, report-counter overflow handling and failure-side-effect accounting."
+            },
+            {
+              "id": "T65.08.c",
+              "text": "Enumerate all legal initial counters, amounts and modes against an independent integer model, checking both outputs and returned status. Compile separate assert(++counter) probes with and without NDEBUG, explaining why they are unsuitable for essential updates. Kill missing-report and enforce-still-commits mutants; the harmless attacker input is amount20 at counter90."
+            },
+            {
+              "id": "T65.08.d",
+              "text": "Replace the safe clamped teaching effect with an operation whose precondition protects memory bounds. Determine which modes may legally call it and design an admitted wrapper that stays safe even when diagnostics are off. Delayed assessment introduces concurrent report ownership and requires a new synchronization contract."
+            }
+          ]
+        },
+        {
+          "id": "T65.09",
+          "title": "Canonical rational values and the boundary of runtime refinement",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T65.09.a",
+              "text": "Prove value preservation, termination and canonical representation; distinguish a runtime predicate from a static refinement type."
+            },
+            {
+              "id": "T65.09.b",
+              "text": "Implement transactional rational normalization and a validated consumer, documenting public-struct mutation and alias ownership limitations."
+            },
+            {
+              "id": "T65.09.c",
+              "text": "Enumerate numerator0–255 and denominator0–255 using Python fractions or an independently derived cross-product/gcd oracle. Test actual extrema and consecutive Fibonacci values for worst Euclid step counts. Reject unreduced-output and noncanonical-zero mutants. Verify checked consumers reject fabricated denominator0 before division."
+            },
+            {
+              "id": "T65.09.d",
+              "text": "Introduce rational addition with bounded storage. Compare rejecting intermediate overflow with cross-cancellation that admits more mathematically representable results under a declared contract. Delayed assessment changes the representation to signed numerator and requires a proof covering the minimum signed value without abs overflow."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

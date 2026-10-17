@@ -1,0 +1,635 @@
+{
+  "schema_version": 1,
+  "project": "PR-T24-03",
+  "domain": "T24",
+  "title": "Streams and datagram policies — explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T24.md",
+        "sha256": "9f8a7a963ad452b0032c33cb3d354c4d9f10bcb9a9c5e3d28bb05706cae21186",
+        "passages": [
+          "All assigned topic teaching and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T24-03.md",
+        "sha256": "3530c0b1ae1fbd09ff595a9405f92fc4cff3119875fec150fb4906e4aeaa615e",
+        "passages": [
+          "Metadata, Contract, Steps, Failure cases, Acceptance, Hints and changed-condition work"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T24-03.json",
+        "sha256": "b047ad1d51e5093d69b765155d42ebd299bb6e6e7d61a56f8980a8b420a81bba",
+        "passages": [
+          "Complete synthetic inputs and expected outputs"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "Exact branches used by the assigned synthetic fixture; not target execution"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/README.md",
+        "sha256": "ea69b7b3b3fc358afd7cc62e4f64c8e4eb68e07a1a8cb58e4b8e117ba3bcf580",
+        "passages": [
+          "Named implementation contracts and explicit execution/physical limitations"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/CONTRACTS.md",
+        "sha256": "37b5c55cf0473e98071ee1221cf5667e739923b227f22ccec6b80a49797d10c5",
+        "passages": [
+          "All operation contracts, preconditions, failure and ownership boundaries"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T24.md",
+        "anchors": [
+          "T24.05",
+          "T24.06"
+        ]
+      }
+    ],
+    "units": [
+      "U-T24-03-01",
+      "U-T24-03-02",
+      "U-T24-03-03",
+      "U-T24-03-04"
+    ],
+    "inspection_limits": [
+      "All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.",
+      "Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.",
+      "Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.",
+    "target": "Unprivileged Linux x86-64 for original hosted experiments; pure C memory models and restricted-profile target code retain their own contracts. Kernel execution only in a disposable VM.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.",
+      "Device/VM/tool unavailability is a missing observation, not a passing result."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LRUN-RECV",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+        "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+      ]
+    },
+    {
+      "id": "R-LSYS-WRITE",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "RETURN VALUE; ERRORS EINTR/EAGAIN/EPIPE; NOTES short transfers and durability"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
+    "Historical reading metadata is not promoted to a new source-inspection claim.",
+    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T24-03.md",
+    "fixtures/systems/PR-T24-03.json",
+    "tools/verify_systems_fixtures.py",
+    "labs/hosted_systems/README.md"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contracts and bounded partial anchors",
+    "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
+    "tests": [],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T24-03-T24.05.a",
+      "title": "Separate byte-stream transport from application messages.",
+      "objective": "T24.05.a",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RECV",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+            "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+          ]
+        },
+        {
+          "id": "R-LSYS-WRITE",
+          "path": "research/v5/expansion/legacy_systems/resources.json",
+          "passages": [
+            "RETURN VALUE; ERRORS EINTR/EAGAIN/EPIPE; NOTES short transfers and durability"
+          ]
+        }
+      ],
+      "task": "For frames consisting of one length byte followed by at most 8 payload bytes, generate every split of two adjacent frames, including an empty frame and embedded zero. Run one incremental parser and compare to an independent complete-buffer decoder.",
+      "purpose": "One send call produces one receive call.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.05 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "One send call produces one receive call. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: One send call produces one receive call.",
+        "D2": "For frames consisting of one length byte followed by at most 8 payload bytes, generate every split of two adjacent frames, including an empty frame and embedded zero. Run one incremental parser and compare to an independent complete-buffer decoder.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Change the header to a two-byte big-endian length and derive partial-header state and overflow checks anew."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Stream chunking has no message boundary contract; parser state spans header/body boundaries and must consume each byte once.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Stream chunking has no message boundary contract; parser state spans header/body boundaries and must consume each byte once. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Change the header to a two-byte big-endian length and derive partial-header state and overflow checks anew. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Carry parser state across every possible split, including the length byte.",
+        "Compare incremental decoding with a complete-buffer decoder; end-of-stream inside a frame is not an empty frame."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-03-T24.05.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Change the header to a two-byte big-endian length and derive partial-header state and overflow checks anew."
+        }
+      ],
+      "assessor_anchor": "#t2405a",
+      "facet_scope": {
+        "teaching": "Retained T24.05 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-03-T24.05.b",
+      "title": "Implement framing, partial transfer, half-close, and reconnect policy.",
+      "objective": "T24.05.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RECV",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+            "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+          ]
+        },
+        {
+          "id": "R-LSYS-WRITE",
+          "path": "research/v5/expansion/legacy_systems/resources.json",
+          "passages": [
+            "RETURN VALUE; ERRORS EINTR/EAGAIN/EPIPE; NOTES short transfers and durability"
+          ]
+        }
+      ],
+      "task": "Half-close the original client's write direction after its last complete frame while continuing to receive a response. Inject EOF mid-header and mid-body, then reconnect with an explicit replay policy and fresh parser state.",
+      "purpose": "Receiving EOF invalidates both directions or safely resumes the old parser on reconnect.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.05 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Receiving EOF invalidates both directions or safely resumes the old parser on reconnect. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Receiving EOF invalidates both directions or safely resumes the old parser on reconnect.",
+        "D2": "Half-close the original client's write direction after its last complete frame while continuing to receive a response. Inject EOF mid-header and mid-body, then reconnect with an explicit replay policy and fresh parser state.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Add request identities and recover a lost reply without blindly executing the operation twice."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Half-close affects one direction; truncated application frames fail separately. Reconnect creates a new transport session and does not resolve uncertain old effects.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Half-close affects one direction; truncated application frames fail separately. Reconnect creates a new transport session and does not resolve uncertain old effects. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Add request identities and recover a lost reply without blindly executing the operation twice. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Carry parser state across every possible split, including the length byte.",
+        "Compare incremental decoding with a complete-buffer decoder; end-of-stream inside a frame is not an empty frame."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-03-T24.05.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Add request identities and recover a lost reply without blindly executing the operation twice."
+        }
+      ],
+      "assessor_anchor": "#t2405b",
+      "facet_scope": {
+        "teaching": "Retained T24.05 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-03-T24.05.c",
+      "title": "Bound queued data and stalled-peer resource use.",
+      "objective": "T24.05.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RECV",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+            "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+          ]
+        },
+        {
+          "id": "R-LSYS-WRITE",
+          "path": "research/v5/expansion/legacy_systems/resources.json",
+          "passages": [
+            "RETURN VALUE; ERRORS EINTR/EAGAIN/EPIPE; NOTES short transfers and durability"
+          ]
+        }
+      ],
+      "task": "Use at most 4 connections,8 queued frames per connection and 8 payload bytes per frame. Stop a peer reading, exercise partial sends and enforce admission/backpressure without allocating beyond the declared bound.",
+      "purpose": "A bounded frame size makes total memory bounded.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.05 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A bounded frame size makes total memory bounded. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A bounded frame size makes total memory bounded.",
+        "D2": "Use at most 4 connections,8 queued frames per connection and 8 payload bytes per frame. Stop a peer reading, exercise partial sends and enforce admission/backpressure without allocating beyond the declared bound.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Add a producer faster than all peers and derive a global budget rather than merely per-connection bounds."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Total retained memory includes connection count, queue count, metadata and partially sent frames; each limit needs a rejection or suspension policy.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Total retained memory includes connection count, queue count, metadata and partially sent frames; each limit needs a rejection or suspension policy. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a producer faster than all peers and derive a global budget rather than merely per-connection bounds. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Carry parser state across every possible split, including the length byte.",
+        "Compare incremental decoding with a complete-buffer decoder; end-of-stream inside a frame is not an empty frame."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-03-T24.05.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a producer faster than all peers and derive a global budget rather than merely per-connection bounds."
+        }
+      ],
+      "assessor_anchor": "#t2405c",
+      "facet_scope": {
+        "teaching": "Retained T24.05 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-03-T24.06.a",
+      "title": "Preserve message boundaries and handle truncation explicitly.",
+      "objective": "T24.06.a",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RECV",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+            "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+          ]
+        }
+      ],
+      "task": "Send a 12 byte synthetic datagram into an 8 byte receive buffer using recvmsg, retain the truncation indication, and reject it as a complete application frame. Include a legitimate zero-length datagram.",
+      "purpose": "A returned prefix is a complete shorter message, and zero always means stream EOF.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.06 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A returned prefix is a complete shorter message, and zero always means stream EOF. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A returned prefix is a complete shorter message, and zero always means stream EOF.",
+        "D2": "Send a 12 byte synthetic datagram into an 8 byte receive buffer using recvmsg, retain the truncation indication, and reject it as a complete application frame. Include a legitimate zero-length datagram.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Use an ancillary-data buffer that is too small and handle MSG_CTRUNC separately from payload truncation."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Datagram boundaries and truncation are explicit; discarded suffix bytes cannot be read as continuation. Zero-length datagrams differ from stream closure.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Datagram boundaries and truncation are explicit; discarded suffix bytes cannot be read as continuation. Zero-length datagrams differ from stream closure. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Use an ancillary-data buffer that is too small and handle MSG_CTRUNC separately from payload truncation. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Inspect both returned length and output flags.",
+        "A zero-length datagram is a message; truncation loses message bytes and cannot be repaired by reading the remainder later."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-03-T24.06.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Use an ancillary-data buffer that is too small and handle MSG_CTRUNC separately from payload truncation."
+        }
+      ],
+      "assessor_anchor": "#t2406a",
+      "facet_scope": {
+        "teaching": "Retained T24.06 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-03-T24.06.b",
+      "title": "Design sequencing, duplicate handling, and loss policies where required.",
+      "objective": "T24.06.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RECV",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+            "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+          ]
+        }
+      ],
+      "task": "Implement a bounded sequence acceptance policy over the scripted arrivals 7,9,8,9,6. State the reorder window, duplicate set and loss-report rule before deriving the accepted order and missing evidence.",
+      "purpose": "A sequence gap proves permanent packet loss immediately.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.06 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A sequence gap proves permanent packet loss immediately. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A sequence gap proves permanent packet loss immediately.",
+        "D2": "Implement a bounded sequence acceptance policy over the scripted arrivals 7,9,8,9,6. State the reorder window, duplicate set and loss-report rule before deriving the accepted order and missing evidence.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Restart the sender at sequence0 with a new session identity and prevent old delayed packets from entering the new session."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Observed gaps, duplicates and late arrivals depend on the declared window; wrap requires bounded modular comparisons or a new session.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Observed gaps, duplicates and late arrivals depend on the declared window; wrap requires bounded modular comparisons or a new session. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Restart the sender at sequence0 with a new session identity and prevent old delayed packets from entering the new session. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Inspect both returned length and output flags.",
+        "A zero-length datagram is a message; truncation loses message bytes and cannot be repaired by reading the remainder later."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-03-T24.06.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Restart the sender at sequence0 with a new session identity and prevent old delayed packets from entering the new session."
+        }
+      ],
+      "assessor_anchor": "#t2406b",
+      "facet_scope": {
+        "teaching": "Retained T24.06 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-03-T24.06.c",
+      "title": "Separate local send success from remote delivery evidence.",
+      "objective": "T24.06.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RECV",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+            "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+          ]
+        }
+      ],
+      "task": "Let an original receiver discard an accepted datagram after local send succeeds. Add an application acknowledgment with a request ID and classify send success, peer receipt and completed effect separately.",
+      "purpose": "Successful send acknowledges remote application processing.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.06 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Successful send acknowledges remote application processing. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Successful send acknowledges remote application processing.",
+        "D2": "Let an original receiver discard an accepted datagram after local send succeeds. Add an application acknowledgment with a request ID and classify send success, peer receipt and completed effect separately.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Lose only the acknowledgment after processing and show why a retry can duplicate a nonidempotent effect."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Local admission to the transport is weaker than delivery or effect; acknowledgments themselves can be lost and retries need idempotence policy.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Local admission to the transport is weaker than delivery or effect; acknowledgments themselves can be lost and retries need idempotence policy. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Lose only the acknowledgment after processing and show why a retry can duplicate a nonidempotent effect. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Inspect both returned length and output flags.",
+        "A zero-length datagram is a message; truncation loses message bytes and cannot be repaired by reading the remainder later."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-03-T24.06.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Lose only the acknowledgment after processing and show why a retry can duplicate a nonidempotent effect."
+        }
+      ],
+      "assessor_anchor": "#t2406c",
+      "facet_scope": {
+        "teaching": "Retained T24.06 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T24-03.md",
+  "status": {
+    "content": "authored",
+    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite tests do not prove absolute mastery.",
+      "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
+      "Historical optional labels do not exclude required expansion work."
+    ]
+  }
+}

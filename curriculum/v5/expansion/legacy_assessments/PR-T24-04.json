@@ -1,0 +1,888 @@
+{
+  "schema_version": 1,
+  "project": "PR-T24-04",
+  "domain": "T24",
+  "title": "Readiness loop and generation identities — explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T24.md",
+        "sha256": "9f8a7a963ad452b0032c33cb3d354c4d9f10bcb9a9c5e3d28bb05706cae21186",
+        "passages": [
+          "All assigned topic teaching and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T24-04.md",
+        "sha256": "e48b9aa9888938ac4d60c85a4c6d3708aecea4b4df5a7ad6ae8af2893ec9a71d",
+        "passages": [
+          "Metadata, Contract, Steps, Failure cases, Acceptance, Hints and changed-condition work"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T24-04.json",
+        "sha256": "db7c34f1c1c026d921b701bc23b5172ece8da37a1d883b5fc571cd7408d4b47a",
+        "passages": [
+          "Complete synthetic inputs and expected outputs"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "Exact branches used by the assigned synthetic fixture; not target execution"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/README.md",
+        "sha256": "ea69b7b3b3fc358afd7cc62e4f64c8e4eb68e07a1a8cb58e4b8e117ba3bcf580",
+        "passages": [
+          "Named implementation contracts and explicit execution/physical limitations"
+        ]
+      },
+      {
+        "path": "labs/hosted_systems/CONTRACTS.md",
+        "sha256": "37b5c55cf0473e98071ee1221cf5667e739923b227f22ccec6b80a49797d10c5",
+        "passages": [
+          "All operation contracts, preconditions, failure and ownership boundaries"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T24.md",
+        "anchors": [
+          "T24.07",
+          "T24.08",
+          "T24.11"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-HS-09",
+      "U-T24-04-02",
+      "U-T24-04-03",
+      "U-T24-04-04"
+    ],
+    "inspection_limits": [
+      "All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.",
+      "Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.",
+      "Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.",
+    "target": "Unprivileged Linux x86-64 for original hosted experiments; pure C memory models and restricted-profile target code retain their own contracts. Kernel execution only in a disposable VM.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.",
+      "Device/VM/tool unavailability is a missing observation, not a passing result."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-B06-EPOLL",
+      "path": "research/v5/b06_resources.json",
+      "passages": [
+        "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+      ]
+    },
+    {
+      "id": "R-LRUN-COND",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "DESCRIPTION: mutex release/reacquisition, predicate, dynamic binding, cancellation and absolute timeout"
+      ]
+    },
+    {
+      "id": "R-LRUN-RECV",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+        "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
+    "Historical reading metadata is not promoted to a new source-inspection claim.",
+    "Exact POSIX/Linux interface passages not listed here—including detailed signal restart/allowlist, pathname confinement and mmap fault rules—remain required before stronger claims."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T24-04.md",
+    "fixtures/systems/PR-T24-04.json",
+    "tools/verify_systems_fixtures.py",
+    "labs/hosted_systems/README.md"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contracts and bounded partial anchors",
+    "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
+    "tests": [
+      "hosted_systems.reactor"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T24-04-T24.07.a",
+      "title": "Model readiness, would-block, partial progress, and completion.",
+      "objective": "T24.07.a",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RECV",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+            "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+          ]
+        }
+      ],
+      "task": "Drive read-ready, read2, EAGAIN, read-ready, read1, EOF through an original adapter. Preserve a 3 byte operation cursor and distinguish would-block from terminal error or completion.",
+      "purpose": "Readiness guarantees the requested extent is available.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.07 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Readiness guarantees the requested extent is available. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Readiness guarantees the requested extent is available.",
+        "D2": "Drive read-ready, read2, EAGAIN, read-ready, read1, EOF through an original adapter. Preserve a 3 byte operation cursor and distinguish would-block from terminal error or completion.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Introduce a second consumer that drains readiness first and require the original loop to tolerate immediate EAGAIN."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Readiness permits attempting progress; the next call's result remains authoritative. EAGAIN preserves cursor and owned buffer.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Readiness permits attempting progress; the next call's result remains authoritative. EAGAIN preserves cursor and owned buffer. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Introduce a second consumer that drains readiness first and require the original loop to tolerate immediate EAGAIN. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Distinguish ready, progress, would-block and terminal states.",
+        "Readiness can become stale before the operation; preserve the cursor and resume on the next scheduling opportunity."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-04-T24.07.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Introduce a second consumer that drains readiness first and require the original loop to tolerate immediate EAGAIN."
+        }
+      ],
+      "assessor_anchor": "#t2407a",
+      "facet_scope": {
+        "teaching": "Retained T24.07 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-04-T24.07.b",
+      "title": "Maintain operation state across event-loop iterations.",
+      "objective": "T24.07.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RECV",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+            "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+          ]
+        }
+      ],
+      "task": "Represent partial receive and transmit separately for one connection. Alternate one-byte progress, cancellation and output backpressure; verify exact bytes and no reuse of a pending output buffer.",
+      "purpose": "An event callback's return ends the lifetime of its operation state.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.07 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "An event callback's return ends the lifetime of its operation state. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: An event callback's return ends the lifetime of its operation state.",
+        "D2": "Represent partial receive and transmit separately for one connection. Alternate one-byte progress, cancellation and output backpressure; verify exact bytes and no reuse of a pending output buffer.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Replace synchronous callbacks with completion events and add generation identity to every retained operation."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Operation state lives across callbacks until a terminal transition; input and output can progress independently.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Operation state lives across callbacks until a terminal transition; input and output can progress independently. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace synchronous callbacks with completion events and add generation identity to every retained operation. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Distinguish ready, progress, would-block and terminal states.",
+        "Readiness can become stale before the operation; preserve the cursor and resume on the next scheduling opportunity."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-04-T24.07.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace synchronous callbacks with completion events and add generation identity to every retained operation."
+        }
+      ],
+      "assessor_anchor": "#t2407b",
+      "facet_scope": {
+        "teaching": "Retained T24.07 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-04-T24.07.c",
+      "title": "Prevent busy loops and unfair starvation of other connections.",
+      "objective": "T24.07.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RECV",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+            "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+          ]
+        }
+      ],
+      "task": "Schedule one always-ready producer and one single-byte request with a per-turn budget of two successful operations. Record service order and demonstrate why unlimited draining or retrying EAGAIN starves the second participant.",
+      "purpose": "An event loop is fair because it is single-threaded.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.07 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "An event loop is fair because it is single-threaded. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: An event loop is fair because it is single-threaded.",
+        "D2": "Schedule one always-ready producer and one single-byte request with a per-turn budget of two successful operations. Record service order and demonstrate why unlimited draining or retrying EAGAIN starves the second participant.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Allow zero-byte application work that still consumes CPU and derive an additional callback/work budget."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Fairness requires explicit bounded work and rescheduling; a readiness API does not impose application quotas.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Fairness requires explicit bounded work and rescheduling; a readiness API does not impose application quotas. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Allow zero-byte application work that still consumes CPU and derive an additional callback/work budget. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Distinguish ready, progress, would-block and terminal states.",
+        "Readiness can become stale before the operation; preserve the cursor and resume on the next scheduling opportunity."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-04-T24.07.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Allow zero-byte application work that still consumes CPU and derive an additional callback/work budget."
+        }
+      ],
+      "assessor_anchor": "#t2407c",
+      "facet_scope": {
+        "teaching": "Retained T24.07 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-04-T24.08.a",
+      "title": "Compare level-triggered and edge-triggered operation.",
+      "objective": "T24.08.a",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "G",
+        "H",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-EPOLL",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+          ]
+        }
+      ],
+      "task": "Compare LT with ET for a nonblocking pipe holding 5 bytes and a 2 byte read chunk. Show the ET stall after an incomplete drain, then repair by draining to EAGAIN or retaining an explicit runnable item when a quota expires.",
+      "purpose": "ET gives a fresh notification for every unread byte.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "ET gives a fresh notification for every unread byte. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: ET gives a fresh notification for every unread byte.",
+        "D2": "Compare LT with ET for a nonblocking pipe holding 5 bytes and a 2 byte read chunk. Show the ET stall after an incomplete drain, then repair by draining to EAGAIN or retaining an explicit runnable item when a quota expires.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Use one-shot registration and derive the rearm point without losing an arrival between drain and rearm."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Edges and level predicates differ; quota-limited ET needs user-space readiness state to resume without waiting for a new edge.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Edges and level predicates differ; quota-limited ET needs user-space readiness state to resume without waiting for a new edge. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Use one-shot registration and derive the rearm point without losing an arrival between drain and rearm. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Ask whether an edge remains to be generated after an incomplete drain.",
+        "If a quota stops before EAGAIN, preserve runnable work explicitly rather than waiting for an edge already consumed."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-04-T24.08.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Use one-shot registration and derive the rearm point without losing an arrival between drain and rearm."
+        }
+      ],
+      "assessor_anchor": "#t2408a",
+      "facet_scope": {
+        "teaching": "Retained T24.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-04-T24.08.b",
+      "title": "Handle registration changes, descriptor reuse, and stale events.",
+      "objective": "T24.08.b",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "G",
+        "H",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-EPOLL",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+          ]
+        }
+      ],
+      "task": "Close connection(slot2,generation7), reuse its descriptor number for generation8, then deliver a cached event for 7. Require rejection before dereferencing connection storage; inspect unregister and outstanding-event ownership.",
+      "purpose": "A descriptor integer permanently names a connection.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A descriptor integer permanently names a connection. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A descriptor integer permanently names a connection.",
+        "D2": "Close connection(slot2,generation7), reuse its descriptor number for generation8, then deliver a cached event for 7. Require rejection before dereferencing connection storage; inspect unregister and outstanding-event ownership.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Exhaust the generation space in a reduced-width model and implement permanent retirement or another explicit anti-wrap policy."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Reused numbers need independent identity and lifetime validation; removing registration does not erase already copied events.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Reused numbers need independent identity and lifetime validation; removing registration does not erase already copied events. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Exhaust the generation space in a reduced-width model and implement permanent retirement or another explicit anti-wrap policy. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Ask whether an edge remains to be generated after an incomplete drain.",
+        "If a quota stops before EAGAIN, preserve runnable work explicitly rather than waiting for an edge already consumed."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-04-T24.08.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Exhaust the generation space in a reduced-width model and implement permanent retirement or another explicit anti-wrap policy."
+        }
+      ],
+      "assessor_anchor": "#t2408b",
+      "facet_scope": {
+        "teaching": "Retained T24.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-04-T24.08.c",
+      "title": "Design bounded work per event-loop turn.",
+      "objective": "T24.08.c",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "G",
+        "H",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-B06-EPOLL",
+          "path": "research/v5/b06_resources.json",
+          "passages": [
+            "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+          ]
+        }
+      ],
+      "task": "Compose a per-connection 2 operation quota with a global 8 operation turn budget for three ready connections. Prove every continuously ready connection receives service under the declared round-robin scheduler, and bound callback work separately.",
+      "purpose": "A per-connection quota alone bounds a turn with unlimited connections.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A per-connection quota alone bounds a turn with unlimited connections. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A per-connection quota alone bounds a turn with unlimited connections.",
+        "D2": "Compose a per-connection 2 operation quota with a global 8 operation turn budget for three ready connections. Prove every continuously ready connection receives service under the declared round-robin scheduler, and bound callback work separately.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Permit callbacks to enqueue new ready items and define whether they enter this turn or the next without unbounded recursion."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Both population and work limits are needed; the guarantee depends on the ready-list discipline and callback bound.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Both population and work limits are needed; the guarantee depends on the ready-list discipline and callback bound. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Permit callbacks to enqueue new ready items and define whether they enter this turn or the next without unbounded recursion. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Ask whether an edge remains to be generated after an incomplete drain.",
+        "If a quota stops before EAGAIN, preserve runnable work explicitly rather than waiting for an edge already consumed."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-04-T24.08.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Permit callbacks to enqueue new ready items and define whether they enter this turn or the next without unbounded recursion."
+        }
+      ],
+      "assessor_anchor": "#t2408c",
+      "facet_scope": {
+        "teaching": "Retained T24.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-04-T24.11.a",
+      "title": "Define admission limits, queue bounds, and load-shedding policy.",
+      "objective": "T24.11.a",
+      "families": [
+        "B",
+        "C",
+        "G",
+        "H",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-COND",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mutex release/reacquisition, predicate, dynamic binding, cancellation and absolute timeout"
+          ]
+        },
+        {
+          "id": "R-LRUN-RECV",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+            "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+          ]
+        }
+      ],
+      "task": "For the bounded 4 connection service, reject the fifth admission and the ninth queued frame per connection with explicit ownership return. Compare drop-newest, disconnect and pause-reading policies on the same overloaded trace.",
+      "purpose": "Allocation failure is the only necessary load-shedding policy.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.11 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Allocation failure is the only necessary load-shedding policy. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Allocation failure is the only necessary load-shedding policy.",
+        "D2": "For the bounded 4 connection service, reject the fifth admission and the ninth queued frame per connection with explicit ownership return. Compare drop-newest, disconnect and pause-reading policies on the same overloaded trace.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Add variable-sized frames and derive a byte budget rather than relying on object count alone."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Admission and queue bounds should prevent uncontrolled retention before exhaustion; every rejected object remains owned somewhere.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Admission and queue bounds should prevent uncontrolled retention before exhaustion; every rejected object remains owned somewhere. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Add variable-sized frames and derive a byte budget rather than relying on object count alone. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "State who owns a rejected frame and what progress shutdown promises.",
+        "Close admission first, then drain or reject existing work under a declared deadline and terminal result."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-04-T24.11.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add variable-sized frames and derive a byte budget rather than relying on object count alone."
+        }
+      ],
+      "assessor_anchor": "#t2411a",
+      "facet_scope": {
+        "teaching": "Retained T24.11 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-04-T24.11.b",
+      "title": "Drain or cancel work with unambiguous ownership.",
+      "objective": "T24.11.b",
+      "families": [
+        "B",
+        "C",
+        "G",
+        "H",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-COND",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mutex release/reacquisition, predicate, dynamic binding, cancellation and absolute timeout"
+          ]
+        },
+        {
+          "id": "R-LRUN-RECV",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+            "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+          ]
+        }
+      ],
+      "task": "Implement stop-admission, drain-until-deadline, cancel-remaining and release states. Give each queued item a unique ID and verify exactly one completed or canceled terminal record under repeated stop requests.",
+      "purpose": "Closing the listener automatically settles accepted work.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.11 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Closing the listener automatically settles accepted work. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Closing the listener automatically settles accepted work.",
+        "D2": "Implement stop-admission, drain-until-deadline, cancel-remaining and release states. Give each queued item a unique ID and verify exactly one completed or canceled terminal record under repeated stop requests.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Permit a callback to request shutdown reentrantly and defer destruction until all current borrowers return."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Accepted connections, pending output and callbacks survive listener closure; terminal accounting and quiescence control destruction.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Accepted connections, pending output and callbacks survive listener closure; terminal accounting and quiescence control destruction. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Permit a callback to request shutdown reentrantly and defer destruction until all current borrowers return. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "State who owns a rejected frame and what progress shutdown promises.",
+        "Close admission first, then drain or reject existing work under a declared deadline and terminal result."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-04-T24.11.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Permit a callback to request shutdown reentrantly and defer destruction until all current borrowers return."
+        }
+      ],
+      "assessor_anchor": "#t2411b",
+      "facet_scope": {
+        "teaching": "Retained T24.11 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T24-04-T24.11.c",
+      "title": "Test blocked consumers, disappearing peers, and repeated shutdown requests.",
+      "objective": "T24.11.c",
+      "families": [
+        "B",
+        "C",
+        "G",
+        "H",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-COND",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: mutex release/reacquisition, predicate, dynamic binding, cancellation and absolute timeout"
+          ]
+        },
+        {
+          "id": "R-LRUN-RECV",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "DESCRIPTION: partial/nonblocking receive and flags MSG_DONTWAIT, MSG_TRUNC, MSG_WAITALL",
+            "recvmsg: MSG_TRUNC and MSG_CTRUNC output flags"
+          ]
+        }
+      ],
+      "task": "Force an empty blocked consumer, a full blocked producer, disappearing peer and repeated shutdown notifications. Use explicit enrollment barriers in tests instead of sleeping to guess when a waiter is blocked.",
+      "purpose": "A delay in the test proves the desired interleaving occurred.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T24.11 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T24-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A delay in the test proves the desired interleaving occurred. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A delay in the test proves the desired interleaving occurred.",
+        "D2": "Force an empty blocked consumer, a full blocked producer, disappearing peer and repeated shutdown notifications. Use explicit enrollment barriers in tests instead of sleeping to guess when a waiter is blocked.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Introduce a timeout concurrent with shutdown and specify the single winning result plus cleanup responsibility."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Deterministic enrollment makes the schedule evidence meaningful; stress delay alone is probabilistic. Shutdown must wake both directions under the chosen policy.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Deterministic enrollment makes the schedule evidence meaningful; stress delay alone is probabilistic. Shutdown must wake both directions under the chosen policy. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Introduce a timeout concurrent with shutdown and specify the single winning result plus cleanup responsibility. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "State who owns a rejected frame and what progress shutdown promises.",
+        "Close admission first, then drain or reject existing work under a declared deadline and terminal result."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T24-04-T24.11.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Introduce a timeout concurrent with shutdown and specify the single winning result plus cleanup responsibility."
+        }
+      ],
+      "assessor_anchor": "#t2411c",
+      "facet_scope": {
+        "teaching": "Retained T24.11 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T24-04.md",
+  "status": {
+    "content": "authored",
+    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite tests do not prove absolute mastery.",
+      "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
+      "Historical optional labels do not exclude required expansion work."
+    ]
+  }
+}

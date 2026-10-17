@@ -1,0 +1,137 @@
+{
+  "domain": "T75",
+  "census": [
+    {
+      "technique": "C19",
+      "disposition": "project",
+      "target": "PR-T75-01",
+      "subtopic": "T75.01",
+      "exercise": "X-T75-001",
+      "rubric": [
+        "X-T75-001-R1",
+        "X-T75-001-R2",
+        "X-T75-001-R3",
+        "X-T75-001-R4"
+      ],
+      "reason": "A timeout is a local wait limit, not proof that remote work stopped. C has no automatic context-lifetime or deadline-propagation rule; both need explicit ownership and clock assumptions.",
+      "status": "authored; independent assessment not performed"
+    },
+    {
+      "technique": "C19",
+      "disposition": "project",
+      "target": "PR-T75-02",
+      "subtopic": "T75.02",
+      "exercise": "X-T75-002",
+      "rubric": [
+        "X-T75-002-R1",
+        "X-T75-002-R2",
+        "X-T75-002-R3",
+        "X-T75-002-R4"
+      ],
+      "reason": "A fixed queue does not bound memory if arbitrary producers wait while retaining payloads. Overload policy changes the service contract and cannot be compared using throughput alone.",
+      "status": "authored; independent assessment not performed"
+    }
+  ],
+  "swe": [
+    {
+      "element": "deadline-propagation",
+      "disposition": "project",
+      "target": "PR-T75-01",
+      "exercise": "X-T75-001",
+      "rubric": [
+        "X-T75-001-R2",
+        "X-T75-001-R3"
+      ],
+      "reason": "A timeout is a local wait limit, not proof that remote work stopped. C has no automatic context-lifetime or deadline-propagation rule; both need explicit ownership and clock assumptions."
+    },
+    {
+      "element": "credit-based-flow-control",
+      "disposition": "project",
+      "target": "PR-T75-02",
+      "exercise": "X-T75-002",
+      "rubric": [
+        "X-T75-002-R2",
+        "X-T75-002-R3"
+      ],
+      "reason": "A fixed queue does not bound memory if arbitrary producers wait while retaining payloads. Overload policy changes the service contract and cannot be compared using throughput alone."
+    },
+    {
+      "element": "timer-wheel",
+      "disposition": "project",
+      "target": "PR-T75-03",
+      "exercise": "X-T75-003",
+      "rubric": [
+        "X-T75-003-R2",
+        "X-T75-003-R3"
+      ],
+      "reason": "The important wheel tradeoff is not merely replacing a comparison with modulo. Collisions, cancellation frequency, finite identity and concentrated expiries determine correctness and latency."
+    },
+    {
+      "element": "token-bucket",
+      "disposition": "project",
+      "target": "PR-T75-04",
+      "exercise": "X-T75-004",
+      "rubric": [
+        "X-T75-004-R2",
+        "X-T75-004-R3"
+      ],
+      "reason": "Multiplication can wrap before a clamp notices it, and repeatedly rounding refill can silently suppress credit. A rate limit also does not stop an unlimited number of slow admitted calls from remaining active."
+    },
+    {
+      "element": "retry-with-exponential-backoff-and-jitter",
+      "disposition": "project",
+      "target": "PR-T75-05",
+      "exercise": "X-T75-005",
+      "rubric": [
+        "X-T75-005-R2",
+        "X-T75-005-R3"
+      ],
+      "reason": "Backoff can amplify overload while making average latency look better. Randomizing when an unsafe operation repeats does not make its effects idempotent."
+    },
+    {
+      "element": "circuit-breaker",
+      "disposition": "project",
+      "target": "PR-T75-06",
+      "exercise": "X-T75-006",
+      "rubric": [
+        "X-T75-006-R2",
+        "X-T75-006-R3"
+      ],
+      "reason": "Health decisions summarize observations, while a bulkhead bounds admitted resource ownership. Conflating them allows an otherwise healthy slow backend to exhaust callers or an old completion to erase newer failure evidence."
+    },
+    {
+      "element": "hedged-request",
+      "disposition": "project",
+      "target": "PR-T75-07",
+      "exercise": "X-T75-007",
+      "rubric": [
+        "X-T75-007-R2",
+        "X-T75-007-R3"
+      ],
+      "reason": "Returning a fast answer does not reclaim the slow attempt. Treating cancellation as completion creates lifetime defects, while treating any response as a winner can return a quick error instead of a valid result."
+    },
+    {
+      "element": "idempotent-receiver",
+      "disposition": "project",
+      "target": "PR-T75-08",
+      "exercise": "X-T75-008",
+      "rubric": [
+        "X-T75-008-R2",
+        "X-T75-008-R3"
+      ],
+      "reason": "Deduplication needs an identity contract and retention limit. A timed-out lease or a unique random value does not establish that an old writer is fenced off after a newer owner acts."
+    },
+    {
+      "element": "fencing-token",
+      "disposition": "project",
+      "target": "PR-T75-08",
+      "exercise": "X-T75-008",
+      "rubric": [
+        "X-T75-008-R2",
+        "X-T75-008-R3"
+      ],
+      "reason": "Deduplication needs an identity contract and retention limit. A timed-out lease or a unique random value does not establish that an old writer is fenced off after a newer owner acts."
+    }
+  ],
+  "limitations": "C19 rows contribute scoped deadline/overload criteria, complement T73 channels; finite anchors do not execute every real-I/O/concurrent/durable extension or establish learner mastery."
+}

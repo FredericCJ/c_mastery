@@ -1,0 +1,31 @@
+{
+  "id": "PR-T66-08",
+  "description": "Thread affinity, address pinning and asynchronous quiescence",
+  "input": {
+    "case": "pin"
+  },
+  "expected": {
+    "contract": "Bind addressA/thread7, submit, cancel, attempt rebindB: BUSY and addressA remains retained. Complete then rebindB succeeds. Thread8 fails, and an address comparison using a separately live B reports STALE. Completion before submission or repeated completion is rejected."
+  },
+  "cases": [
+    {
+      "id": "pin-14",
+      "kind": "pin",
+      "input": [
+        "submit",
+        "cancel",
+        "rebind",
+        "complete",
+        "rebind"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "BUSY",
+        "OK",
+        "OK"
+      ]
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "PR-T75-02",
+  "exercise": "X-T75-002",
+  "anchor": "resilience.pressure",
+  "input_contract": "Implement RZQueue/RZOffer with four copied unsigned messages and BLOCK, REJECT, DROP, OVERWRITE and DEGRADE policies exactly as CONTRACTS.md specifies. A blocked offer is a retained operation to retry, not a hidden sleeping thread. Degrade coalesces newest by max and reports reduced semantics. Implement rz_forward using your actual T73 nonblocking channel send and remove the head only on acceptance. Then add a bounded two-producer readiness adapter that registers before checking readiness, acknowledges cancellation and never creates an unbounded waiting-producer list.",
+  "expected": "Queue[1,2,3,4] plus DROP9 remains[1,2,3,4]; OVERWRITE9 becomes[2,3,4,9]; DEGRADE10 changes newest to10 and reports DEGRADED. BLOCK retains pending ownership. Expiry before a later retry terminates that offer without enqueuing it. A full imported channel leaves the local head in place.",
+  "independent_oracle": "Enumerate all policies at count0,1,3,4 with pending/closed/cancelled/expired states. Compare exact sequences with an independent list model. Drive a real MsgHub capacity1 to FULL and assert head preservation, then drain and retry. In the original malicious schedule, generate a burst beyond admission capacity and observe only bounded logical message loss/coalescing; no external traffic or host settings are involved.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "drop": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "overwrite": [
+      2,
+      3,
+      4,
+      9
+    ],
+    "degrade": [
+      1,
+      2,
+      3,
+      10
+    ]
+  }
+}

@@ -64,6 +64,26 @@ The five values are reading / implementation / verification / assessment / conso
 | {ref}`T54` | bare-metal | T50, T51, T52 | 12 / 56 / 30 / 8 / 8 | 114 | 0 |
 | {ref}`T55` | cross-track | T26, T51, T53 | 12 / 56 / 30 / 8 / 8 | 114 | 0 |
 | {ref}`T56` | kernel | T46, T47, T48, T53, T54, T55 | 12 / 68 / 36 / 8 / 8 | 132 | 0 |
+| {ref}`T57` | linux | T23, T25, T49 | 5 / 40 / 24 / 16 / 8 | 93 | 0 |
+| {ref}`T58` | cross-track | T08, T09, T10, T48 | 4 / 40 / 24 / 16 / 8 | 92 | 0 |
+| {ref}`T59` | bare-metal | T27, T28, T31, T47, T54 | 3 / 40 / 24 / 16 / 8 | 91 | 0 |
+| {ref}`T60` | cross-track | T02, T08, T12, T18, T46 | 4 / 40 / 24 / 16 / 8 | 92 | 0 |
+| {ref}`T61` | shared | T04, T12, T32, T34 | 4 / 40 / 24 / 16 / 8 | 92 | 0 |
+| {ref}`T62` | linux | T19, T21, T23, T24, T47 | 5 / 40 / 24 / 16 / 8 | 93 | 0 |
+| {ref}`T63` | shared | T03, T04, T16, T35 | 3 / 40 / 24 / 16 / 8 | 91 | 0 |
+| {ref}`T64` | shared | T04, T17, T34 | 4 / 40 / 24 / 16 / 8 | 92 | 0 |
+| {ref}`T65` | shared | T18, T19, T21 | 8 / 36 / 36 / 8 / 8 | 96 | 0 |
+| {ref}`T66` | shared | T14, T16, T19, T21, T32, T65 | 8 / 40 / 40 / 8 / 8 | 104 | 0 |
+| {ref}`T67` | shared | T03, T06, T14, T19, T64 | 8 / 40 / 40 / 8 / 8 | 104 | 0 |
+| {ref}`T68` | shared | T06, T14, T19, T32, T67 | 8 / 40 / 40 / 8 / 8 | 104 | 0 |
+| {ref}`T70` | shared | T14, T16, T18, T36, T68 | 5 / 32 / 32 / 8 / 8 | 85 | 0 |
+| {ref}`T69` | shared | T18, T19, T21, T22, T70 | 11 / 44 / 44 / 8 / 8 | 115 | 0 |
+| {ref}`T71` | shared | T20, T39, T52, T67 | 12 / 48 / 48 / 12 / 12 | 132 | 0 |
+| {ref}`T72` | shared | T19, T42, T50, T62, T71 | 20 / 54 / 54 / 12 / 12 | 152 | 0 |
+| {ref}`T73` | shared | T28, T31, T51, T55, T66, T72 | 8 / 40 / 40 / 8 / 8 | 104 | 0 |
+| {ref}`T74` | shared | T20, T33, T46, T68 | 20 / 66 / 66 / 12 / 12 | 176 | 0 |
+| {ref}`T75` | linux | T24, T30, T41, T50, T73 | 11 / 36 / 36 / 8 / 8 | 99 | 0 |
+| {ref}`T76` | shared | T20, T32, T47, T70 | 8 / 36 / 36 / 8 / 8 | 96 | 0 |
 
 ## Integration additions
 
@@ -84,13 +104,15 @@ The T49–T56 operating-system, concurrency and multicore route contributes **1,
 
 The architecture and networking domains T36–T42 contribute **690 hours**. The performance and debugging domains T43–T45 contribute **370 hours**. The runtime, storage, kernel and OS/concurrency families contribute **1,471 hours**. All are already included below. The current allocation to the original 35-domain catalog is **2,348 hours**; the current allocation through T42 is **3,038 hours**. The archived first edition remains the source of historical estimates. Communication and runtime family directories add no second budget. Reuse previous implementations and charge only newly assigned work.
 
-The full catalog estimate is **4,879 hours**. The conservative core estimate including the complete T01 diagnostic/remediation allocation is **4,799 hours**. Elective implementation/verification slices total **80 hours**. T01's full allocation is **25 hours**; after passing the initial diagnostic, retain its evidence and remove only its unneeded remedial activities from your personal plan.
+The fifth-edition domains T57 onward contribute **2,103 hours**, already included in the totals below.
 
-With the 3-hour initial entry check passed and no T01 remediation required, the core estimate becomes **4,777 hours**, or 478 / 239 weeks at 10 / 20 hours per week. Other targeted mathematics or semantic remediation is additional when needed.
+The full catalog estimate is **6,982 hours**. The conservative core estimate including the complete T01 diagnostic/remediation allocation is **6,902 hours**. Elective implementation/verification slices total **80 hours**. T01's full allocation is **25 hours**; after passing the initial diagnostic, retain its evidence and remove only its unneeded remedial activities from your personal plan.
+
+With the 3-hour initial entry check passed and no T01 remediation required, the core estimate becomes **6,880 hours**, or 688 / 344 weeks at 10 / 20 hours per week. Other targeted mathematics or semantic remediation is additional when needed.
 
 New integration implementation/verification adds 160 hours, plus 48 hours of reading, assessment and delayed transfer. This 208-hour integration slice is already included in both the full-catalog and core totals above. The shared protocol, containers and their prior tests are charged in their original modules, not again in both capstones. Each capstone budget pays for its platform-specific assembly, campaigns and defense.
 
-At **10 hours/week**, the conservative core arithmetic is 4799/10, rounded up to **480 weeks**. At **20 hours/week**, it is 4799/20, rounded up to **240 weeks**. Breaks, equipment access, prior knowledge and retests change elapsed time. These are workload illustrations, not promises of mastery.
+At **10 hours/week**, the conservative core arithmetic is 6902/10, rounded up to **691 weeks**. At **20 hours/week**, it is 6902/20, rounded up to **346 weeks**. Breaks, equipment access, prior knowledge and retests change elapsed time. These are workload illustrations, not promises of mastery.
 
 ## Weekly rhythm
 

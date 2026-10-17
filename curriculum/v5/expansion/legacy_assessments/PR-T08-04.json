@@ -1,0 +1,557 @@
+{
+  "schema_version": 1,
+  "project": "PR-T08-04",
+  "domain": "T08",
+  "title": "Inline contracts and trap boundaries — explicit depth assessments",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T08.md",
+        "sha256": "b2554d1193ce38c00a1f7e4fc2443944058acf843673647680a2427510c59965",
+        "passages": [
+          "Topic teaching passages and reading guidance for T08.08, T08.09"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T08-04.md",
+        "sha256": "eccb9e7d8046fc2398b63ea25493f4b913f294f2893887977ca55c9cefad124b",
+        "passages": [
+          "Contract, Steps, Failure cases, Acceptance and linked-objective checklist"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T08-04.json",
+        "sha256": "770a17e161c3bf4daaaf99dea8e45f999f3f819c10a3eb09dffc9e8b56ad8615",
+        "passages": [
+          "Complete synthetic fixture and expected values"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "oracle branches used by this fixture; synthetic reference is not target execution"
+        ]
+      },
+      {
+        "path": "labs/machine_image/README.md",
+        "sha256": "0472b1599c030ab1240c22633db3da5e60a0363607ec1e366dbe13f4ef90f7e2",
+        "passages": [
+          "All twelve bounded laboratory contracts and explicit remaining obligations"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/runtime.c",
+        "sha256": "2cd3dc97c292cc6e5ed2f3b867b2f32bdd0f7fbc3c1c1aa38ebdaf93f17d66b2",
+        "passages": [
+          "abi, hostile, bytes and wide cases"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/artifacts.py",
+        "sha256": "f74dd8b6944dff1f9e36f6d870e3ae83c183db5f8cbc1bda28db14383bbb97ff",
+        "passages": [
+          "archive, relocation, tls, budget, entry, syscall, helpers, byte_closure, closure and image branches"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T08.md",
+        "anchors": [
+          "T08.08",
+          "T08.09"
+        ]
+      }
+    ],
+    "units": [
+      "U-T08-04-01",
+      "U-T08-04-02",
+      "U-T08-04-03"
+    ],
+    "inspection_limits": [
+      "Project contract/steps/checklists and module teaching inspected; source registers are not treated as actual book inspections.",
+      "Unit objective/test links and selected operation steps inspected; no fresh complete historical portfolio review.",
+      "No new execution or independent learner assessment in this authoring wave."
+    ]
+  },
+  "environment": {
+    "language": "Active C17 baseline. C11/C23 comparisons require their explicitly identified wording; GNU assembly, __int128, ELF and operating-system contracts are extensions/platform rules.",
+    "target": "Linux x86-64 SysV for executable host observations; foreign targets are compile/analysis-only unless explicitly supported and recorded.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile exactly. Host Python, build and binary inspection tools remain outside restricted target closures; no library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, CMake/Ninja/Make and binutils versions and effective flags",
+      "Unsupported target or instrumentation cells remain unavailable"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LSYS-GCC-ASM",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "6.11.2 Volatile; Output Operands; Input Operands; Clobbers and Scratch Registers, through line 569"
+      ]
+    },
+    {
+      "id": "R-LSYS-SYSCALL",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; NOTES architecture-specific requirements and calling-convention tables"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact published C17/C23 text and private CS:APP/TLPI passages were not newly inspected.",
+    "Primary sources listed cover only the named passages; other parent references retain their historical status without a new inspection claim.",
+    "Current full ELF gABI and historical AMD64 0.99 PDF fetch unavailable; full loader/TLS implementation and selected library service contracts remain required for claims beyond supplied passages."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T08-04.md",
+    "fixtures/systems/PR-T08-04.json",
+    "tools/verify_systems_fixtures.py"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contract with synthetic fixture",
+    "scope": "Tests exercise only their named bounded cases; broad project acceptance and these supplemental criteria require separate evidence.",
+    "tests": [],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T08-04-T08.08.a",
+      "title": "Specify input, output, tied, and early-clobber operands.",
+      "objective": "T08.08.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Specify a two-instruction unsigned add inline assembly block with one read/write operand and one scratch output written before all inputs are consumed. Explain tied and early-clobber constraints, then inspect register allocation at O0/O2.",
+      "purpose": "Compiler parsing of assembly text discovers all data dependencies.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.08 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Compiler parsing of assembly text discovers all data dependencies. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Compiler parsing of assembly text discovers all data dependencies.",
+        "D2": "Specify a two-instruction unsigned add inline assembly block with one read/write operand and one scratch output written before all inputs are consumed. Explain tied and early-clobber constraints, then inspect register allocation at O0/O2.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Inline the block in a loop with equal-valued input expressions and explain how register coalescing exposes an omitted early-clobber."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The constraint interface must state every dependency; input-only modification is invalid. A successful one-register allocation is not a proof of a missing constraint.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The constraint interface must state every dependency; input-only modification is invalid. A successful one-register allocation is not a proof of a missing constraint. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Inline the block in a loop with equal-valued input expressions and explain how register coalescing exposes an omitted early-clobber. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Treat the operand list as the compiler's entire effect description.",
+        "An output written before a later input is consumed may need early-clobber even when one observed allocation works."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-04-T08.08.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Inline the block in a loop with equal-valued input expressions and explain how register coalescing exposes an omitted early-clobber."
+        }
+      ],
+      "assessor_anchor": "#t0808a",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.08 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T08-04-T08.08.b",
+      "title": "Explain register and memory clobbers and their limits.",
+      "objective": "T08.08.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Compare an asm block that accesses a named memory operand with one accessing memory through an opaque pointer plus memory clobber. Explain which values the compiler may retain across each; no concurrent data race is executed.",
+      "purpose": "volatile or memory clobber describes every effect and establishes thread synchronization.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.08 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "volatile or memory clobber describes every effect and establishes thread synchronization. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: volatile or memory clobber describes every effect and establishes thread synchronization.",
+        "D2": "Compare an asm block that accesses a named memory operand with one accessing memory through an opaque pointer plus memory clobber. Explain which values the compiler may retain across each; no concurrent data race is executed.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Replace a broad memory clobber with precise operands and state the performance opportunity and new proof obligation."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Volatile addresses deletion/motion rules only within its documented limits; memory effects and condition-code/register changes need explicit declarations.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Volatile addresses deletion/motion rules only within its documented limits; memory effects and condition-code/register changes need explicit declarations. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace a broad memory clobber with precise operands and state the performance opportunity and new proof obligation. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Treat the operand list as the compiler's entire effect description.",
+        "An output written before a later input is consumed may need early-clobber even when one observed allocation works."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-04-T08.08.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace a broad memory clobber with precise operands and state the performance opportunity and new proof obligation."
+        }
+      ],
+      "assessor_anchor": "#t0808b",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.08 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T08-04-T08.08.c",
+      "title": "Compare compiler barriers with actual processor-ordering instructions.",
+      "objective": "T08.08.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "For an empty asm memory clobber, inspect the final instructions and compare with an explicitly selected processor fence. Separate compile ordering, CPU ordering and ISO C atomic synchronization in a three-layer table.",
+      "purpose": "An empty compiler barrier emits a hardware fence or makes ordinary shared accesses race-free.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.08 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "An empty compiler barrier emits a hardware fence or makes ordinary shared accesses race-free. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: An empty compiler barrier emits a hardware fence or makes ordinary shared accesses race-free.",
+        "D2": "For an empty asm memory clobber, inspect the final instructions and compare with an explicitly selected processor fence. Separate compile ordering, CPU ordering and ISO C atomic synchronization in a three-layer table.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Port the argument to a weaker-memory ISA using its actual fence documentation before claiming equivalent behavior."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "No hardware fence follows from an empty template; neither an undocumented fence nor a clobber alone repairs a C data race.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "No hardware fence follows from an empty template; neither an undocumented fence nor a clobber alone repairs a C data race. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Port the argument to a weaker-memory ISA using its actual fence documentation before claiming equivalent behavior. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Treat the operand list as the compiler's entire effect description.",
+        "An output written before a later input is consumed may need early-clobber even when one observed allocation works."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-04-T08.08.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Port the argument to a weaker-memory ISA using its actual fence documentation before claiming equivalent behavior."
+        }
+      ],
+      "assessor_anchor": "#t0808c",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.08 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T08-04-T08.09.a",
+      "title": "Distinguish ordinary calls, traps, interrupts, and exceptions.",
+      "objective": "T08.09.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Compare a normal call, userspace getpid syscall, synchronous fault and external interrupt in a saved-state/return-owner table. Use only a harmless local syscall for execution; exception cases remain documented analysis.",
+      "purpose": "Every control transfer has a normal C caller frame.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.09 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Every control transfer has a normal C caller frame. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Every control transfer has a normal C caller frame.",
+        "D2": "Compare a normal call, userspace getpid syscall, synchronous fault and external interrupt in a saved-state/return-owner table. Use only a harmless local syscall for execution; exception cases remain documented analysis.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Analyze a signal handler delivery as an OS-mediated user transition and distinguish it from the raw interrupt mechanism."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Call return state, kernel transition state and asynchronous exception state have different owners; ISO C does not define an interrupt frame.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Call return state, kernel transition state and asynchronous exception state have different owners; ISO C does not define an interrupt frame. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Analyze a signal handler delivery as an OS-mediated user transition and distinguish it from the raw interrupt mechanism. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Identify who constructs and restores the saved state at each transition.",
+        "A normal C call frame, kernel exception frame and language continuation have different invariants."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-04-T08.09.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Analyze a signal handler delivery as an OS-mediated user transition and distinguish it from the raw interrupt mechanism."
+        }
+      ],
+      "assessor_anchor": "#t0809a",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.09 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T08-04-T08.09.b",
+      "title": "Identify privilege restrictions on system instructions.",
+      "objective": "T08.09.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Classify user-legal arithmetic/syscall and privileged control-register or interrupt-control instructions for the selected ISA. Inspect bytes only for privileged examples, with an explicit do-not-execute marker.",
+      "purpose": "Visible instruction bytes imply permission to execute them on the host.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.09 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Visible instruction bytes imply permission to execute them on the host. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Visible instruction bytes imply permission to execute them on the host.",
+        "D2": "Classify user-legal arithmetic/syscall and privileged control-register or interrupt-control instructions for the selected ISA. Inspect bytes only for privileged examples, with an explicit do-not-execute marker.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Move the privileged experiment specification into a disposable teaching VM and identify the additional environment prerequisites without running it here."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Instruction availability and privilege authorization differ; a fault would not prove a safe privilege transition or escalation.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Instruction availability and privilege authorization differ; a fault would not prove a safe privilege transition or escalation. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Move the privileged experiment specification into a disposable teaching VM and identify the additional environment prerequisites without running it here. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Identify who constructs and restores the saved state at each transition.",
+        "A normal C call frame, kernel exception frame and language continuation have different invariants."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-04-T08.09.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Move the privileged experiment specification into a disposable teaching VM and identify the additional environment prerequisites without running it here."
+        }
+      ],
+      "assessor_anchor": "#t0809b",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.09 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T08-04-T08.09.c",
+      "title": "Separate architectural exception state from language-level control flow.",
+      "objective": "T08.09.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Draw the distinction between architectural fault PC/register state, OS signal delivery and C setjmp/longjmp control state. Explain why arbitrary saved machine bits cannot be cast into a portable C continuation.",
+      "purpose": "Architectural exception return is equivalent to returning from a C function.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T08.09 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T08-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Architectural exception return is equivalent to returning from a C function. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Architectural exception return is equivalent to returning from a C function.",
+        "D2": "Draw the distinction between architectural fault PC/register state, OS signal delivery and C setjmp/longjmp control state. Explain why arbitrary saved machine bits cannot be cast into a portable C continuation.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Compare a cooperative coroutine suspension with a preemptive interrupt and identify the additional state and reentrancy obligations."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Restoring PC alone omits stack, privilege, status and language lifetime obligations; no C portability claim follows from a machine-state diagram.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Restoring PC alone omits stack, privilege, status and language lifetime obligations; no C portability claim follows from a machine-state diagram. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Compare a cooperative coroutine suspension with a preemptive interrupt and identify the additional state and reentrancy obligations. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Identify who constructs and restores the saved state at each transition.",
+        "A normal C call frame, kernel exception frame and language continuation have different invariants."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T08-04-T08.09.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Compare a cooperative coroutine suspension with a preemptive interrupt and identify the additional state and reentrancy obligations."
+        }
+      ],
+      "assessor_anchor": "#t0809c",
+      "facet_scope": {
+        "teaching": "Retained substantive T08.09 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T08-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T08-04.md",
+  "status": {
+    "content": "authored",
+    "execution": "not-run supplemental assessments",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite visible tests are not absolute mastery.",
+      "No baseline hours, IDs, source bytes or historical acceptance receipts changed."
+    ]
+  }
+}

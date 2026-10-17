@@ -1,0 +1,69 @@
+{
+  "id": "T66",
+  "domain": {
+    "family": "ownership",
+    "prefix": "OW",
+    "phase": 11,
+    "strand": "toolbox",
+    "research_gate": "research/v5/modern/ownership_research_gate.json",
+    "imports": {
+      "*": [
+        "memory.pool",
+        "containers.array",
+        "testing.faults",
+        "bytes.checked",
+        "io.async",
+        "errors.result"
+      ]
+    },
+    "artifacts": [
+      {
+        "id": "cleanup.scope",
+        "producer": "PR-T66-02",
+        "contract": "Bounded conditional LIFO cleanup, explicit no-reentry/no-nonlocal-exit callbacks, and transactional publish-by-swap; no implicit C unwinding.",
+        "critical_objectives": [
+          "T66.02.a",
+          "T66.02.b",
+          "T66.02.d"
+        ]
+      },
+      {
+        "id": "ownership.shared",
+        "producer": "PR-T66-06",
+        "contract": "Strong/weak control and value lifetimes, bounded count overflow, non-atomic and C17 atomic protocols with owned-reference preconditions; no pointee synchronization or cycle collection guarantee.",
+        "critical_objectives": [
+          "T66.06.a",
+          "T66.06.b",
+          "T66.06.d"
+        ]
+      },
+      {
+        "id": "memory.adversarial_allocator",
+        "producer": "PR-T66-09",
+        "contract": "V4Allocator typed callback adapter with deterministic fail-at-N, finite counters, poison and live/peak accounting; real int32_t backing objects and explicit observer limits.",
+        "critical_objectives": [
+          "T66.09.a",
+          "T66.09.b",
+          "T66.09.c"
+        ]
+      }
+    ],
+    "decisions": {
+      "PR-T66-04": {
+        "question": "Should the component dynamically track range loans or rely on a whole-object ownership protocol?",
+        "alternatives": [
+          "four-slot range guard registry",
+          "single exclusive owner with documented temporary borrows"
+        ],
+        "discriminator": "A split writer and two disjoint mutable views must be admitted while an overlapping reader is rejected; compare metadata, checks and exhaustion behavior under that same contract.",
+        "reversal_trigger": "The client no longer requires disjoint simultaneous mutation, or the guard registry cost exceeds the declared bound."
+      }
+    }
+  },
+  "new_executable_counts": {
+    "OW": 10
+  },
+  "fixture_oracles": [
+    "verify_ownership_fixtures.py"
+  ]
+}

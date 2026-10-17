@@ -1,0 +1,236 @@
+"""Bind current scoped execution receipts to the integrated authoring identity.
+
+This checks existing observations; it never reruns a command or turns a scoped
+success into target execution, independent review, or learner acceptance.
+"""
+from collections import Counter
+import re
+from common import ROOT, dump, read_json, sha
+from v5_common import RECEIPTS, identity, manifest
+from run_expansion_family import DEFAULT_PROFILES, mutation_coverage
+
+B06 = {'kernel_lifecycle', 'architecture_ports', 'firmware_lifecycle',
+       'subset_compiler', 'verification_fuzzing', 'linux_io_depth',
+       'memory_defense', 'numeric_simd'}
+SPECIAL = {'b04_depth', 'b05_depth', 'b045_systems', 'protocols', 'coroutines',
+           'object_runtime', 'systems_certificates', 'serial_depth', 'ethernet_depth',
+           'edu7_depth', 'http_depth', 'service_depth'}
+
+
+def local_file(name):
+    if not isinstance(name, str) or not name:
+        raise ValueError('Missing repository file name')
+    path = (ROOT / name).resolve()
+    if not path.is_relative_to(ROOT.resolve()) or not path.is_file():
+        raise ValueError('Missing or escaped evidence path: ' + name)
+    return path
+
+
+def pin_errors(report):
+    source_pins = report.get('inspected_paths', report.get('input_sha256'))
+    if not isinstance(source_pins, dict) or not source_pins:
+        return ['Receipt has no scoped source pins']
+    errors = []
+    for name, digest in source_pins.items():
+        try:
+            if not isinstance(digest, str) or sha(local_file(name)) != digest:
+                errors.append('Stale source pin: ' + name)
+        except ValueError as error:
+            errors.append(str(error))
+    return errors
+
+
+def execution_errors(report):
+    records = report.get('executions', report.get('commands', report.get('checks', [])))
+    if not records:
+        return ['No command observations']
+    errors = []
+    for index, record in enumerate(records):
+        command = record.get('command', record.get('argv'))
+        if not isinstance(command, list) or not command:
+            errors.append(f'Command {index} has no exact argument array')
+        # Negative controls intentionally return nonzero. Their recorded expected
+        # result/semantic marker must be assessed by the original producer.
+        if record.get('passed') is False and not record.get('optional'):
+            errors.append(f'Command {index} failed its declared expectation')
+        if record.get('log_sha256'):
+            try:
+                if sha(local_file(record['log'])) != record['log_sha256']:
+                    errors.append(f'Command {index} log changed')
+            except (ValueError, KeyError) as error:
+                errors.append(str(error))
+        elif not isinstance(record.get('stdout'), str):
+            errors.append(f'Command {index} lacks captured output or a hashed log')
+    return errors
+
+
+def anchors(meta):
+    tests = meta.get('tests') or [test for row in meta.get('exercises', []) for test in row['tests']]
+    if not tests:
+        tests = [test for row in meta.get('projects', []) if isinstance(row, dict) for test in row.get('tests', [])]
+    return sorted(set(tests))
+
+
+def generic_errors(family, meta, report):
+    errors = []
+    campaign = meta.get('campaign') or {}
+    expected = set(campaign.get('profiles', DEFAULT_PROFILES))
+    profiles = report.get('profiles', [])
+    actual = [p['compiler'] + '-' + p['profile'] for p in profiles]
+    if set(actual) != expected or len(actual) != len(expected):
+        errors.append('Compiler profiles differ from the current contract')
+    expected_anchors = anchors(meta)
+    for profile in profiles:
+        label = profile['compiler'] + '-' + profile['profile']
+        if profile.get('passed') is not True or set(profile.get('anchors', [])) != set(expected_anchors):
+            errors.append(label + ': missing or failed anchors')
+        mapping, complete = mutation_coverage(family, expected_anchors,
+            profile.get('compiled_mutant_controls', []), campaign.get('mutants_per_anchor', 1))
+        if not complete or profile.get('controls_by_anchor') != mapping:
+            errors.append(label + ': missing per-anchor compiled controls')
+        if profile['profile'] == 'tsan' and profile.get('thread_instrumentation_confirmed') is not True:
+            errors.append(label + ': thread instrumentation not demonstrated')
+    rejected = [r.get('test') for r in report.get('learner_stub_rejections', []) if r.get('rejected') is True]
+    if sorted(rejected) != expected_anchors:
+        errors.append('Each original unsolved anchor must reach its intended rejection')
+    return errors
+
+
+def b06_errors(family, meta, report):
+    errors = []
+    expected_profiles = ['gcc-debug', 'gcc-release', 'clang-ubsan']
+    if report.get('profiles') != expected_profiles or family not in report.get('families', []):
+        errors.append('Missing B06 declared profile/family')
+    counts = Counter(row.get('kind') for row in report.get('checks', []) if row.get('passed') is True)
+    for anchor in anchors(meta):
+        for profile in expected_profiles:
+            if counts[profile + ':' + anchor] != 1:
+                errors.append('Missing exact reference observation: ' + profile + ':' + anchor)
+            mutant = profile + ':' + anchor.replace(family + '.', family + '.mutation.', 1)
+            if counts[mutant] != 1:
+                errors.append('Missing exact semantic mutant: ' + mutant)
+        if counts['learner-stub-rejection:' + anchor] != 1:
+            errors.append('Missing original learner rejection: ' + anchor)
+    return errors
+
+
+def special_errors(family, meta, report):
+    errors = []
+    commands = report.get('commands', [])
+    configurations = {}
+    suites = {}
+    for row in commands:
+        argv = row.get('command', [])
+        if argv and argv[0] == 'cmake' and '-S' in argv:
+            options = {x.split('=', 1)[0]: x.split('=', 1)[1] for x in argv if x.startswith('-D') and '=' in x}
+            if not options.get('-DCMASTERY_ASSESSOR_ROOT'):
+                continue
+            mode = 'asan' if options.get('-DCMASTERY_SANITIZE') == 'ON' else options.get('-DCMAKE_BUILD_TYPE', '').lower()
+            label = options.get('-DCMAKE_C_COMPILER', '') + '-' + mode
+            if label in DEFAULT_PROFILES and row.get('passed') is True:
+                configurations[argv[argv.index('-B') + 1]] = label
+        if argv and argv[0] == 'ctest' and '--test-dir' in argv:
+            suites[argv[argv.index('--test-dir') + 1]] = row
+    if set(configurations.values()) != set(DEFAULT_PROFILES):
+        errors.append('Missing six concrete configured compiler profiles')
+    for folder, label in configurations.items():
+        row = suites.get(folder, {})
+        output = row.get('stdout', '')
+        if row.get('passed') is not True or '100% tests passed' not in output:
+            errors.append(label + ': no passing CTest suite')
+        observed = re.findall(r'Test\s+#\d+:\s+(\S+)\s+\.+\s+Passed\b', output)
+        observations = Counter(observed)
+        for anchor in anchors(meta):
+            if observations[anchor] != 1:
+                errors.append(label + ': no named observation for ' + anchor)
+            mutation = anchor.replace(family + '.', family + '.mutation.', 1)
+            # These original producers name one control for the early batch
+            # kernels, and two distinct controls for the later mechanisms.
+            expected = [mutation] if family in {'b04_depth', 'b05_depth', 'b045_systems'} else [mutation + '.1', mutation + '.2']
+            for name in expected:
+                if observations[name] != 1:
+                    errors.append(label + ': missing exact semantic control observation ' + name)
+    negatives = [row for row in commands if row.get('expected') == 1 and row.get('passed') is True]
+    if len(negatives) < len(anchors(meta)):
+        errors.append('Insufficient separately observed learner rejection commands')
+    oracle = report.get('oracle')
+    if not oracle:
+        errors.append('No independent oracle observations')
+    elif oracle.get('passed') is False or oracle.get('status') == 'failed':
+        errors.append('Independent oracle observations failed')
+    return errors
+
+
+def candidates(family, meta):
+    if family in B06:
+        return [ROOT / RECEIPTS / (family + '_campaign.json'), ROOT / RECEIPTS / 'b06_core_campaign.json',
+                ROOT / 'research/v5/expansion/b06/core_validation.json']
+    campaign = meta.get('campaign') or {}
+    name = campaign.get('receipt', family + '_campaign.json') if isinstance(campaign, dict) else family + '_campaign.json'
+    return [ROOT / RECEIPTS / name, ROOT / 'reviews/v5/expansion/b07' / name,
+            ROOT / 'reviews/v5/expansion/b01' / name]
+
+
+def inspect_family(family):
+    meta = read_json(local_file('labs/' + family + '/family.json'))
+    paths = [path for path in candidates(family, meta) if path.is_file()]
+    if not paths:
+        return dict(family=family, passed=False, errors=['Missing tracked execution receipt'])
+    # Prefer the integrated designated receipt. A newer failed run is not hidden
+    # by selecting an older success from another location.
+    path = paths[0]
+    report = read_json(path)
+    errors = pin_errors(report) + execution_errors(report)
+    if report.get('passed') is not True:
+        errors.append('Original campaign did not pass')
+    if report.get('source_changed_during_run') is True or report.get('scope_source_stable') is False:
+        errors.append('Sources changed during the recorded run')
+    if family in B06:
+        errors += b06_errors(family, meta, report)
+    elif family in SPECIAL:
+        errors += special_errors(family, meta, report)
+    elif family == 'foundation_depth':
+        profiles = report.get('profiles', [])
+        if {p['compiler'] + '-' + ('asan' if p['profile'] == 'sanitize' else p['profile']) for p in profiles} != set(DEFAULT_PROFILES):
+            errors.append('Foundation profiles incomplete')
+        if any(p.get('status') != 'passed' or p.get('compiled_mutants_rejected', 0) < 8
+               or p.get('learner_stubs_rejected', 0) < 8 for p in profiles):
+            errors.append('Foundation controls incomplete')
+    else:
+        errors += generic_errors(family, meta, report)
+    return dict(family=family, passed=not errors, errors=errors,
+        receipt=path.relative_to(ROOT).as_posix(), receipt_sha256=sha(path),
+        declared_anchors=anchors(meta), source_pins=len(report.get('inspected_paths', report.get('input_sha256', {}))),
+        command_observations=len(report.get('executions', report.get('commands', report.get('checks', [])))),
+        target_audit=report.get('target_audit'), limitations=report.get('limitations', report.get('limits', [])))
+
+
+def inspect():
+    before = identity()['sha256']
+    rows = []
+    for family in manifest()['new_families']:
+        try:
+            rows.append(inspect_family(family))
+        except (OSError, ValueError, KeyError, TypeError) as error:
+            rows.append(dict(family=family, passed=False, errors=[str(error)]))
+    after = identity()['sha256']
+    passed = bool(rows) and all(r['passed'] for r in rows) and before == after
+    return dict(schema_version=1, passed=passed, status='passed' if passed else 'failed',
+        input_sha256=before, source_changed_during_run=before != after, families=rows,
+        physical_validation='not-run', learner_mastery='not-assessed', independent_review='not-established',
+        scope='Current source pins and exact observations from each required additive family; original receipts remain unchanged.',
+        limits=['Shared B06 receipt observations are counted once in their original report, not eight executions.',
+                'Only each producer\'s recorded scope is verified. Unexecuted variants and investigations remain required.',
+                'This binding does not retroactively add unrecorded inputs or results to a historical campaign.'])
+
+
+def main():
+    report = inspect()
+    dump(ROOT / RECEIPTS / 'expansion_campaigns.json', report)
+    print({'passed': report['passed'], 'families': len(report['families']),
+           'failures': {row['family']: row['errors'] for row in report['families'] if not row['passed']}})
+    return 0 if report['passed'] else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

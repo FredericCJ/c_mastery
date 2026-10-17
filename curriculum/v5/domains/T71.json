@@ -1,0 +1,61 @@
+{
+  "id": "T71",
+  "domain": {
+    "family": "protocols",
+    "prefix": "TS",
+    "phase": 12,
+    "strand": "firmware",
+    "research_gate": "research/v5/modern/protocols_research_gate.json",
+    "imports": {
+      "*": [],
+      "PR-T71-08": [
+        "firmware_io.gpio",
+        "firmware_io.uart",
+        "firmware_io.timer",
+        "firmware_io.dma",
+        "firmware_io.watchdog",
+        "execution.tasks",
+        "sync.copied_queue",
+        "containers.ring",
+        "adt.brand"
+      ]
+    },
+    "artifacts": [
+      {
+        "id": "fsm.hsm",
+        "producer": "PR-T71-04",
+        "contract": "Original protocols contract in labs/protocols/CONTRACTS.md; explicit ownership, partial progress and adapter limits; no blanket language equivalence.",
+        "critical_objectives": [
+          "T71.04.a",
+          "T71.04.b"
+        ]
+      },
+      {
+        "id": "driver.typestate",
+        "producer": "PR-T71-08",
+        "contract": "Original protocols contract in labs/protocols/CONTRACTS.md; explicit ownership, partial progress and adapter limits; no blanket language equivalence.",
+        "critical_objectives": [
+          "T71.08.a",
+          "T71.08.b"
+        ]
+      }
+    ],
+    "decisions": {
+      "PR-T71-01": {
+        "question": "Which representation preserves the required ownership and evaluation contract with lower measured cost?",
+        "alternatives": [
+          "explicit checked state and direct operations",
+          "composed wrapper/adapter representation"
+        ],
+        "discriminator": "Seal prediction before measurements; compare identical admitted inputs, rejection effects, operation counts, allocation and layout, then explain counterexamples.",
+        "reversal_trigger": "A new ownership-bearing payload, asynchronous operation or different failure guarantee changes the admitted states."
+      }
+    }
+  },
+  "new_executable_counts": {
+    "TS": 8
+  },
+  "fixture_oracles": [
+    "verify_protocols_fixtures.py"
+  ]
+}

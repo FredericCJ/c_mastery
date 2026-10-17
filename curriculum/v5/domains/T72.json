@@ -1,0 +1,66 @@
+{
+  "id": "T72",
+  "domain": {
+    "family": "coroutines",
+    "prefix": "CR",
+    "phase": 12,
+    "strand": "toolbox",
+    "research_gate": "research/v5/modern/coroutines_research_gate.json",
+    "imports": {
+      "*": [],
+      "PR-T72-09": [
+        "io.reactor",
+        "io.deadline",
+        "io.stream",
+        "bytes.cursor",
+        "parser.integer"
+      ]
+    },
+    "artifacts": [
+      {
+        "id": "coro.frame",
+        "producer": "PR-T72-09",
+        "contract": "Original coroutines contract in labs/coroutines/CONTRACTS.md; explicit ownership, partial progress and adapter limits; no blanket language equivalence.",
+        "critical_objectives": [
+          "T72.09.a",
+          "T72.09.b"
+        ]
+      },
+      {
+        "id": "fiber.context",
+        "producer": "PR-T72-04",
+        "contract": "Original coroutines contract in labs/coroutines/CONTRACTS.md; explicit ownership, partial progress and adapter limits; no blanket language equivalence.",
+        "critical_objectives": [
+          "T72.04.a",
+          "T72.04.b"
+        ]
+      },
+      {
+        "id": "parse.combinators",
+        "producer": "PR-T72-07",
+        "contract": "Original coroutines contract in labs/coroutines/CONTRACTS.md; explicit ownership, partial progress and adapter limits; no blanket language equivalence.",
+        "critical_objectives": [
+          "T72.07.a",
+          "T72.07.b"
+        ]
+      }
+    ],
+    "decisions": {
+      "PR-T72-01": {
+        "question": "Which representation preserves the required ownership and evaluation contract with lower measured cost?",
+        "alternatives": [
+          "explicit checked state and direct operations",
+          "composed wrapper/adapter representation"
+        ],
+        "discriminator": "Seal prediction before measurements; compare identical admitted inputs, rejection effects, operation counts, allocation and layout, then explain counterexamples.",
+        "reversal_trigger": "A new ownership-bearing payload, asynchronous operation or different failure guarantee changes the admitted states."
+      }
+    }
+  },
+  "new_executable_counts": {
+    "CR": 9
+  },
+  "fixture_oracles": [
+    "verify_coroutines_fixtures.py"
+  ]
+}

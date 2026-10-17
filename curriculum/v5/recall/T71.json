@@ -1,0 +1,581 @@
+{
+  "schema_version": 5,
+  "sets": [
+    {
+      "id": "T71.01",
+      "title": "Consuming typestate and explicit recovery after partial device writes",
+      "objectives": [
+        "T71.01.a",
+        "T71.01.b",
+        "T71.01.c",
+        "T71.01.d"
+      ],
+      "objective_text": {
+        "T71.01.a": "Derive a lifecycle transition table including partially configured RecoveryRequired, token generation retirement and storage lifetime; distinguish C wrapper diagnostics from Rust moves.",
+        "T71.01.b": "Implement pt_device_init/configure/close/recover with consumed matching tokens, unchanged success-output on failure, and externally certified quiescence before cleanup. Fail after each of the two control writes.",
+        "T71.01.c": "Enumerate failure stage0/1/2, quiet0/1, copied stale tokens and UINT32_MAX retirement; compile the wrong-wrapper fixture and demonstrate that a copied correct wrapper still compiles. Reject false-CLOSED and ignored-generation mutants.",
+        "T71.01.d": "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely."
+      },
+      "projects": [
+        "PR-T71-01"
+      ],
+      "variants": [
+        {
+          "id": "T71.01-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T71.01.a",
+            "T71.01.b",
+            "T71.01.c",
+            "T71.01.d"
+          ],
+          "prompt": "Derive a lifecycle transition table including partially configured RecoveryRequired, token generation retirement and storage lifetime; distinguish C wrapper diagnostics from Rust moves.",
+          "checklist": [
+            "Derive a lifecycle transition table including partially configured RecoveryRequired, token generation retirement and storage lifetime; distinguish C wrapper diagnostics from Rust moves.",
+            "Implement pt_device_init/configure/close/recover with consumed matching tokens, unchanged success-output on failure, and externally certified quiescence before cleanup. Fail after each of the two control writes.",
+            "Enumerate failure stage0/1/2, quiet0/1, copied stale tokens and UINT32_MAX retirement; compile the wrong-wrapper fixture and demonstrate that a copied correct wrapper still compiles. Reject false-CLOSED and ignored-generation mutants.",
+            "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely."
+          ]
+        },
+        {
+          "id": "T71.01-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T71.01.a",
+            "T71.01.b",
+            "T71.01.c",
+            "T71.01.d"
+          ],
+          "prompt": "Failure after control3 consumes the old token, leaves ready output unchanged and returns RecoveryRequired. quiet0 retains control3; quiet1 clears it. Reusing the pre-failure token after recovery rejects.",
+          "checklist": [
+            "Derive a lifecycle transition table including partially configured RecoveryRequired, token generation retirement and storage lifetime; distinguish C wrapper diagnostics from Rust moves.",
+            "Implement pt_device_init/configure/close/recover with consumed matching tokens, unchanged success-output on failure, and externally certified quiescence before cleanup. Fail after each of the two control writes.",
+            "Enumerate failure stage0/1/2, quiet0/1, copied stale tokens and UINT32_MAX retirement; compile the wrong-wrapper fixture and demonstrate that a copied correct wrapper still compiles. Reject false-CLOSED and ignored-generation mutants.",
+            "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely."
+          ]
+        },
+        {
+          "id": "T71.01-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T71.01.a",
+            "T71.01.b",
+            "T71.01.c",
+            "T71.01.d"
+          ],
+          "prompt": "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely.",
+          "checklist": [
+            "Derive a lifecycle transition table including partially configured RecoveryRequired, token generation retirement and storage lifetime; distinguish C wrapper diagnostics from Rust moves.",
+            "Implement pt_device_init/configure/close/recover with consumed matching tokens, unchanged success-output on failure, and externally certified quiescence before cleanup. Fail after each of the two control writes.",
+            "Enumerate failure stage0/1/2, quiet0/1, copied stale tokens and UINT32_MAX retirement; compile the wrong-wrapper fixture and demonstrate that a copied correct wrapper still compiles. Reject false-CLOSED and ignored-generation mutants.",
+            "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T71.02",
+      "title": "Staged builders, presence masks and cross-field admission",
+      "objectives": [
+        "T71.02.a",
+        "T71.02.b",
+        "T71.02.c",
+        "T71.02.d"
+      ],
+      "objective_text": {
+        "T71.02.a": "Separate required-field presence from value validity and cross-field constraints; identify what staged C wrapper types can diagnose and what a public struct can bypass.",
+        "T71.02.b": "Implement one-shot setters and atomic finish for address, length and timeout using the exact bounds in CONTRACTS.md, and construct a second staged-wrapper interface with the same admitted configurations.",
+        "T71.02.c": "Enumerate all eight presence masks, every setter permutation, duplicate setters, alignment violations and the address+length boundary. Preserve output canaries on incomplete/invalid finish; reject omitted-mask and omitted-cross-field-check mutants.",
+        "T71.02.d": "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field."
+      },
+      "projects": [
+        "PR-T71-02"
+      ],
+      "variants": [
+        {
+          "id": "T71.02-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T71.02.a",
+            "T71.02.b",
+            "T71.02.c",
+            "T71.02.d"
+          ],
+          "prompt": "Separate required-field presence from value validity and cross-field constraints; identify what staged C wrapper types can diagnose and what a public struct can bypass.",
+          "checklist": [
+            "Separate required-field presence from value validity and cross-field constraints; identify what staged C wrapper types can diagnose and what a public struct can bypass.",
+            "Implement one-shot setters and atomic finish for address, length and timeout using the exact bounds in CONTRACTS.md, and construct a second staged-wrapper interface with the same admitted configurations.",
+            "Enumerate all eight presence masks, every setter permutation, duplicate setters, alignment violations and the address+length boundary. Preserve output canaries on incomplete/invalid finish; reject omitted-mask and omitted-cross-field-check mutants.",
+            "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field."
+          ]
+        },
+        {
+          "id": "T71.02-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T71.02.a",
+            "T71.02.b",
+            "T71.02.c",
+            "T71.02.d"
+          ],
+          "prompt": "address252,length8,timeout10 is fully present but rejects the extent. address4,length8,timeout10 succeeds. Repeating address does not silently overwrite it.",
+          "checklist": [
+            "Separate required-field presence from value validity and cross-field constraints; identify what staged C wrapper types can diagnose and what a public struct can bypass.",
+            "Implement one-shot setters and atomic finish for address, length and timeout using the exact bounds in CONTRACTS.md, and construct a second staged-wrapper interface with the same admitted configurations.",
+            "Enumerate all eight presence masks, every setter permutation, duplicate setters, alignment violations and the address+length boundary. Preserve output canaries on incomplete/invalid finish; reject omitted-mask and omitted-cross-field-check mutants.",
+            "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field."
+          ]
+        },
+        {
+          "id": "T71.02-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T71.02.a",
+            "T71.02.b",
+            "T71.02.c",
+            "T71.02.d"
+          ],
+          "prompt": "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field.",
+          "checklist": [
+            "Separate required-field presence from value validity and cross-field constraints; identify what staged C wrapper types can diagnose and what a public struct can bypass.",
+            "Implement one-shot setters and atomic finish for address, length and timeout using the exact bounds in CONTRACTS.md, and construct a second staged-wrapper interface with the same admitted configurations.",
+            "Enumerate all eight presence masks, every setter permutation, duplicate setters, alignment violations and the address+length boundary. Preserve output canaries on incomplete/invalid finish; reject omitted-mask and omitted-cross-field-check mutants.",
+            "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T71.03",
+      "title": "Dual binary session automata with bounded dialogue",
+      "objectives": [
+        "T71.03.a",
+        "T71.03.b",
+        "T71.03.c",
+        "T71.03.d"
+      ],
+      "objective_text": {
+        "T71.03.a": "Derive dual send/receive traces for HELLO, ACCEPT, a bounded DATA/ACK loop and BYE; distinguish runtime protocol conformance from transport liveness and language-enforced session types.",
+        "T71.03.b": "Implement pt_session_step for both roles, phase and remaining count, rejecting wrong direction/tag and terminal reuse without progress. Build an in-process two-endpoint trace driver using only synthetic messages.",
+        "T71.03.c": "Enumerate both roles, remaining0..8 and every phase/tag/direction, compare against a separately written transition table and assert rejected-state preservation. Reject direction-erasure and ACK-does-not-decrement mutants.",
+        "T71.03.d": "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh."
+      },
+      "projects": [
+        "PR-T71-03"
+      ],
+      "variants": [
+        {
+          "id": "T71.03-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T71.03.a",
+            "T71.03.b",
+            "T71.03.c",
+            "T71.03.d"
+          ],
+          "prompt": "Derive dual send/receive traces for HELLO, ACCEPT, a bounded DATA/ACK loop and BYE; distinguish runtime protocol conformance from transport liveness and language-enforced session types.",
+          "checklist": [
+            "Derive dual send/receive traces for HELLO, ACCEPT, a bounded DATA/ACK loop and BYE; distinguish runtime protocol conformance from transport liveness and language-enforced session types.",
+            "Implement pt_session_step for both roles, phase and remaining count, rejecting wrong direction/tag and terminal reuse without progress. Build an in-process two-endpoint trace driver using only synthetic messages.",
+            "Enumerate both roles, remaining0..8 and every phase/tag/direction, compare against a separately written transition table and assert rejected-state preservation. Reject direction-erasure and ACK-does-not-decrement mutants.",
+            "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh."
+          ]
+        },
+        {
+          "id": "T71.03-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T71.03.a",
+            "T71.03.b",
+            "T71.03.c",
+            "T71.03.d"
+          ],
+          "prompt": "At remaining0, HELLO and ACCEPT lead directly to BYE. A client receiving HELLO is rejected; an ACK reduces remaining exactly once.",
+          "checklist": [
+            "Derive dual send/receive traces for HELLO, ACCEPT, a bounded DATA/ACK loop and BYE; distinguish runtime protocol conformance from transport liveness and language-enforced session types.",
+            "Implement pt_session_step for both roles, phase and remaining count, rejecting wrong direction/tag and terminal reuse without progress. Build an in-process two-endpoint trace driver using only synthetic messages.",
+            "Enumerate both roles, remaining0..8 and every phase/tag/direction, compare against a separately written transition table and assert rejected-state preservation. Reject direction-erasure and ACK-does-not-decrement mutants.",
+            "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh."
+          ]
+        },
+        {
+          "id": "T71.03-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T71.03.a",
+            "T71.03.b",
+            "T71.03.c",
+            "T71.03.d"
+          ],
+          "prompt": "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh.",
+          "checklist": [
+            "Derive dual send/receive traces for HELLO, ACCEPT, a bounded DATA/ACK loop and BYE; distinguish runtime protocol conformance from transport liveness and language-enforced session types.",
+            "Implement pt_session_step for both roles, phase and remaining count, rejecting wrong direction/tag and terminal reuse without progress. Build an in-process two-endpoint trace driver using only synthetic messages.",
+            "Enumerate both roles, remaining0..8 and every phase/tag/direction, compare against a separately written transition table and assert rejected-state preservation. Reject direction-erasure and ACK-does-not-decrement mutants.",
+            "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T71.04",
+      "title": "Hierarchical run-to-completion transitions and observable entry order",
+      "objectives": [
+        "T71.04.a",
+        "T71.04.b",
+        "T71.04.c",
+        "T71.04.d"
+      ],
+      "objective_text": {
+        "T71.04.a": "Derive least-common-ancestor exit/entry paths, inherited FAIL handling, external self transitions and internal PING; distinguish this bounded HSM subset from full UML semantics.",
+        "T71.04.b": "Implement pt_dispatch with inner-first exits, outer-first entries, a nonreentry guard, and transactional trace-capacity failure. Produce a table-driven independent transition oracle.",
+        "T71.04.c": "Check every active leaf/event pair, insufficient trace capacity, repeated BUSY START and PING exhaustion. Reject reversed-entry and omitted-exit mutants; compare exact action sequences rather than final states alone.",
+        "T71.04.d": "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state."
+      },
+      "projects": [
+        "PR-T71-04"
+      ],
+      "variants": [
+        {
+          "id": "T71.04-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T71.04.a",
+            "T71.04.b",
+            "T71.04.c",
+            "T71.04.d"
+          ],
+          "prompt": "Derive least-common-ancestor exit/entry paths, inherited FAIL handling, external self transitions and internal PING; distinguish this bounded HSM subset from full UML semantics.",
+          "checklist": [
+            "Derive least-common-ancestor exit/entry paths, inherited FAIL handling, external self transitions and internal PING; distinguish this bounded HSM subset from full UML semantics.",
+            "Implement pt_dispatch with inner-first exits, outer-first entries, a nonreentry guard, and transactional trace-capacity failure. Produce a table-driven independent transition oracle.",
+            "Check every active leaf/event pair, insufficient trace capacity, repeated BUSY START and PING exhaustion. Reject reversed-entry and omitted-exit mutants; compare exact action sequences rather than final states alone.",
+            "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state."
+          ]
+        },
+        {
+          "id": "T71.04-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T71.04.a",
+            "T71.04.b",
+            "T71.04.c",
+            "T71.04.d"
+          ],
+          "prompt": "OFFLINE CONNECT emits exit OFFLINE, entry ONLINE, entry IDLE. BUSY START emits exit BUSY then entry BUSY. BUSY FAIL exits BUSY and ONLINE before entering FAULT.",
+          "checklist": [
+            "Derive least-common-ancestor exit/entry paths, inherited FAIL handling, external self transitions and internal PING; distinguish this bounded HSM subset from full UML semantics.",
+            "Implement pt_dispatch with inner-first exits, outer-first entries, a nonreentry guard, and transactional trace-capacity failure. Produce a table-driven independent transition oracle.",
+            "Check every active leaf/event pair, insufficient trace capacity, repeated BUSY START and PING exhaustion. Reject reversed-entry and omitted-exit mutants; compare exact action sequences rather than final states alone.",
+            "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state."
+          ]
+        },
+        {
+          "id": "T71.04-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T71.04.a",
+            "T71.04.b",
+            "T71.04.c",
+            "T71.04.d"
+          ],
+          "prompt": "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state.",
+          "checklist": [
+            "Derive least-common-ancestor exit/entry paths, inherited FAIL handling, external self transitions and internal PING; distinguish this bounded HSM subset from full UML semantics.",
+            "Implement pt_dispatch with inner-first exits, outer-first entries, a nonreentry guard, and transactional trace-capacity failure. Produce a table-driven independent transition oracle.",
+            "Check every active leaf/event pair, insufficient trace capacity, repeated BUSY START and PING exhaustion. Reject reversed-entry and omitted-exit mutants; compare exact action sequences rather than final states alone.",
+            "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T71.05",
+      "title": "Bounded active-object queue and failure-preserving dispatch",
+      "objectives": [
+        "T71.05.a",
+        "T71.05.b",
+        "T71.05.c",
+        "T71.05.d"
+      ],
+      "objective_text": {
+        "T71.05.a": "Explain serialized event ownership, run-to-completion scheduling and the difference between event admission and successful handling in an MCU active object.",
+        "T71.05.b": "Compose the HSM with a four-slot copied-event ring; reject overflow unchanged and retain an event whose dispatch fails. Integrate learner-owned execution.tasks and sync.copied_queue through an explicit adapter.",
+        "T71.05.c": "Test full/empty/wraparound, trace-capacity failure before removal and bursts CONNECT/START/FINISH/FAIL. Reject overwrite-on-full and consume-before-dispatch-success mutants. Model adversarial event floods using synthetic counters.",
+        "T71.05.d": "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue."
+      },
+      "projects": [
+        "PR-T71-05"
+      ],
+      "variants": [
+        {
+          "id": "T71.05-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T71.05.a",
+            "T71.05.b",
+            "T71.05.c",
+            "T71.05.d"
+          ],
+          "prompt": "Explain serialized event ownership, run-to-completion scheduling and the difference between event admission and successful handling in an MCU active object.",
+          "checklist": [
+            "Explain serialized event ownership, run-to-completion scheduling and the difference between event admission and successful handling in an MCU active object.",
+            "Compose the HSM with a four-slot copied-event ring; reject overflow unchanged and retain an event whose dispatch fails. Integrate learner-owned execution.tasks and sync.copied_queue through an explicit adapter.",
+            "Test full/empty/wraparound, trace-capacity failure before removal and bursts CONNECT/START/FINISH/FAIL. Reject overwrite-on-full and consume-before-dispatch-success mutants. Model adversarial event floods using synthetic counters.",
+            "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue."
+          ]
+        },
+        {
+          "id": "T71.05-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T71.05.a",
+            "T71.05.b",
+            "T71.05.c",
+            "T71.05.d"
+          ],
+          "prompt": "The fifth post to a full ring rejects. If CONNECT cannot fit its trace, head/count remain0/4 and OFFLINE stays active. Four successful steps reach FAULT.",
+          "checklist": [
+            "Explain serialized event ownership, run-to-completion scheduling and the difference between event admission and successful handling in an MCU active object.",
+            "Compose the HSM with a four-slot copied-event ring; reject overflow unchanged and retain an event whose dispatch fails. Integrate learner-owned execution.tasks and sync.copied_queue through an explicit adapter.",
+            "Test full/empty/wraparound, trace-capacity failure before removal and bursts CONNECT/START/FINISH/FAIL. Reject overwrite-on-full and consume-before-dispatch-success mutants. Model adversarial event floods using synthetic counters.",
+            "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue."
+          ]
+        },
+        {
+          "id": "T71.05-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T71.05.a",
+            "T71.05.b",
+            "T71.05.c",
+            "T71.05.d"
+          ],
+          "prompt": "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue.",
+          "checklist": [
+            "Explain serialized event ownership, run-to-completion scheduling and the difference between event admission and successful handling in an MCU active object.",
+            "Compose the HSM with a four-slot copied-event ring; reject overflow unchanged and retain an event whose dispatch fails. Integrate learner-owned execution.tasks and sync.copied_queue through an explicit adapter.",
+            "Test full/empty/wraparound, trace-capacity failure before removal and bursts CONNECT/START/FINISH/FAIL. Reject overwrite-on-full and consume-before-dispatch-success mutants. Model adversarial event floods using synthetic counters.",
+            "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T71.06",
+      "title": "Stackless resumable functions with persistent explicit state",
+      "objectives": [
+        "T71.06.a",
+        "T71.06.b",
+        "T71.06.c",
+        "T71.06.d"
+      ],
+      "objective_text": {
+        "T71.06.a": "Explain switch-based continuation labels, automatic-local lifetimes, duplicate-label constraints and why suspension across an ordinary function return does not retain a C stack.",
+        "T71.06.b": "Implement the three-value checked summation frame and a PT_BEGIN/WAIT/END version; store every value live across suspension in the frame and reserve label0 and UINT32_MAX.",
+        "T71.06.c": "Exercise unavailable input between every accepted value, overflow with unchanged state, stable DONE and distinct interleaved frames. Compile duplicate-label and wrong-scope proposals as diagnostic/analysis cases; reject reset-sum and unchecked-overflow mutants.",
+        "T71.06.d": "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value."
+      },
+      "projects": [
+        "PR-T71-06"
+      ],
+      "variants": [
+        {
+          "id": "T71.06-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T71.06.a",
+            "T71.06.b",
+            "T71.06.c",
+            "T71.06.d"
+          ],
+          "prompt": "Explain switch-based continuation labels, automatic-local lifetimes, duplicate-label constraints and why suspension across an ordinary function return does not retain a C stack.",
+          "checklist": [
+            "Explain switch-based continuation labels, automatic-local lifetimes, duplicate-label constraints and why suspension across an ordinary function return does not retain a C stack.",
+            "Implement the three-value checked summation frame and a PT_BEGIN/WAIT/END version; store every value live across suspension in the frame and reserve label0 and UINT32_MAX.",
+            "Exercise unavailable input between every accepted value, overflow with unchanged state, stable DONE and distinct interleaved frames. Compile duplicate-label and wrong-scope proposals as diagnostic/analysis cases; reject reset-sum and unchecked-overflow mutants.",
+            "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value."
+          ]
+        },
+        {
+          "id": "T71.06-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T71.06.a",
+            "T71.06.b",
+            "T71.06.c",
+            "T71.06.d"
+          ],
+          "prompt": "Available10, unavailable, available20, available30 produces60 only on the third value. UINT32_MAX followed by1 rejects without incrementing count.",
+          "checklist": [
+            "Explain switch-based continuation labels, automatic-local lifetimes, duplicate-label constraints and why suspension across an ordinary function return does not retain a C stack.",
+            "Implement the three-value checked summation frame and a PT_BEGIN/WAIT/END version; store every value live across suspension in the frame and reserve label0 and UINT32_MAX.",
+            "Exercise unavailable input between every accepted value, overflow with unchanged state, stable DONE and distinct interleaved frames. Compile duplicate-label and wrong-scope proposals as diagnostic/analysis cases; reject reset-sum and unchecked-overflow mutants.",
+            "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value."
+          ]
+        },
+        {
+          "id": "T71.06-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T71.06.a",
+            "T71.06.b",
+            "T71.06.c",
+            "T71.06.d"
+          ],
+          "prompt": "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value.",
+          "checklist": [
+            "Explain switch-based continuation labels, automatic-local lifetimes, duplicate-label constraints and why suspension across an ordinary function return does not retain a C stack.",
+            "Implement the three-value checked summation frame and a PT_BEGIN/WAIT/END version; store every value live across suspension in the frame and reserve label0 and UINT32_MAX.",
+            "Exercise unavailable input between every accepted value, overflow with unchanged state, stable DONE and distinct interleaved frames. Compile duplicate-label and wrong-scope proposals as diagnostic/analysis cases; reject reset-sum and unchecked-overflow mutants.",
+            "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T71.07",
+      "title": "Memory behavior trees, running-child ownership and abort",
+      "objectives": [
+        "T71.07.a",
+        "T71.07.b",
+        "T71.07.c",
+        "T71.07.d"
+      ],
+      "objective_text": {
+        "T71.07.a": "Derive the different control rules of sequence and selector nodes, and distinguish a memory tree from a reactive tree that rechecks earlier guards.",
+        "T71.07.b": "Implement bounded validated node traversal, per-composite cursors, running-leaf ownership bits and exactly-once abort on cancellation, with a callback-reentry guard.",
+        "T71.07.c": "Use a leaf trace where the first child succeeds and the second remains RUNNING over repeated ticks; verify the first effect is not repeated. Check invalid topology, nested sequence/selector, reentry and cancellation twice. Reject cursor-reset and omitted-abort mutants.",
+        "T71.07.d": "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation."
+      },
+      "projects": [
+        "PR-T71-07"
+      ],
+      "variants": [
+        {
+          "id": "T71.07-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T71.07.a",
+            "T71.07.b",
+            "T71.07.c",
+            "T71.07.d"
+          ],
+          "prompt": "Derive the different control rules of sequence and selector nodes, and distinguish a memory tree from a reactive tree that rechecks earlier guards.",
+          "checklist": [
+            "Derive the different control rules of sequence and selector nodes, and distinguish a memory tree from a reactive tree that rechecks earlier guards.",
+            "Implement bounded validated node traversal, per-composite cursors, running-leaf ownership bits and exactly-once abort on cancellation, with a callback-reentry guard.",
+            "Use a leaf trace where the first child succeeds and the second remains RUNNING over repeated ticks; verify the first effect is not repeated. Check invalid topology, nested sequence/selector, reentry and cancellation twice. Reject cursor-reset and omitted-abort mutants.",
+            "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation."
+          ]
+        },
+        {
+          "id": "T71.07-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T71.07.a",
+            "T71.07.b",
+            "T71.07.c",
+            "T71.07.d"
+          ],
+          "prompt": "A sequence with successful leaf1 and running leaf2 calls leaf1 once across two ticks, leaf2 twice, and aborts leaf2 exactly once on cancel.",
+          "checklist": [
+            "Derive the different control rules of sequence and selector nodes, and distinguish a memory tree from a reactive tree that rechecks earlier guards.",
+            "Implement bounded validated node traversal, per-composite cursors, running-leaf ownership bits and exactly-once abort on cancellation, with a callback-reentry guard.",
+            "Use a leaf trace where the first child succeeds and the second remains RUNNING over repeated ticks; verify the first effect is not repeated. Check invalid topology, nested sequence/selector, reentry and cancellation twice. Reject cursor-reset and omitted-abort mutants.",
+            "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation."
+          ]
+        },
+        {
+          "id": "T71.07-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T71.07.a",
+            "T71.07.b",
+            "T71.07.c",
+            "T71.07.d"
+          ],
+          "prompt": "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation.",
+          "checklist": [
+            "Derive the different control rules of sequence and selector nodes, and distinguish a memory tree from a reactive tree that rechecks earlier guards.",
+            "Implement bounded validated node traversal, per-composite cursors, running-leaf ownership bits and exactly-once abort on cancellation, with a callback-reentry guard.",
+            "Use a leaf trace where the first child succeeds and the second remains RUNNING over repeated ticks; verify the first effect is not repeated. Check invalid topology, nested sequence/selector, reentry and cancellation twice. Reject cursor-reset and omitted-abort mutants.",
+            "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T71.08",
+      "title": "Typestate firmware driver with uncertain DMA ownership",
+      "objectives": [
+        "T71.08.a",
+        "T71.08.b",
+        "T71.08.c",
+        "T71.08.d"
+      ],
+      "objective_text": {
+        "T71.08.a": "Separate start failure, cancellation intent, hardware quiescence and buffer reuse; identify the trusted adapter facts needed to release an asynchronous loan.",
+        "T71.08.b": "Implement pt_driver_start/complete/recover over the supplied original register/DMA model, retaining buffers on partial start failure. Connect all specified firmware_io and task/queue imports in a source-bound adapter integration.",
+        "T71.08.c": "Inject start failure after the model retains a buffer, repeated failed quiescence, successful recovery, completion with quiet0 and duplicate completion. Count watchdog and release events; reject premature-release and quiet-check omission mutants.",
+        "T71.08.d": "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory."
+      },
+      "projects": [
+        "PR-T71-08"
+      ],
+      "variants": [
+        {
+          "id": "T71.08-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T71.08.a",
+            "T71.08.b",
+            "T71.08.c",
+            "T71.08.d"
+          ],
+          "prompt": "Separate start failure, cancellation intent, hardware quiescence and buffer reuse; identify the trusted adapter facts needed to release an asynchronous loan.",
+          "checklist": [
+            "Separate start failure, cancellation intent, hardware quiescence and buffer reuse; identify the trusted adapter facts needed to release an asynchronous loan.",
+            "Implement pt_driver_start/complete/recover over the supplied original register/DMA model, retaining buffers on partial start failure. Connect all specified firmware_io and task/queue imports in a source-bound adapter integration.",
+            "Inject start failure after the model retains a buffer, repeated failed quiescence, successful recovery, completion with quiet0 and duplicate completion. Count watchdog and release events; reject premature-release and quiet-check omission mutants.",
+            "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory."
+          ]
+        },
+        {
+          "id": "T71.08-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T71.08.a",
+            "T71.08.b",
+            "T71.08.c",
+            "T71.08.d"
+          ],
+          "prompt": "A failed start leaves RecoveryRequired and keeps the exact borrowed pointer. quiet0 completion returns PENDING and cannot feed the watchdog. Successful quiescence permits one release and one normal completion watchdog event.",
+          "checklist": [
+            "Separate start failure, cancellation intent, hardware quiescence and buffer reuse; identify the trusted adapter facts needed to release an asynchronous loan.",
+            "Implement pt_driver_start/complete/recover over the supplied original register/DMA model, retaining buffers on partial start failure. Connect all specified firmware_io and task/queue imports in a source-bound adapter integration.",
+            "Inject start failure after the model retains a buffer, repeated failed quiescence, successful recovery, completion with quiet0 and duplicate completion. Count watchdog and release events; reject premature-release and quiet-check omission mutants.",
+            "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory."
+          ]
+        },
+        {
+          "id": "T71.08-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T71.08.a",
+            "T71.08.b",
+            "T71.08.c",
+            "T71.08.d"
+          ],
+          "prompt": "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory.",
+          "checklist": [
+            "Separate start failure, cancellation intent, hardware quiescence and buffer reuse; identify the trusted adapter facts needed to release an asynchronous loan.",
+            "Implement pt_driver_start/complete/recover over the supplied original register/DMA model, retaining buffers on partial start failure. Connect all specified firmware_io and task/queue imports in a source-bound adapter integration.",
+            "Inject start failure after the model retains a buffer, repeated failed quiescence, successful recovery, completion with quiet0 and duplicate completion. Count watchdog and release events; reject premature-release and quiet-check omission mutants.",
+            "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory."
+          ]
+        }
+      ]
+    }
+  ]
+}

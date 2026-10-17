@@ -1,0 +1,2131 @@
+{
+  "version": 5,
+  "family": "verification_fuzzing",
+  "title": "Formal verification, falsification and fuzzing",
+  "build_system": "cmake",
+  "assessor_root": "assessor/verification_fuzzing",
+  "modules": [
+    "T61"
+  ],
+  "projects": [
+    {
+      "id": "PR-T61-01",
+      "tests": [
+        "verification_fuzzing.add"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
+    },
+    {
+      "id": "PR-T61-02",
+      "tests": [
+        "verification_fuzzing.search"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement vf_lower_bound on a sorted nondecreasing uint32_t array, returning the first index with value>=key or n. Use half-open[lo,hi), calculate midpoint without overflow and retain O(log n) comparisons. Empty input permits a null array. Establish sortedness as a precondition, not a fact proved by a search test.",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
+    },
+    {
+      "id": "PR-T61-03",
+      "tests": [
+        "verification_fuzzing.ring"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement vf_ring_step for VFRing with positive capacity, head<capacity, size<=capacity. op0 push rejects full and increments size; op1 pop rejects empty, advances head modulo capacity and decrements size. Reject invalid state or operation without mutation. Build a sequence harness using a Python list oracle and generation from valid/invalid transition classes.",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
+    },
+    {
+      "id": "PR-T61-04",
+      "tests": [
+        "verification_fuzzing.frame"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
+    },
+    {
+      "id": "PR-T61-05",
+      "tests": [
+        "verification_fuzzing.shrink"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement vf_shrink for an in-place byte vector of length at most65535 whose failure predicate is sum(bytes)>=threshold. Greedily remove each byte when the remaining sum still fails; retry the same position after removal. Return final length. If the original does not fail, leave it unchanged. The result is1-minimal under deletion, not globally shortest.",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
+    },
+    {
+      "id": "PR-T61-06",
+      "tests": [
+        "verification_fuzzing.schedule"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement vf_request for events0 submit,1 cancel,2 complete,3 release. Submit once; cancellation only after submit and before completion; complete once after submit whether or not cancelled; release only after completion and only once. Enumerate all event words through length6 and compare state/rejection to an independent transition relation.",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
+    },
+    {
+      "id": "PR-T61-07",
+      "tests": [
+        "verification_fuzzing.reset"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement vf_digest(frame,n,out): validate with vf_frame, then derive a32-bit rolling digest starting from0 for that input only, digest=digest*33+byte across payload bytes. Preserve output on invalid input. Repeated A,B,A calls must give the same results for A. Keep corpus generation and sanitizer runtime outside the target dependency graph.",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
+    },
+    {
+      "id": "PR-T61-08",
+      "tests": [
+        "verification_fuzzing.claims"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes.",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
+    }
+  ],
+  "units": [
+    {
+      "project": "PR-T61-01",
+      "title": "Bitvector arithmetic and complete bounds",
+      "minutes": 240,
+      "objectives": [
+        "T61.01.a",
+        "T61.01.b",
+        "T61.01.c"
+      ],
+      "tests": [
+        "verification_fuzzing.add"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the pre-add inequality without executing overflowing signed arithmetic. Prove unchanged output on failure as a separate postcondition and identify pointer validity assumptions.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-01.a",
+          "objective": "T61.01.a",
+          "criterion": "Derive and defend: Derive the pre-add inequality without executing overflowing signed arithmetic. Prove unchanged output on failure as a separate postcondition and identify pointer validity assumptions.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the pre-add inequality without executing overflowing signed arithmetic. Prove unchanged output on failure as a separate postcondition and identify pointer validity assumptions. Retain original source or derivation and counterexample.",
+            "3": "Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-01.b",
+          "objective": "T61.01.b",
+          "criterion": "Implement and investigate: Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code. Retain original source or derivation and counterexample.",
+            "3": "Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-01.c",
+          "objective": "T61.01.c",
+          "criterion": "Falsify and transfer: Repair wrapping arithmetic that reports success and a harness that assumes away every overflow input. Demonstrate a witness satisfying the assumptions and violating the mutant. Then Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair wrapping arithmetic that reports success and a harness that assumes away every overflow input. Demonstrate a witness satisfying the assumptions and violating the mutant. Then Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate. Retain original source or derivation and counterexample.",
+            "3": "Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-01-transfer",
+          "minimum_days": 7,
+          "task": "Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-01.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-01A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive the pre-add inequality without executing overflowing signed arithmetic. Prove unchanged output on failure as a separate postcondition and identify pointer validity assumptions."
+      ],
+      "checks": [
+        "Repair wrapping arithmetic that reports success and a harness that assumes away every overflow input. Demonstrate a witness satisfying the assumptions and violating the mutant.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T61-01",
+      "title": "Bitvector arithmetic and complete bounds",
+      "minutes": 240,
+      "objectives": [
+        "T61.01.a",
+        "T61.01.b",
+        "T61.01.c"
+      ],
+      "tests": [
+        "verification_fuzzing.add"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the pre-add inequality without executing overflowing signed arithmetic. Prove unchanged output on failure as a separate postcondition and identify pointer validity assumptions.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-01.a",
+          "objective": "T61.01.a",
+          "criterion": "Derive and defend: Derive the pre-add inequality without executing overflowing signed arithmetic. Prove unchanged output on failure as a separate postcondition and identify pointer validity assumptions.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the pre-add inequality without executing overflowing signed arithmetic. Prove unchanged output on failure as a separate postcondition and identify pointer validity assumptions. Retain original source or derivation and counterexample.",
+            "3": "Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-01.b",
+          "objective": "T61.01.b",
+          "criterion": "Implement and investigate: Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code. Retain original source or derivation and counterexample.",
+            "3": "Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-01.c",
+          "objective": "T61.01.c",
+          "criterion": "Falsify and transfer: Repair wrapping arithmetic that reports success and a harness that assumes away every overflow input. Demonstrate a witness satisfying the assumptions and violating the mutant. Then Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair wrapping arithmetic that reports success and a harness that assumes away every overflow input. Demonstrate a witness satisfying the assumptions and violating the mutant. Then Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate. Retain original source or derivation and counterexample.",
+            "3": "Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-01-transfer",
+          "minimum_days": 7,
+          "task": "Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-01.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-01B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "Repair wrapping arithmetic that reports success and a harness that assumes away every overflow input. Demonstrate a witness satisfying the assumptions and violating the mutant.",
+        "Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive the pre-add inequality without executing overflowing signed arithmetic. Prove unchanged output on failure as a separate postcondition and identify pointer validity assumptions.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T61-02",
+      "title": "Loop invariants and binary-search termination",
+      "minutes": 240,
+      "objectives": [
+        "T61.02.a",
+        "T61.02.b",
+        "T61.02.c"
+      ],
+      "tests": [
+        "verification_fuzzing.search"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_lower_bound on a sorted nondecreasing uint32_t array, returning the first index with value>=key or n. Use half-open[lo,hi), calculate midpoint without overflow and retain O(log n) comparisons. Empty input permits a null array. Establish sortedness as a precondition, not a fact proved by a search test.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove all indices below lo are<key, all at/above hi are>=key, and hi-lo strictly decreases. Derive memory bounds and handle duplicate values without changing the intended first-position contract.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-02.a",
+          "objective": "T61.02.a",
+          "criterion": "Derive and defend: Prove all indices below lo are<key, all at/above hi are>=key, and hi-lo strictly decreases. Derive memory bounds and handle duplicate values without changing the intended first-position contract.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove all indices below lo are<key, all at/above hi are>=key, and hi-lo strictly decreases. Derive memory bounds and handle duplicate values without changing the intended first-position contract. Retain original source or derivation and counterexample.",
+            "3": "Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-02.b",
+          "objective": "T61.02.b",
+          "criterion": "Implement and investigate: Implement vf_lower_bound on a sorted nondecreasing uint32_t array, returning the first index with value>=key or n. Use half-open[lo,hi), calculate midpoint without overflow and retain O(log n) comparisons. Empty input permits a null array. Establish sortedness as a precondition, not a fact proved by a search test.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_lower_bound on a sorted nondecreasing uint32_t array, returning the first index with value>=key or n. Use half-open[lo,hi), calculate midpoint without overflow and retain O(log n) comparisons. Empty input permits a null array. Establish sortedness as a precondition, not a fact proved by a search test. Retain original source or derivation and counterexample.",
+            "3": "Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-02.c",
+          "objective": "T61.02.c",
+          "criterion": "Falsify and transfer: A <= comparison implements upper_bound, which passes unique-key examples. An incorrect midpoint update can also loop forever on a singleton interval. Then Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A <= comparison implements upper_bound, which passes unique-key examples. An incorrect midpoint update can also loop forever on a singleton interval. Then Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities. Retain original source or derivation and counterexample.",
+            "3": "Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-02-transfer",
+          "minimum_days": 7,
+          "task": "Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-02.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-02A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement vf_lower_bound on a sorted nondecreasing uint32_t array, returning the first index with value>=key or n. Use half-open[lo,hi), calculate midpoint without overflow and retain O(log n) comparisons. Empty input permits a null array. Establish sortedness as a precondition, not a fact proved by a search test.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Prove all indices below lo are<key, all at/above hi are>=key, and hi-lo strictly decreases. Derive memory bounds and handle duplicate values without changing the intended first-position contract."
+      ],
+      "checks": [
+        "A <= comparison implements upper_bound, which passes unique-key examples. An incorrect midpoint update can also loop forever on a singleton interval.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T61-02",
+      "title": "Loop invariants and binary-search termination",
+      "minutes": 240,
+      "objectives": [
+        "T61.02.a",
+        "T61.02.b",
+        "T61.02.c"
+      ],
+      "tests": [
+        "verification_fuzzing.search"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_lower_bound on a sorted nondecreasing uint32_t array, returning the first index with value>=key or n. Use half-open[lo,hi), calculate midpoint without overflow and retain O(log n) comparisons. Empty input permits a null array. Establish sortedness as a precondition, not a fact proved by a search test.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove all indices below lo are<key, all at/above hi are>=key, and hi-lo strictly decreases. Derive memory bounds and handle duplicate values without changing the intended first-position contract.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-02.a",
+          "objective": "T61.02.a",
+          "criterion": "Derive and defend: Prove all indices below lo are<key, all at/above hi are>=key, and hi-lo strictly decreases. Derive memory bounds and handle duplicate values without changing the intended first-position contract.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove all indices below lo are<key, all at/above hi are>=key, and hi-lo strictly decreases. Derive memory bounds and handle duplicate values without changing the intended first-position contract. Retain original source or derivation and counterexample.",
+            "3": "Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-02.b",
+          "objective": "T61.02.b",
+          "criterion": "Implement and investigate: Implement vf_lower_bound on a sorted nondecreasing uint32_t array, returning the first index with value>=key or n. Use half-open[lo,hi), calculate midpoint without overflow and retain O(log n) comparisons. Empty input permits a null array. Establish sortedness as a precondition, not a fact proved by a search test.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_lower_bound on a sorted nondecreasing uint32_t array, returning the first index with value>=key or n. Use half-open[lo,hi), calculate midpoint without overflow and retain O(log n) comparisons. Empty input permits a null array. Establish sortedness as a precondition, not a fact proved by a search test. Retain original source or derivation and counterexample.",
+            "3": "Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-02.c",
+          "objective": "T61.02.c",
+          "criterion": "Falsify and transfer: A <= comparison implements upper_bound, which passes unique-key examples. An incorrect midpoint update can also loop forever on a singleton interval. Then Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A <= comparison implements upper_bound, which passes unique-key examples. An incorrect midpoint update can also loop forever on a singleton interval. Then Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities. Retain original source or derivation and counterexample.",
+            "3": "Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-02-transfer",
+          "minimum_days": 7,
+          "task": "Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-02.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-02B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A <= comparison implements upper_bound, which passes unique-key examples. An incorrect midpoint update can also loop forever on a singleton interval.",
+        "Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Prove all indices below lo are<key, all at/above hi are>=key, and hi-lo strictly decreases. Derive memory bounds and handle duplicate values without changing the intended first-position contract.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T61-03",
+      "title": "Stateful property harness and ownership",
+      "minutes": 240,
+      "objectives": [
+        "T61.03.a",
+        "T61.03.b",
+        "T61.03.c"
+      ],
+      "tests": [
+        "verification_fuzzing.ring"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_ring_step for VFRing with positive capacity, head<capacity, size<=capacity. op0 push rejects full and increments size; op1 pop rejects empty, advances head modulo capacity and decrements size. Reject invalid state or operation without mutation. Build a sequence harness using a Python list oracle and generation from valid/invalid transition classes.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove size conservation and rejection atomicity at each step; define ownership of queued elements separately from the scalar ring indices. Explain why an oracle sharing the same count representation could reproduce the defect.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-03.a",
+          "objective": "T61.03.a",
+          "criterion": "Derive and defend: Prove size conservation and rejection atomicity at each step; define ownership of queued elements separately from the scalar ring indices. Explain why an oracle sharing the same count representation could reproduce the defect.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove size conservation and rejection atomicity at each step; define ownership of queued elements separately from the scalar ring indices. Explain why an oracle sharing the same count representation could reproduce the defect. Retain original source or derivation and counterexample.",
+            "3": "Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-03.b",
+          "objective": "T61.03.b",
+          "criterion": "Implement and investigate: Implement vf_ring_step for VFRing with positive capacity, head<capacity, size<=capacity. op0 push rejects full and increments size; op1 pop rejects empty, advances head modulo capacity and decrements size. Reject invalid state or operation without mutation. Build a sequence harness using a Python list oracle and generation from valid/invalid transition classes.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_ring_step for VFRing with positive capacity, head<capacity, size<=capacity. op0 push rejects full and increments size; op1 pop rejects empty, advances head modulo capacity and decrements size. Reject invalid state or operation without mutation. Build a sequence harness using a Python list oracle and generation from valid/invalid transition classes. Retain original source or derivation and counterexample.",
+            "3": "Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-03.c",
+          "objective": "T61.03.c",
+          "criterion": "Falsify and transfer: The mutant permits a push into a full ring, producing size>capacity. A final pop-only test can conceal this intermediate violation. Then Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant permits a push into a full ring, producing size>capacity. A final pop-only test can conceal this intermediate violation. Then Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions. Retain original source or derivation and counterexample.",
+            "3": "Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-03-transfer",
+          "minimum_days": 7,
+          "task": "Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-03.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-03A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement vf_ring_step for VFRing with positive capacity, head<capacity, size<=capacity. op0 push rejects full and increments size; op1 pop rejects empty, advances head modulo capacity and decrements size. Reject invalid state or operation without mutation. Build a sequence harness using a Python list oracle and generation from valid/invalid transition classes.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Prove size conservation and rejection atomicity at each step; define ownership of queued elements separately from the scalar ring indices. Explain why an oracle sharing the same count representation could reproduce the defect."
+      ],
+      "checks": [
+        "The mutant permits a push into a full ring, producing size>capacity. A final pop-only test can conceal this intermediate violation.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T61-03",
+      "title": "Stateful property harness and ownership",
+      "minutes": 240,
+      "objectives": [
+        "T61.03.a",
+        "T61.03.b",
+        "T61.03.c"
+      ],
+      "tests": [
+        "verification_fuzzing.ring"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_ring_step for VFRing with positive capacity, head<capacity, size<=capacity. op0 push rejects full and increments size; op1 pop rejects empty, advances head modulo capacity and decrements size. Reject invalid state or operation without mutation. Build a sequence harness using a Python list oracle and generation from valid/invalid transition classes.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove size conservation and rejection atomicity at each step; define ownership of queued elements separately from the scalar ring indices. Explain why an oracle sharing the same count representation could reproduce the defect.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-03.a",
+          "objective": "T61.03.a",
+          "criterion": "Derive and defend: Prove size conservation and rejection atomicity at each step; define ownership of queued elements separately from the scalar ring indices. Explain why an oracle sharing the same count representation could reproduce the defect.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove size conservation and rejection atomicity at each step; define ownership of queued elements separately from the scalar ring indices. Explain why an oracle sharing the same count representation could reproduce the defect. Retain original source or derivation and counterexample.",
+            "3": "Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-03.b",
+          "objective": "T61.03.b",
+          "criterion": "Implement and investigate: Implement vf_ring_step for VFRing with positive capacity, head<capacity, size<=capacity. op0 push rejects full and increments size; op1 pop rejects empty, advances head modulo capacity and decrements size. Reject invalid state or operation without mutation. Build a sequence harness using a Python list oracle and generation from valid/invalid transition classes.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_ring_step for VFRing with positive capacity, head<capacity, size<=capacity. op0 push rejects full and increments size; op1 pop rejects empty, advances head modulo capacity and decrements size. Reject invalid state or operation without mutation. Build a sequence harness using a Python list oracle and generation from valid/invalid transition classes. Retain original source or derivation and counterexample.",
+            "3": "Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-03.c",
+          "objective": "T61.03.c",
+          "criterion": "Falsify and transfer: The mutant permits a push into a full ring, producing size>capacity. A final pop-only test can conceal this intermediate violation. Then Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant permits a push into a full ring, producing size>capacity. A final pop-only test can conceal this intermediate violation. Then Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions. Retain original source or derivation and counterexample.",
+            "3": "Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-03-transfer",
+          "minimum_days": 7,
+          "task": "Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-03.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-03B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant permits a push into a full ring, producing size>capacity. A final pop-only test can conceal this intermediate violation.",
+        "Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Prove size conservation and rejection atomicity at each step; define ownership of queued elements separately from the scalar ring indices. Explain why an oracle sharing the same count representation could reproduce the defect.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T61-04",
+      "title": "Parser fuzzing with semantic oracles",
+      "minutes": 240,
+      "objectives": [
+        "T61.04.a",
+        "T61.04.b",
+        "T61.04.c"
+      ],
+      "tests": [
+        "verification_fuzzing.frame"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Separate memory-safety, grammar, integrity and canonicalization properties; bound fuzz input processing without excluding empty, malformed or huge harness inputs.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-04.a",
+          "objective": "T61.04.a",
+          "criterion": "Derive and defend: Separate memory-safety, grammar, integrity and canonicalization properties; bound fuzz input processing without excluding empty, malformed or huge harness inputs.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Separate memory-safety, grammar, integrity and canonicalization properties; bound fuzz input processing without excluding empty, malformed or huge harness inputs. Retain original source or derivation and counterexample.",
+            "3": "Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-04.b",
+          "objective": "T61.04.b",
+          "criterion": "Implement and investigate: Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure. Retain original source or derivation and counterexample.",
+            "3": "Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-04.c",
+          "objective": "T61.04.c",
+          "criterion": "Falsify and transfer: The parser ignores checksum mismatch yet never crashes, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame. Then Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The parser ignores checksum mismatch yet never crashes, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame. Then Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch. Retain original source or derivation and counterexample.",
+            "3": "Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-04-transfer",
+          "minimum_days": 7,
+          "task": "Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-04.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-04A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Separate memory-safety, grammar, integrity and canonicalization properties; bound fuzz input processing without excluding empty, malformed or huge harness inputs."
+      ],
+      "checks": [
+        "The parser ignores checksum mismatch yet never crashes, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T61-04",
+      "title": "Parser fuzzing with semantic oracles",
+      "minutes": 240,
+      "objectives": [
+        "T61.04.a",
+        "T61.04.b",
+        "T61.04.c"
+      ],
+      "tests": [
+        "verification_fuzzing.frame"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Separate memory-safety, grammar, integrity and canonicalization properties; bound fuzz input processing without excluding empty, malformed or huge harness inputs.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-04.a",
+          "objective": "T61.04.a",
+          "criterion": "Derive and defend: Separate memory-safety, grammar, integrity and canonicalization properties; bound fuzz input processing without excluding empty, malformed or huge harness inputs.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Separate memory-safety, grammar, integrity and canonicalization properties; bound fuzz input processing without excluding empty, malformed or huge harness inputs. Retain original source or derivation and counterexample.",
+            "3": "Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-04.b",
+          "objective": "T61.04.b",
+          "criterion": "Implement and investigate: Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure. Retain original source or derivation and counterexample.",
+            "3": "Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-04.c",
+          "objective": "T61.04.c",
+          "criterion": "Falsify and transfer: The parser ignores checksum mismatch yet never crashes, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame. Then Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The parser ignores checksum mismatch yet never crashes, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame. Then Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch. Retain original source or derivation and counterexample.",
+            "3": "Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-04-transfer",
+          "minimum_days": 7,
+          "task": "Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-04.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-04B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The parser ignores checksum mismatch yet never crashes, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame.",
+        "Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Separate memory-safety, grammar, integrity and canonicalization properties; bound fuzz input processing without excluding empty, malformed or huge harness inputs.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T61-05",
+      "title": "Counterexample minimization",
+      "minutes": 240,
+      "objectives": [
+        "T61.05.a",
+        "T61.05.b",
+        "T61.05.c"
+      ],
+      "tests": [
+        "verification_fuzzing.shrink"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_shrink for an in-place byte vector of length at most65535 whose failure predicate is sum(bytes)>=threshold. Greedily remove each byte when the remaining sum still fails; retry the same position after removal. Return final length. If the original does not fail, leave it unchanged. The result is1-minimal under deletion, not globally shortest.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove predicate preservation after each deletion and justify termination. Distinguish1-minimality from globally optimal shrinking and discuss order-dependent outcomes.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-05.a",
+          "objective": "T61.05.a",
+          "criterion": "Derive and defend: Prove predicate preservation after each deletion and justify termination. Distinguish1-minimality from globally optimal shrinking and discuss order-dependent outcomes.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove predicate preservation after each deletion and justify termination. Distinguish1-minimality from globally optimal shrinking and discuss order-dependent outcomes. Retain original source or derivation and counterexample.",
+            "3": "Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-05.b",
+          "objective": "T61.05.b",
+          "criterion": "Implement and investigate: Implement vf_shrink for an in-place byte vector of length at most65535 whose failure predicate is sum(bytes)>=threshold. Greedily remove each byte when the remaining sum still fails; retry the same position after removal. Return final length. If the original does not fail, leave it unchanged. The result is1-minimal under deletion, not globally shortest.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_shrink for an in-place byte vector of length at most65535 whose failure predicate is sum(bytes)>=threshold. Greedily remove each byte when the remaining sum still fails; retry the same position after removal. Return final length. If the original does not fail, leave it unchanged. The result is1-minimal under deletion, not globally shortest. Retain original source or derivation and counterexample.",
+            "3": "Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-05.c",
+          "objective": "T61.05.c",
+          "criterion": "Falsify and transfer: The faulty shrinker increments its index after deletion, skipping the shifted byte and leaving a removable element. A merely smaller result is not the stated minimality guarantee. Then Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The faulty shrinker increments its index after deletion, skipping the shifted byte and leaving a removable element. A merely smaller result is not the stated minimality guarantee. Then Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit. Retain original source or derivation and counterexample.",
+            "3": "Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-05-transfer",
+          "minimum_days": 7,
+          "task": "Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-05.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-05A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement vf_shrink for an in-place byte vector of length at most65535 whose failure predicate is sum(bytes)>=threshold. Greedily remove each byte when the remaining sum still fails; retry the same position after removal. Return final length. If the original does not fail, leave it unchanged. The result is1-minimal under deletion, not globally shortest.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Prove predicate preservation after each deletion and justify termination. Distinguish1-minimality from globally optimal shrinking and discuss order-dependent outcomes."
+      ],
+      "checks": [
+        "The faulty shrinker increments its index after deletion, skipping the shifted byte and leaving a removable element. A merely smaller result is not the stated minimality guarantee.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T61-05",
+      "title": "Counterexample minimization",
+      "minutes": 240,
+      "objectives": [
+        "T61.05.a",
+        "T61.05.b",
+        "T61.05.c"
+      ],
+      "tests": [
+        "verification_fuzzing.shrink"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_shrink for an in-place byte vector of length at most65535 whose failure predicate is sum(bytes)>=threshold. Greedily remove each byte when the remaining sum still fails; retry the same position after removal. Return final length. If the original does not fail, leave it unchanged. The result is1-minimal under deletion, not globally shortest.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove predicate preservation after each deletion and justify termination. Distinguish1-minimality from globally optimal shrinking and discuss order-dependent outcomes.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-05.a",
+          "objective": "T61.05.a",
+          "criterion": "Derive and defend: Prove predicate preservation after each deletion and justify termination. Distinguish1-minimality from globally optimal shrinking and discuss order-dependent outcomes.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove predicate preservation after each deletion and justify termination. Distinguish1-minimality from globally optimal shrinking and discuss order-dependent outcomes. Retain original source or derivation and counterexample.",
+            "3": "Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-05.b",
+          "objective": "T61.05.b",
+          "criterion": "Implement and investigate: Implement vf_shrink for an in-place byte vector of length at most65535 whose failure predicate is sum(bytes)>=threshold. Greedily remove each byte when the remaining sum still fails; retry the same position after removal. Return final length. If the original does not fail, leave it unchanged. The result is1-minimal under deletion, not globally shortest.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_shrink for an in-place byte vector of length at most65535 whose failure predicate is sum(bytes)>=threshold. Greedily remove each byte when the remaining sum still fails; retry the same position after removal. Return final length. If the original does not fail, leave it unchanged. The result is1-minimal under deletion, not globally shortest. Retain original source or derivation and counterexample.",
+            "3": "Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-05.c",
+          "objective": "T61.05.c",
+          "criterion": "Falsify and transfer: The faulty shrinker increments its index after deletion, skipping the shifted byte and leaving a removable element. A merely smaller result is not the stated minimality guarantee. Then Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The faulty shrinker increments its index after deletion, skipping the shifted byte and leaving a removable element. A merely smaller result is not the stated minimality guarantee. Then Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit. Retain original source or derivation and counterexample.",
+            "3": "Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-05-transfer",
+          "minimum_days": 7,
+          "task": "Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-05.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-05B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The faulty shrinker increments its index after deletion, skipping the shifted byte and leaving a removable element. A merely smaller result is not the stated minimality guarantee.",
+        "Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Prove predicate preservation after each deletion and justify termination. Distinguish1-minimality from globally optimal shrinking and discuss order-dependent outcomes.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T61-06",
+      "title": "Bounded schedule exploration",
+      "minutes": 240,
+      "objectives": [
+        "T61.06.a",
+        "T61.06.b",
+        "T61.06.c"
+      ],
+      "tests": [
+        "verification_fuzzing.schedule"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_request for events0 submit,1 cancel,2 complete,3 release. Submit once; cancellation only after submit and before completion; complete once after submit whether or not cancelled; release only after completion and only once. Enumerate all event words through length6 and compare state/rejection to an independent transition relation.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "State the safety invariant released implies completed and derive every reachable state. Explain which liveness claims require a scheduler/environment assumption beyond finite enumeration.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-06.a",
+          "objective": "T61.06.a",
+          "criterion": "Derive and defend: State the safety invariant released implies completed and derive every reachable state. Explain which liveness claims require a scheduler/environment assumption beyond finite enumeration.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: State the safety invariant released implies completed and derive every reachable state. Explain which liveness claims require a scheduler/environment assumption beyond finite enumeration. Retain original source or derivation and counterexample.",
+            "3": "Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-06.b",
+          "objective": "T61.06.b",
+          "criterion": "Implement and investigate: Implement vf_request for events0 submit,1 cancel,2 complete,3 release. Submit once; cancellation only after submit and before completion; complete once after submit whether or not cancelled; release only after completion and only once. Enumerate all event words through length6 and compare state/rejection to an independent transition relation.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_request for events0 submit,1 cancel,2 complete,3 release. Submit once; cancellation only after submit and before completion; complete once after submit whether or not cancelled; release only after completion and only once. Enumerate all event words through length6 and compare state/rejection to an independent transition relation. Retain original source or derivation and counterexample.",
+            "3": "Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-06.c",
+          "objective": "T61.06.c",
+          "criterion": "Falsify and transfer: The mutant releases on cancellation before completion, allowing a late callback to access released storage. A mutex alone does not fix the incorrect state transition. Then Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant releases on cancellation before completion, allowing a late callback to access released storage. A mutex alone does not fix the incorrect state transition. Then Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence. Retain original source or derivation and counterexample.",
+            "3": "Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-06-transfer",
+          "minimum_days": 7,
+          "task": "Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-06.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-06A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement vf_request for events0 submit,1 cancel,2 complete,3 release. Submit once; cancellation only after submit and before completion; complete once after submit whether or not cancelled; release only after completion and only once. Enumerate all event words through length6 and compare state/rejection to an independent transition relation.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "State the safety invariant released implies completed and derive every reachable state. Explain which liveness claims require a scheduler/environment assumption beyond finite enumeration."
+      ],
+      "checks": [
+        "The mutant releases on cancellation before completion, allowing a late callback to access released storage. A mutex alone does not fix the incorrect state transition.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T61-06",
+      "title": "Bounded schedule exploration",
+      "minutes": 240,
+      "objectives": [
+        "T61.06.a",
+        "T61.06.b",
+        "T61.06.c"
+      ],
+      "tests": [
+        "verification_fuzzing.schedule"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_request for events0 submit,1 cancel,2 complete,3 release. Submit once; cancellation only after submit and before completion; complete once after submit whether or not cancelled; release only after completion and only once. Enumerate all event words through length6 and compare state/rejection to an independent transition relation.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "State the safety invariant released implies completed and derive every reachable state. Explain which liveness claims require a scheduler/environment assumption beyond finite enumeration.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-06.a",
+          "objective": "T61.06.a",
+          "criterion": "Derive and defend: State the safety invariant released implies completed and derive every reachable state. Explain which liveness claims require a scheduler/environment assumption beyond finite enumeration.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: State the safety invariant released implies completed and derive every reachable state. Explain which liveness claims require a scheduler/environment assumption beyond finite enumeration. Retain original source or derivation and counterexample.",
+            "3": "Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-06.b",
+          "objective": "T61.06.b",
+          "criterion": "Implement and investigate: Implement vf_request for events0 submit,1 cancel,2 complete,3 release. Submit once; cancellation only after submit and before completion; complete once after submit whether or not cancelled; release only after completion and only once. Enumerate all event words through length6 and compare state/rejection to an independent transition relation.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_request for events0 submit,1 cancel,2 complete,3 release. Submit once; cancellation only after submit and before completion; complete once after submit whether or not cancelled; release only after completion and only once. Enumerate all event words through length6 and compare state/rejection to an independent transition relation. Retain original source or derivation and counterexample.",
+            "3": "Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-06.c",
+          "objective": "T61.06.c",
+          "criterion": "Falsify and transfer: The mutant releases on cancellation before completion, allowing a late callback to access released storage. A mutex alone does not fix the incorrect state transition. Then Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant releases on cancellation before completion, allowing a late callback to access released storage. A mutex alone does not fix the incorrect state transition. Then Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence. Retain original source or derivation and counterexample.",
+            "3": "Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-06-transfer",
+          "minimum_days": 7,
+          "task": "Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-06.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-06B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant releases on cancellation before completion, allowing a late callback to access released storage. A mutex alone does not fix the incorrect state transition.",
+        "Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "State the safety invariant released implies completed and derive every reachable state. Explain which liveness claims require a scheduler/environment assumption beyond finite enumeration.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T61-07",
+      "title": "Deterministic fuzz harness composition",
+      "minutes": 240,
+      "objectives": [
+        "T61.07.a",
+        "T61.07.b",
+        "T61.07.c"
+      ],
+      "tests": [
+        "verification_fuzzing.reset"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_digest(frame,n,out): validate with vf_frame, then derive a32-bit rolling digest starting from0 for that input only, digest=digest*33+byte across payload bytes. Preserve output on invalid input. Repeated A,B,A calls must give the same results for A. Keep corpus generation and sanitizer runtime outside the target dependency graph.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the required isolation between fuzz invocations, including allocator cleanup and thread joining. Distinguish deterministic input-derived randomness from wall-clock seeding.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-07.a",
+          "objective": "T61.07.a",
+          "criterion": "Derive and defend: Derive the required isolation between fuzz invocations, including allocator cleanup and thread joining. Distinguish deterministic input-derived randomness from wall-clock seeding.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the required isolation between fuzz invocations, including allocator cleanup and thread joining. Distinguish deterministic input-derived randomness from wall-clock seeding. Retain original source or derivation and counterexample.",
+            "3": "Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-07.b",
+          "objective": "T61.07.b",
+          "criterion": "Implement and investigate: Implement vf_digest(frame,n,out): validate with vf_frame, then derive a32-bit rolling digest starting from0 for that input only, digest=digest*33+byte across payload bytes. Preserve output on invalid input. Repeated A,B,A calls must give the same results for A. Keep corpus generation and sanitizer runtime outside the target dependency graph.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_digest(frame,n,out): validate with vf_frame, then derive a32-bit rolling digest starting from0 for that input only, digest=digest*33+byte across payload bytes. Preserve output on invalid input. Repeated A,B,A calls must give the same results for A. Keep corpus generation and sanitizer runtime outside the target dependency graph. Retain original source or derivation and counterexample.",
+            "3": "Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-07.c",
+          "objective": "T61.07.c",
+          "criterion": "Falsify and transfer: The mutant retains the prior hash globally, creating a history-dependent mismatch. A single fresh-process run passes and therefore misses the defect. Then Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant retains the prior hash globally, creating a history-dependent mismatch. A single fresh-process run passes and therefore misses the defect. Then Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions. Retain original source or derivation and counterexample.",
+            "3": "Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-07-transfer",
+          "minimum_days": 7,
+          "task": "Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-07.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-07A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement vf_digest(frame,n,out): validate with vf_frame, then derive a32-bit rolling digest starting from0 for that input only, digest=digest*33+byte across payload bytes. Preserve output on invalid input. Repeated A,B,A calls must give the same results for A. Keep corpus generation and sanitizer runtime outside the target dependency graph.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive the required isolation between fuzz invocations, including allocator cleanup and thread joining. Distinguish deterministic input-derived randomness from wall-clock seeding."
+      ],
+      "checks": [
+        "The mutant retains the prior hash globally, creating a history-dependent mismatch. A single fresh-process run passes and therefore misses the defect.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T61-07",
+      "title": "Deterministic fuzz harness composition",
+      "minutes": 240,
+      "objectives": [
+        "T61.07.a",
+        "T61.07.b",
+        "T61.07.c"
+      ],
+      "tests": [
+        "verification_fuzzing.reset"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_digest(frame,n,out): validate with vf_frame, then derive a32-bit rolling digest starting from0 for that input only, digest=digest*33+byte across payload bytes. Preserve output on invalid input. Repeated A,B,A calls must give the same results for A. Keep corpus generation and sanitizer runtime outside the target dependency graph.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the required isolation between fuzz invocations, including allocator cleanup and thread joining. Distinguish deterministic input-derived randomness from wall-clock seeding.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-07.a",
+          "objective": "T61.07.a",
+          "criterion": "Derive and defend: Derive the required isolation between fuzz invocations, including allocator cleanup and thread joining. Distinguish deterministic input-derived randomness from wall-clock seeding.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the required isolation between fuzz invocations, including allocator cleanup and thread joining. Distinguish deterministic input-derived randomness from wall-clock seeding. Retain original source or derivation and counterexample.",
+            "3": "Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-07.b",
+          "objective": "T61.07.b",
+          "criterion": "Implement and investigate: Implement vf_digest(frame,n,out): validate with vf_frame, then derive a32-bit rolling digest starting from0 for that input only, digest=digest*33+byte across payload bytes. Preserve output on invalid input. Repeated A,B,A calls must give the same results for A. Keep corpus generation and sanitizer runtime outside the target dependency graph.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_digest(frame,n,out): validate with vf_frame, then derive a32-bit rolling digest starting from0 for that input only, digest=digest*33+byte across payload bytes. Preserve output on invalid input. Repeated A,B,A calls must give the same results for A. Keep corpus generation and sanitizer runtime outside the target dependency graph. Retain original source or derivation and counterexample.",
+            "3": "Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-07.c",
+          "objective": "T61.07.c",
+          "criterion": "Falsify and transfer: The mutant retains the prior hash globally, creating a history-dependent mismatch. A single fresh-process run passes and therefore misses the defect. Then Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant retains the prior hash globally, creating a history-dependent mismatch. A single fresh-process run passes and therefore misses the defect. Then Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions. Retain original source or derivation and counterexample.",
+            "3": "Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-07-transfer",
+          "minimum_days": 7,
+          "task": "Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-07.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-07B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant retains the prior hash globally, creating a history-dependent mismatch. A single fresh-process run passes and therefore misses the defect.",
+        "Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive the required isolation between fuzz invocations, including allocator cleanup and thread joining. Distinguish deterministic input-derived randomness from wall-clock seeding.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T61-08",
+      "title": "Proof claim audit and independent transfer",
+      "minutes": 240,
+      "objectives": [
+        "T61.08.a",
+        "T61.08.b",
+        "T61.08.c"
+      ],
+      "tests": [
+        "verification_fuzzing.claims"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Bind the claim to source, compiler/solver configuration, assumptions, model bound and checked properties. Explain why local self-reported flags cannot establish reviewer independence or tool honesty.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-08.a",
+          "objective": "T61.08.a",
+          "criterion": "Derive and defend: Bind the claim to source, compiler/solver configuration, assumptions, model bound and checked properties. Explain why local self-reported flags cannot establish reviewer independence or tool honesty.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Bind the claim to source, compiler/solver configuration, assumptions, model bound and checked properties. Explain why local self-reported flags cannot establish reviewer independence or tool honesty. Retain original source or derivation and counterexample.",
+            "3": "Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-08.b",
+          "objective": "T61.08.b",
+          "criterion": "Implement and investigate: Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes. Retain original source or derivation and counterexample.",
+            "3": "Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-08.c",
+          "objective": "T61.08.c",
+          "criterion": "Falsify and transfer: A receipt omits complete unwinding but labels a loop universally safe. Reproduce the missing iteration counterexample and narrow the claim before attempting a genuine inductive proof. Then Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A receipt omits complete unwinding but labels a loop universally safe. Reproduce the missing iteration counterexample and narrow the claim before attempting a genuine inductive proof. Then Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days. Retain original source or derivation and counterexample.",
+            "3": "Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-08-transfer",
+          "minimum_days": 7,
+          "task": "Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-08.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-08A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Bind the claim to source, compiler/solver configuration, assumptions, model bound and checked properties. Explain why local self-reported flags cannot establish reviewer independence or tool honesty."
+      ],
+      "checks": [
+        "A receipt omits complete unwinding but labels a loop universally safe. Reproduce the missing iteration counterexample and narrow the claim before attempting a genuine inductive proof.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T61-08",
+      "title": "Proof claim audit and independent transfer",
+      "minutes": 240,
+      "objectives": [
+        "T61.08.a",
+        "T61.08.b",
+        "T61.08.c"
+      ],
+      "tests": [
+        "verification_fuzzing.claims"
+      ],
+      "target_scope": "host",
+      "scope": "Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Bind the claim to source, compiler/solver configuration, assumptions, model bound and checked properties. Explain why local self-reported flags cannot establish reviewer independence or tool honesty.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T61-08.a",
+          "objective": "T61.08.a",
+          "criterion": "Derive and defend: Bind the claim to source, compiler/solver configuration, assumptions, model bound and checked properties. Explain why local self-reported flags cannot establish reviewer independence or tool honesty.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Bind the claim to source, compiler/solver configuration, assumptions, model bound and checked properties. Explain why local self-reported flags cannot establish reviewer independence or tool honesty. Retain original source or derivation and counterexample.",
+            "3": "Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-08.b",
+          "objective": "T61.08.b",
+          "criterion": "Implement and investigate: Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes. Retain original source or derivation and counterexample.",
+            "3": "Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T61-08.c",
+          "objective": "T61.08.c",
+          "criterion": "Falsify and transfer: A receipt omits complete unwinding but labels a loop universally safe. Reproduce the missing iteration counterexample and narrow the claim before attempting a genuine inductive proof. Then Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A receipt omits complete unwinding but labels a loop universally safe. Reproduce the missing iteration counterexample and narrow the claim before attempting a genuine inductive proof. Then Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days. Retain original source or derivation and counterexample.",
+            "3": "Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T61-08-transfer",
+          "minimum_days": 7,
+          "task": "Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days."
+        }
+      ],
+      "assessor_analysis": "assessor/verification_fuzzing/PR-T61-08.md",
+      "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof.",
+      "references": [
+        {
+          "resource_id": "R-B06-CBMC",
+          "locator": "Loop unwinding example: --unwind and --unwinding-assertions",
+          "purpose": "Apparent bounded success versus complete unwinding and counterexample trace inspected. Not an unbounded proof claim.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-FUZZ",
+          "locator": "Getting Started: Fuzz Target; Fuzzer Usage; Corpus",
+          "purpose": "Repeated in-process calls, empty/malformed inputs, deterministic reset, instrumentation and corpus behavior inspected. Clang URL failed; llvm.org mirror supplied the passages.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-ASAN",
+          "locator": "Introduction; Limitations; Security Considerations",
+          "purpose": "Instrumentation/runtime and detected error classes plus memory/stack/virtual-address overhead inspected. Detection is not demonstrated exploitability or production hardening.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-KUNIT",
+          "locator": "Selecting which tests to run; Running Tests without the KUnit Wrapper",
+          "purpose": "Configuration/test filtering and warning against production KUnit inspected; author did not boot a guest.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-VF-08B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A receipt omits complete unwinding but labels a loop universally safe. Reproduce the missing iteration counterexample and narrow the claim before attempting a genuine inductive proof.",
+        "Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Bind the claim to source, compiler/solver configuration, assumptions, model bound and checked properties. Explain why local self-reported flags cannot establish reviewer independence or tool honesty.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    }
+  ],
+  "tests": [
+    "verification_fuzzing.add",
+    "verification_fuzzing.search",
+    "verification_fuzzing.ring",
+    "verification_fuzzing.frame",
+    "verification_fuzzing.shrink",
+    "verification_fuzzing.schedule",
+    "verification_fuzzing.reset",
+    "verification_fuzzing.claims"
+  ],
+  "negative_controls": [
+    "verification_fuzzing.mutation.add",
+    "verification_fuzzing.mutation.search",
+    "verification_fuzzing.mutation.ring",
+    "verification_fuzzing.mutation.frame",
+    "verification_fuzzing.mutation.shrink",
+    "verification_fuzzing.mutation.schedule",
+    "verification_fuzzing.mutation.reset",
+    "verification_fuzzing.mutation.claims"
+  ],
+  "remaining_evidence": "Actual solver version/commands/results, reachable assumption witnesses, complete-unwinding evidence and bounded fuzz campaign logs remain distinct requirements; missing tools do not become successful proof."
+}

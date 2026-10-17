@@ -6,6 +6,7 @@ units are owned by their family manifests and fit inside the same envelopes.
 """
 from __future__ import annotations
 from collections import defaultdict, Counter
+from copy import deepcopy
 import math
 import re
 from common import ROOT, dump, load, read_json, write
@@ -193,6 +194,27 @@ def imports_for(meta, phase, rules=RULES_V4):
     return list(dict.fromkeys(result))
 
 
+def authored_unit_minutes(meta, additions):
+    """New-domain units are authored milestones, never generic filler slots."""
+    if not additions:
+        raise ValueError('New domain project has no authored units: ' + meta['id'])
+    required = {'id', 'title', 'minutes', 'steps', 'checks', 'objectives',
+                'new_executable', 'scaffolding', 'reasoning', 'deliverables',
+                'rubric', 'variants', 'assessor_analysis'}
+    for unit in additions:
+        missing = required - set(unit)
+        if missing or any(not unit[k] for k in required - {'new_executable'}):
+            raise ValueError('Incomplete authored unit ' + unit.get('id', '?') + ': ' + str(sorted(missing)))
+        if type(unit['minutes']) is not int or not 60 <= unit['minutes'] <= 240:
+            raise ValueError('Authored unit estimate must be 60–240 minutes: ' + unit['id'])
+        if type(unit['new_executable']) is not bool or (unit['new_executable'] and not unit.get('tests')):
+            raise ValueError('Executable authored unit needs concrete tests: ' + unit['id'])
+    minutes = [u['minutes'] for u in additions]
+    if sum(minutes) != meta['hours'] * 60:
+        raise ValueError('Authored unit estimates do not reconcile with project: ' + meta['id'])
+    return minutes
+
+
 def author(rules=RULES_V4, catalog=V4, baseline=None):
     baseline=baseline or capture_baseline()
     taxonomy, modules, projects, resources=load()
@@ -207,10 +229,15 @@ def author(rules=RULES_V4, catalog=V4, baseline=None):
     for key, project in sorted(projects.items()):
         meta=project['meta']; body=project['body']; phase=phase_for(meta,rules)
         additions=sorted(extra_by_project[key], key=lambda x:x['id'])
-        count=max(math.ceil(meta['hours']/3),len(additions)+1,len(meta['topics']))
-        # Each unit owns an exact integer number of minutes. No float drift in budgets.
-        minutes=[meta['hours']*60//count]*count
-        for i in range(meta['hours']*60%count): minutes[i]+=1
+        authored = meta['module'] in rules.get('authored_domains', [])
+        if authored:
+            minutes = authored_unit_minutes(meta, additions)
+            count = len(additions)
+        else:
+            count=max(math.ceil(meta['hours']/3),len(additions)+1,len(meta['topics']))
+            # Each unit owns an exact integer number of minutes. No float drift in budgets.
+            minutes=[meta['hours']*60//count]*count
+            for i in range(meta['hours']*60%count): minutes[i]+=1
         family=legacy[key].get('lab_family'); contract=section(body,'Contract')
         if key in {'PR-CAP-LINUX-03','PR-CAP-MCU-03'}:family='integration'
         local=[]; project_topics=meta['topics']
@@ -267,6 +294,11 @@ def author(rules=RULES_V4, catalog=V4, baseline=None):
             if extra:
                 unit['declared_imports']=[a['id'] if isinstance(a,dict) else a for a in extra.get('artifact_inputs',[])]
                 unit['declared_exports']=[a['id'] if isinstance(a,dict) else a for a in extra.get('artifact_outputs',[])]
+            if authored:
+                for field in ('new_executable', 'scaffolding', 'reasoning', 'deliverables', 'rubric',
+                              'variants', 'assessor_analysis', 'kind', 'scope', 'validation_status'):
+                    if field in extra:
+                        unit[field] = deepcopy(extra[field])
             unit['readings']=[dict(r,resource_id=r.get('resource_id',r.get('resource')),
                 purpose=r.get('purpose','Read for this unit: '+title)) for r in unit['readings']]
             local.append(unit);units.append(unit)
@@ -433,6 +465,14 @@ def author(rules=RULES_V4, catalog=V4, baseline=None):
     for p,record in projects.items():
         for t in record['meta']['topics']:topic_projects[t].append(p)
     for tid,topic in topics.items():
+        if tid.split('.')[0] in rules.get('authored_domains', []):
+            row = rules.get('authored_recall', {}).get(tid)
+            if not row or {v['kind'] for v in row.get('variants', [])} != {'mechanism', 'trace-or-small-implementation', 'changed-condition'}:
+                raise ValueError('New topic needs three substantive authored recall variants: ' + tid)
+            if set(row.get('objectives', [])) != {o['id'] for o in topic['objectives']}:
+                raise ValueError('Authored recall loses objective mapping: ' + tid)
+            sets.append(deepcopy(row))
+            continue
         owning=topic_projects[tid]; body=projects[owning[0]]['body']; objectives=[o['id'] for o in topic['objectives']]
         objective_text={o['id']:o['text'] for o in topic['objectives']}
         operation=topic_passage(body,'Steps',tid) or topic['objectives'][1]['text']
@@ -475,7 +515,7 @@ def author(rules=RULES_V4, catalog=V4, baseline=None):
     dump(catalog/'budget.json',budget)
     dump(catalog/'migration.json',{'schema_version':4,'baseline_commit':baseline['commit'],'projects':{p:rules.get('migration_note','retained identity and budget; v4 unit overlay') for p in projects},
         'objectives':{o:'retained' for o in baseline['objectives']},'receipt_policy':'Read old schema-2 receipts without assigning new acceptance; source changes preserve history and reopen only supported affected claims.'})
-    dump(catalog/'summary.json',{'domains':len(modules),'projects':len(projects),'objectives':len(baseline['objectives']),
+    dump(catalog/'summary.json',{'domains':len(modules),'projects':len(projects),'objectives':sum(len(t['objectives']) for d in taxonomy for t in d['subtopics']),
         'units':len(units),'new_executable_units':sum(u['new_executable'] for u in units),'recall_sets':len(sets),
         'recall_variants':sum(len(s['variants']) for s in sets),'artifacts':len(artifacts),'families':len(list((ROOT/'labs').glob('*/family.json'))),
         'status':'authored; acceptance requires independent validation and execution receipts'})

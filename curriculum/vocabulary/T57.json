@@ -1,0 +1,698 @@
+{
+  "domain": "T57",
+  "entries": [
+    {
+      "id": "V-T57-01-1",
+      "term": "module init unwind",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Reverse release of resources owned by a partially initialized module.",
+      "authority": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "module exit",
+          "distinction": "Exit handles a successfully initialized instance; unwind handles a failed prefix."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "module init unwind requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_unwind"
+      ],
+      "objectives": [
+        "T57.01.a",
+        "T57.01.b",
+        "T57.01.c"
+      ],
+      "misconception": "Repair forward-order cleanup and double release on a second failure label; a module that returns ENOMEM after leaking work is incorrect even if loading fails.",
+      "recall": {
+        "define": "Define module init unwind with its invariant.",
+        "distinguish": "Distinguish module init unwind from module exit.",
+        "counterexample": "Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication."
+      }
+    },
+    {
+      "id": "V-T57-01-2",
+      "term": "publication boundary (module)",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "The first point at which another context can find module-owned state.",
+      "authority": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "allocation",
+          "distinction": "Allocated storage may still be private."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "publication boundary (module) requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_unwind"
+      ],
+      "objectives": [
+        "T57.01.a",
+        "T57.01.b",
+        "T57.01.c"
+      ],
+      "misconception": "Repair forward-order cleanup and double release on a second failure label; a module that returns ENOMEM after leaking work is incorrect even if loading fails.",
+      "recall": {
+        "define": "Define publication boundary (module) with its invariant.",
+        "distinguish": "Distinguish publication boundary (module) from allocation.",
+        "counterexample": "Replace one acquisition by a managed device allocation and demonstrate which cleanup obligations migrate to the device lifecycle, including failure after publication."
+      }
+    },
+    {
+      "id": "V-T57-02-1",
+      "term": "user-copy residual",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Count of bytes a kernel user-copy operation did not transfer.",
+      "authority": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "completed count",
+          "distinction": "Completion and residual add to the requested extent."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "user-copy residual requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_copy"
+      ],
+      "objectives": [
+        "T57.02.a",
+        "T57.02.b",
+        "T57.02.c"
+      ],
+      "misconception": "A faulty wrapper returns the requested count after a partial copy and exposes stale bytes. Demonstrate the stale sentinel in the original local teaching endpoint without touching other processes.",
+      "recall": {
+        "define": "Define user-copy residual with its invariant.",
+        "distinguish": "Distinguish user-copy residual from completed count.",
+        "counterexample": "Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible."
+      }
+    },
+    {
+      "id": "V-T57-02-2",
+      "term": "staged kernel publication",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Private validation before a new record becomes reachable.",
+      "authority": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "partial copy",
+          "distinction": "Copied bytes alone need not be published."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "staged kernel publication requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_copy"
+      ],
+      "objectives": [
+        "T57.02.a",
+        "T57.02.b",
+        "T57.02.c"
+      ],
+      "misconception": "A faulty wrapper returns the requested count after a partial copy and exposes stale bytes. Demonstrate the stale sentinel in the original local teaching endpoint without touching other processes.",
+      "recall": {
+        "define": "Define staged kernel publication with its invariant.",
+        "distinguish": "Distinguish staged kernel publication from partial copy.",
+        "counterexample": "Change the ABI to all-or-nothing record publication using private staging; inject a fault after a valid header and show no record becomes visible."
+      }
+    },
+    {
+      "id": "V-T57-03-1",
+      "term": "reference handoff (kernel)",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Transfer or acquisition of a counted lifetime claim before asynchronous publication.",
+      "authority": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "pointer copy",
+          "distinction": "Copying an address does not create a valid reference."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "reference handoff (kernel) requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_ref"
+      ],
+      "objectives": [
+        "T57.03.a",
+        "T57.03.b",
+        "T57.03.c"
+      ],
+      "misconception": "Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the race without creating valid ownership.",
+      "recall": {
+        "define": "Define reference handoff (kernel) with its invariant.",
+        "distinguish": "Distinguish reference handoff (kernel) from pointer copy.",
+        "counterexample": "Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations."
+      }
+    },
+    {
+      "id": "V-T57-03-2",
+      "term": "reference resurrection",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Attempt to reacquire ownership after terminal lifetime release.",
+      "authority": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "protected lookup",
+          "distinction": "A live protected lookup may legitimately acquire a still-existing object."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "reference resurrection requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_ref"
+      ],
+      "objectives": [
+        "T57.03.a",
+        "T57.03.b",
+        "T57.03.c"
+      ],
+      "misconception": "Reject resurrection after the terminal release and a get-after-handoff schedule. Delaying free alone masks the race without creating valid ownership.",
+      "recall": {
+        "define": "Define reference resurrection with its invariant.",
+        "distinguish": "Distinguish reference resurrection from protected lookup.",
+        "counterexample": "Add a lookup table and compare mutex-protected get-unless-zero with RCU-protected storage lifetime; show why refcount and grace period solve different obligations."
+      }
+    },
+    {
+      "id": "V-T57-04-1",
+      "term": "raw spin context",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Execution region governed by a strict spinning kernel lock.",
+      "authority": [
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "ordinary RT spin lock",
+          "distinction": "An RT-mapped ordinary lock can have different scheduling semantics."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "raw spin context requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_lock_allowed"
+      ],
+      "objectives": [
+        "T57.04.a",
+        "T57.04.b",
+        "T57.04.c"
+      ],
+      "misconception": "Repair an RT hardirq path that uses ordinary spinlock_t and a second-core race hidden by local interrupt disabling. The host truth table assesses policy only.",
+      "recall": {
+        "define": "Define raw spin context with its invariant.",
+        "distinguish": "Distinguish raw spin context from ordinary RT spin lock.",
+        "counterexample": "Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces."
+      }
+    },
+    {
+      "id": "V-T57-04-2",
+      "term": "CPU-local exclusion",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Prevention of selected concurrent execution on one processor.",
+      "authority": [
+        {
+          "resource_id": "R-B06-LOCKS",
+          "locator": "Lock categories; CPU local locks; raw_spinlock_t and spinlock_t; PREEMPT_RT"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "cross-CPU serialization",
+          "distinction": "Other processors require an interprocessor synchronization mechanism."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "CPU-local exclusion requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_lock_allowed"
+      ],
+      "objectives": [
+        "T57.04.a",
+        "T57.04.b",
+        "T57.04.c"
+      ],
+      "misconception": "Repair an RT hardirq path that uses ordinary spinlock_t and a second-core race hidden by local interrupt disabling. The host truth table assesses policy only.",
+      "recall": {
+        "define": "Define CPU-local exclusion with its invariant.",
+        "distinguish": "Distinguish CPU-local exclusion from cross-CPU serialization.",
+        "counterexample": "Move a callback from task context to threaded IRQ and then hardirq; revise allocation and lock choices and retain the failed and corrected guest traces."
+      }
+    },
+    {
+      "id": "V-T57-05-1",
+      "term": "work quiescence",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "State in which no pending or running worker can access the owned object.",
+      "authority": [
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "cancellation request",
+          "distinction": "A request alone does not establish callback termination."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "work quiescence requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_work"
+      ],
+      "objectives": [
+        "T57.05.a",
+        "T57.05.b",
+        "T57.05.c"
+      ],
+      "misconception": "A faulty release ignores running work after close; the sentinel release flag demonstrates premature destruction. A deadlock also occurs if teardown waits while holding the worker lock.",
+      "recall": {
+        "define": "Define work quiescence with its invariant.",
+        "distinguish": "Distinguish work quiescence from cancellation request.",
+        "counterexample": "Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point."
+      }
+    },
+    {
+      "id": "V-T57-05-2",
+      "term": "admission closure",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Transition that prevents new work from extending a closing lifecycle.",
+      "authority": [
+        {
+          "resource_id": "R-B06-WORK",
+          "locator": "Introduction; The Design; API flags; max_active; Guidelines"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "drain",
+          "distinction": "Drain waits for already admitted work."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "admission closure requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_work"
+      ],
+      "objectives": [
+        "T57.05.a",
+        "T57.05.b",
+        "T57.05.c"
+      ],
+      "misconception": "A faulty release ignores running work after close; the sentinel release flag demonstrates premature destruction. A deadlock also occurs if teardown waits while holding the worker lock.",
+      "recall": {
+        "define": "Define admission closure with its invariant.",
+        "distinguish": "Distinguish admission closure from drain.",
+        "counterexample": "Allow a worker to requeue itself; introduce a closure generation and prove no requeue survives the close linearization point."
+      }
+    },
+    {
+      "id": "V-T57-06-1",
+      "term": "retirement (RCU model)",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Removal of a published object while retaining storage for prior readers.",
+      "authority": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "reclamation",
+          "distinction": "Reclamation ends storage lifetime after the grace condition."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "retirement (RCU model) requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_grace"
+      ],
+      "objectives": [
+        "T57.06.a",
+        "T57.06.b",
+        "T57.06.c"
+      ],
+      "misconception": "Repair immediate reclamation on unlink; delayed arbitrary sleeps are not grace-period proofs. Host bitmask traces cannot validate actual RCU memory ordering.",
+      "recall": {
+        "define": "Define retirement (RCU model) with its invariant.",
+        "distinguish": "Distinguish retirement (RCU model) from reclamation.",
+        "counterexample": "Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation."
+      }
+    },
+    {
+      "id": "V-T57-06-2",
+      "term": "reader grace obligation",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Requirement that all relevant pre-removal read sections finish before reclaiming storage.",
+      "authority": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "timer delay",
+          "distinction": "A time delay does not identify completed readers."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "reader grace obligation requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_grace"
+      ],
+      "objectives": [
+        "T57.06.a",
+        "T57.06.b",
+        "T57.06.c"
+      ],
+      "misconception": "Repair immediate reclamation on unlink; delayed arbitrary sleeps are not grace-period proofs. Host bitmask traces cannot validate actual RCU memory ordering.",
+      "recall": {
+        "define": "Define reader grace obligation with its invariant.",
+        "distinguish": "Distinguish reader grace obligation from timer delay.",
+        "counterexample": "Permit readers of a replacement object after retirement; tag reader epochs and show waiting for all new readers can cause unnecessary starvation."
+      }
+    },
+    {
+      "id": "V-T57-07-1",
+      "term": "kernel wire ABI",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Explicit byte-level contract for a userspace/kernel control record.",
+      "authority": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "native struct layout",
+          "distinction": "Padding and alignment belong to the C implementation/ABI, not the chosen wire format."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "kernel wire ABI requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_decode"
+      ],
+      "objectives": [
+        "T57.07.a",
+        "T57.07.b",
+        "T57.07.c"
+      ],
+      "misconception": "Repair acceptance of a mismatched embedded length and a cast of unaligned user bytes to a native struct. A correctly decoded version does not authorize an operation.",
+      "recall": {
+        "define": "Define kernel wire ABI with its invariant.",
+        "distinguish": "Distinguish kernel wire ABI from native struct layout.",
+        "counterexample": "Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails."
+      }
+    },
+    {
+      "id": "V-T57-07-2",
+      "term": "compatibility admission",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Decision to accept a message version before interpreting its fields.",
+      "authority": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "authorization",
+          "distinction": "Accepted syntax does not grant permission."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "compatibility admission requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_decode"
+      ],
+      "objectives": [
+        "T57.07.a",
+        "T57.07.b",
+        "T57.07.c"
+      ],
+      "misconception": "Repair acceptance of a mismatched embedded length and a cast of unaligned user bytes to a native struct. A correctly decoded version does not authorize an operation.",
+      "recall": {
+        "define": "Define compatibility admission with its invariant.",
+        "distinguish": "Distinguish compatibility admission from authorization.",
+        "counterexample": "Add a version2 optional field while preserving version1 bytes; compare strict rejection, ignorable extensions and per-operation authorization with adversarial tails."
+      }
+    },
+    {
+      "id": "V-T57-08-1",
+      "term": "module text lifetime",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Interval in which stored callbacks may legally execute module code.",
+      "authority": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "object lifetime",
+          "distinction": "An object and its implementing code need separate lifetime arguments."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "module text lifetime requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_can_unload"
+      ],
+      "objectives": [
+        "T57.08.a",
+        "T57.08.b",
+        "T57.08.c"
+      ],
+      "misconception": "A module unloads after the last open handle while a callback still retains its function pointer. Demonstrate rejection in the model; any guest fault stays inside the disposable VM.",
+      "recall": {
+        "define": "Define module text lifetime with its invariant.",
+        "distinguish": "Distinguish module text lifetime from object lifetime.",
+        "counterexample": "Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders."
+      }
+    },
+    {
+      "id": "V-T57-08-2",
+      "term": "detached device owner",
+      "owner": "T57",
+      "kind": "course",
+      "definition": "Open reference whose device has been removed but whose cleanup still must run.",
+      "authority": [
+        {
+          "resource_id": "R-B06-KREF",
+          "locator": "Initialization; Kref rules; Krefs and RCU"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "registered device",
+          "distinction": "Removal stops discovery without necessarily destroying open owners."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "detached device owner requires an explicit contract."
+      ],
+      "symbols": [
+        "kl_can_unload"
+      ],
+      "objectives": [
+        "T57.08.a",
+        "T57.08.b",
+        "T57.08.c"
+      ],
+      "misconception": "A module unloads after the last open handle while a callback still retains its function pointer. Demonstrate rejection in the model; any guest fault stays inside the disposable VM.",
+      "recall": {
+        "define": "Define detached device owner with its invariant.",
+        "distinguish": "Distinguish detached device owner from registered device.",
+        "counterexample": "Add hot-unplug while two open handles remain: choose revoked operations versus retained detached objects, and justify error propagation and final cleanup under both close orders."
+      }
+    }
+  ],
+  "recall": {
+    "define": "For Linux kernel programming and lifetime boundaries, define module init unwind, publication boundary (module), user-copy residual, staged kernel publication, reference handoff (kernel), reference resurrection, raw spin context, CPU-local exclusion, work quiescence, admission closure, retirement (RCU model), reader grace obligation, kernel wire ABI, compatibility admission, module text lifetime, detached device owner, giving each invariant.",
+    "distinguish": "For Linux kernel programming and lifetime boundaries, distinguish these near concepts: module init unwind versus module exit; publication boundary (module) versus allocation; user-copy residual versus completed count; staged kernel publication versus partial copy; reference handoff (kernel) versus pointer copy; reference resurrection versus protected lookup; raw spin context versus ordinary RT spin lock; CPU-local exclusion versus cross-CPU serialization; work quiescence versus cancellation request; admission closure versus drain; retirement (RCU model) versus reclamation; reader grace obligation versus timer delay; kernel wire ABI versus native struct layout; compatibility admission versus authorization; module text lifetime versus object lifetime; detached device owner versus registered device.",
+    "apply": "Reuse kernel.module_owner in the completion-owner domain; compare object lifetime, module text lifetime and device lifetime, which are three distinct resources."
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "id": "PR-T67-10",
+  "description": "Zero-copy packet view with precise error sum",
+  "input": {
+    "case": "packet"
+  },
+  "expected": {
+    "contract": "01 00 02 07 08 yieldskind1,length2,payload=input+3.02 00 00 isvalidack.01 00 01 07 08 islengtherror;02 00 01 07 isackerror;03 00 00 iskinderror."
+  },
+  "cases": [
+    {
+      "kind": "packet",
+      "example": "01 00 02 07 08 yieldskind1,length2,payload=input+3.02 00 00 isvalidack.01 00 01 07 08 islengtherror;02 00 01 07 isackerror;03 00 00 iskinderror.",
+      "input": {
+        "hex": [
+          "0100020708",
+          "020000",
+          "0100010708",
+          "02000107",
+          "030000"
+        ]
+      },
+      "expected": [
+        0,
+        0,
+        3,
+        4,
+        2
+      ],
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

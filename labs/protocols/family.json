@@ -1,0 +1,1843 @@
+{
+  "version": 1,
+  "family": "protocols",
+  "title": "Typestate, protocols and state machines",
+  "build_system": "cmake",
+  "assessor_root": "assessor/protocols",
+  "projects": [
+    {
+      "id": "PR-T71-01",
+      "tests": [
+        "protocols.typestate"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T71-02",
+      "tests": [
+        "protocols.builder"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T71-03",
+      "tests": [
+        "protocols.session"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T71-04",
+      "tests": [
+        "protocols.hsm"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T71-05",
+      "tests": [
+        "protocols.active"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T71-06",
+      "tests": [
+        "protocols.thread"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T71-07",
+      "tests": [
+        "protocols.behavior"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T71-08",
+      "tests": [
+        "protocols.driver"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    }
+  ],
+  "units": [
+    {
+      "id": "LAB-TS-01",
+      "project": "PR-T71-01",
+      "title": "Construct: Consuming typestate and explicit recovery after partial device writes",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T71.01.a",
+        "T71.01.b"
+      ],
+      "tests": [
+        "protocols.typestate"
+      ],
+      "steps": [
+        "Derive a lifecycle transition table including partially configured RecoveryRequired, token generation retirement and storage lifetime; distinguish C wrapper diagnostics from Rust moves.",
+        "Implement pt_device_init/configure/close/recover with consumed matching tokens, unchanged success-output on failure, and externally certified quiescence before cleanup. Fail after each of the two control writes."
+      ],
+      "checks": [
+        "Failure after control3 consumes the old token, leaves ready output unchanged and returns RecoveryRequired. quiet0 retains control3; quiet1 clears it. Reusing the pre-failure token after recovery rejects.",
+        "Enumerate failure stage0/1/2, quiet0/1, copied stale tokens and UINT32_MAX retirement; compile the wrong-wrapper fixture and demonstrate that a copied correct wrapper still compiles. Reject false-CLOSED and ignored-generation mutants."
+      ],
+      "reasoning": [
+        "Derive a lifecycle transition table including partially configured RecoveryRequired, token generation retirement and storage lifetime; distinguish C wrapper diagnostics from Rust moves."
+      ],
+      "deliverables": [
+        "Implement pt_device_init/configure/close/recover with consumed matching tokens, unchanged success-output on failure, and externally certified quiescence before cleanup. Fail after each of the two control writes.",
+        "Enumerate failure stage0/1/2, quiet0/1, copied stale tokens and UINT32_MAX retirement; compile the wrong-wrapper fixture and demonstrate that a copied correct wrapper still compiles. Reject false-CLOSED and ignored-generation mutants.",
+        "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-001-R1",
+          "objective": "T71.01.a",
+          "criterion": "Derive a lifecycle transition table including partially configured RecoveryRequired, token generation retirement and storage lifetime; distinguish C wrapper diagnostics from Rust moves.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T71-001-R2",
+          "objective": "T71.01.b",
+          "criterion": "Implement pt_device_init/configure/close/recover with consumed matching tokens, unchanged success-output on failure, and externally certified quiescence before cleanup. Fail after each of the two control writes.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-001.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "typestate bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-RUST",
+          "locator": "Memory and Allocation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-02",
+      "project": "PR-T71-01",
+      "title": "Falsify: Consuming typestate and explicit recovery after partial device writes",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.01.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate failure stage0/1/2, quiet0/1, copied stale tokens and UINT32_MAX retirement; compile the wrong-wrapper fixture and demonstrate that a copied correct wrapper still compiles. Reject false-CLOSED and ignored-generation mutants."
+      ],
+      "checks": [
+        "Failure after control3 consumes the old token, leaves ready output unchanged and returns RecoveryRequired. quiet0 retains control3; quiet1 clears it. Reusing the pre-failure token after recovery rejects.",
+        "Enumerate failure stage0/1/2, quiet0/1, copied stale tokens and UINT32_MAX retirement; compile the wrong-wrapper fixture and demonstrate that a copied correct wrapper still compiles. Reject false-CLOSED and ignored-generation mutants."
+      ],
+      "reasoning": [
+        "Enumerate failure stage0/1/2, quiet0/1, copied stale tokens and UINT32_MAX retirement; compile the wrong-wrapper fixture and demonstrate that a copied correct wrapper still compiles. Reject false-CLOSED and ignored-generation mutants."
+      ],
+      "deliverables": [
+        "Enumerate failure stage0/1/2, quiet0/1, copied stale tokens and UINT32_MAX retirement; compile the wrong-wrapper fixture and demonstrate that a copied correct wrapper still compiles. Reject false-CLOSED and ignored-generation mutants."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-001-R3",
+          "objective": "T71.01.c",
+          "criterion": "Enumerate failure stage0/1/2, quiet0/1, copied stale tokens and UINT32_MAX retirement; compile the wrong-wrapper fixture and demonstrate that a copied correct wrapper still compiles. Reject false-CLOSED and ignored-generation mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-001.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "typestate bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-RUST",
+          "locator": "Memory and Allocation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-03",
+      "project": "PR-T71-01",
+      "title": "Integrate and transfer: Consuming typestate and explicit recovery after partial device writes",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.01.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely."
+      ],
+      "checks": [
+        "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely."
+      ],
+      "reasoning": [
+        "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely."
+      ],
+      "deliverables": [
+        "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-001-R4",
+          "objective": "T71.01.d",
+          "criterion": "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Replace one synchronous control write with deferred DMA completion. Design an owning Recovery token that retains a buffer until quiescence, including reset while a stale alias survives; explain why generation checks cannot inspect a dangling pointer safely."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-001.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "typestate bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-RUST",
+          "locator": "Memory and Allocation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-04",
+      "project": "PR-T71-02",
+      "title": "Construct: Staged builders, presence masks and cross-field admission",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T71.02.a",
+        "T71.02.b"
+      ],
+      "tests": [
+        "protocols.builder"
+      ],
+      "steps": [
+        "Separate required-field presence from value validity and cross-field constraints; identify what staged C wrapper types can diagnose and what a public struct can bypass.",
+        "Implement one-shot setters and atomic finish for address, length and timeout using the exact bounds in CONTRACTS.md, and construct a second staged-wrapper interface with the same admitted configurations."
+      ],
+      "checks": [
+        "address252,length8,timeout10 is fully present but rejects the extent. address4,length8,timeout10 succeeds. Repeating address does not silently overwrite it.",
+        "Enumerate all eight presence masks, every setter permutation, duplicate setters, alignment violations and the address+length boundary. Preserve output canaries on incomplete/invalid finish; reject omitted-mask and omitted-cross-field-check mutants."
+      ],
+      "reasoning": [
+        "Separate required-field presence from value validity and cross-field constraints; identify what staged C wrapper types can diagnose and what a public struct can bypass."
+      ],
+      "deliverables": [
+        "Implement one-shot setters and atomic finish for address, length and timeout using the exact bounds in CONTRACTS.md, and construct a second staged-wrapper interface with the same admitted configurations.",
+        "Enumerate all eight presence masks, every setter permutation, duplicate setters, alignment violations and the address+length boundary. Preserve output canaries on incomplete/invalid finish; reject omitted-mask and omitted-cross-field-check mutants.",
+        "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-002-R1",
+          "objective": "T71.02.a",
+          "criterion": "Separate required-field presence from value validity and cross-field constraints; identify what staged C wrapper types can diagnose and what a public struct can bypass.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T71-002-R2",
+          "objective": "T71.02.b",
+          "criterion": "Implement one-shot setters and atomic finish for address, length and timeout using the exact bounds in CONTRACTS.md, and construct a second staged-wrapper interface with the same admitted configurations.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-002.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "builder bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-RUST",
+          "locator": "Memory and Allocation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-05",
+      "project": "PR-T71-02",
+      "title": "Falsify: Staged builders, presence masks and cross-field admission",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.02.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate all eight presence masks, every setter permutation, duplicate setters, alignment violations and the address+length boundary. Preserve output canaries on incomplete/invalid finish; reject omitted-mask and omitted-cross-field-check mutants."
+      ],
+      "checks": [
+        "address252,length8,timeout10 is fully present but rejects the extent. address4,length8,timeout10 succeeds. Repeating address does not silently overwrite it.",
+        "Enumerate all eight presence masks, every setter permutation, duplicate setters, alignment violations and the address+length boundary. Preserve output canaries on incomplete/invalid finish; reject omitted-mask and omitted-cross-field-check mutants."
+      ],
+      "reasoning": [
+        "Enumerate all eight presence masks, every setter permutation, duplicate setters, alignment violations and the address+length boundary. Preserve output canaries on incomplete/invalid finish; reject omitted-mask and omitted-cross-field-check mutants."
+      ],
+      "deliverables": [
+        "Enumerate all eight presence masks, every setter permutation, duplicate setters, alignment violations and the address+length boundary. Preserve output canaries on incomplete/invalid finish; reject omitted-mask and omitted-cross-field-check mutants."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-002-R3",
+          "objective": "T71.02.c",
+          "criterion": "Enumerate all eight presence masks, every setter permutation, duplicate setters, alignment violations and the address+length boundary. Preserve output canaries on incomplete/invalid finish; reject omitted-mask and omitted-cross-field-check mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-002.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "builder bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-RUST",
+          "locator": "Memory and Allocation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-06",
+      "project": "PR-T71-02",
+      "title": "Integrate and transfer: Staged builders, presence masks and cross-field admission",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.02.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field."
+      ],
+      "checks": [
+        "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field."
+      ],
+      "reasoning": [
+        "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field."
+      ],
+      "deliverables": [
+        "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-002-R4",
+          "objective": "T71.02.d",
+          "criterion": "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add a mutually exclusive DMA or polling mode where DMA requires alignment and polling forbids a callback. Derive the new state space and compare type proliferation with a checked sum representation; the delayed variant permits safe replacement of one previously set field."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-002.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "builder bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-RUST",
+          "locator": "Memory and Allocation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-07",
+      "project": "PR-T71-03",
+      "title": "Construct: Dual binary session automata with bounded dialogue",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T71.03.a",
+        "T71.03.b"
+      ],
+      "tests": [
+        "protocols.session"
+      ],
+      "steps": [
+        "Derive dual send/receive traces for HELLO, ACCEPT, a bounded DATA/ACK loop and BYE; distinguish runtime protocol conformance from transport liveness and language-enforced session types.",
+        "Implement pt_session_step for both roles, phase and remaining count, rejecting wrong direction/tag and terminal reuse without progress. Build an in-process two-endpoint trace driver using only synthetic messages."
+      ],
+      "checks": [
+        "At remaining0, HELLO and ACCEPT lead directly to BYE. A client receiving HELLO is rejected; an ACK reduces remaining exactly once.",
+        "Enumerate both roles, remaining0..8 and every phase/tag/direction, compare against a separately written transition table and assert rejected-state preservation. Reject direction-erasure and ACK-does-not-decrement mutants."
+      ],
+      "reasoning": [
+        "Derive dual send/receive traces for HELLO, ACCEPT, a bounded DATA/ACK loop and BYE; distinguish runtime protocol conformance from transport liveness and language-enforced session types."
+      ],
+      "deliverables": [
+        "Implement pt_session_step for both roles, phase and remaining count, rejecting wrong direction/tag and terminal reuse without progress. Build an in-process two-endpoint trace driver using only synthetic messages.",
+        "Enumerate both roles, remaining0..8 and every phase/tag/direction, compare against a separately written transition table and assert rejected-state preservation. Reject direction-erasure and ACK-does-not-decrement mutants.",
+        "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-003-R1",
+          "objective": "T71.03.a",
+          "criterion": "Derive dual send/receive traces for HELLO, ACCEPT, a bounded DATA/ACK loop and BYE; distinguish runtime protocol conformance from transport liveness and language-enforced session types.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T71-003-R2",
+          "objective": "T71.03.b",
+          "criterion": "Implement pt_session_step for both roles, phase and remaining count, rejecting wrong direction/tag and terminal reuse without progress. Build an in-process two-endpoint trace driver using only synthetic messages.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-003.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "session bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-SESH",
+          "locator": "Sesh introduction and dual AddServer/AddClient example",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-08",
+      "project": "PR-T71-03",
+      "title": "Falsify: Dual binary session automata with bounded dialogue",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.03.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate both roles, remaining0..8 and every phase/tag/direction, compare against a separately written transition table and assert rejected-state preservation. Reject direction-erasure and ACK-does-not-decrement mutants."
+      ],
+      "checks": [
+        "At remaining0, HELLO and ACCEPT lead directly to BYE. A client receiving HELLO is rejected; an ACK reduces remaining exactly once.",
+        "Enumerate both roles, remaining0..8 and every phase/tag/direction, compare against a separately written transition table and assert rejected-state preservation. Reject direction-erasure and ACK-does-not-decrement mutants."
+      ],
+      "reasoning": [
+        "Enumerate both roles, remaining0..8 and every phase/tag/direction, compare against a separately written transition table and assert rejected-state preservation. Reject direction-erasure and ACK-does-not-decrement mutants."
+      ],
+      "deliverables": [
+        "Enumerate both roles, remaining0..8 and every phase/tag/direction, compare against a separately written transition table and assert rejected-state preservation. Reject direction-erasure and ACK-does-not-decrement mutants."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-003-R3",
+          "objective": "T71.03.c",
+          "criterion": "Enumerate both roles, remaining0..8 and every phase/tag/direction, compare against a separately written transition table and assert rejected-state preservation. Reject direction-erasure and ACK-does-not-decrement mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-003.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "session bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-SESH",
+          "locator": "Sesh introduction and dual AddServer/AddClient example",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-09",
+      "project": "PR-T71-03",
+      "title": "Integrate and transfer: Dual binary session automata with bounded dialogue",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.03.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh."
+      ],
+      "checks": [
+        "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh."
+      ],
+      "reasoning": [
+        "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh."
+      ],
+      "deliverables": [
+        "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-003-R4",
+          "objective": "T71.03.d",
+          "criterion": "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce a choice between retryable rejection and cancellation, plus a peer crash between DATA and ACK. Specify which endpoint detects failure and whether a consumed message can be replayed; compare with the explicitly scoped guarantees of Sesh."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-003.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "session bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-SESH",
+          "locator": "Sesh introduction and dual AddServer/AddClient example",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-10",
+      "project": "PR-T71-04",
+      "title": "Construct: Hierarchical run-to-completion transitions and observable entry order",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T71.04.a",
+        "T71.04.b"
+      ],
+      "tests": [
+        "protocols.hsm"
+      ],
+      "steps": [
+        "Derive least-common-ancestor exit/entry paths, inherited FAIL handling, external self transitions and internal PING; distinguish this bounded HSM subset from full UML semantics.",
+        "Implement pt_dispatch with inner-first exits, outer-first entries, a nonreentry guard, and transactional trace-capacity failure. Produce a table-driven independent transition oracle."
+      ],
+      "checks": [
+        "OFFLINE CONNECT emits exit OFFLINE, entry ONLINE, entry IDLE. BUSY START emits exit BUSY then entry BUSY. BUSY FAIL exits BUSY and ONLINE before entering FAULT.",
+        "Check every active leaf/event pair, insufficient trace capacity, repeated BUSY START and PING exhaustion. Reject reversed-entry and omitted-exit mutants; compare exact action sequences rather than final states alone."
+      ],
+      "reasoning": [
+        "Derive least-common-ancestor exit/entry paths, inherited FAIL handling, external self transitions and internal PING; distinguish this bounded HSM subset from full UML semantics."
+      ],
+      "deliverables": [
+        "Implement pt_dispatch with inner-first exits, outer-first entries, a nonreentry guard, and transactional trace-capacity failure. Produce a table-driven independent transition oracle.",
+        "Check every active leaf/event pair, insufficient trace capacity, repeated BUSY START and PING exhaustion. Reject reversed-entry and omitted-exit mutants; compare exact action sequences rather than final states alone.",
+        "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-004-R1",
+          "objective": "T71.04.a",
+          "criterion": "Derive least-common-ancestor exit/entry paths, inherited FAIL handling, external self transitions and internal PING; distinguish this bounded HSM subset from full UML semantics.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T71-004-R2",
+          "objective": "T71.04.b",
+          "criterion": "Implement pt_dispatch with inner-first exits, outer-first entries, a nonreentry guard, and transactional trace-capacity failure. Produce a table-driven independent transition oracle.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-004.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "hsm bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-QP",
+          "locator": "Run-to-completion event lifetime",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-11",
+      "project": "PR-T71-04",
+      "title": "Falsify: Hierarchical run-to-completion transitions and observable entry order",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.04.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Check every active leaf/event pair, insufficient trace capacity, repeated BUSY START and PING exhaustion. Reject reversed-entry and omitted-exit mutants; compare exact action sequences rather than final states alone."
+      ],
+      "checks": [
+        "OFFLINE CONNECT emits exit OFFLINE, entry ONLINE, entry IDLE. BUSY START emits exit BUSY then entry BUSY. BUSY FAIL exits BUSY and ONLINE before entering FAULT.",
+        "Check every active leaf/event pair, insufficient trace capacity, repeated BUSY START and PING exhaustion. Reject reversed-entry and omitted-exit mutants; compare exact action sequences rather than final states alone."
+      ],
+      "reasoning": [
+        "Check every active leaf/event pair, insufficient trace capacity, repeated BUSY START and PING exhaustion. Reject reversed-entry and omitted-exit mutants; compare exact action sequences rather than final states alone."
+      ],
+      "deliverables": [
+        "Check every active leaf/event pair, insufficient trace capacity, repeated BUSY START and PING exhaustion. Reject reversed-entry and omitted-exit mutants; compare exact action sequences rather than final states alone."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-004-R3",
+          "objective": "T71.04.c",
+          "criterion": "Check every active leaf/event pair, insufficient trace capacity, repeated BUSY START and PING exhaustion. Reject reversed-entry and omitted-exit mutants; compare exact action sequences rather than final states alone.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-004.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "hsm bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-QP",
+          "locator": "Run-to-completion event lifetime",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-12",
+      "project": "PR-T71-04",
+      "title": "Integrate and transfer: Hierarchical run-to-completion transitions and observable entry order",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.04.d",
+        "T71.04.a",
+        "T71.04.b"
+      ],
+      "tests": [],
+      "steps": [
+        "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state.",
+        "Before exporting fsm.hsm, re-derive and demonstrate on the actual composed artifact: Derive least-common-ancestor exit/entry paths, inherited FAIL handling, external self transitions and internal PING; distinguish this bounded HSM subset from full UML semantics.",
+        "Before exporting fsm.hsm, re-derive and demonstrate on the actual composed artifact: Implement pt_dispatch with inner-first exits, outer-first entries, a nonreentry guard, and transactional trace-capacity failure. Produce a table-driven independent transition oracle."
+      ],
+      "checks": [
+        "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state.",
+        "Export review fails if the composed artifact violates any critical representation, lifetime or operation invariant, even when the isolated anchor still passes."
+      ],
+      "reasoning": [
+        "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state."
+      ],
+      "deliverables": [
+        "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-004-R4",
+          "objective": "T71.04.d",
+          "criterion": "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T71-004-R1",
+          "objective": "T71.04.a",
+          "criterion": "Derive least-common-ancestor exit/entry paths, inherited FAIL handling, external self transitions and internal PING; distinguish this bounded HSM subset from full UML semantics.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T71-004-R2",
+          "objective": "T71.04.b",
+          "criterion": "Implement pt_dispatch with inner-first exits, outer-first entries, a nonreentry guard, and transactional trace-capacity failure. Produce a table-driven independent transition oracle.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add an entry action that posts another event and a guard on the parent transition. Queue the posted event until the current run-to-completion step ends and define guard fallback; the delayed variant introduces a local transition that intentionally preserves a composite state."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-004.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "hsm bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-QP",
+          "locator": "Run-to-completion event lifetime",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-13",
+      "project": "PR-T71-05",
+      "title": "Construct: Bounded active-object queue and failure-preserving dispatch",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T71.05.a",
+        "T71.05.b"
+      ],
+      "tests": [
+        "protocols.active"
+      ],
+      "steps": [
+        "Explain serialized event ownership, run-to-completion scheduling and the difference between event admission and successful handling in an MCU active object.",
+        "Compose the HSM with a four-slot copied-event ring; reject overflow unchanged and retain an event whose dispatch fails. Integrate learner-owned execution.tasks and sync.copied_queue through an explicit adapter."
+      ],
+      "checks": [
+        "The fifth post to a full ring rejects. If CONNECT cannot fit its trace, head/count remain0/4 and OFFLINE stays active. Four successful steps reach FAULT.",
+        "Test full/empty/wraparound, trace-capacity failure before removal and bursts CONNECT/START/FINISH/FAIL. Reject overwrite-on-full and consume-before-dispatch-success mutants. Model adversarial event floods using synthetic counters."
+      ],
+      "reasoning": [
+        "Explain serialized event ownership, run-to-completion scheduling and the difference between event admission and successful handling in an MCU active object."
+      ],
+      "deliverables": [
+        "Compose the HSM with a four-slot copied-event ring; reject overflow unchanged and retain an event whose dispatch fails. Integrate learner-owned execution.tasks and sync.copied_queue through an explicit adapter.",
+        "Test full/empty/wraparound, trace-capacity failure before removal and bursts CONNECT/START/FINISH/FAIL. Reject overwrite-on-full and consume-before-dispatch-success mutants. Model adversarial event floods using synthetic counters.",
+        "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-005-R1",
+          "objective": "T71.05.a",
+          "criterion": "Explain serialized event ownership, run-to-completion scheduling and the difference between event admission and successful handling in an MCU active object.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T71-005-R2",
+          "objective": "T71.05.b",
+          "criterion": "Compose the HSM with a four-slot copied-event ring; reject overflow unchanged and retain an event whose dispatch fails. Integrate learner-owned execution.tasks and sync.copied_queue through an explicit adapter.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-005.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "active bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-QP",
+          "locator": "Run-to-completion event lifetime",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-14",
+      "project": "PR-T71-05",
+      "title": "Falsify: Bounded active-object queue and failure-preserving dispatch",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.05.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Test full/empty/wraparound, trace-capacity failure before removal and bursts CONNECT/START/FINISH/FAIL. Reject overwrite-on-full and consume-before-dispatch-success mutants. Model adversarial event floods using synthetic counters."
+      ],
+      "checks": [
+        "The fifth post to a full ring rejects. If CONNECT cannot fit its trace, head/count remain0/4 and OFFLINE stays active. Four successful steps reach FAULT.",
+        "Test full/empty/wraparound, trace-capacity failure before removal and bursts CONNECT/START/FINISH/FAIL. Reject overwrite-on-full and consume-before-dispatch-success mutants. Model adversarial event floods using synthetic counters."
+      ],
+      "reasoning": [
+        "Test full/empty/wraparound, trace-capacity failure before removal and bursts CONNECT/START/FINISH/FAIL. Reject overwrite-on-full and consume-before-dispatch-success mutants. Model adversarial event floods using synthetic counters."
+      ],
+      "deliverables": [
+        "Test full/empty/wraparound, trace-capacity failure before removal and bursts CONNECT/START/FINISH/FAIL. Reject overwrite-on-full and consume-before-dispatch-success mutants. Model adversarial event floods using synthetic counters."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-005-R3",
+          "objective": "T71.05.c",
+          "criterion": "Test full/empty/wraparound, trace-capacity failure before removal and bursts CONNECT/START/FINISH/FAIL. Reject overwrite-on-full and consume-before-dispatch-success mutants. Model adversarial event floods using synthetic counters.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-005.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "active bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-QP",
+          "locator": "Run-to-completion event lifetime",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-15",
+      "project": "PR-T71-05",
+      "title": "Integrate and transfer: Bounded active-object queue and failure-preserving dispatch",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.05.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue."
+      ],
+      "checks": [
+        "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue."
+      ],
+      "reasoning": [
+        "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue."
+      ],
+      "deliverables": [
+        "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-005-R4",
+          "objective": "T71.05.d",
+          "criterion": "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Change one producer to an interrupt source and two consumers to competing tasks. Identify the single-consumer assumption that fails, implement a bounded enqueue synchronization adapter, and choose a documented policy for an unhandled event that blocks the queue."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-005.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "active bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-QP",
+          "locator": "Run-to-completion event lifetime",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-16",
+      "project": "PR-T71-06",
+      "title": "Construct: Stackless resumable functions with persistent explicit state",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T71.06.a",
+        "T71.06.b"
+      ],
+      "tests": [
+        "protocols.thread"
+      ],
+      "steps": [
+        "Explain switch-based continuation labels, automatic-local lifetimes, duplicate-label constraints and why suspension across an ordinary function return does not retain a C stack.",
+        "Implement the three-value checked summation frame and a PT_BEGIN/WAIT/END version; store every value live across suspension in the frame and reserve label0 and UINT32_MAX."
+      ],
+      "checks": [
+        "Available10, unavailable, available20, available30 produces60 only on the third value. UINT32_MAX followed by1 rejects without incrementing count.",
+        "Exercise unavailable input between every accepted value, overflow with unchanged state, stable DONE and distinct interleaved frames. Compile duplicate-label and wrong-scope proposals as diagnostic/analysis cases; reject reset-sum and unchecked-overflow mutants."
+      ],
+      "reasoning": [
+        "Explain switch-based continuation labels, automatic-local lifetimes, duplicate-label constraints and why suspension across an ordinary function return does not retain a C stack."
+      ],
+      "deliverables": [
+        "Implement the three-value checked summation frame and a PT_BEGIN/WAIT/END version; store every value live across suspension in the frame and reserve label0 and UINT32_MAX.",
+        "Exercise unavailable input between every accepted value, overflow with unchanged state, stable DONE and distinct interleaved frames. Compile duplicate-label and wrong-scope proposals as diagnostic/analysis cases; reject reset-sum and unchecked-overflow mutants.",
+        "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-006-R1",
+          "objective": "T71.06.a",
+          "criterion": "Explain switch-based continuation labels, automatic-local lifetimes, duplicate-label constraints and why suspension across an ordinary function return does not retain a C stack.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T71-006-R2",
+          "objective": "T71.06.b",
+          "criterion": "Implement the three-value checked summation frame and a PT_BEGIN/WAIT/END version; store every value live across suspension in the frame and reserve label0 and UINT32_MAX.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-006.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "thread bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-PT",
+          "locator": "Stackless operation and automatic-local limitations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-17",
+      "project": "PR-T71-06",
+      "title": "Falsify: Stackless resumable functions with persistent explicit state",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.06.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Exercise unavailable input between every accepted value, overflow with unchanged state, stable DONE and distinct interleaved frames. Compile duplicate-label and wrong-scope proposals as diagnostic/analysis cases; reject reset-sum and unchecked-overflow mutants."
+      ],
+      "checks": [
+        "Available10, unavailable, available20, available30 produces60 only on the third value. UINT32_MAX followed by1 rejects without incrementing count.",
+        "Exercise unavailable input between every accepted value, overflow with unchanged state, stable DONE and distinct interleaved frames. Compile duplicate-label and wrong-scope proposals as diagnostic/analysis cases; reject reset-sum and unchecked-overflow mutants."
+      ],
+      "reasoning": [
+        "Exercise unavailable input between every accepted value, overflow with unchanged state, stable DONE and distinct interleaved frames. Compile duplicate-label and wrong-scope proposals as diagnostic/analysis cases; reject reset-sum and unchecked-overflow mutants."
+      ],
+      "deliverables": [
+        "Exercise unavailable input between every accepted value, overflow with unchanged state, stable DONE and distinct interleaved frames. Compile duplicate-label and wrong-scope proposals as diagnostic/analysis cases; reject reset-sum and unchecked-overflow mutants."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-006-R3",
+          "objective": "T71.06.c",
+          "criterion": "Exercise unavailable input between every accepted value, overflow with unchanged state, stable DONE and distinct interleaved frames. Compile duplicate-label and wrong-scope proposals as diagnostic/analysis cases; reject reset-sum and unchecked-overflow mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-006.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "thread bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-PT",
+          "locator": "Stackless operation and automatic-local limitations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-18",
+      "project": "PR-T71-06",
+      "title": "Integrate and transfer: Stackless resumable functions with persistent explicit state",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.06.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value."
+      ],
+      "checks": [
+        "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value."
+      ],
+      "reasoning": [
+        "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value."
+      ],
+      "deliverables": [
+        "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-006-R4",
+          "objective": "T71.06.d",
+          "criterion": "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Turn the sum into a cancellable framed decoder that owns a partially initialized buffer, then compose two waiting child functions. Compare the explicit subframe requirement with actual stackful fibers; delayed assessment adds a timeout that races the third value."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-006.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "thread bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-PT",
+          "locator": "Stackless operation and automatic-local limitations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-19",
+      "project": "PR-T71-07",
+      "title": "Construct: Memory behavior trees, running-child ownership and abort",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T71.07.a",
+        "T71.07.b"
+      ],
+      "tests": [
+        "protocols.behavior"
+      ],
+      "steps": [
+        "Derive the different control rules of sequence and selector nodes, and distinguish a memory tree from a reactive tree that rechecks earlier guards.",
+        "Implement bounded validated node traversal, per-composite cursors, running-leaf ownership bits and exactly-once abort on cancellation, with a callback-reentry guard."
+      ],
+      "checks": [
+        "A sequence with successful leaf1 and running leaf2 calls leaf1 once across two ticks, leaf2 twice, and aborts leaf2 exactly once on cancel.",
+        "Use a leaf trace where the first child succeeds and the second remains RUNNING over repeated ticks; verify the first effect is not repeated. Check invalid topology, nested sequence/selector, reentry and cancellation twice. Reject cursor-reset and omitted-abort mutants."
+      ],
+      "reasoning": [
+        "Derive the different control rules of sequence and selector nodes, and distinguish a memory tree from a reactive tree that rechecks earlier guards."
+      ],
+      "deliverables": [
+        "Implement bounded validated node traversal, per-composite cursors, running-leaf ownership bits and exactly-once abort on cancellation, with a callback-reentry guard.",
+        "Use a leaf trace where the first child succeeds and the second remains RUNNING over repeated ticks; verify the first effect is not repeated. Check invalid topology, nested sequence/selector, reentry and cancellation twice. Reject cursor-reset and omitted-abort mutants.",
+        "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-007-R1",
+          "objective": "T71.07.a",
+          "criterion": "Derive the different control rules of sequence and selector nodes, and distinguish a memory tree from a reactive tree that rechecks earlier guards.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T71-007-R2",
+          "objective": "T71.07.b",
+          "criterion": "Implement bounded validated node traversal, per-composite cursors, running-leaf ownership bits and exactly-once abort on cancellation, with a callback-reentry guard.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-007.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "behavior bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-20",
+      "project": "PR-T71-07",
+      "title": "Falsify: Memory behavior trees, running-child ownership and abort",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.07.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Use a leaf trace where the first child succeeds and the second remains RUNNING over repeated ticks; verify the first effect is not repeated. Check invalid topology, nested sequence/selector, reentry and cancellation twice. Reject cursor-reset and omitted-abort mutants."
+      ],
+      "checks": [
+        "A sequence with successful leaf1 and running leaf2 calls leaf1 once across two ticks, leaf2 twice, and aborts leaf2 exactly once on cancel.",
+        "Use a leaf trace where the first child succeeds and the second remains RUNNING over repeated ticks; verify the first effect is not repeated. Check invalid topology, nested sequence/selector, reentry and cancellation twice. Reject cursor-reset and omitted-abort mutants."
+      ],
+      "reasoning": [
+        "Use a leaf trace where the first child succeeds and the second remains RUNNING over repeated ticks; verify the first effect is not repeated. Check invalid topology, nested sequence/selector, reentry and cancellation twice. Reject cursor-reset and omitted-abort mutants."
+      ],
+      "deliverables": [
+        "Use a leaf trace where the first child succeeds and the second remains RUNNING over repeated ticks; verify the first effect is not repeated. Check invalid topology, nested sequence/selector, reentry and cancellation twice. Reject cursor-reset and omitted-abort mutants."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-007-R3",
+          "objective": "T71.07.c",
+          "criterion": "Use a leaf trace where the first child succeeds and the second remains RUNNING over repeated ticks; verify the first effect is not repeated. Check invalid topology, nested sequence/selector, reentry and cancellation twice. Reject cursor-reset and omitted-abort mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-007.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "behavior bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-21",
+      "project": "PR-T71-07",
+      "title": "Integrate and transfer: Memory behavior trees, running-child ownership and abort",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.07.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation."
+      ],
+      "checks": [
+        "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation."
+      ],
+      "reasoning": [
+        "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation."
+      ],
+      "deliverables": [
+        "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-007-R4",
+          "objective": "T71.07.d",
+          "criterion": "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce a reactive safety guard that can invalidate a running action. Specify which subtree is aborted before reevaluation, which completed effects cannot be undone, and whether callback failure provides strong or basic recovery; delayed assessment adds shared subtrees and forces a new ownership representation."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-007.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "behavior bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-22",
+      "project": "PR-T71-08",
+      "title": "Construct: Typestate firmware driver with uncertain DMA ownership",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T71.08.a",
+        "T71.08.b"
+      ],
+      "tests": [
+        "protocols.driver"
+      ],
+      "steps": [
+        "Separate start failure, cancellation intent, hardware quiescence and buffer reuse; identify the trusted adapter facts needed to release an asynchronous loan.",
+        "Implement pt_driver_start/complete/recover over the supplied original register/DMA model, retaining buffers on partial start failure. Connect all specified firmware_io and task/queue imports in a source-bound adapter integration."
+      ],
+      "checks": [
+        "A failed start leaves RecoveryRequired and keeps the exact borrowed pointer. quiet0 completion returns PENDING and cannot feed the watchdog. Successful quiescence permits one release and one normal completion watchdog event.",
+        "Inject start failure after the model retains a buffer, repeated failed quiescence, successful recovery, completion with quiet0 and duplicate completion. Count watchdog and release events; reject premature-release and quiet-check omission mutants."
+      ],
+      "reasoning": [
+        "Separate start failure, cancellation intent, hardware quiescence and buffer reuse; identify the trusted adapter facts needed to release an asynchronous loan."
+      ],
+      "deliverables": [
+        "Implement pt_driver_start/complete/recover over the supplied original register/DMA model, retaining buffers on partial start failure. Connect all specified firmware_io and task/queue imports in a source-bound adapter integration.",
+        "Inject start failure after the model retains a buffer, repeated failed quiescence, successful recovery, completion with quiet0 and duplicate completion. Count watchdog and release events; reject premature-release and quiet-check omission mutants.",
+        "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-008-R1",
+          "objective": "T71.08.a",
+          "criterion": "Separate start failure, cancellation intent, hardware quiescence and buffer reuse; identify the trusted adapter facts needed to release an asynchronous loan.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T71-008-R2",
+          "objective": "T71.08.b",
+          "criterion": "Implement pt_driver_start/complete/recover over the supplied original register/DMA model, retaining buffers on partial start failure. Connect all specified firmware_io and task/queue imports in a source-bound adapter integration.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-008.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "driver bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-RUST",
+          "locator": "Memory and Allocation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-23",
+      "project": "PR-T71-08",
+      "title": "Falsify: Typestate firmware driver with uncertain DMA ownership",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.08.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Inject start failure after the model retains a buffer, repeated failed quiescence, successful recovery, completion with quiet0 and duplicate completion. Count watchdog and release events; reject premature-release and quiet-check omission mutants."
+      ],
+      "checks": [
+        "A failed start leaves RecoveryRequired and keeps the exact borrowed pointer. quiet0 completion returns PENDING and cannot feed the watchdog. Successful quiescence permits one release and one normal completion watchdog event.",
+        "Inject start failure after the model retains a buffer, repeated failed quiescence, successful recovery, completion with quiet0 and duplicate completion. Count watchdog and release events; reject premature-release and quiet-check omission mutants."
+      ],
+      "reasoning": [
+        "Inject start failure after the model retains a buffer, repeated failed quiescence, successful recovery, completion with quiet0 and duplicate completion. Count watchdog and release events; reject premature-release and quiet-check omission mutants."
+      ],
+      "deliverables": [
+        "Inject start failure after the model retains a buffer, repeated failed quiescence, successful recovery, completion with quiet0 and duplicate completion. Count watchdog and release events; reject premature-release and quiet-check omission mutants."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-008-R3",
+          "objective": "T71.08.c",
+          "criterion": "Inject start failure after the model retains a buffer, repeated failed quiescence, successful recovery, completion with quiet0 and duplicate completion. Count watchdog and release events; reject premature-release and quiet-check omission mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-008.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "driver bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-RUST",
+          "locator": "Memory and Allocation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-TS-24",
+      "project": "PR-T71-08",
+      "title": "Integrate and transfer: Typestate firmware driver with uncertain DMA ownership",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T71.08.d",
+        "T71.08.a",
+        "T71.08.b"
+      ],
+      "tests": [],
+      "steps": [
+        "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory.",
+        "Before exporting driver.typestate, re-derive and demonstrate on the actual composed artifact: Separate start failure, cancellation intent, hardware quiescence and buffer reuse; identify the trusted adapter facts needed to release an asynchronous loan.",
+        "Before exporting driver.typestate, re-derive and demonstrate on the actual composed artifact: Implement pt_driver_start/complete/recover over the supplied original register/DMA model, retaining buffers on partial start failure. Connect all specified firmware_io and task/queue imports in a source-bound adapter integration."
+      ],
+      "checks": [
+        "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory.",
+        "Export review fails if the composed artifact violates any critical representation, lifetime or operation invariant, even when the isolated anchor still passes."
+      ],
+      "reasoning": [
+        "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory."
+      ],
+      "deliverables": [
+        "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T71-008-R4",
+          "objective": "T71.08.d",
+          "criterion": "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T71-008-R1",
+          "objective": "T71.08.a",
+          "criterion": "Separate start failure, cancellation intent, hardware quiescence and buffer reuse; identify the trusted adapter facts needed to release an asynchronous loan.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T71-008-R2",
+          "objective": "T71.08.b",
+          "criterion": "Implement pt_driver_start/complete/recover over the supplied original register/DMA model, retaining buffers on partial start failure. Connect all specified firmware_io and task/queue imports in a source-bound adapter integration.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Compose UART transmission, timer deadline and DMA completion across a reset. Preserve the loan until the new hardware epoch is proven quiescent, and redesign generation issuance when wrap or stale interrupts are possible; delayed assessment changes DMA to noncoherent cached memory."
+      ],
+      "assessor_analysis": "assessor/protocols/analyses/X-T71-008.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "driver bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-TS-RUST",
+          "locator": "Memory and Allocation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-TS-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "X-T71-001",
+      "project": "PR-T71-01",
+      "tests": [
+        "protocols.typestate"
+      ]
+    },
+    {
+      "id": "X-T71-002",
+      "project": "PR-T71-02",
+      "tests": [
+        "protocols.builder"
+      ]
+    },
+    {
+      "id": "X-T71-003",
+      "project": "PR-T71-03",
+      "tests": [
+        "protocols.session"
+      ]
+    },
+    {
+      "id": "X-T71-004",
+      "project": "PR-T71-04",
+      "tests": [
+        "protocols.hsm"
+      ]
+    },
+    {
+      "id": "X-T71-005",
+      "project": "PR-T71-05",
+      "tests": [
+        "protocols.active"
+      ]
+    },
+    {
+      "id": "X-T71-006",
+      "project": "PR-T71-06",
+      "tests": [
+        "protocols.thread"
+      ]
+    },
+    {
+      "id": "X-T71-007",
+      "project": "PR-T71-07",
+      "tests": [
+        "protocols.behavior"
+      ]
+    },
+    {
+      "id": "X-T71-008",
+      "project": "PR-T71-08",
+      "tests": [
+        "protocols.driver"
+      ]
+    }
+  ],
+  "tests": [
+    "protocols.typestate",
+    "protocols.builder",
+    "protocols.session",
+    "protocols.hsm",
+    "protocols.active",
+    "protocols.thread",
+    "protocols.behavior",
+    "protocols.driver"
+  ],
+  "modules": [
+    "T71"
+  ],
+  "contract": "labs/protocols/CONTRACTS.md",
+  "campaign": {
+    "producer": "tools/run_protocols.py",
+    "receipt": "protocols_campaign.json",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "TS_CHECK:",
+    "fixture_oracle": "tools/verify_protocols_fixtures.py"
+  },
+  "dependencies": [],
+  "scope": "Portable C17 mechanisms and explicitly separate host ABI backend; authored alternatives and real integrations require their own evidence."
+}

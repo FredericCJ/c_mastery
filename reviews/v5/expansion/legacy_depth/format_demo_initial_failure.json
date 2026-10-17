@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "observed_at_utc": "2026-10-16T19:37:32.023015+00:00",
+  "scope": "Six original-target runs across GCC/Clang optimized and GCC ASan/UBSan profiles; no learner assessment or other vulnerability claim.",
+  "source_sha256": {
+    "fixtures/legacy_depth/format_authority.c": "3ce0c006b55cf264c4e83541f54f186109dd6e38dbbd52add29df2aa48f38d34",
+    "fixtures/legacy_depth/format_authority.json": "0cabbabf181bc13ed0df80f3436b84fd55d26f4c8e5577590f8a794f6d5d8d29",
+    "assessor/legacy_depth/security_format.c": "e31f9f3a167fd7b1bf92a462c05bad327461d6e6a8480b694a821e876426f827",
+    "assessor/legacy_depth/security_format_test.c": "bb54df18206981df7e3a1c1c4696e79b816e495acb63e5575e8e2ec3d2cd6eca",
+    "assessor/legacy_depth/verify_format_demo.py": "3f5050dc82186a5a46140c36fc4febe3d78d8e1eaeef037e1d9a070ae971a3aa"
+  },
+  "commands": [
+    {
+      "argv": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "-DEXPECT_FLAW=1",
+        "/mnt/f/Learning/Curricula/c_mastery/fixtures/legacy_depth/format_authority.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_format_demo/gcc-o2-flawed"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c: In function \u2018main\u2019:\n/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c:13:19: error: initializer-string for array of \u2018char\u2019 truncates NUL terminator but destination lacks \u2018nonstring\u2019 attribute (9 chars into 8 available) [-Werror=unterminated-string-initialization]\n   13 |     char out[8] = \"sentinel\";\n      |                   ^~~~~~~~~~\ncc1: all warnings being treated as errors\n"
+    },
+    {
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "-DEXPECT_FLAW=0",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_format_demo/gcc-o2-repaired"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c: In function \u2018main\u2019:\n/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c:13:19: error: initializer-string for array of \u2018char\u2019 truncates NUL terminator but destination lacks \u2018nonstring\u2019 attribute (9 chars into 8 available) [-Werror=unterminated-string-initialization]\n   13 |     char out[8] = \"sentinel\";\n      |                   ^~~~~~~~~~\ncc1: all warnings being treated as errors\n"
+    },
+    {
+      "argv": [
+        "clang",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "Ubuntu clang version 21.1.8 (6ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/lib/llvm-21/bin\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "-DEXPECT_FLAW=1",
+        "/mnt/f/Learning/Curricula/c_mastery/fixtures/legacy_depth/format_authority.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_format_demo/clang-o2-flawed"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c:13:19: error: initializer-string for character array is too long, array size is 8 but initializer has size 9 (including the null terminating character); did you mean to use the 'nonstring' attribute? [-Werror,-Wunterminated-string-initialization]\n   13 |     char out[8] = \"sentinel\";\n      |                   ^~~~~~~~~~\n1 error generated.\n"
+    },
+    {
+      "argv": [
+        "clang",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "-DEXPECT_FLAW=0",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_format_demo/clang-o2-repaired"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c:13:19: error: initializer-string for character array is too long, array size is 8 but initializer has size 9 (including the null terminating character); did you mean to use the 'nonstring' attribute? [-Werror,-Wunterminated-string-initialization]\n   13 |     char out[8] = \"sentinel\";\n      |                   ^~~~~~~~~~\n1 error generated.\n"
+    },
+    {
+      "argv": [
+        "gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-DEXPECT_FLAW=1",
+        "/mnt/f/Learning/Curricula/c_mastery/fixtures/legacy_depth/format_authority.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_format_demo/gcc-asan-ubsan-flawed"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c: In function \u2018main\u2019:\n/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c:13:19: error: initializer-string for array of \u2018char\u2019 truncates NUL terminator but destination lacks \u2018nonstring\u2019 attribute (9 chars into 8 available) [-Werror=unterminated-string-initialization]\n   13 |     char out[8] = \"sentinel\";\n      |                   ^~~~~~~~~~\ncc1: all warnings being treated as errors\n"
+    },
+    {
+      "argv": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-DEXPECT_FLAW=0",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c",
+        "-o",
+        "/mnt/f/Learning/Curricula/c_mastery/build/legacy_format_demo/gcc-asan-ubsan-repaired"
+      ],
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c: In function \u2018main\u2019:\n/mnt/f/Learning/Curricula/c_mastery/assessor/legacy_depth/security_format_test.c:13:19: error: initializer-string for array of \u2018char\u2019 truncates NUL terminator but destination lacks \u2018nonstring\u2019 attribute (9 chars into 8 available) [-Werror=unterminated-string-initialization]\n   13 |     char out[8] = \"sentinel\";\n      |                   ^~~~~~~~~~\ncc1: all warnings being treated as errors\n"
+    }
+  ],
+  "limitations": [
+    "The pointer argument is deliberately valid and typed; this is a formatting-authority integrity violation, not arbitrary-address write.",
+    "No hardening setting was changed. Other libraries, targets and writable-format policies were not tested.",
+    "Output truncation checks apply to the repaired literal renderer; arbitrary input formats were not executed."
+  ]
+}

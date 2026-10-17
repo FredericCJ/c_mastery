@@ -1,0 +1,61 @@
+{
+  "id": "PR-T66-01",
+  "description": "Owning handles and the partial-initialization frontier",
+  "input": {
+    "case": "frontier"
+  },
+  "expected": {
+    "contract": "Lengths[1,2,3] with failure on take2 produce NOMEM, one release, zero live blocks and unchanged empty output. Failure on take1 releases nothing. Three successful takes publish count3; two destroy calls together perform exactly three releases. A zero middle count causes no allocator invocation."
+  },
+  "cases": [
+    {
+      "id": "frontier-1",
+      "kind": "frontier",
+      "input": {
+        "fail_at": 1
+      },
+      "expected": {
+        "status": "NOMEM",
+        "releases": 0,
+        "live_after_cleanup": 0
+      }
+    },
+    {
+      "id": "frontier-2",
+      "kind": "frontier",
+      "input": {
+        "fail_at": 2
+      },
+      "expected": {
+        "status": "NOMEM",
+        "releases": 1,
+        "live_after_cleanup": 0
+      }
+    },
+    {
+      "id": "frontier-3",
+      "kind": "frontier",
+      "input": {
+        "fail_at": 3
+      },
+      "expected": {
+        "status": "NOMEM",
+        "releases": 2,
+        "live_after_cleanup": 0
+      }
+    },
+    {
+      "id": "frontier-4",
+      "kind": "frontier",
+      "input": {
+        "fail_at": 4
+      },
+      "expected": {
+        "status": "OK",
+        "releases": 3,
+        "live_after_cleanup": 0
+      }
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

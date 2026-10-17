@@ -9,14 +9,45 @@ builders then run unchanged. This script never edits curriculum/edition.json.
 """
 import json
 from common import ROOT, dump, read_json, write, parse
-from integrate_v2 import registry, graph
+from integrate_v2 import registry, graph as generate_graph
 
 GENERATED_IDENTITY_FIELDS = {'work_id', 'edition_id', 'inspection_ids'}
 
 
+def merge_resource_record(prior, incoming, accepted=False):
+    """Refresh unaccepted canonical inspection scope without replacing a work."""
+    old = {k: v for k, v in prior.items() if k not in GENERATED_IDENTITY_FIELDS}
+    new = {k: v for k, v in incoming.items() if k not in GENERATED_IDENTITY_FIELDS}
+    if old == new:
+        return prior
+    if accepted:
+        raise ValueError('Accepted resource record changed: ' + incoming['id'])
+    identity_fields = ('title', 'authors', 'edition', 'year', 'url')
+    if old and any(k in old and old[k] != new.get(k) for k in identity_fields):
+        raise ValueError('Conflicting fifth-edition resource identity: ' + incoming['id'])
+    return incoming
+
+
+def graph():
+    from v5_common import baseline, digest
+    accepted = baseline()
+    current = read_json(ROOT / 'curriculum/project_graph.json')
+    rows = {row['id']: row for row in current['projects']}
+    for key, expected in accepted['project_graph'].items():
+        if key not in rows or digest(rows[key]) != expected:
+            raise ValueError('Accepted project graph input changed: ' + key)
+    generate_graph(preserved={key: rows[key] for key in accepted['project_graph']},
+                   preserved_order=accepted['project_order'])
+
+
 def merge_resources():
+    from v5_common import baseline
+    accepted = baseline()['resources']
     additions = []
-    for addition_path in sorted((ROOT / 'research/v5').glob('*resources.json')):
+    paths = list((ROOT / 'research/v5').glob('*resources.json'))
+    paths += list((ROOT / 'research/v5/expansion').rglob('*resources.json'))
+    paths += list((ROOT / 'research/v5/modern').glob('*resources.json'))
+    for addition_path in sorted(paths):
         addition = read_json(addition_path)
         additions += addition if isinstance(addition, list) else addition['resources']
     if not additions:
@@ -34,11 +65,7 @@ def merge_resources():
             if key not in resources:
                 raise ValueError('Unknown reused resource: ' + key)
             continue
-        prior = {k: v for k, v in resources.get(key, {}).items() if k not in GENERATED_IDENTITY_FIELDS}
-        incoming = {k: v for k, v in item.items() if k not in GENERATED_IDENTITY_FIELDS}
-        if prior and prior != incoming:
-            raise ValueError('Conflicting fifth-edition resource identity: ' + key)
-        resources[key] = item
+        resources[key] = merge_resource_record(resources.get(key, {}), item, key in accepted)
     value['resources'] = list(resources.values())
     dump(path, value)
     return len(seen)
@@ -46,10 +73,15 @@ def merge_resources():
 
 def merge_taxonomy():
     domains = []
-    for path in sorted((ROOT / 'research/v5').glob('*_taxonomy.json')):
+    paths = list((ROOT / 'research/v5').glob('*_taxonomy.json'))
+    paths += list((ROOT / 'research/v5/modern').glob('*_taxonomy.json'))
+    for path in sorted(paths):
         value = read_json(path)
         domains += value.get('domains', [value] if 'id' in value else [])
     if domains:
+        ids = [d['id'] for d in domains]
+        if len(ids) != len(set(ids)):
+            raise ValueError('Repeated fifth-edition taxonomy domain identity')
         dump(ROOT / 'curriculum/v5_taxonomy.json', {'edition': 5, 'domains': sorted(domains, key=lambda d: d['id'])})
     return len(domains)
 
@@ -76,6 +108,11 @@ def merge_readings():
 
 
 def main():
+    from v5_common import require_domain_research
+    require_domain_research()
+    if (ROOT / 'research/v5/expansion').is_dir():
+        from expansion_evidence import require_research
+        require_research()
     resources = merge_resources()
     domains = merge_taxonomy()
     readings = merge_readings()

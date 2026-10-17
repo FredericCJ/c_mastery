@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "scope": "Independent finite expectations, not physical observations",
+  "cases": {
+    "region": {
+      "requests": [
+        [
+          3,
+          1
+        ],
+        [
+          5,
+          4
+        ]
+      ],
+      "expected": {
+        "offsets": [
+          0,
+          4
+        ],
+        "cursor": 9,
+        "payload": 8,
+        "high": 9,
+        "cleanup_order": [
+          4,
+          3,
+          2,
+          1
+        ],
+        "old_span_after_reset": "STALE"
+      }
+    },
+    "once": {
+      "permanent": [
+        "INIT",
+        "BUSY",
+        "RECURSIVE",
+        "finish_failure",
+        "FAILED"
+      ],
+      "retry": [
+        "INIT",
+        "finish_failure",
+        "INIT",
+        "finish_success",
+        "OK"
+      ],
+      "expected_values": [
+        17,
+        34
+      ]
+    },
+    "hazard": {
+      "history": [
+        "publish11",
+        "observe_old",
+        "retire",
+        "collect",
+        "publish22",
+        "protect_old"
+      ],
+      "expected": {
+        "collect": 1,
+        "protect_old": "RETRY",
+        "output_unchanged": true,
+        "held_reader1_collect": 0
+      }
+    },
+    "epoch": {
+      "history": [
+        "enter0",
+        "retire0",
+        "advance",
+        "advance",
+        "leave0",
+        "advance",
+        "collect"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "BUSY",
+        "OK",
+        "OK",
+        1
+      ],
+      "distance1_collect": 0
+    }
+  }
+}

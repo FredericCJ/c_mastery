@@ -1,0 +1,7 @@
+# Legacy modern mechanism audit
+
+Actual census M13, C24 and M23 passages were read, then T16.03/.05, T51.11 and T55.05/.07 module/project contracts and execution/tests/contracts.c once/hazard/epoch anchors. T16 already distinguishes byte storage from object legality, but region cleanup/cohort and source-language comparisons needed explicit leaf assessment. T55 already has hazard and epoch tests; the new exercises add staged revalidation/retention and cross-language guard limits without replacing historical freestanding gates.
+
+A material inconsistency remains: T51.11.b and PR-T51-11 say permanent failure; execution/family.json explicitly documents retry and contracts.c once() asserts retry after failure. The additive once exercise implements both named policies and uses permanent failure for the mapped milestone; historical files and acceptance evidence remain unchanged. Closing the old acceptance inconsistency requires explicit adjudication and new evidence, not relabelling old tests.
+
+All resources.json passages were actually inspected. The first Otago hazard-paper page returned metadata but later passage fetches timed out; it was not counted inspected. The Toronto copy subsequently supplied the actual Michael sections3.1,3.3,4 and the ABA caveat. Crossbeam Guard detail fetch failed; only the accessible overview is registered. No inaccessible source is counted as inspected. Exact published C17 is still a reference gap. Source comparisons do not import ready-made implementations.

@@ -1,0 +1,34 @@
+{
+  "id": "PR-T76-05",
+  "description": "Observed-remove sets and replayable delta state",
+  "input": {
+    "case": "sets"
+  },
+  "expected": {
+    "contract": "Replica0 adds value2; replica1 observes it. Replica0 removes while replica1 concurrently adds its own tag. Join retains value2. Removing after observing both tags and replaying either old add delta does not resurrect it. The ninth add by one replica fails without resetting its identity counter."
+  },
+  "cases": [
+    {
+      "kind": "sets",
+      "example": "Replica0 adds value2; replica1 observes it. Replica0 removes while replica1 concurrently adds its own tag. Join retains value2. Removing after observing both tags and replaying either old add delta does not resurrect it. The ninth add by one replica fails without resetting its identity counter.",
+      "input": {
+        "observed": [
+          1
+        ],
+        "concurrent": [
+          256
+        ],
+        "removed": [
+          1
+        ]
+      },
+      "expected": {
+        "live": [
+          256
+        ]
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

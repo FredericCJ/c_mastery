@@ -1,0 +1,218 @@
+{
+  "domains": [
+    {
+      "id": "T76",
+      "title": "Replicated state, event history and deterministic replay",
+      "depth": "Mechanism construction, falsification, composition and independent transfer",
+      "subtopics": [
+        {
+          "id": "T76.01",
+          "title": "Positioned event logs and persistent snapshot roots",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T76.01.a",
+              "text": "Distinguish immutable event history, a current projection, a retained snapshot root and durable storage. Derive why replay requires event-version and external-query assumptions, not merely a list of bytes."
+            },
+            {
+              "id": "T76.01.b",
+              "text": "Retain the actual PR-T70-07 learner artifact and its64node/3nodes-per-update contract. Prove16 appends use48nodes, every published root remains immutable and an interrupted failed append cannot advance count. Initialization requires no surviving borrowed roots; do not copy/relocate a live arena and interpret roots in another owner. Account for unpublished cells and allocation counters separately from reachable state. State a release/publication order for a future concurrent adapter."
+            },
+            {
+              "id": "T76.01.c",
+              "text": "Run replicated.log and the three allocation-cut assertions, compare every prefix against an independent key/value dictionary and rebuild into a fresh arena. Reject count-before-commit and latest-root-for-all-snapshots mutants. Inspect source/link dependencies to establish that the real imported HAMT is used. Separately implement the required codec.records/storage.pages adapter with short writes and crash schedules; the memory anchor does not validate that adapter."
+            },
+            {
+              "id": "T76.01.d",
+              "text": "Replace the in-memory append with versioned checksummed records on the prior storage.pages artifact; enumerate every tear/flush prefix and recover the longest committed prefix. Persist snapshots with their event position and schema identity. Demonstrate why replaying an external effect twice or using a changed external query result changes semantics; retain original responses as events where required."
+            }
+          ]
+        },
+        {
+          "id": "T76.02",
+          "title": "CQRS projection admission and atomic position advancement",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T76.02.a",
+              "text": "Separate query-model choice from delivery semantics. Establish exactly-once application only within one serialized projection and one retained immutable log identity; reject the stronger claim of exactly-once external effects."
+            },
+            {
+              "id": "T76.02.b",
+              "text": "Prove the invariant count=k implies exactly the first k events contributed once and applied[i].position=i+1. A 16-term int32 sum fits int64 on the declared target. Retain history for conflict checks rather than trusting a reused position from a new log. The caller must associate a projection with one log identity. Explain why a mutex around cursor alone is insufficient, and why an external email/file effect cannot become atomic with this state by naming it CQRS."
+            },
+            {
+              "id": "T76.02.c",
+              "text": "Run replicated.projection, including actual pthread schedules under GCC TSan when available. Kill duplicate-reapplication and gap-acceptance mutants with semantic assertions. Record mutex boundaries and model the crash point between query-state and cursor persistence. A TSan pass observes these executions only; it does not certify arbitrary effects or all schedules."
+            },
+            {
+              "id": "T76.02.d",
+              "text": "Add a durable inbox/outbox with log UUID and idempotency keys using storage.pages and ipc.local. Enumerate crash/retry points on both sides of a local synthetic receiver. Produce one duplicate-side-effect counterexample without receiver deduplication and show the residual requirement for atomic receiver state. Compare rebuildable read models with authoritative event history."
+            }
+          ]
+        },
+        {
+          "id": "T76.03",
+          "title": "Lamport, vector and hybrid logical clock boundaries",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T76.03.a",
+              "text": "Derive three different clock contracts: Lamport timestamps preserve happened-before in one direction, vectors characterize causality under fixed known membership, and HLC pairs retain a physical component without eliminating physical-clock assumptions."
+            },
+            {
+              "id": "T76.03.b",
+              "text": "Show two concurrent events with ordered Lamport timestamps, two incomparable vectors and every HLC equality case. Separate physical-clock closeness claims from the synchronization assumptions in Corollary1. On local overflow choose explicit failure; neither arbitrary sleep nor silently increasing physical time is equivalent. Outputs are ordinary C structs, so validity and per-replica serialization remain caller obligations."
+            },
+            {
+              "id": "T76.03.c",
+              "text": "Run replicated.clocks and independent exhaustive small HLC branch enumeration plus uint64/uint32 extrema. Kill ignoring-remote Lamport and incorrect equal-physical HLC-counter mutants. Build small message histories and derive causal relations from graph reachability before comparing clock outputs; timestamp ordering alone is not the oracle."
+            },
+            {
+              "id": "T76.03.d",
+              "text": "Change replica membership and persisted restart identities; show why resetting a vector slot or reusing a timestamp identity loses history. Add a bounded clock-skew model and prove exactly which HLC closeness bound follows. Compare scalar timestamp wire size, vector growth, and a protocol that waits versus rejects on finite counter exhaustion."
+            }
+          ]
+        },
+        {
+          "id": "T76.04",
+          "title": "Join-semilattice counters and deterministic registers",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T76.04.a",
+              "text": "Derive convergence from explicit componentwise joins and globally unique writer identities, and distinguish state merge from replaying operations. A last-writer register resolves an order chosen by the protocol, not necessarily real-time recency."
+            },
+            {
+              "id": "T76.04.b",
+              "text": "Prove idempotence, commutativity and associativity on admitted compatible states, plus inflation of each grow-only component. Explain why sum of received states double-counts retransmission, why finite overflow must reject, and why a reused writer identity with forked state violates the ownership model. For registers identify conflict cases outside the unique-event assumption and the total-order tie rule."
+            },
+            {
+              "id": "T76.04.c",
+              "text": "Run replicated.counters; enumerate small component states and three-way merge permutations, including duplicate, reordered and dropped-then-retransmitted messages. Kill additive-state-merge and missing replica tie-break mutants. Show a counterexample for unchecked uint32 wrap and for independent writers sharing one replica slot."
+            },
+            {
+              "id": "T76.04.d",
+              "text": "Add membership replacement, serialized snapshots and state corruption detection. Distinguish crash fault tolerance from Byzantine tolerance: demonstrate a synthetic forged high component monopolizing the merge and specify an authenticated admission/identity policy without claiming signatures solve semantic authorization. Compare state size with operation-log retention under the same delivery assumptions."
+            }
+          ]
+        },
+        {
+          "id": "T76.05",
+          "title": "Observed-remove sets and replayable delta state",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T76.05.a",
+              "text": "Explain add-wins observed removal through unique add identities, retained tombstones and idempotent delta joins. Distinguish a causally self-contained delta representation from arbitrary partial operations or unsafe tombstone collection."
+            },
+            {
+              "id": "T76.05.b",
+              "text": "Define membership as adds minus removed. Derive why a concurrent unobserved add survives removal and why an observed add cannot resurrect when its delta arrives again. Treat one writer per replica as a premise. The bounded delta carries exact tag tombstones, so remove-before-add delivery is representable; do not infer this for all causal CRDTs. Explain the delta-interval causal precondition from the paper and specify acknowledgment/stability requirements before reclaiming history."
+            },
+            {
+              "id": "T76.05.c",
+              "text": "Run replicated.sets and enumerate two-writer add/remove/delivery traces against a mathematical tagged-set oracle. Include duplicate and remove-before-add delivery. Kill remove-all-possible-tags and omitted-tombstone-merge mutants. Inventory retained tags and show the exact full condition rather than silently dropping history."
+            },
+            {
+              "id": "T76.05.d",
+              "text": "Introduce a third replica, disconnection and crash/restart. Design a causal delta-interval anti-entropy protocol with durable incarnation/counter identity and full-state fallback; falsify premature garbage collection with a delayed old delta. Prove a stable frontier before discarding tombstones, or retain them and quantify growth."
+            }
+          ]
+        },
+        {
+          "id": "T76.06",
+          "title": "Replicated sequence identities and contextual transformation",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T76.06.a",
+              "text": "Separate stable sequence identity from transient visible position, and compare a bounded parent-tree sequence with context-dependent operational transformation. Pairwise insertion agreement is a necessary local property, not a complete OT correctness theorem."
+            },
+            {
+              "id": "T76.06.b",
+              "text": "Derive acyclicity from parent<id and closure from causal admission. Prove insertion-order-independent rendering for a fixed admitted node set, including descendants of deleted anchors. Explain that this original tree contract is RGA-inspired, not a claim to implement every detail of Specification19. For OT derive the two-branch diamond under distinct priorities and identify the state-vector/log context needed beyond it."
+            },
+            {
+              "id": "T76.06.c",
+              "text": "Run replicated.sequence; enumerate topological arrival orders and deletion subsets against a recursive tree oracle. Kill arrival-order sibling rendering and deleted-subtree omission mutants. Check full capacity, duplicate identity, missing dependency and output failure atomicity. Enumerate both paths of the two-insert OT diamond, then provide a three-operation context counterexample to an unjustified generalization."
+            },
+            {
+              "id": "T76.06.d",
+              "text": "Add delete operations delivered before insert, Unicode scalar payloads and snapshot compaction. Compare an explicit pending-dependency queue with tombstone admission. Implement an OT context-control protocol with state vectors and retained transformations, identify assumptions about fixed membership and failures, and test more than pairwise transformation equations."
+            }
+          ]
+        },
+        {
+          "id": "T76.07",
+          "title": "Merkle commitments and bounded anti-entropy",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T76.07.a",
+              "text": "Derive a domain-separated Merkle root for an exact ordered leaf sequence, distinguishing hash equality under a collision assumption from identity authentication, availability or a proof that arbitrary bytes are well formed."
+            },
+            {
+              "id": "T76.07.b",
+              "text": "Derive padding across55/56/63/64/65-byte boundaries, uint32 modular arithmetic, round constants and endian conversion. Prove the tree shape for non-power-of-two counts and that a subtree comparison is meaningful only with the same position/range/domain. Account for hash collision and corrupt-peer assumptions; a matching root alone authenticates no sender and guarantees no retrievability."
+            },
+            {
+              "id": "T76.07.c",
+              "text": "Run replicated.merkle, standard empty/abc hash vectors, all padding boundaries and independent randomized hashlib differential cases. Kill omitted leaf-domain prefix and ignored right-child mutants. Inspect the generated code for the intended unsigned operations; benchmark nodes hashed versus full leaf comparison under equal correctness/security contracts."
+            },
+            {
+              "id": "T76.07.d",
+              "text": "Add inclusion proofs with explicit leaf index/count, verify malformed/truncated/extra paths, then implement anti-entropy over a synthetic local framed transport. Vary chunking and domain identifiers and show root incompatibility. Model a malicious peer returning a missing or inconsistent node; fail without publishing partial repaired state. Do not claim collision resistance from a finite test suite."
+            }
+          ]
+        },
+        {
+          "id": "T76.08",
+          "title": "Field tags, minimal varints and canonical bytes",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T76.08.a",
+              "text": "Distinguish a wire grammar from one canonical encoding and show why deterministic serialization under one binary is not a universal content identity. Derive portable signed ZigZag arithmetic without signed-left-shift assumptions."
+            },
+            {
+              "id": "T76.08.b",
+              "text": "For five-byte uint32 varints require the final payload<=15 and no continuation. Derive ZigZag using unsigned conversion/shift and a sign mask; decode odd values as -(value>>1)-1 to include INT32_MIN safely. Prove canonical decode/reencode idempotence and uniqueness for the admitted semantic map. Explain the tradeoff of rejecting duplicate fields compared with protocols that merge repeated occurrences."
+            },
+            {
+              "id": "T76.08.c",
+              "text": "Run replicated.wire and an independent Python parser/encoder for boundary values and reordered field maps. Kill overlong-varint acceptance and incorrect negative ZigZag mutants. Enumerate every truncation, duplicate field, forbidden tag/wire type and output-capacity boundary; demonstrate two noncanonical orders producing the same canonical bytes."
+            },
+            {
+              "id": "T76.08.d",
+              "text": "Add length-delimited nested records with depth and total-byte budgets, a critical/advisory negotiation rule and an incremental io.frame decoder. Compare schema migration that retains unknown fields against field-wise reconstruction that loses them. Define canonical NaN/negative-zero/string normalization policy before adding floating or textual values; do not assume the current integer proof extends."
+            }
+          ]
+        },
+        {
+          "id": "T76.09",
+          "title": "Pure reducers, explicit effects and rollback replay",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T76.09.a",
+              "text": "Implement the T20.03 functional-core boundary: explicit state and recorded input produce new state and effect requests, while an adapter owns effects. Demonstrate rollback equivalence without replaying externally visible effects or claiming that ordinary C enforces purity."
+            },
+            {
+              "id": "T76.09.b",
+              "text": "Prove determinism from complete state/input and defined unsigned arithmetic. Identify every effect boundary and distinguish speculative requests from committed presentation. Derive rollback of the HAMT used cursor after a failed second update while preserving old reachable roots; staged unreachable arena cells and allocation counters may differ. All arena users must be quiescent during the transaction, and roots from unpublished intermediate updates must never escape. Score overflow or invalid movement must not partially publish a state/effect."
+            },
+            {
+              "id": "T76.09.c",
+              "text": "Run replicated.replay and exhaustively compare all movement histories of length0..8 with a Python integer model; verify suffix rollback versus full replay. Kill omitted random-score contribution and failed second-update allocation-leak mutants. Build a synthetic effect adapter with idempotency key(timeline,tick) and injected failure; record one duplicate-effect counterexample if replay directly invokes the adapter. Inspect undefined symbols to confirm the core has no time/random/I/O dependency."
+            },
+            {
+              "id": "T76.09.d",
+              "text": "Introduce two local simulated players, predicted remote inputs and delayed corrections using ipc.local/io.frame, with bounded rollback horizon and retained snapshots. Separate authoritative committed effects from speculative presentation and define replacement/cancellation semantics. Reuse the actual T20.03 learner reducer adapter and storage.pages snapshot backend, then vary compiler/endianness and compare canonical state hashes. Implement a hidden wall-clock/random dependency as a deliberately failing counterexample, not a production change."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -435,3 +435,181 @@ Each accepted artifact carries its source revision, interface, ownership contrac
 | 427 | {ref}`PR-T56-10` | Single-owner persistent store service | {ref}`PR-T48-13`, {ref}`PR-T56-09` | kernel_smp |
 | 428 | {ref}`PR-T56-11` | Service restart and reboot recovery | {ref}`PR-T56-10` | kernel_smp |
 | 429 | {ref}`PR-T56-12` | Physical dual-core application and OS comparison | {ref}`PR-T52-11`, {ref}`PR-T52-12`, {ref}`PR-T54-10`, {ref}`PR-T56-11` | os_observatory |
+| 430 | {ref}`PR-T57-01` | Failure-safe module initialization | {ref}`PR-T23-02` | kernel_lifecycle |
+| 431 | {ref}`PR-T57-02` | User-copy progress and ABI admission | {ref}`PR-T57-01` | kernel_lifecycle |
+| 432 | {ref}`PR-T57-03` | Reference acquisition before handoff | {ref}`PR-T57-02` | kernel_lifecycle |
+| 433 | {ref}`PR-T57-04` | Context-sensitive locking | {ref}`PR-T57-03` | kernel_lifecycle |
+| 434 | {ref}`PR-T57-05` | Work cancellation and terminal ownership | {ref}`PR-T57-04` | kernel_lifecycle |
+| 435 | {ref}`PR-T57-06` | RCU read-side lifetime model | {ref}`PR-T57-05` | kernel_lifecycle |
+| 436 | {ref}`PR-T57-07` | Versioned kernel control records | {ref}`PR-T57-06` | kernel_lifecycle |
+| 437 | {ref}`PR-T57-08` | Unload defense and integrated lifetime audit | {ref}`PR-T57-07` | kernel_lifecycle |
+| 438 | {ref}`PR-T58-01` | Stack extent and ABI alignment | {ref}`PR-T08-02` | architecture_ports |
+| 439 | {ref}`PR-T58-02` | Callee state and platform registers | {ref}`PR-T58-01` | architecture_ports |
+| 440 | {ref}`PR-T58-03` | Argument register exhaustion | {ref}`PR-T58-02` | architecture_ports |
+| 441 | {ref}`PR-T58-04` | Owned context images | {ref}`PR-T58-03` | architecture_ports |
+| 442 | {ref}`PR-T58-05` | Signed immediates and relocation ranges | {ref}`PR-T58-04` | architecture_ports |
+| 443 | {ref}`PR-T58-06` | Trap status versus call state | {ref}`PR-T58-05` | architecture_ports |
+| 444 | {ref}`PR-T58-07` | Privilege-aware memory access | {ref}`PR-T58-06` | architecture_ports |
+| 445 | {ref}`PR-T58-08` | Link closure and changed-target defense | {ref}`PR-T58-07` | architecture_ports |
+| 446 | {ref}`PR-T59-01` | Flash programming as a constrained state change | {ref}`PR-T28-06` | firmware_lifecycle |
+| 447 | {ref}`PR-T59-02` | Integrity without authenticity | {ref}`PR-T59-01` | firmware_lifecycle |
+| 448 | {ref}`PR-T59-03` | Authenticated image admission | {ref}`PR-T59-02` | firmware_lifecycle |
+| 449 | {ref}`PR-T59-04` | Trial boot, confirmation and rollback | {ref}`PR-T59-03` | firmware_lifecycle |
+| 450 | {ref}`PR-T59-05` | Redundant journal and torn commit records | {ref}`PR-T59-04` | firmware_lifecycle |
+| 451 | {ref}`PR-T59-06` | Monotonic security floor | {ref}`PR-T59-05` | firmware_lifecycle |
+| 452 | {ref}`PR-T59-07` | Dual-core update quiescence | {ref}`PR-T59-06` | firmware_lifecycle |
+| 453 | {ref}`PR-T59-08` | Fault capture and recovery evidence | {ref}`PR-T59-07` | firmware_lifecycle |
+| 454 | {ref}`PR-T60-01` | Bounded lexer with exact progress | {ref}`PR-T12-03` | subset_compiler |
+| 455 | {ref}`PR-T60-02` | Precedence parser and bounded syntax construction | {ref}`PR-T60-01` | subset_compiler |
+| 456 | {ref}`PR-T60-03` | Subset type and arithmetic semantics | {ref}`PR-T60-02` | subset_compiler |
+| 457 | {ref}`PR-T60-04` | Typed intermediate representation and interpreter | {ref}`PR-T60-03` | subset_compiler |
+| 458 | {ref}`PR-T60-05` | Intermediate representation verification and resource bounds | {ref}`PR-T60-04` | subset_compiler |
+| 459 | {ref}`PR-T60-06` | Original x86-64 code emission | {ref}`PR-T60-05` | subset_compiler |
+| 460 | {ref}`PR-T60-07` | Original Thumb code emission | {ref}`PR-T60-06` | subset_compiler |
+| 461 | {ref}`PR-T60-08` | Differential compiler validation and translation limits | {ref}`PR-T60-07` | subset_compiler |
+| 462 | {ref}`PR-T61-01` | Bitvector arithmetic and complete bounds | {ref}`PR-T32-02` | verification_fuzzing |
+| 463 | {ref}`PR-T61-02` | Loop invariants and binary-search termination | {ref}`PR-T61-01` | verification_fuzzing |
+| 464 | {ref}`PR-T61-03` | Stateful property harness and ownership | {ref}`PR-T61-02` | verification_fuzzing |
+| 465 | {ref}`PR-T61-04` | Parser fuzzing with semantic oracles | {ref}`PR-T61-03` | verification_fuzzing |
+| 466 | {ref}`PR-T61-05` | Counterexample minimization | {ref}`PR-T61-04` | verification_fuzzing |
+| 467 | {ref}`PR-T61-06` | Bounded schedule exploration | {ref}`PR-T61-05` | verification_fuzzing |
+| 468 | {ref}`PR-T61-07` | Deterministic fuzz harness composition | {ref}`PR-T61-06` | verification_fuzzing |
+| 469 | {ref}`PR-T61-08` | Proof claim audit and independent transfer | {ref}`PR-T61-07` | verification_fuzzing |
+| 470 | {ref}`PR-T62-01` | Vectored partial progress | {ref}`PR-T19-04` | linux_io_depth |
+| 471 | {ref}`PR-T62-02` | Edge readiness and fair draining | {ref}`PR-T62-01` | linux_io_depth |
+| 472 | {ref}`PR-T62-03` | Shared submission ring arithmetic | {ref}`PR-T62-02` | linux_io_depth |
+| 473 | {ref}`PR-T62-04` | Generation-tagged completion ownership | {ref}`PR-T62-03` | linux_io_depth |
+| 474 | {ref}`PR-T62-05` | Cancellation acknowledgement versus target completion | {ref}`PR-T62-04` | linux_io_depth |
+| 475 | {ref}`PR-T62-06` | Deadlines, timer events and wraparound | {ref}`PR-T62-05` | linux_io_depth |
+| 476 | {ref}`PR-T62-07` | Durable replacement and power-loss cuts | {ref}`PR-T62-06` | linux_io_depth |
+| 477 | {ref}`PR-T62-08` | Zero-copy claims and retained buffers | {ref}`PR-T62-07` | linux_io_depth |
+| 478 | {ref}`PR-T63-01` | Spatial bounds and a harmless overwrite witness | {ref}`PR-T35-01` | memory_defense |
+| 479 | {ref}`PR-T63-02` | Allocation arithmetic and truncation | {ref}`PR-T63-01` | memory_defense |
+| 480 | {ref}`PR-T63-03` | Temporal identity and stale access | {ref}`PR-T63-02` | memory_defense |
+| 481 | {ref}`PR-T63-04` | Owned arena views and authorization | {ref}`PR-T63-03` | memory_defense |
+| 482 | {ref}`PR-T63-05` | Bounded control-flow corruption analysis | {ref}`PR-T63-04` | memory_defense |
+| 483 | {ref}`PR-T63-06` | Format-string authority and byte-preserving logging | {ref}`PR-T63-05` | memory_defense |
+| 484 | {ref}`PR-T63-07` | Exactly-once release and error cleanup | {ref}`PR-T63-06` | memory_defense |
+| 485 | {ref}`PR-T63-08` | Observable work, timing and mitigation limits | {ref}`PR-T63-07` | memory_defense |
+| 486 | {ref}`PR-T64-01` | Fixed-point scale, rounding and saturation | {ref}`PR-T17-01` | numeric_simd |
+| 487 | {ref}`PR-T64-02` | Exact rounding model and ties to even | {ref}`PR-T64-01` | numeric_simd |
+| 488 | {ref}`PR-T64-03` | Exact accumulation bounds | {ref}`PR-T64-02` | numeric_simd |
+| 489 | {ref}`PR-T64-04` | Compensated reduction and cancellation | {ref}`PR-T64-03` | numeric_simd |
+| 490 | {ref}`PR-T64-05` | Scaled norm and intermediate overflow | {ref}`PR-T64-04` | numeric_simd |
+| 491 | {ref}`PR-T64-06` | Matrix layout, bounds and transactional output | {ref}`PR-T64-05` | numeric_simd |
+| 492 | {ref}`PR-T64-07` | Saturating lanes and scalar tails | {ref}`PR-T64-06` | numeric_simd |
+| 493 | {ref}`PR-T64-08` | Accuracy admission and exceptional values | {ref}`PR-T64-07` | numeric_simd |
+| 494 | {ref}`PR-T65-01` | Optional and Result representations without fictitious layout guarantees | {ref}`PR-T18-01` | errors |
+| 495 | {ref}`PR-T65-02` | Single-evaluation propagation and atomic parser publication | {ref}`PR-T65-01` | errors |
+| 496 | {ref}`PR-T65-03` | Partial progress is a product, not an error alternative | {ref}`PR-T65-02` | errors |
+| 497 | {ref}`PR-T65-04` | Lazy Result composition and effect-sensitive laws | {ref}`PR-T65-03` | errors |
+| 498 | {ref}`PR-T65-05` | Bounded applicative validation and transactional configuration | {ref}`PR-T65-04` | errors |
+| 499 | {ref}`PR-T65-06` | Typed nonlocal-jump boundary with explicit cleanup ownership | {ref}`PR-T65-05` | errors |
+| 500 | {ref}`PR-T65-07` | Arithmetic policy and serial-number partial order | {ref}`PR-T65-06` | errors |
+| 501 | {ref}`PR-T65-08` | Contract off, observe and enforce modes with safe violation traces | {ref}`PR-T65-07` | errors |
+| 502 | {ref}`PR-T65-09` | Canonical rational values and the boundary of runtime refinement | {ref}`PR-T65-08` | errors |
+| 503 | {ref}`PR-T66-01` | Owning handles and the partial-initialization frontier | {ref}`PR-T65-06` | ownership |
+| 504 | {ref}`PR-T66-02` | Scoped cleanup, conditional undo and publication by swap | {ref}`PR-T66-01` | modern_composition |
+| 505 | {ref}`PR-T66-03` | Move protocols, source poisoning and the limits of must-use diagnostics | {ref}`PR-T66-02` | ownership |
+| 506 | {ref}`PR-T66-04` | Runtime borrow tracking, range splitting and finite token identities | {ref}`PR-T66-03` | ownership |
+| 507 | {ref}`PR-T66-05` | Interior-mutability cells and guard escape boundaries | {ref}`PR-T66-04` | ownership |
+| 508 | {ref}`PR-T66-06` | Strong and weak ownership with atomic and non-atomic counts | {ref}`PR-T66-05` | ownership |
+| 509 | {ref}`PR-T66-07` | Copy-on-write values with transactional detach | {ref}`PR-T66-06` | ownership |
+| 510 | {ref}`PR-T66-08` | Thread affinity, address pinning and asynchronous quiescence | {ref}`PR-T66-07` | ownership |
+| 511 | {ref}`PR-T66-09` | Adversarial allocation through the existing typed callback ABI | {ref}`PR-T66-08` | ownership |
+| 512 | {ref}`PR-T66-10` | A checked façade around a trusted core: bounded tenant-isolation failure | {ref}`PR-T66-09` | ownership |
+| 513 | {ref}`PR-T67-01` | Products, tagged sums and checked elimination |  | adt |
+| 514 | {ref}`PR-T67-02` | Newtypes and checked dimensional conversions | {ref}`PR-T67-01` | adt |
+| 515 | {ref}`PR-T67-03` | Typed flag sets and reserved-bit admission | {ref}`PR-T67-02` | adt |
+| 516 | {ref}`PR-T67-04` | UTF-8 smart constructors and validated borrowed text | {ref}`PR-T67-03` | adt |
+| 517 | {ref}`PR-T67-05` | Branded pool handles with checked generations | {ref}`PR-T67-04` | adt |
+| 518 | {ref}`PR-T67-06` | Read-only strided views and ownership boundaries | {ref}`PR-T67-05` | adt |
+| 519 | {ref}`PR-T67-07` | Recursive arena values and typed indices | {ref}`PR-T67-06` | adt |
+| 520 | {ref}`PR-T67-08` | Lenses and prisms with falsifiable laws | {ref}`PR-T67-07` | adt |
+| 521 | {ref}`PR-T67-09` | Evolution-aware sums and lossless tolerant readers | {ref}`PR-T67-08` | adt |
+| 522 | {ref}`PR-T67-10` | Zero-copy packet view with precise error sum | {ref}`PR-T67-09` | adt |
+| 523 | {ref}`PR-T68-01` | Template-header monomorphization and associated types |  | metaprog |
+| 524 | {ref}`PR-T68-02` | Constraint probes and constant storage parameters | {ref}`PR-T68-01` | metaprog |
+| 525 | {ref}`PR-T68-03` | Policy composition with explicit failure semantics | {ref}`PR-T68-02` | metaprog |
+| 526 | {ref}`PR-T68-04` | Portable C17 variadic machinery and single evaluation | {ref}`PR-T68-03` | metaprog |
+| 527 | {ref}`PR-T68-05` | Generic customization with cv-preserving receivers | {ref}`PR-T68-04` | metaprog |
+| 528 | {ref}`PR-T68-06` | Single-source field reflection and explicit wire operations | {ref}`PR-T68-05` | metaprog |
+| 529 | {ref}`PR-T68-07` | Derived equality, hashing and shrinking law counterexamples | {ref}`PR-T68-06` | metaprog |
+| 530 | {ref}`PR-T68-08` | Typed formatting and transactional bounded sinks | {ref}`PR-T68-07` | metaprog |
+| 531 | {ref}`PR-T68-09` | A bounded hygienic token expander written in C | {ref}`PR-T68-08` | metaprog |
+| 532 | {ref}`PR-T68-10` | Declarative build graphs and deterministic table generation | {ref}`PR-T68-09` | metaprog |
+| 533 | {ref}`PR-T69-01` | Named interfaces, structural probes and semantic conformance | {ref}`PR-T18-01` | dispatch |
+| 534 | {ref}`PR-T69-02` | Fat views, embedded tables and unsafe qualifier substitution | {ref}`PR-T18-01` | dispatch |
+| 535 | {ref}`PR-T69-03` | Dictionary passing, specialization and effect-sensitive folds | {ref}`PR-T18-01` | dispatch |
+| 536 | {ref}`PR-T69-04` | Capture ownership and shared, mutable, consuming invocation | {ref}`PR-T18-01` | dispatch |
+| 537 | {ref}`PR-T69-05` | Owning erased calls over the byte-only small buffer | {ref}`PR-T18-01` | dispatch |
+| 538 | {ref}`PR-T69-06` | Ordered multiple dispatch and cache invalidation epochs | {ref}`PR-T18-01` | dispatch |
+| 539 | {ref}`PR-T69-07` | Intrusive membership, initial-member recovery and external behavior | {ref}`PR-T18-01` | dispatch |
+| 540 | {ref}`PR-T69-08` | Opaque modules with explicit service injection and failure effects | {ref}`PR-T18-01` | dispatch |
+| 541 | {ref}`PR-T69-09` | Authority attenuation, revocation and the limits of C tokens | {ref}`PR-T18-01` | dispatch |
+| 542 | {ref}`PR-T69-10` | Versioned plugin objects and borrowed code lifetime | {ref}`PR-T18-01` | dispatch |
+| 543 | {ref}`PR-T69-11` | Quiescent hot reload with staged state handoff and retirement | {ref}`PR-T18-01` | dispatch |
+| 544 | {ref}`PR-T70-01` | Hot and cold columns with transactional numeric updates | {ref}`PR-T18-01` | dod |
+| 545 | {ref}`PR-T70-02` | Inline bytes, allocator failure and explicit relocation | {ref}`PR-T18-01` | dod |
+| 546 | {ref}`PR-T70-03` | Four saturating byte lanes without cross-lane carries | {ref}`PR-T18-01` | dod |
+| 547 | {ref}`PR-T70-04` | Stable typed slots, dense iteration and finite identity | {ref}`PR-T18-01` | dod |
+| 548 | {ref}`PR-T70-05` | Archetype migration with capacity admission and row repair | {ref}`PR-T18-01` | dod |
+| 549 | {ref}`PR-T70-06` | Path copying, zipper contexts and retained-version costs | {ref}`PR-T18-01` | dod |
+| 550 | {ref}`PR-T70-07` | Bitmap rank, full-hash collisions and persistent map updates | {ref}`PR-T18-01` | dod |
+| 551 | {ref}`PR-T70-08` | Shared text DAGs, editing alternatives and coordinate meaning | {ref}`PR-T18-01` | dod |
+| 552 | {ref}`PR-T71-01` | Consuming typestate and explicit recovery after partial device writes |  | protocols |
+| 553 | {ref}`PR-T71-02` | Staged builders, presence masks and cross-field admission | {ref}`PR-T71-01` | protocols |
+| 554 | {ref}`PR-T71-03` | Dual binary session automata with bounded dialogue | {ref}`PR-T71-02` | protocols |
+| 555 | {ref}`PR-T71-04` | Hierarchical run-to-completion transitions and observable entry order | {ref}`PR-T71-03` | protocols |
+| 556 | {ref}`PR-T71-05` | Bounded active-object queue and failure-preserving dispatch | {ref}`PR-T71-04` | protocols |
+| 557 | {ref}`PR-T71-06` | Stackless resumable functions with persistent explicit state | {ref}`PR-T71-05` | protocols |
+| 558 | {ref}`PR-T71-07` | Memory behavior trees, running-child ownership and abort | {ref}`PR-T71-06` | protocols |
+| 559 | {ref}`PR-T71-08` | Typestate firmware driver with uncertain DMA ownership | {ref}`PR-T71-07` | protocols |
+| 560 | {ref}`PR-T72-01` | Lazy fused pull pipelines and typed early termination |  | coroutines |
+| 561 | {ref}`PR-T72-02` | Volcano scan/filter/group operators with pull backpressure | {ref}`PR-T72-01` | coroutines |
+| 562 | {ref}`PR-T72-03` | Allocated coroutine frames and generator ownership | {ref}`PR-T72-02` | coroutines |
+| 563 | {ref}`PR-T72-04` | Actual x86-64 stack switching, ABI state and sanitizer fibers | {ref}`PR-T72-03` | coroutines |
+| 564 | {ref}`PR-T72-05` | Defunctionalized continuations and a budgeted trampoline | {ref}`PR-T72-04` | coroutines |
+| 565 | {ref}`PR-T72-06` | Cursor parser combinators with rollback and progress checks | {ref}`PR-T72-05` | coroutines |
+| 566 | {ref}`PR-T72-07` | Packrat success and failure memoization with explicit cache identity | {ref}`PR-T72-06` | coroutines |
+| 567 | {ref}`PR-T72-08` | Readiness-based async frames and lost readiness notifications | {ref}`PR-T72-07` | coroutines |
+| 568 | {ref}`PR-T72-09` | Single-shot resumable effects with explicit continuation ownership | {ref}`PR-T72-08` | coroutines |
+| 569 | {ref}`PR-T73-01` | Scope-owned child tasks and cooperative cancellation | {ref}`PR-T66-06`, {ref}`PR-T72-04` | messaging |
+| 570 | {ref}`PR-T73-02` | Bounded CSP channels, rendezvous and atomic select | {ref}`PR-T73-01` | messaging |
+| 571 | {ref}`PR-T73-03` | Senders, receivers and immovable operation-state lifetimes | {ref}`PR-T73-02` | messaging |
+| 572 | {ref}`PR-T73-04` | Actor incarnations, copied mailboxes and failure boundaries | {ref}`PR-T73-03` | messaging |
+| 573 | {ref}`PR-T73-05` | Supervision trees with restart budgets and ordered quiescence | {ref}`PR-T73-04` | messaging |
+| 574 | {ref}`PR-T73-06` | Bounded work stealing with an explicit C memory-order proof | {ref}`PR-T73-05` | messaging |
+| 575 | {ref}`PR-T73-07` | TL2-style software transactions over actual C17 atomics | {ref}`PR-T73-06` | messaging |
+| 576 | {ref}`PR-T73-08` | Multiversion visibility, reader pins and bounded reclamation | {ref}`PR-T73-07` | messaging |
+| 577 | {ref}`PR-T73-09` | Sequence validation without racing ordinary C payloads | {ref}`PR-T73-08` | messaging |
+| 578 | {ref}`PR-T73-10` | Demand signaling, terminal events and bounded reentrancy | {ref}`PR-T73-09` | messaging |
+| 579 | {ref}`PR-T74-01` | Pointer tags, NaN payloads and representation trust boundaries |  | object_runtime |
+| 580 | {ref}`PR-T74-02` | Owned binary interning and collision-safe symbol identity | {ref}`PR-T74-01` | object_runtime |
+| 581 | {ref}`PR-T74-03` | Immutable hidden classes and reusable property transitions | {ref}`PR-T74-02` | object_runtime |
+| 582 | {ref}`PR-T74-04` | Monomorphic and polymorphic inline-cache guards | {ref}`PR-T74-03` | object_runtime |
+| 583 | {ref}`PR-T74-05` | Incremental marking and root/store write barriers | {ref}`PR-T74-04` | object_runtime |
+| 584 | {ref}`PR-T74-06` | Semispace evacuation, forwarding and promotion failure | {ref}`PR-T74-05` | object_runtime |
+| 585 | {ref}`PR-T74-07` | Card marking and conservative remembered roots | {ref}`PR-T74-06` | object_runtime |
+| 586 | {ref}`PR-T74-08` | Handle-based compaction and forwarding aliases | {ref}`PR-T74-07` | object_runtime |
+| 587 | {ref}`PR-T74-09` | Ephemeron fixed points and staged finalization | {ref}`PR-T74-08` | object_runtime |
+| 588 | {ref}`PR-T74-10` | Trial deletion for reference-counted cycles | {ref}`PR-T74-09` | object_runtime |
+| 589 | {ref}`PR-T74-11` | Precise root maps and derived-reference relocation | {ref}`PR-T74-10` | object_runtime |
+| 590 | {ref}`PR-T75-01` | Cancellation trees and budgets across clock domains | {ref}`PR-T18-01` | resilience |
+| 591 | {ref}`PR-T75-02` | Five overload policies and bounded pending producers | {ref}`PR-T18-01` | resilience |
+| 592 | {ref}`PR-T75-03` | Hashed timer-wheel collisions, cancellation and expiry work | {ref}`PR-T18-01` | resilience |
+| 593 | {ref}`PR-T75-04` | Overflow-safe token buckets and competing rate contracts | {ref}`PR-T18-01` | resilience |
+| 594 | {ref}`PR-T75-05` | Jittered retry schedules with a shared deadline and attempt budget | {ref}`PR-T18-01` | resilience |
+| 595 | {ref}`PR-T75-06` | Health breakers, bulkheads and stale completions | {ref}`PR-T18-01` | resilience |
+| 596 | {ref}`PR-T75-07` | Hedged responses and ownership of losing work | {ref}`PR-T18-01` | resilience |
+| 597 | {ref}`PR-T75-08` | Idempotent effects, finite deduplication and storage fencing | {ref}`PR-T18-01` | resilience |
+| 598 | {ref}`PR-T75-09` | Resilient telemetry admission, committed effects and draining | {ref}`PR-T18-01` | resilience |
+| 599 | {ref}`PR-T76-01` | Positioned event logs and persistent snapshot roots |  | replicated |
+| 600 | {ref}`PR-T76-02` | CQRS projection admission and atomic position advancement | {ref}`PR-T76-01` | replicated |
+| 601 | {ref}`PR-T76-03` | Lamport, vector and hybrid logical clock boundaries | {ref}`PR-T76-02` | replicated |
+| 602 | {ref}`PR-T76-04` | Join-semilattice counters and deterministic registers | {ref}`PR-T76-03` | replicated |
+| 603 | {ref}`PR-T76-05` | Observed-remove sets and replayable delta state | {ref}`PR-T76-04` | replicated |
+| 604 | {ref}`PR-T76-06` | Replicated sequence identities and contextual transformation | {ref}`PR-T76-05` | replicated |
+| 605 | {ref}`PR-T76-07` | Merkle commitments and bounded anti-entropy | {ref}`PR-T76-06` | replicated |
+| 606 | {ref}`PR-T76-08` | Field tags, minimal varints and canonical bytes | {ref}`PR-T76-07` | replicated |
+| 607 | {ref}`PR-T76-09` | Pure reducers, explicit effects and rollback replay | {ref}`PR-T76-08` | replicated |

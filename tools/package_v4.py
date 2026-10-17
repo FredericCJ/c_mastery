@@ -58,7 +58,7 @@ def promote(archives, dist, candidate):
 
 
 def package(accept=None, receipts='reviews/v4', archives=ARCHIVES, candidate_prefix='v4_',
-            build_script='tools/build_v4.py', schema_version=4, fixed_point=()):
+            build_script='tools/build_v4.py', schema_version=4, fixed_point=(), learner_filter=None):
     # Reviews and execution receipts are deliberately outside canonical identity.
     # Re-evaluate them, including their current status, before creating exports.
     (accept or accept_v4.main)()
@@ -88,12 +88,16 @@ def package(accept=None, receipts='reviews/v4', archives=ARCHIVES, candidate_pre
     source_entries = write_zip(source, files, ROOT)
     learner_files = [p for p in files if 'assessor' not in p.relative_to(ROOT).parts
                      and p.relative_to(ROOT).parts[0] not in {'reviews', 'planning'}]
+    if learner_filter is not None:
+        learner_files = [p for p in learner_files if learner_filter(p.relative_to(ROOT))]
     learner_entries = write_zip(learner, learner_files, ROOT)
     assessor_entries = write_zip(assessor, [p for p in files
                                           if p.relative_to(ROOT).parts[0] == 'assessor'], ROOT)
     with zipfile.ZipFile(learner) as archive:
         if any('assessor' in Path(name).parts for name in archive.namelist()):
             raise ValueError('Assessor implementation leaked to learner bundle')
+        if learner_filter is not None and any(not learner_filter(Path(name)) for name in archive.namelist()):
+            raise ValueError('Author-only material leaked to learner bundle')
     html = ROOT / 'build/html'
     html_files = [p for p in html.rglob('*') if p.is_file() and '.doctrees' not in p.parts
                   and p.name not in {'.buildinfo', '.buildinfo.bak'}]

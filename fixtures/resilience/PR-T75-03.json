@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "id": "PR-T75-03",
+  "exercise": "X-T75-003",
+  "anchor": "resilience.wheel",
+  "input_contract": "Implement the four-bucket/four-slot wheel with delay1..16, absolute due ticks, intrusive index links and owner/generation identities. Tick advances one unit and returns every due slot as a bitmask; cancellation unlinks immediately. Extend to a two-level wheel that cascades coarse timers into fine buckets, preserving exact expiry and cancellation identity. Reopen the PR-T50-05 sealed scheduler decision and add this as a third measured alternative to its existing structures under the same timer contract.",
+  "expected": "At now0 a delay5 timer maps to bucket1 but must not fire at tick1; it fires exactly at5. Cancelling generation1 then reusing that slot at generation2 makes the old ID STALE. Simultaneous due timers all appear in the returned mask, without invoking callbacks during linkage traversal.",
+  "independent_oracle": "Use an independent sorted map of absolute due times, not another wheel. Exhaust pairs of due1..16 and every cancellation point; verify back-links after each step. Add a delayed-clock jump that crosses three revolutions and either process all missed ticks or specify a bounded late-fire policy. Record the selected scheduler decision before measurement; historical paper VAX numbers are source observations only.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "fired_at": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "old_cancel": "STALE"
+  }
+}

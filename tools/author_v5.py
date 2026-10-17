@@ -6,8 +6,9 @@ every digest against curriculum/v5/baseline.json.
 """
 from copy import deepcopy
 from author_v4 import RULES_V4, author
-from v5_common import V5, baseline, domains_manifest, manifest
+from v5_common import V5, baseline, domains_manifest, manifest, require_domain_research
 import vocabulary
+from common import read_json
 
 
 def vocabulary_sets():
@@ -37,6 +38,7 @@ def vocabulary_sets():
 
 def rules_v5():
     data = domains_manifest()
+    require_domain_research(data)
     rules = deepcopy(RULES_V4)
     rules['phases'] = list(RULES_V4['phases']) + [(p['title'], p['gate']) for p in data.get('phases', [])]
     phase_domains = {key: list(value) for key, value in RULES_V4['phase_domains'].items()}
@@ -63,12 +65,34 @@ def rules_v5():
     rules['migration_note'] = ('retained identity and budget; the fifth-edition catalog appends new domains '
                                'without changing accepted units')
     rules['authored_domains'] = sorted(data.get('domains', {}))
+    rules['authored_recall'] = {}
+    for key in rules['authored_domains']:
+        path = V5 / 'recall' / (key + '.json')
+        if not path.is_file():
+            raise ValueError('New domain needs authored recall variants: ' + key)
+        for row in read_json(path)['sets']:
+            if not row['id'].startswith(key + '.') or row['id'] in rules['authored_recall']:
+                raise ValueError('Conflicting authored recall ownership: ' + row['id'])
+            rules['authored_recall'][row['id']] = row
     rules['vocabulary_sets'] = vocabulary_sets()
     return rules
 
 
 def main():
     author(rules_v5(), V5, baseline())
+    if (V5 / 'exercises').is_dir():
+        from expansion_evidence import require_research
+        require_research()
+        from author_exercises_v5 import main as author_exercises
+        author_exercises()
+        from check_legacy_assessments import check as legacy_assessments
+        legacy_report = legacy_assessments()
+        if legacy_report['failures']:
+            raise ValueError('Legacy assessment contracts: ' + str(legacy_report['failures']))
+        from audit_expansion_v5 import generate
+        generate()
+        from reconcile_expansion_progress import generate as progress
+        progress()
 
 
 if __name__ == '__main__':

@@ -1,0 +1,53 @@
+```json
+{
+  "id": "PR-T69-02",
+  "title": "Fat views, embedded tables and unsafe qualifier substitution",
+  "module": "T69",
+  "topics": [
+    "T69.02"
+  ],
+  "status": "core",
+  "hours": 8,
+  "profile": "C",
+  "fixtures": [
+    "fixtures/dispatch/PR-T69-02.json"
+  ],
+  "edition": 5,
+  "requires_projects": [
+    "PR-T18-01"
+  ],
+  "evidence_template": "component"
+}
+```
+
+# PR-T69-02: Fat views, embedded tables and unsafe qualifier substitution
+
+## Contract
+
+Implement ds_embedded for DSBox and compare its in-object table with DSView external table storage under the same measure contract. Construct arrays of1000 synthetic objects and1000 borrowed views, account for owner bytes versus view bytes and measure direct/embedded/fat calls with an equal workload. Compile the qualifier_reject.c fixture, then derive the counterfactual write that would become possible if T** could implicitly convert to const T**; analyze that write without executing it.
+
+The full required exercise is {ref}`X-T69-002`; its shared contracts, D1–D4, objective-specific rubric and delayed variant are part of this project. Eight hours is descriptive accounting, not a ceiling on required work.
+
+## Inputs and expected results
+
+DSBox containing int17 measures17 through its embedded table. If its table returns DS_FAILED, output99 remains99. Assigning char** to const char** produces the intended diagnostic. A successful cast compilation is not permission to perform the counterfactual const write.
+
+## Steps
+
+- **T69.02:** Implement an embedded-to-view adapter preserving concrete receiver address, const access and failure publication. Complete every exercise deliverable, including separately specified extensions.
+
+## Failure cases
+
+A pair of pointers is an implementation choice, not a universal language ABI. Indirection changes where metadata lives, and apparently harmless qualifier widening can make a const object writable. Compare outputs and failure side effects for every int-16..16 and both valid/failing tables. Measure sizeof/_Alignof/offsetof rather than assuming sizes. Analyze all three pointer levels in the qualifier fixture and keep diagnostics apart from runtime evidence. Rebuild both representations under GCC/Clang with and without link-time optimization; a compiler eliminating the indirect call is an observation for that build.
+
+## Acceptance and evidence
+
+- **T69.02:** Compare outputs and failure side effects for every int-16..16 and both valid/failing tables. Measure sizeof/_Alignof/offsetof rather than assuming sizes. Analyze all three pointer levels in the qualifier fixture and keep diagnostics apart from runtime evidence. Rebuild both representations under GCC/Clang with and without link-time optimization; a compiler eliminating the indirect call is an observation for that build. Assess each leaf independently with the exercise rubric and retain unresolved evidence as a gap.
+
+## Hints and recovery
+
+Count the table pointer once per owner in one design and once per view in the other. The address of the int field is the callback receiver, not the whole box. Write the assignments after the forbidden qualifier conversion on paper to expose the type hole.
+
+## Transfer challenge
+
+X-T69-002-DELAYED: a view refers to the second field of a live parent and must outlive a temporary table built on the stack. Repair ownership by choosing a static table or owned metadata, and justify which borrows remain valid.

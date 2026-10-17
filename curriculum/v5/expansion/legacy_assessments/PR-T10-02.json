@@ -1,0 +1,566 @@
+{
+  "schema_version": 1,
+  "project": "PR-T10-02",
+  "domain": "T10",
+  "title": "Runtime initialization and exit choices — explicit depth assessments",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T10.md",
+        "sha256": "8373d4e013b5340d8f7999a28861b7ed62c50b2b72fe2b4d5631c4277b3c89e1",
+        "passages": [
+          "Topic teaching passages and reading guidance for T10.04, T10.05"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T10-02.md",
+        "sha256": "8389615c1d1d78b59c9e553b9ce2187c72f7f94b499f0ecfeb28941963570260",
+        "passages": [
+          "Contract, Steps, Failure cases, Acceptance and linked-objective checklist"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T10-02.json",
+        "sha256": "e8a8217cf2149865b8bfe97e80905ad8790e70fe28e2a2d7008a3043eb2b6cd4",
+        "passages": [
+          "Complete synthetic fixture and expected values"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "oracle branches used by this fixture; synthetic reference is not target execution"
+        ]
+      },
+      {
+        "path": "labs/machine_image/README.md",
+        "sha256": "0472b1599c030ab1240c22633db3da5e60a0363607ec1e366dbe13f4ef90f7e2",
+        "passages": [
+          "All twelve bounded laboratory contracts and explicit remaining obligations"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/runtime.c",
+        "sha256": "2cd3dc97c292cc6e5ed2f3b867b2f32bdd0f7fbc3c1c1aa38ebdaf93f17d66b2",
+        "passages": [
+          "abi, hostile, bytes and wide cases"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/artifacts.py",
+        "sha256": "f74dd8b6944dff1f9e36f6d870e3ae83c183db5f8cbc1bda28db14383bbb97ff",
+        "passages": [
+          "archive, relocation, tls, budget, entry, syscall, helpers, byte_closure, closure and image branches"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T10.md",
+        "anchors": [
+          "T10.04",
+          "T10.05"
+        ]
+      }
+    ],
+    "units": [
+      "U-T10-02-01",
+      "U-T10-02-02",
+      "U-T10-02-03"
+    ],
+    "inspection_limits": [
+      "Project contract/steps/checklists and module teaching inspected; source registers are not treated as actual book inspections.",
+      "Unit objective/test links and selected operation steps inspected; no fresh complete historical portfolio review.",
+      "No new execution or independent learner assessment in this authoring wave."
+    ]
+  },
+  "environment": {
+    "language": "Active C17 baseline. C11/C23 comparisons require their explicitly identified wording; GNU assembly, __int128, ELF and operating-system contracts are extensions/platform rules.",
+    "target": "Linux x86-64 SysV for executable host observations; foreign targets are compile/analysis-only unless explicitly supported and recorded.",
+    "profile": "D",
+    "dependencies": "Retain the parent profile exactly. Host Python, build and binary inspection tools remain outside restricted target closures; no library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, CMake/Ninja/Make and binutils versions and effective flags",
+      "Unsupported target or instrumentation cells remain unavailable"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LSYS-GLIBC-START",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "Entry comments and _start argument extraction/stack alignment, lines 31-83"
+      ]
+    },
+    {
+      "id": "R-LSYS-MUSL-START",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "__init_libc, libc_start_init, __libc_start_main and stage2, complete function bodies"
+      ]
+    },
+    {
+      "id": "R-LSYS-SYSCALL",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "DESCRIPTION; RETURN VALUE; NOTES architecture-specific requirements and calling-convention tables"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact published C17/C23 text and private CS:APP/TLPI passages were not newly inspected.",
+    "Primary sources listed cover only the named passages; other parent references retain their historical status without a new inspection claim.",
+    "Current full ELF gABI and historical AMD64 0.99 PDF fetch unavailable; full loader/TLS implementation and selected library service contracts remain required for claims beyond supplied passages."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T10-02.md",
+    "fixtures/systems/PR-T10-02.json",
+    "tools/verify_systems_fixtures.py"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contract with synthetic fixture",
+    "scope": "Tests exercise only their named bounded cases; broad project acceptance and these supplemental criteria require separate evidence.",
+    "tests": [],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T10-02-T10.04.a",
+      "title": "Trace TLS, stream state, initialization hooks, and runtime setup.",
+      "objective": "T10.04.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Trace inspected musl __init_libc through environment/auxv processing, TLS/stack-protector initialization and stage2 init hooks/main. Contrast with the bounded glibc entry-prefix evidence and label unavailable deeper glibc steps.",
+      "purpose": "Linking a libc function from custom entry guarantees its prerequisites have run.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.04 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Linking a libc function from custom entry guarantees its prerequisites have run. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Linking a libc function from custom entry guarantees its prerequisites have run.",
+        "D2": "Trace inspected musl __init_libc through environment/auxv processing, TLS/stack-protector initialization and stage2 init hooks/main. Contrast with the bounded glibc entry-prefix evidence and label unavailable deeper glibc steps.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Retain thread-local errno in a custom-entry proposal and enumerate the additional implementation evidence required before execution."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The inspected call chain establishes distinct initialization owners; a prefix reading cannot justify uninspected stream or TLS internals.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The inspected call chain establishes distinct initialization owners; a prefix reading cannot justify uninspected stream or TLS internals. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Retain thread-local errno in a custom-entry proposal and enumerate the additional implementation evidence required before execution. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "For each retained service identify the initializer it assumes.",
+        "The inspected musl sequence initializes TLS/stack protection before application code; a glibc entry-prefix reading is narrower."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-02-T10.04.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Retain thread-local errno in a custom-entry proposal and enumerate the additional implementation evidence required before execution."
+        }
+      ],
+      "assessor_anchor": "#t1004a",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.04 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T10-02-T10.04.b",
+      "title": "Identify which services custom startup chooses to omit.",
+      "objective": "T10.04.b",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Define an original custom runtime supporting only argument decoding, bounded byte output and explicit exit. Produce a service table refusing malloc, stdio streams, TLS and constructors unless separately implemented; compile a forbidden-call negative control.",
+      "purpose": "A small executable silently supports every service whose symbol can be found.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.04 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A small executable silently supports every service whose symbol can be found. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A small executable silently supports every service whose symbol can be found.",
+        "D2": "Define an original custom runtime supporting only argument decoding, bounded byte output and explicit exit. Produce a service table refusing malloc, stdio streams, TLS and constructors unless separately implemented; compile a forbidden-call negative control.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add one initialization hook with a restricted callback contract and show its dependency closure separately."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Unsupported services have explicit refusal/build rejection; no accidental successful call upgrades the service contract.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Unsupported services have explicit refusal/build rejection; no accidental successful call upgrades the service contract. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add one initialization hook with a restricted callback contract and show its dependency closure separately. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "For each retained service identify the initializer it assumes.",
+        "The inspected musl sequence initializes TLS/stack protection before application code; a glibc entry-prefix reading is narrower."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-02-T10.04.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Add one initialization hook with a restricted callback contract and show its dependency closure separately."
+        }
+      ],
+      "assessor_anchor": "#t1004b",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.04 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T10-02-T10.04.c",
+      "title": "Audit assumptions made by any retained library calls.",
+      "objective": "T10.04.c",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Choose a proposed retained library call, list its documented and implementation initialization assumptions, and trace actual linked origins. If an assumption is uninspected or unmet, reject that service from the runnable custom image.",
+      "purpose": "A resolved symbol is proof that the service is safe before normal startup.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.04 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A resolved symbol is proof that the service is safe before normal startup. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A resolved symbol is proof that the service is safe before normal startup.",
+        "D2": "Choose a proposed retained library call, list its documented and implementation initialization assumptions, and trace actual linked origins. If an assumption is uninspected or unmet, reject that service from the runnable custom image.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Replace the call with a caller-storage implementation and compare retained dependencies under the same output/error contract."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Link closure and initialization validity are separate; unsupported assumptions are an honest gap rather than a trial-and-error execution permission.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Link closure and initialization validity are separate; unsupported assumptions are an honest gap rather than a trial-and-error execution permission. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace the call with a caller-storage implementation and compare retained dependencies under the same output/error contract. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "For each retained service identify the initializer it assumes.",
+        "The inspected musl sequence initializes TLS/stack protection before application code; a glibc entry-prefix reading is narrower."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-02-T10.04.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace the call with a caller-storage implementation and compare retained dependencies under the same output/error contract."
+        }
+      ],
+      "assessor_anchor": "#t1004c",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.04 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T10-02-T10.05.a",
+      "title": "Compare returning from main, exit, _Exit, and Linux exit syscalls.",
+      "objective": "T10.05.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "In separate original hosted processes compare return from main, exit and _Exit using a fully buffered stream and an atexit marker; compare a no-libc raw exit path separately. State ISO versus Linux behavior explicitly.",
+      "purpose": "All termination paths flush streams and invoke handlers identically.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.05 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "All termination paths flush streams and invoke handlers identically. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: All termination paths flush streams and invoke handlers identically.",
+        "D2": "In separate original hosted processes compare return from main, exit and _Exit using a fully buffered stream and an atexit marker; compare a no-libc raw exit path separately. State ISO versus Linux behavior explicitly.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Use a multithreaded original process and distinguish raw thread exit from process-wide exit_group without altering other processes."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Hosted normal exit and immediate termination have different cleanup obligations; observed bytes must be interpreted under explicit buffering and capture conditions.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Hosted normal exit and immediate termination have different cleanup obligations; observed bytes must be interpreted under explicit buffering and capture conditions. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Use a multithreaded original process and distinguish raw thread exit from process-wide exit_group without altering other processes. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate userspace buffering/handlers from kernel process termination.",
+        "A custom entry has no ordinary caller return address; its bridge must own a no-return finish path."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-02-T10.05.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Use a multithreaded original process and distinguish raw thread exit from process-wide exit_group without altering other processes."
+        }
+      ],
+      "assessor_anchor": "#t1005a",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.05 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T10-02-T10.05.b",
+      "title": "Account for flushing, registered handlers, and process/thread distinctions.",
+      "objective": "T10.05.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Register two local termination handlers with distinct markers and buffer an output byte before normal exit. Predict order and flushing, then repeat immediate exit in a fresh child with a bounded timeout.",
+      "purpose": "Observed missing output necessarily means write lost bytes rather than buffering or skipped cleanup.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.05 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Observed missing output necessarily means write lost bytes rather than buffering or skipped cleanup. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Observed missing output necessarily means write lost bytes rather than buffering or skipped cleanup.",
+        "D2": "Register two local termination handlers with distinct markers and buffer an output byte before normal exit. Predict order and flushing, then repeat immediate exit in a fresh child with a bounded timeout.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Make a handler write through a raw local descriptor and explain what that observation proves independently of stdio cleanup."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Separate handler execution, userspace buffering and kernel-accepted bytes; capture setup must not silently make the stream unbuffered.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Separate handler execution, userspace buffering and kernel-accepted bytes; capture setup must not silently make the stream unbuffered. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Make a handler write through a raw local descriptor and explain what that observation proves independently of stdio cleanup. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate userspace buffering/handlers from kernel process termination.",
+        "A custom entry has no ordinary caller return address; its bridge must own a no-return finish path."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-02-T10.05.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Make a handler write through a raw local descriptor and explain what that observation proves independently of stdio cleanup."
+        }
+      ],
+      "assessor_anchor": "#t1005b",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.05 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T10-02-T10.05.c",
+      "title": "Define behavior when a custom entry routine unexpectedly returns.",
+      "objective": "T10.05.c",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Implement the assembly bridge's no-return finish path with a declared exit code and an explicit terminal fallback for an impossible return. Analyze a ret-only entry as invalid without running it as a correct-output case.",
+      "purpose": "Returning from custom entry is equivalent to returning from main.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T10.05 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T10-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Returning from custom entry is equivalent to returning from main. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Returning from custom entry is equivalent to returning from main.",
+        "D2": "Implement the assembly bridge's no-return finish path with a declared exit code and an explicit terminal fallback for an impossible return. Analyze a ret-only entry as invalid without running it as a correct-output case.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add a failure before argument decoding and preserve a deterministic non-returning error path without libc."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The bridge owns termination and cannot return through argc as an address; a successful helper return must be translated into explicit termination.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The bridge owns termination and cannot return through argc as an address; a successful helper return must be translated into explicit termination. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a failure before argument decoding and preserve a deterministic non-returning error path without libc. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate userspace buffering/handlers from kernel process termination.",
+        "A custom entry has no ordinary caller return address; its bridge must own a no-return finish path."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T10-02-T10.05.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a failure before argument decoding and preserve a deterministic non-returning error path without libc."
+        }
+      ],
+      "assessor_anchor": "#t1005c",
+      "facet_scope": {
+        "teaching": "Retained substantive T10.05 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T10-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T10-02.md",
+  "status": {
+    "content": "authored",
+    "execution": "not-run supplemental assessments",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite visible tests are not absolute mastery.",
+      "No baseline hours, IDs, source bytes or historical acceptance receipts changed."
+    ]
+  }
+}

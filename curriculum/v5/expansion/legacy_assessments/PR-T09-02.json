@@ -1,0 +1,559 @@
+{
+  "schema_version": 1,
+  "project": "PR-T09-02",
+  "domain": "T09",
+  "title": "Relocation and position independence — explicit depth assessments",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T09.md",
+        "sha256": "d99d0c1d84f774ae19d65bfa6c60c3014fcf12210a233836d2718cef14709e55",
+        "passages": [
+          "Topic teaching passages and reading guidance for T09.04, T09.05"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T09-02.md",
+        "sha256": "f1dd8f1ff6c970490bea25550d7a7e40ed96f8c0e5ff4736d1677e21a072c0e4",
+        "passages": [
+          "Contract, Steps, Failure cases, Acceptance and linked-objective checklist"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T09-02.json",
+        "sha256": "1f1aa74b553ce488937d0d8c4565946a541dd80b6a0eac580d7e63734dd212d6",
+        "passages": [
+          "Complete synthetic fixture and expected values"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "oracle branches used by this fixture; synthetic reference is not target execution"
+        ]
+      },
+      {
+        "path": "labs/machine_image/README.md",
+        "sha256": "0472b1599c030ab1240c22633db3da5e60a0363607ec1e366dbe13f4ef90f7e2",
+        "passages": [
+          "All twelve bounded laboratory contracts and explicit remaining obligations"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/runtime.c",
+        "sha256": "2cd3dc97c292cc6e5ed2f3b867b2f32bdd0f7fbc3c1c1aa38ebdaf93f17d66b2",
+        "passages": [
+          "abi, hostile, bytes and wide cases"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/artifacts.py",
+        "sha256": "f74dd8b6944dff1f9e36f6d870e3ae83c183db5f8cbc1bda28db14383bbb97ff",
+        "passages": [
+          "archive, relocation, tls, budget, entry, syscall, helpers, byte_closure, closure and image branches"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T09.md",
+        "anchors": [
+          "T09.04",
+          "T09.05"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-MI-04",
+      "U-T09-02-02",
+      "U-T09-02-03"
+    ],
+    "inspection_limits": [
+      "Project contract/steps/checklists and module teaching inspected; source registers are not treated as actual book inspections.",
+      "Unit objective/test links and selected operation steps inspected; no fresh complete historical portfolio review.",
+      "No new execution or independent learner assessment in this authoring wave."
+    ]
+  },
+  "environment": {
+    "language": "Active C17 baseline. C11/C23 comparisons require their explicitly identified wording; GNU assembly, __int128, ELF and operating-system contracts are extensions/platform rules.",
+    "target": "Linux x86-64 SysV for executable host observations; foreign targets are compile/analysis-only unless explicitly supported and recorded.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile exactly. Host Python, build and binary inspection tools remain outside restricted target closures; no library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, CMake/Ninja/Make and binutils versions and effective flags",
+      "Unsupported target or instrumentation cells remain unavailable"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LSYS-ELF",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "Header entry/table bounds and Program header PT_LOAD/PT_INTERP, lines 244-413; Symbol table fields and bindings, lines 900-1011"
+      ]
+    },
+    {
+      "id": "R-LSYS-GCC-LINK",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "3.16 -l order; -nostartfiles; -nodefaultlibs; -nostdlib; -pie; -static-pie; -static; -shared"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact published C17/C23 text and private CS:APP/TLPI passages were not newly inspected.",
+    "Primary sources listed cover only the named passages; other parent references retain their historical status without a new inspection claim.",
+    "Current full ELF gABI and historical AMD64 0.99 PDF fetch unavailable; full loader/TLS implementation and selected library service contracts remain required for claims beyond supplied passages."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T09-02.md",
+    "fixtures/systems/PR-T09-02.json",
+    "tools/verify_systems_fixtures.py"
+  ],
+  "execution_support": {
+    "kind": "retained partial baseline laboratory anchors",
+    "scope": "Tests exercise only their named bounded cases; broad project acceptance and these supplemental criteria require separate evidence.",
+    "tests": [
+      "machine_image.relocation"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T09-02-T09.04.a",
+      "title": "Relate relocation entries to unresolved address computations.",
+      "objective": "T09.04.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Compute the supplied S=4096,A=-4,P=4112 relocation and identify the corresponding symbolic/addend/place roles in one real original object. Distinguish an instruction-relative addend from the address of the next instruction.",
+      "purpose": "A relocation is merely copying a symbol address into bytes.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.04 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A relocation is merely copying a symbol address into bytes. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A relocation is merely copying a symbol address into bytes.",
+        "D2": "Compute the supplied S=4096,A=-4,P=4112 relocation and identify the corresponding symbolic/addend/place roles in one real original object. Distinguish an instruction-relative addend from the address of the next instruction.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Use a REL object where the addend is stored in the relocated bytes and explain the changed decoder obligation."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The synthetic expression is-20; real relocation semantics must be selected by its actual type, field location and addend representation.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The synthetic expression is-20; real relocation semantics must be selected by its actual type, field location and addend representation. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Use a REL object where the addend is stored in the relocated bytes and explain the changed decoder obligation. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "State S, A, P, field width and signedness before encoding.",
+        "Check the mathematical range before reducing the value to its stored low bits."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-02-T09.04.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Use a REL object where the addend is stored in the relocated bytes and explain the changed decoder obligation."
+        }
+      ],
+      "assessor_anchor": "#t0904a",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.04 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-02-T09.04.b",
+      "title": "Compare absolute, PC-relative, and selected architecture relocations.",
+      "objective": "T09.04.b",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "For declared unsigned absolute32 and signed PC-relative32 models calculate boundary values, write independent little-endian encodings and compare one supported actual relocation of each kind.",
+      "purpose": "Absolute and PC-relative relocations differ only in field size.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.04 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Absolute and PC-relative relocations differ only in field size. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Absolute and PC-relative relocations differ only in field size.",
+        "D2": "For declared unsigned absolute32 and signed PC-relative32 models calculate boundary values, write independent little-endian encodings and compare one supported actual relocation of each kind.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Move the target symbol to another load region and identify which relative assumptions no longer hold."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The formulas and signedness differ; a load-base change affects an absolute address differently from an intra-image relative displacement.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The formulas and signedness differ; a load-base change affects an absolute address differently from an intra-image relative displacement. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Move the target symbol to another load region and identify which relative assumptions no longer hold. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "State S, A, P, field width and signedness before encoding.",
+        "Check the mathematical range before reducing the value to its stored low bits."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-02-T09.04.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Move the target symbol to another load region and identify which relative assumptions no longer hold."
+        }
+      ],
+      "assessor_anchor": "#t0904b",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.04 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-02-T09.04.c",
+      "title": "Diagnose relocation overflow and incompatible relocation models.",
+      "objective": "T09.04.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "For a signed8 synthetic relocation compare-20 and236, whose truncated low byte is identical. Reject out-of-range values before encoding and construct a real large-displacement link test only within an original nonexecuted layout.",
+      "purpose": "Truncating to the field width is a valid overflow policy.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.04 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Truncating to the field width is a valid overflow policy. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Truncating to the field width is a valid overflow policy.",
+        "D2": "For a signed8 synthetic relocation compare-20 and236, whose truncated low byte is identical. Reject out-of-range values before encoding and construct a real large-displacement link test only within an original nonexecuted layout.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Change the relocation's signedness or code model and derive a new admissible interval before altering flags."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "-20 fits and236 does not; equal low bytes do not imply equal relocation meaning. Distinguish intended overflow diagnostics from unrelated link failure.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "-20 fits and236 does not; equal low bytes do not imply equal relocation meaning. Distinguish intended overflow diagnostics from unrelated link failure. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Change the relocation's signedness or code model and derive a new admissible interval before altering flags. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "State S, A, P, field width and signedness before encoding.",
+        "Check the mathematical range before reducing the value to its stored low bits."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-02-T09.04.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change the relocation's signedness or code model and derive a new admissible interval before altering flags."
+        }
+      ],
+      "assessor_anchor": "#t0904c",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.04 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-02-T09.05.a",
+      "title": "Compare PIC, PIE, non-PIE, and static relocation assumptions.",
+      "objective": "T09.05.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Compile the same address-taking source as non-PIE, PIE and shared PIC with consistent compile/link options. Compare runtime-relocation obligations and loaded-address assumptions without treating ET_DYN as sufficient evidence.",
+      "purpose": "PIC, PIE and static linking are interchangeable properties.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.05 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "PIC, PIE and static linking are interchangeable properties. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: PIC, PIE and static linking are interchangeable properties.",
+        "D2": "Compile the same address-taking source as non-PIE, PIE and shared PIC with consistent compile/link options. Compare runtime-relocation obligations and loaded-address assumptions without treating ET_DYN as sufficient evidence.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Build a supported static-PIE variant and locate its self-relocation owner rather than assuming no loader means no relocations."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Position independence, executable role and runtime linkage are separate dimensions; actual metadata and address formation substantiate each claim.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Position independence, executable role and runtime linkage are separate dimensions; actual metadata and address formation substantiate each claim. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Build a supported static-PIE variant and locate its self-relocation owner rather than assuming no loader means no relocations. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate executable role, position independence and runtime linkage.",
+        "Inspect actual final relocations and symbol binding after relaxation, not just compile flags."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-02-T09.05.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Build a supported static-PIE variant and locate its self-relocation owner rather than assuming no loader means no relocations."
+        }
+      ],
+      "assessor_anchor": "#t0905a",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.05 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-02-T09.05.b",
+      "title": "Inspect address formation and indirection in generated code.",
+      "objective": "T09.05.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Follow one local object address and one externally visible function reference through object disassembly, relocations, GOT/PLT entries and final linked code. Preserve symbolic correspondence across linker relaxation.",
+      "purpose": "Every source address operation requires the same indirection sequence.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.05 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Every source address operation requires the same indirection sequence. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Every source address operation requires the same indirection sequence.",
+        "D2": "Follow one local object address and one externally visible function reference through object disassembly, relocations, GOT/PLT entries and final linked code. Preserve symbolic correspondence across linker relaxation.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Hide an export or change interposition policy and explain which optimization becomes valid."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Visibility and binding can change indirection or relaxation; final code is the artifact being executed. Source-level operation count is not a dynamic instruction count.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Visibility and binding can change indirection or relaxation; final code is the artifact being executed. Source-level operation count is not a dynamic instruction count. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Hide an export or change interposition policy and explain which optimization becomes valid. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate executable role, position independence and runtime linkage.",
+        "Inspect actual final relocations and symbol binding after relaxation, not just compile flags."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-02-T09.05.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Hide an export or change interposition policy and explain which optimization becomes valid."
+        }
+      ],
+      "assessor_anchor": "#t0905b",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.05 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-02-T09.05.c",
+      "title": "Identify relocation costs and restrictions in the selected environment.",
+      "objective": "T09.05.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Count relocation records and writable pages affected for two equivalent original images, then separately measure startup under stated cache/environment conditions. Report record count, timing and causal uncertainty distinctly.",
+      "purpose": "More relocation records necessarily imply proportionally slower startup.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.05 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-02 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "More relocation records necessarily imply proportionally slower startup. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: More relocation records necessarily imply proportionally slower startup.",
+        "D2": "Count relocation records and writable pages affected for two equivalent original images, then separately measure startup under stated cache/environment conditions. Report record count, timing and causal uncertainty distinctly.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Change only eager/lazy binding and separate work moved to first call from work eliminated."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Static counts and dynamic costs are different observations; relocation type, loader behavior and shared pages affect cost. Equivalent behavior is required for comparison.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Static counts and dynamic costs are different observations; relocation type, loader behavior and shared pages affect cost. Equivalent behavior is required for comparison. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Change only eager/lazy binding and separate work moved to first call from work eliminated. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate executable role, position independence and runtime linkage.",
+        "Inspect actual final relocations and symbol binding after relaxation, not just compile flags."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-02-T09.05.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change only eager/lazy binding and separate work moved to first call from work eliminated."
+        }
+      ],
+      "assessor_anchor": "#t0905c",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.05 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-02 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T09-02.md",
+  "status": {
+    "content": "authored",
+    "execution": "not-run supplemental assessments",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite visible tests are not absolute mastery.",
+      "No baseline hours, IDs, source bytes or historical acceptance receipts changed."
+    ]
+  }
+}

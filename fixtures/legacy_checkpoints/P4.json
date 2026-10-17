@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "id": "FIX-LCP-P4",
+  "oracle": "dma-quiescence",
+  "input": {
+    "generation": 6,
+    "queue": [
+      9
+    ],
+    "capacity": 1,
+    "events": [
+      {
+        "action": "complete",
+        "generation": 5
+      },
+      {
+        "action": "complete",
+        "generation": 6
+      },
+      {
+        "action": "publish"
+      },
+      {
+        "action": "take"
+      },
+      {
+        "action": "publish"
+      },
+      {
+        "action": "complete",
+        "generation": 6
+      }
+    ]
+  },
+  "expected": {
+    "trace": [
+      {
+        "queue": [
+          9
+        ],
+        "quiescent": false,
+        "pending": false,
+        "published": false,
+        "retained": true
+      },
+      {
+        "queue": [
+          9
+        ],
+        "quiescent": true,
+        "pending": true,
+        "published": false,
+        "retained": true
+      },
+      {
+        "queue": [
+          9
+        ],
+        "quiescent": true,
+        "pending": true,
+        "published": false,
+        "retained": true
+      },
+      {
+        "queue": [],
+        "quiescent": true,
+        "pending": true,
+        "published": false,
+        "retained": true
+      },
+      {
+        "queue": [
+          6
+        ],
+        "quiescent": true,
+        "pending": false,
+        "published": true,
+        "retained": false
+      },
+      {
+        "queue": [
+          6
+        ],
+        "quiescent": true,
+        "pending": false,
+        "published": true,
+        "retained": false
+      }
+    ],
+    "publications": 1
+  },
+  "scope": "Bounded independent host model; not learner or target execution.",
+  "provenance": "Concrete inputs and hand-derived state/layout/rational expectations; P3 CRC bytes authored with zlib and checked by a distinct bitwise oracle."
+}

@@ -1,0 +1,698 @@
+{
+  "domain": "T59",
+  "entries": [
+    {
+      "id": "V-T59-01-1",
+      "term": "flash programming order",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Restriction that programming clears permitted bits until an erase restores them.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "RAM assignment",
+          "distinction": "RAM stores do not model flash erase/program constraints."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "flash programming order requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_program"
+      ],
+      "objectives": [
+        "T59.01.a",
+        "T59.01.b",
+        "T59.01.c"
+      ],
+      "misconception": "Repair a model that silently ANDs an illegal request and reports success. Its resulting bytes differ from the requested image even without a crash.",
+      "recall": {
+        "define": "Define flash programming order with its invariant.",
+        "distinguish": "Distinguish flash programming order from RAM assignment.",
+        "counterexample": "Replace whole-span admission by per-program-unit persistence and cut power after each unit; derive which metadata must stay uncommitted until image completion."
+      }
+    },
+    {
+      "id": "V-T59-01-2",
+      "term": "program-unit persistence",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Persistence boundary defined by the actual flash controller and device.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "C assignment atomicity",
+          "distinction": "C evaluation does not establish power-failure behavior."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "program-unit persistence requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_program"
+      ],
+      "objectives": [
+        "T59.01.a",
+        "T59.01.b",
+        "T59.01.c"
+      ],
+      "misconception": "Repair a model that silently ANDs an illegal request and reports success. Its resulting bytes differ from the requested image even without a crash.",
+      "recall": {
+        "define": "Define program-unit persistence with its invariant.",
+        "distinguish": "Distinguish program-unit persistence from C assignment atomicity.",
+        "counterexample": "Replace whole-span admission by per-program-unit persistence and cut power after each unit; derive which metadata must stay uncommitted until image completion."
+      }
+    },
+    {
+      "id": "V-T59-02-1",
+      "term": "image integrity checksum",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Nonsecret corruption-detection value over specified image bytes.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "image authenticity",
+          "distinction": "Authenticity requires a trusted verification policy and key relationship."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "image integrity checksum requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_crc"
+      ],
+      "objectives": [
+        "T59.02.a",
+        "T59.02.b",
+        "T59.02.c"
+      ],
+      "misconception": "A verifier omits the final complement and rejects valid images; another accepts attacker-recomputed CRC as a signature. Only the first defect is covered by numeric test anchors.",
+      "recall": {
+        "define": "Define image integrity checksum with its invariant.",
+        "distinguish": "Distinguish image integrity checksum from image authenticity.",
+        "counterexample": "Add a separately verified signature API that returns an explicit verdict and key identifier; inject fail-open and stale-key responses without implementing production cryptography in this exercise."
+      }
+    },
+    {
+      "id": "V-T59-02-2",
+      "term": "checksum parameter tuple",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Polynomial, reflection, initial value and final transform defining a CRC convention.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "polynomial alone",
+          "distinction": "The polynomial does not uniquely specify the resulting check value."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "checksum parameter tuple requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_crc"
+      ],
+      "objectives": [
+        "T59.02.a",
+        "T59.02.b",
+        "T59.02.c"
+      ],
+      "misconception": "A verifier omits the final complement and rejects valid images; another accepts attacker-recomputed CRC as a signature. Only the first defect is covered by numeric test anchors.",
+      "recall": {
+        "define": "Define checksum parameter tuple with its invariant.",
+        "distinguish": "Distinguish checksum parameter tuple from polynomial alone.",
+        "counterexample": "Add a separately verified signature API that returns an explicit verdict and key identifier; inject fail-open and stale-key responses without implementing production cryptography in this exercise."
+      }
+    },
+    {
+      "id": "V-T59-03-1",
+      "term": "image admission predicate",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Conjunction of extent, authenticity and policy checks before boot selection.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "signature verification",
+          "distinction": "A valid signature does not establish every deployment policy."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "image admission predicate requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_admit"
+      ],
+      "objectives": [
+        "T59.03.a",
+        "T59.03.b",
+        "T59.03.c"
+      ],
+      "misconception": "The intentionally faulty admission ignores a failed verifier verdict. Harmless success is selection of a synthetic unauthorized image; no real key or deployed bootloader is targeted.",
+      "recall": {
+        "define": "Define image admission predicate with its invariant.",
+        "distinguish": "Distinguish image admission predicate from signature verification.",
+        "counterexample": "Introduce key rotation and a revoked signing key; show why a numerically newer version with a valid old-key signature may still be inadmissible."
+      }
+    },
+    {
+      "id": "V-T59-03-2",
+      "term": "trusted firmware verdict",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Result from an independently trusted authenticator over the exact image contract.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "image flag",
+          "distinction": "An image cannot authenticate itself by setting a field."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "trusted firmware verdict requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_admit"
+      ],
+      "objectives": [
+        "T59.03.a",
+        "T59.03.b",
+        "T59.03.c"
+      ],
+      "misconception": "The intentionally faulty admission ignores a failed verifier verdict. Harmless success is selection of a synthetic unauthorized image; no real key or deployed bootloader is targeted.",
+      "recall": {
+        "define": "Define trusted firmware verdict with its invariant.",
+        "distinguish": "Distinguish trusted firmware verdict from image flag.",
+        "counterexample": "Introduce key rotation and a revoked signing key; show why a numerically newer version with a valid old-key signature may still be inadmissible."
+      }
+    },
+    {
+      "id": "V-T59-04-1",
+      "term": "trial firmware boot",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Execution of a candidate image while retaining a recoverable confirmed image.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "confirmed boot",
+          "distinction": "Confirmation records that the candidate met the defined health criterion."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "trial firmware boot requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_select"
+      ],
+      "objectives": [
+        "T59.04.a",
+        "T59.04.b",
+        "T59.04.c"
+      ],
+      "misconception": "The faulty state machine retries the unconfirmed image forever, causing a boot loop. A watchdog reset alone cannot repair an incorrect persistent selection policy.",
+      "recall": {
+        "define": "Define trial firmware boot with its invariant.",
+        "distinguish": "Distinguish trial firmware boot from confirmed boot.",
+        "counterexample": "Require two-core health confirmation on H745 and inject one core failing after the other confirms; define a joint image-generation commit and recovery protocol."
+      }
+    },
+    {
+      "id": "V-T59-04-2",
+      "term": "boot revert",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Return to a prior confirmed image after a failed trial.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "security downgrade acceptance",
+          "distinction": "Reversion must still obey the trusted rollback policy."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "boot revert requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_select"
+      ],
+      "objectives": [
+        "T59.04.a",
+        "T59.04.b",
+        "T59.04.c"
+      ],
+      "misconception": "The faulty state machine retries the unconfirmed image forever, causing a boot loop. A watchdog reset alone cannot repair an incorrect persistent selection policy.",
+      "recall": {
+        "define": "Define boot revert with its invariant.",
+        "distinguish": "Distinguish boot revert from security downgrade acceptance.",
+        "counterexample": "Require two-core health confirmation on H745 and inject one core failing after the other confirms; define a joint image-generation commit and recovery protocol."
+      }
+    },
+    {
+      "id": "V-T59-05-1",
+      "term": "firmware commit marker",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Persistent final indicator that a fully validated journal record may be selected.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "record checksum",
+          "distinction": "A checksum alone need not distinguish committed from staged state."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "firmware commit marker requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_journal_select"
+      ],
+      "objectives": [
+        "T59.05.a",
+        "T59.05.b",
+        "T59.05.c"
+      ],
+      "misconception": "Repair selection of an uncommitted newer record and ambiguous equal-generation records. Numerical sequence comparison is invalid after uncontrolled wrap.",
+      "recall": {
+        "define": "Define firmware commit marker with its invariant.",
+        "distinguish": "Distinguish firmware commit marker from record checksum.",
+        "counterexample": "Replace the atomic marker with a multi-byte program unit that can tear; derive a coding/validation rule and prove at least one old or new valid record survives each allowed fault."
+      }
+    },
+    {
+      "id": "V-T59-05-2",
+      "term": "journal ambiguity",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Two equally authoritative generations with conflicting contents.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "ordinary stale record",
+          "distinction": "A stale record has a defined lower generation."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "journal ambiguity requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_journal_select"
+      ],
+      "objectives": [
+        "T59.05.a",
+        "T59.05.b",
+        "T59.05.c"
+      ],
+      "misconception": "Repair selection of an uncommitted newer record and ambiguous equal-generation records. Numerical sequence comparison is invalid after uncontrolled wrap.",
+      "recall": {
+        "define": "Define journal ambiguity with its invariant.",
+        "distinguish": "Distinguish journal ambiguity from ordinary stale record.",
+        "counterexample": "Replace the atomic marker with a multi-byte program unit that can tear; derive a coding/validation rule and prove at least one old or new valid record survives each allowed fault."
+      }
+    },
+    {
+      "id": "V-T59-06-1",
+      "term": "firmware security floor",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Lowest authenticated security generation that policy permits booting.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "display version",
+          "distinction": "Human release labels need not encode security authority."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "firmware security floor requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_raise_floor"
+      ],
+      "objectives": [
+        "T59.06.a",
+        "T59.06.b",
+        "T59.06.c"
+      ],
+      "misconception": "The faulty update accepts a smaller floor from an otherwise valid image. A signed image is not permission to weaken anti-rollback policy.",
+      "recall": {
+        "define": "Define firmware security floor with its invariant.",
+        "distinguish": "Distinguish firmware security floor from display version.",
+        "counterexample": "Introduce a finite monotonic counter that reaches exhaustion; design a fail-closed recovery/key-rotation protocol without silently wrapping its security epoch."
+      }
+    },
+    {
+      "id": "V-T59-06-2",
+      "term": "counter exhaustion policy",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Explicit terminal or migration behavior when a finite monotonic representation cannot advance.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "counter wrap",
+          "distinction": "Wrapping loses the monotonic ordering."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "counter exhaustion policy requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_raise_floor"
+      ],
+      "objectives": [
+        "T59.06.a",
+        "T59.06.b",
+        "T59.06.c"
+      ],
+      "misconception": "The faulty update accepts a smaller floor from an otherwise valid image. A signed image is not permission to weaken anti-rollback policy.",
+      "recall": {
+        "define": "Define counter exhaustion policy with its invariant.",
+        "distinguish": "Distinguish counter exhaustion policy from counter wrap.",
+        "counterexample": "Introduce a finite monotonic counter that reaches exhaustion; design a fail-closed recovery/key-rotation protocol without silently wrapping its security epoch."
+      }
+    },
+    {
+      "id": "V-T59-07-1",
+      "term": "update quiescence epoch",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Generation identifying the peer shutdown protocol whose owners are drained.",
+      "authority": [
+        {
+          "resource_id": "R-B06-STIPC",
+          "locator": "Rev2 sections2.1 and2.2, PDFpp3-6"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "notification count",
+          "distinction": "A count does not identify which lifecycle a notification belongs to."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "update quiescence epoch requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_peer_ready"
+      ],
+      "objectives": [
+        "T59.07.a",
+        "T59.07.b",
+        "T59.07.c"
+      ],
+      "misconception": "Repair acceptance of a stale acknowledgement after independent peer reboot. A memory barrier cannot repair the missing generation check.",
+      "recall": {
+        "define": "Define update quiescence epoch with its invariant.",
+        "distinguish": "Distinguish update quiescence epoch from notification count.",
+        "counterexample": "Move shared metadata from noncacheable SRAM to cacheable SRAM; derive cache-line ownership/maintenance and repeat physical traces on the dedicated H745 board."
+      }
+    },
+    {
+      "id": "V-T59-07-2",
+      "term": "peer-reset invalidation",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Revocation of assumptions tied to a prior peer-core incarnation.",
+      "authority": [
+        {
+          "resource_id": "R-B06-STIPC",
+          "locator": "Rev2 sections2.1 and2.2, PDFpp3-6"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "local reset",
+          "distinction": "One core may retain state while the other restarts."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "peer-reset invalidation requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_peer_ready"
+      ],
+      "objectives": [
+        "T59.07.a",
+        "T59.07.b",
+        "T59.07.c"
+      ],
+      "misconception": "Repair acceptance of a stale acknowledgement after independent peer reboot. A memory barrier cannot repair the missing generation check.",
+      "recall": {
+        "define": "Define peer-reset invalidation with its invariant.",
+        "distinguish": "Distinguish peer-reset invalidation from local reset.",
+        "counterexample": "Move shared metadata from noncacheable SRAM to cacheable SRAM; derive cache-line ownership/maintenance and repeat physical traces on the dedicated H745 board."
+      }
+    },
+    {
+      "id": "V-T59-08-1",
+      "term": "crash record validity",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Predicate separating a complete supported diagnostic record from torn or corrupt storage.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "crash occurrence",
+          "distinction": "A crash does not guarantee its diagnostic record was persisted."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "crash record validity requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_capture_valid"
+      ],
+      "objectives": [
+        "T59.08.a",
+        "T59.08.b",
+        "T59.08.c"
+      ],
+      "misconception": "Repair a record reader that accepts a committed but corrupted payload. A synthetic check detects only its modeled faults; physical retention and fault-entry register capture remain separate.",
+      "recall": {
+        "define": "Define crash record validity with its invariant.",
+        "distinguish": "Distinguish crash record validity from crash occurrence.",
+        "counterexample": "Add nested faults and a full crash log; choose preserve-first versus preserve-latest policy, prove bounded writes and assess what diagnostic information is lost."
+      }
+    },
+    {
+      "id": "V-T59-08-2",
+      "term": "bounded fault capture",
+      "owner": "T59",
+      "kind": "course",
+      "definition": "Diagnostic procedure with fixed storage and bounded operations in a fault context.",
+      "authority": [
+        {
+          "resource_id": "R-B06-BOOT",
+          "locator": "Equal slots (direct-xip); Test swaps; Downgrade prevention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "normal logging",
+          "distinction": "Allocation and blocking may be unsafe during a fault."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "bounded fault capture requires an explicit contract."
+      ],
+      "symbols": [
+        "lc_capture_valid"
+      ],
+      "objectives": [
+        "T59.08.a",
+        "T59.08.b",
+        "T59.08.c"
+      ],
+      "misconception": "Repair a record reader that accepts a committed but corrupted payload. A synthetic check detects only its modeled faults; physical retention and fault-entry register capture remain separate.",
+      "recall": {
+        "define": "Define bounded fault capture with its invariant.",
+        "distinguish": "Distinguish bounded fault capture from normal logging.",
+        "counterexample": "Add nested faults and a full crash log; choose preserve-first versus preserve-latest policy, prove bounded writes and assess what diagnostic information is lost."
+      }
+    }
+  ],
+  "recall": {
+    "define": "For Firmware lifecycle and recoverable updates, define flash programming order, program-unit persistence, image integrity checksum, checksum parameter tuple, image admission predicate, trusted firmware verdict, trial firmware boot, boot revert, firmware commit marker, journal ambiguity, firmware security floor, counter exhaustion policy, update quiescence epoch, peer-reset invalidation, crash record validity, bounded fault capture, giving each invariant.",
+    "distinguish": "For Firmware lifecycle and recoverable updates, distinguish these near concepts: flash programming order versus RAM assignment; program-unit persistence versus C assignment atomicity; image integrity checksum versus image authenticity; checksum parameter tuple versus polynomial alone; image admission predicate versus signature verification; trusted firmware verdict versus image flag; trial firmware boot versus confirmed boot; boot revert versus security downgrade acceptance; firmware commit marker versus record checksum; journal ambiguity versus ordinary stale record; firmware security floor versus display version; counter exhaustion policy versus counter wrap; update quiescence epoch versus notification count; peer-reset invalidation versus local reset; crash record validity versus crash occurrence; bounded fault capture versus normal logging.",
+    "apply": "Compose update_state with compiler image output and a bounded diagnostic transport. Revalidate relocation, authenticity, monotonic storage, reset reason and peer-core ownership separately."
+  }
+}

@@ -1,0 +1,2099 @@
+{
+  "version": 1,
+  "family": "messaging",
+  "title": "Structured concurrency, channels and actors",
+  "build_system": "cmake",
+  "assessor_root": "assessor/messaging",
+  "projects": [
+    {
+      "id": "PR-T73-01",
+      "tests": [
+        "messaging.nursery"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T73-02",
+      "tests": [
+        "messaging.channels"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T73-03",
+      "tests": [
+        "messaging.operations"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T73-04",
+      "tests": [
+        "messaging.actors"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T73-05",
+      "tests": [
+        "messaging.supervision"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T73-06",
+      "tests": [
+        "messaging.stealing"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T73-07",
+      "tests": [
+        "messaging.transactions"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T73-08",
+      "tests": [
+        "messaging.snapshots"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T73-09",
+      "tests": [
+        "messaging.sequences"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    },
+    {
+      "id": "PR-T73-10",
+      "tests": [
+        "messaging.streams"
+      ],
+      "scope": "Hosted original mechanism; full exercise reasoning and independent/delayed evidence remain required."
+    }
+  ],
+  "units": [
+    {
+      "id": "LAB-SC-01",
+      "project": "PR-T73-01",
+      "title": "Construct: Scope-owned child tasks and cooperative cancellation",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T73.01.a",
+        "T73.01.b",
+        "T73.01.c",
+        "T73.01.d"
+      ],
+      "tests": [
+        "messaging.nursery"
+      ],
+      "steps": [
+        "Explain scope-owned task lifetime, failure aggregation and cooperative cancellation, including why a cancellation flag does not establish completion or a bounded join latency.",
+        "Derive admission/closing/quiescent states, implement spawn/join and deterministic error selection, then compose with the existing work.pool artifact without detached tasks or prematurely released contexts."
+      ],
+      "checks": [
+        "Spawn result5 then result0: after join, both slots are joined, cancellation is true and result is5. Fail admission at attempt2: exactly one child remains admitted, its context is retained until join and no second thread handle is joined. An uncooperative infinite child is a bounded external-timeout experiment, not silently declared cancelled.",
+        "Inject failure before every admission, record thread/context ownership, join zero/one/eight children, reject ninth admission and late spawn. Use a barrier-controlled failure with siblings acknowledging cancellation and compare accepted/completed counts. Reject both missing-cancellation and swallowed-result mutants. Run separate TSan and demonstrate that eventual cancellation needs child checkpoints."
+      ],
+      "reasoning": [
+        "Explain scope-owned task lifetime, failure aggregation and cooperative cancellation, including why a cancellation flag does not establish completion or a bounded join latency."
+      ],
+      "deliverables": [
+        "Derive admission/closing/quiescent states, implement spawn/join and deterministic error selection, then compose with the existing work.pool artifact without detached tasks or prematurely released contexts.",
+        "Inject failure before every admission, record thread/context ownership, join zero/one/eight children, reject ninth admission and late spawn. Use a barrier-controlled failure with siblings acknowledging cancellation and compare accepted/completed counts. Reject both missing-cancellation and swallowed-result mutants. Run separate TSan and demonstrate that eventual cancellation needs child checkpoints.",
+        "Add nested nurseries with a parent deadline: propagate cancellation down while joining upward, retaining contexts until every descendant is quiescent. Delayed assessment supplies two failures racing in different orders; keep deterministic creation-order reporting while preserving both errors in a bounded aggregate."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-001-R1",
+          "objective": "T73.01.a",
+          "criterion": "Explain scope-owned task lifetime, failure aggregation and cooperative cancellation, including why a cancellation flag does not establish completion or a bounded join latency.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-001-R2",
+          "objective": "T73.01.b",
+          "criterion": "Derive admission/closing/quiescent states, implement spawn/join and deterministic error selection, then compose with the existing work.pool artifact without detached tasks or prematurely released contexts.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-001-R3",
+          "objective": "T73.01.c",
+          "criterion": "Inject failure before every admission, record thread/context ownership, join zero/one/eight children, reject ninth admission and late spawn. Use a barrier-controlled failure with siblings acknowledging cancellation and compare accepted/completed counts. Reject both missing-cancellation and swallowed-result mutants. Run separate TSan and demonstrate that eventual cancellation needs child checkpoints.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-001-R4",
+          "objective": "T73.01.d",
+          "criterion": "Add nested nurseries with a parent deadline: propagate cancellation down while joining upward, retaining contexts until every descendant is quiescent. Delayed assessment supplies two failures racing in different orders; keep deterministic creation-order reporting while preserving both errors in a bounded aggregate.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add nested nurseries with a parent deadline: propagate cancellation down while joining upward, retaining contexts until every descendant is quiescent. Delayed assessment supplies two failures racing in different orders; keep deterministic creation-order reporting while preserving both errors in a bounded aggregate."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-001.md",
+      "target_scope": "host",
+      "scope": "Explain scope-owned task lifetime, failure aggregation and cooperative cancellation, including why a cancellation flag does not establish completion or a bounded join latency.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-TRIO",
+          "locator": "Checkpoints",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-02",
+      "project": "PR-T73-01",
+      "title": "Falsify and transfer: Scope-owned child tasks and cooperative cancellation",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T73.01.a",
+        "T73.01.b",
+        "T73.01.c",
+        "T73.01.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Inject failure before every admission, record thread/context ownership, join zero/one/eight children, reject ninth admission and late spawn. Use a barrier-controlled failure with siblings acknowledging cancellation and compare accepted/completed counts. Reject both missing-cancellation and swallowed-result mutants. Run separate TSan and demonstrate that eventual cancellation needs child checkpoints.",
+        "Add nested nurseries with a parent deadline: propagate cancellation down while joining upward, retaining contexts until every descendant is quiescent. Delayed assessment supplies two failures racing in different orders; keep deterministic creation-order reporting while preserving both errors in a bounded aggregate."
+      ],
+      "checks": [
+        "Spawn result5 then result0: after join, both slots are joined, cancellation is true and result is5. Fail admission at attempt2: exactly one child remains admitted, its context is retained until join and no second thread handle is joined. An uncooperative infinite child is a bounded external-timeout experiment, not silently declared cancelled.",
+        "Inject failure before every admission, record thread/context ownership, join zero/one/eight children, reject ninth admission and late spawn. Use a barrier-controlled failure with siblings acknowledging cancellation and compare accepted/completed counts. Reject both missing-cancellation and swallowed-result mutants. Run separate TSan and demonstrate that eventual cancellation needs child checkpoints."
+      ],
+      "reasoning": [
+        "Explain scope-owned task lifetime, failure aggregation and cooperative cancellation, including why a cancellation flag does not establish completion or a bounded join latency."
+      ],
+      "deliverables": [
+        "Derive admission/closing/quiescent states, implement spawn/join and deterministic error selection, then compose with the existing work.pool artifact without detached tasks or prematurely released contexts.",
+        "Inject failure before every admission, record thread/context ownership, join zero/one/eight children, reject ninth admission and late spawn. Use a barrier-controlled failure with siblings acknowledging cancellation and compare accepted/completed counts. Reject both missing-cancellation and swallowed-result mutants. Run separate TSan and demonstrate that eventual cancellation needs child checkpoints.",
+        "Add nested nurseries with a parent deadline: propagate cancellation down while joining upward, retaining contexts until every descendant is quiescent. Delayed assessment supplies two failures racing in different orders; keep deterministic creation-order reporting while preserving both errors in a bounded aggregate."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-001-R1",
+          "objective": "T73.01.a",
+          "criterion": "Explain scope-owned task lifetime, failure aggregation and cooperative cancellation, including why a cancellation flag does not establish completion or a bounded join latency.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-001-R2",
+          "objective": "T73.01.b",
+          "criterion": "Derive admission/closing/quiescent states, implement spawn/join and deterministic error selection, then compose with the existing work.pool artifact without detached tasks or prematurely released contexts.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-001-R3",
+          "objective": "T73.01.c",
+          "criterion": "Inject failure before every admission, record thread/context ownership, join zero/one/eight children, reject ninth admission and late spawn. Use a barrier-controlled failure with siblings acknowledging cancellation and compare accepted/completed counts. Reject both missing-cancellation and swallowed-result mutants. Run separate TSan and demonstrate that eventual cancellation needs child checkpoints.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-001-R4",
+          "objective": "T73.01.d",
+          "criterion": "Add nested nurseries with a parent deadline: propagate cancellation down while joining upward, retaining contexts until every descendant is quiescent. Delayed assessment supplies two failures racing in different orders; keep deterministic creation-order reporting while preserving both errors in a bounded aggregate.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Add nested nurseries with a parent deadline: propagate cancellation down while joining upward, retaining contexts until every descendant is quiescent. Delayed assessment supplies two failures racing in different orders; keep deterministic creation-order reporting while preserving both errors in a bounded aggregate."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-001.md",
+      "target_scope": "host",
+      "scope": "Explain scope-owned task lifetime, failure aggregation and cooperative cancellation, including why a cancellation flag does not establish completion or a bounded join latency.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-TRIO",
+          "locator": "Checkpoints",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-03",
+      "project": "PR-T73-02",
+      "title": "Construct: Bounded CSP channels, rendezvous and atomic select",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T73.02.a",
+        "T73.02.b",
+        "T73.02.c",
+        "T73.02.d"
+      ],
+      "tests": [
+        "messaging.channels"
+      ],
+      "steps": [
+        "Derive readiness, linearization, close/drain and cancellation semantics; compare deterministic selection with Go ready-case randomness and distinguish rendezvous acknowledgment from merely enqueuing an offer.",
+        "Implement buffered/rendezvous operations and select with a single predicate-registration boundary, explicit spurious-wakeup loops, finite tickets and quiescent destruction; retain coroutine frames until generation-specific disarm."
+      ],
+      "checks": [
+        "Capacity2: send7,close,send8 gives OK,OK,CLOSED; the first receive returns7 and the next CLOSED. Two ready channels alternate preference. A capacity0 sender of42 returns OK only after select consumes42. Close before acknowledgment returns CLOSED to sender; an acknowledged send remains successful if cancellation arrives before sender resumes.",
+        "Test full/empty, both ready, one closed, all closed, close with buffered values, cancellation with blocked sender/receiver and accepted-versus-unaccepted rendezvous. Repeatedly inject spurious broadcasts. Capture event histories and verify no lost/duplicated accepted values. Reject send-after-close and skipped-buffer mutants; independently model sequential traces and use TSan for actual threads."
+      ],
+      "reasoning": [
+        "Derive readiness, linearization, close/drain and cancellation semantics; compare deterministic selection with Go ready-case randomness and distinguish rendezvous acknowledgment from merely enqueuing an offer."
+      ],
+      "deliverables": [
+        "Implement buffered/rendezvous operations and select with a single predicate-registration boundary, explicit spurious-wakeup loops, finite tickets and quiescent destruction; retain coroutine frames until generation-specific disarm.",
+        "Test full/empty, both ready, one closed, all closed, close with buffered values, cancellation with blocked sender/receiver and accepted-versus-unaccepted rendezvous. Repeatedly inject spurious broadcasts. Capture event histories and verify no lost/duplicated accepted values. Reject send-after-close and skipped-buffer mutants; independently model sequential traces and use TSan for actual threads.",
+        "Change unsigned copies to owned buffers with a destructor: define ownership on failed send, close/drain and cancellation. Delayed assessment splits the hub into separately locked channels; derive a registration/recheck protocol that prevents a wakeup lost between observing empty and going to sleep, or justify retaining the common lock."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-002-R1",
+          "objective": "T73.02.a",
+          "criterion": "Derive readiness, linearization, close/drain and cancellation semantics; compare deterministic selection with Go ready-case randomness and distinguish rendezvous acknowledgment from merely enqueuing an offer.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-002-R2",
+          "objective": "T73.02.b",
+          "criterion": "Implement buffered/rendezvous operations and select with a single predicate-registration boundary, explicit spurious-wakeup loops, finite tickets and quiescent destruction; retain coroutine frames until generation-specific disarm.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-002-R3",
+          "objective": "T73.02.c",
+          "criterion": "Test full/empty, both ready, one closed, all closed, close with buffered values, cancellation with blocked sender/receiver and accepted-versus-unaccepted rendezvous. Repeatedly inject spurious broadcasts. Capture event histories and verify no lost/duplicated accepted values. Reject send-after-close and skipped-buffer mutants; independently model sequential traces and use TSan for actual threads.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-002-R4",
+          "objective": "T73.02.d",
+          "criterion": "Change unsigned copies to owned buffers with a destructor: define ownership on failed send, close/drain and cancellation. Delayed assessment splits the hub into separately locked channels; derive a registration/recheck protocol that prevents a wakeup lost between observing empty and going to sleep, or justify retaining the common lock.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Change unsigned copies to owned buffers with a destructor: define ownership on failed send, close/drain and cancellation. Delayed assessment splits the hub into separately locked channels; derive a registration/recheck protocol that prevents a wakeup lost between observing empty and going to sleep, or justify retaining the common lock."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-002.md",
+      "target_scope": "host",
+      "scope": "Derive readiness, linearization, close/drain and cancellation semantics; compare deterministic selection with Go ready-case randomness and distinguish rendezvous acknowledgment from merely enqueuing an offer.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-GO-SELECT",
+          "locator": "Select statements: operand evaluation and case selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-04",
+      "project": "PR-T73-02",
+      "title": "Falsify and transfer: Bounded CSP channels, rendezvous and atomic select",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T73.02.a",
+        "T73.02.b",
+        "T73.02.c",
+        "T73.02.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Test full/empty, both ready, one closed, all closed, close with buffered values, cancellation with blocked sender/receiver and accepted-versus-unaccepted rendezvous. Repeatedly inject spurious broadcasts. Capture event histories and verify no lost/duplicated accepted values. Reject send-after-close and skipped-buffer mutants; independently model sequential traces and use TSan for actual threads.",
+        "Change unsigned copies to owned buffers with a destructor: define ownership on failed send, close/drain and cancellation. Delayed assessment splits the hub into separately locked channels; derive a registration/recheck protocol that prevents a wakeup lost between observing empty and going to sleep, or justify retaining the common lock."
+      ],
+      "checks": [
+        "Capacity2: send7,close,send8 gives OK,OK,CLOSED; the first receive returns7 and the next CLOSED. Two ready channels alternate preference. A capacity0 sender of42 returns OK only after select consumes42. Close before acknowledgment returns CLOSED to sender; an acknowledged send remains successful if cancellation arrives before sender resumes.",
+        "Test full/empty, both ready, one closed, all closed, close with buffered values, cancellation with blocked sender/receiver and accepted-versus-unaccepted rendezvous. Repeatedly inject spurious broadcasts. Capture event histories and verify no lost/duplicated accepted values. Reject send-after-close and skipped-buffer mutants; independently model sequential traces and use TSan for actual threads."
+      ],
+      "reasoning": [
+        "Derive readiness, linearization, close/drain and cancellation semantics; compare deterministic selection with Go ready-case randomness and distinguish rendezvous acknowledgment from merely enqueuing an offer."
+      ],
+      "deliverables": [
+        "Implement buffered/rendezvous operations and select with a single predicate-registration boundary, explicit spurious-wakeup loops, finite tickets and quiescent destruction; retain coroutine frames until generation-specific disarm.",
+        "Test full/empty, both ready, one closed, all closed, close with buffered values, cancellation with blocked sender/receiver and accepted-versus-unaccepted rendezvous. Repeatedly inject spurious broadcasts. Capture event histories and verify no lost/duplicated accepted values. Reject send-after-close and skipped-buffer mutants; independently model sequential traces and use TSan for actual threads.",
+        "Change unsigned copies to owned buffers with a destructor: define ownership on failed send, close/drain and cancellation. Delayed assessment splits the hub into separately locked channels; derive a registration/recheck protocol that prevents a wakeup lost between observing empty and going to sleep, or justify retaining the common lock."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-002-R1",
+          "objective": "T73.02.a",
+          "criterion": "Derive readiness, linearization, close/drain and cancellation semantics; compare deterministic selection with Go ready-case randomness and distinguish rendezvous acknowledgment from merely enqueuing an offer.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-002-R2",
+          "objective": "T73.02.b",
+          "criterion": "Implement buffered/rendezvous operations and select with a single predicate-registration boundary, explicit spurious-wakeup loops, finite tickets and quiescent destruction; retain coroutine frames until generation-specific disarm.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-002-R3",
+          "objective": "T73.02.c",
+          "criterion": "Test full/empty, both ready, one closed, all closed, close with buffered values, cancellation with blocked sender/receiver and accepted-versus-unaccepted rendezvous. Repeatedly inject spurious broadcasts. Capture event histories and verify no lost/duplicated accepted values. Reject send-after-close and skipped-buffer mutants; independently model sequential traces and use TSan for actual threads.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-002-R4",
+          "objective": "T73.02.d",
+          "criterion": "Change unsigned copies to owned buffers with a destructor: define ownership on failed send, close/drain and cancellation. Delayed assessment splits the hub into separately locked channels; derive a registration/recheck protocol that prevents a wakeup lost between observing empty and going to sleep, or justify retaining the common lock.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Change unsigned copies to owned buffers with a destructor: define ownership on failed send, close/drain and cancellation. Delayed assessment splits the hub into separately locked channels; derive a registration/recheck protocol that prevents a wakeup lost between observing empty and going to sleep, or justify retaining the common lock."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-002.md",
+      "target_scope": "host",
+      "scope": "Derive readiness, linearization, close/drain and cancellation semantics; compare deterministic selection with Go ready-case randomness and distinguish rendezvous acknowledgment from merely enqueuing an offer.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-GO-SELECT",
+          "locator": "Select statements: operand evaluation and case selection",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-05",
+      "project": "PR-T73-03",
+      "title": "Construct: Senders, receivers and immovable operation-state lifetimes",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T73.03.a",
+        "T73.03.b",
+        "T73.03.c",
+        "T73.03.d"
+      ],
+      "tests": [
+        "messaging.operations"
+      ],
+      "steps": [
+        "Separate sender recipe, connected operation storage, start permission and completion ownership; identify the dated C++ proposal guarantees that an exposed C struct does not enforce.",
+        "Implement the serialized state protocol and backend lifetime adapter, including synchronous completion, cancellation races, callback reentrancy policy and exactly-once terminal release."
+      ],
+      "checks": [
+        "Complete before start is INVALID. Start then stop leaves STARTED with cancellation requested. Complete CANCELLED,3 invokes one receiver and reaches DONE. Duplicate complete on a still-live test state is INVALID and leaves callback count1. A separate heap-owned completion test frees the state inside its receiver without later access.",
+        "Enumerate invalid start/complete orders, value/error/stopped alternatives and cancellation-before-completion. Use a receiver that frees a heap state to detect post-callback access under ASan. Reject duplicate-completion and cancel-as-completion mutants. For a concurrent adapter, use one atomic winner and demonstrate that losers never inspect reclaimed storage without their own retained reference."
+      ],
+      "reasoning": [
+        "Separate sender recipe, connected operation storage, start permission and completion ownership; identify the dated C++ proposal guarantees that an exposed C struct does not enforce."
+      ],
+      "deliverables": [
+        "Implement the serialized state protocol and backend lifetime adapter, including synchronous completion, cancellation races, callback reentrancy policy and exactly-once terminal release.",
+        "Enumerate invalid start/complete orders, value/error/stopped alternatives and cancellation-before-completion. Use a receiver that frees a heap state to detect post-callback access under ASan. Reject duplicate-completion and cancel-as-completion mutants. For a concurrent adapter, use one atomic winner and demonstrate that losers never inspect reclaimed storage without their own retained reference.",
+        "Allow an operation to complete inline during start and let the receiver destroy its enclosing object. Delayed assessment connects a chain of two operations; ensure the successor starts only after ownership transfers and no predecessor field is accessed after its receiver may have destroyed it."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-003-R1",
+          "objective": "T73.03.a",
+          "criterion": "Separate sender recipe, connected operation storage, start permission and completion ownership; identify the dated C++ proposal guarantees that an exposed C struct does not enforce.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-003-R2",
+          "objective": "T73.03.b",
+          "criterion": "Implement the serialized state protocol and backend lifetime adapter, including synchronous completion, cancellation races, callback reentrancy policy and exactly-once terminal release.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-003-R3",
+          "objective": "T73.03.c",
+          "criterion": "Enumerate invalid start/complete orders, value/error/stopped alternatives and cancellation-before-completion. Use a receiver that frees a heap state to detect post-callback access under ASan. Reject duplicate-completion and cancel-as-completion mutants. For a concurrent adapter, use one atomic winner and demonstrate that losers never inspect reclaimed storage without their own retained reference.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-003-R4",
+          "objective": "T73.03.d",
+          "criterion": "Allow an operation to complete inline during start and let the receiver destroy its enclosing object. Delayed assessment connects a chain of two operations; ensure the successor starts only after ownership transfers and no predecessor field is accessed after its receiver may have destroyed it.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Allow an operation to complete inline during start and let the receiver destroy its enclosing object. Delayed assessment connects a chain of two operations; ensure the successor starts only after ownership transfers and no predecessor field is accessed after its receiver may have destroyed it."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-003.md",
+      "target_scope": "host",
+      "scope": "Separate sender recipe, connected operation storage, start permission and completion ownership; identify the dated C++ proposal guarantees that an exposed C struct does not enforce.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-P2300",
+          "locator": "5.2 Operation states",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-06",
+      "project": "PR-T73-03",
+      "title": "Falsify and transfer: Senders, receivers and immovable operation-state lifetimes",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T73.03.a",
+        "T73.03.b",
+        "T73.03.c",
+        "T73.03.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate invalid start/complete orders, value/error/stopped alternatives and cancellation-before-completion. Use a receiver that frees a heap state to detect post-callback access under ASan. Reject duplicate-completion and cancel-as-completion mutants. For a concurrent adapter, use one atomic winner and demonstrate that losers never inspect reclaimed storage without their own retained reference.",
+        "Allow an operation to complete inline during start and let the receiver destroy its enclosing object. Delayed assessment connects a chain of two operations; ensure the successor starts only after ownership transfers and no predecessor field is accessed after its receiver may have destroyed it."
+      ],
+      "checks": [
+        "Complete before start is INVALID. Start then stop leaves STARTED with cancellation requested. Complete CANCELLED,3 invokes one receiver and reaches DONE. Duplicate complete on a still-live test state is INVALID and leaves callback count1. A separate heap-owned completion test frees the state inside its receiver without later access.",
+        "Enumerate invalid start/complete orders, value/error/stopped alternatives and cancellation-before-completion. Use a receiver that frees a heap state to detect post-callback access under ASan. Reject duplicate-completion and cancel-as-completion mutants. For a concurrent adapter, use one atomic winner and demonstrate that losers never inspect reclaimed storage without their own retained reference."
+      ],
+      "reasoning": [
+        "Separate sender recipe, connected operation storage, start permission and completion ownership; identify the dated C++ proposal guarantees that an exposed C struct does not enforce."
+      ],
+      "deliverables": [
+        "Implement the serialized state protocol and backend lifetime adapter, including synchronous completion, cancellation races, callback reentrancy policy and exactly-once terminal release.",
+        "Enumerate invalid start/complete orders, value/error/stopped alternatives and cancellation-before-completion. Use a receiver that frees a heap state to detect post-callback access under ASan. Reject duplicate-completion and cancel-as-completion mutants. For a concurrent adapter, use one atomic winner and demonstrate that losers never inspect reclaimed storage without their own retained reference.",
+        "Allow an operation to complete inline during start and let the receiver destroy its enclosing object. Delayed assessment connects a chain of two operations; ensure the successor starts only after ownership transfers and no predecessor field is accessed after its receiver may have destroyed it."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-003-R1",
+          "objective": "T73.03.a",
+          "criterion": "Separate sender recipe, connected operation storage, start permission and completion ownership; identify the dated C++ proposal guarantees that an exposed C struct does not enforce.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-003-R2",
+          "objective": "T73.03.b",
+          "criterion": "Implement the serialized state protocol and backend lifetime adapter, including synchronous completion, cancellation races, callback reentrancy policy and exactly-once terminal release.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-003-R3",
+          "objective": "T73.03.c",
+          "criterion": "Enumerate invalid start/complete orders, value/error/stopped alternatives and cancellation-before-completion. Use a receiver that frees a heap state to detect post-callback access under ASan. Reject duplicate-completion and cancel-as-completion mutants. For a concurrent adapter, use one atomic winner and demonstrate that losers never inspect reclaimed storage without their own retained reference.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-003-R4",
+          "objective": "T73.03.d",
+          "criterion": "Allow an operation to complete inline during start and let the receiver destroy its enclosing object. Delayed assessment connects a chain of two operations; ensure the successor starts only after ownership transfers and no predecessor field is accessed after its receiver may have destroyed it.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Allow an operation to complete inline during start and let the receiver destroy its enclosing object. Delayed assessment connects a chain of two operations; ensure the successor starts only after ownership transfers and no predecessor field is accessed after its receiver may have destroyed it."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-003.md",
+      "target_scope": "host",
+      "scope": "Separate sender recipe, connected operation storage, start permission and completion ownership; identify the dated C++ proposal guarantees that an exposed C struct does not enforce.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-P2300",
+          "locator": "5.2 Operation states",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-07",
+      "project": "PR-T73-04",
+      "title": "Construct: Actor incarnations, copied mailboxes and failure boundaries",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T73.04.a",
+        "T73.04.b",
+        "T73.04.c",
+        "T73.04.d"
+      ],
+      "tests": [
+        "messaging.actors"
+      ],
+      "steps": [
+        "Explain mailbox ownership, actor identity across restart, run-to-completion serialization and the limit of let-it-crash recovery when effects have already escaped the actor.",
+        "Implement admission, dispatch, death and reincarnation with finite generation retirement; design the channel-to-actor executor boundary and message-drop ownership."
+      ],
+      "checks": [
+        "Enqueue2,99,3 for generation1, where handler99 fails. Step2 adds2, step99 fails and queued3 is discarded. Restart creates generation2; generation1 messages are STALE and cannot affect the new actor. Recursive step while a handler is active returns BUSY.",
+        "Test full mailbox, stale identity, nested step, failure with queued work, restart while alive and generation exhaustion. Reject stale-generation admission and retained-dead-mailbox mutants. Record effects before failure to show they are not rolled back. Compare actor serialization to a mutex-protected shared object under the same observable ordering."
+      ],
+      "reasoning": [
+        "Explain mailbox ownership, actor identity across restart, run-to-completion serialization and the limit of let-it-crash recovery when effects have already escaped the actor."
+      ],
+      "deliverables": [
+        "Implement admission, dispatch, death and reincarnation with finite generation retirement; design the channel-to-actor executor boundary and message-drop ownership.",
+        "Test full mailbox, stale identity, nested step, failure with queued work, restart while alive and generation exhaustion. Reject stale-generation admission and retained-dead-mailbox mutants. Record effects before failure to show they are not rolled back. Compare actor serialization to a mutex-protected shared object under the same observable ordering.",
+        "Messages become owned buffers and handlers may enqueue to themselves: implement deterministic destruction of abandoned messages without recursive dispatch. Delayed assessment receives a late reply addressed to a previous incarnation after restart; route it to an explicit dead-letter sink and prevent delivery to the replacement actor."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-004-R1",
+          "objective": "T73.04.a",
+          "criterion": "Explain mailbox ownership, actor identity across restart, run-to-completion serialization and the limit of let-it-crash recovery when effects have already escaped the actor.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-004-R2",
+          "objective": "T73.04.b",
+          "criterion": "Implement admission, dispatch, death and reincarnation with finite generation retirement; design the channel-to-actor executor boundary and message-drop ownership.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-004-R3",
+          "objective": "T73.04.c",
+          "criterion": "Test full mailbox, stale identity, nested step, failure with queued work, restart while alive and generation exhaustion. Reject stale-generation admission and retained-dead-mailbox mutants. Record effects before failure to show they are not rolled back. Compare actor serialization to a mutex-protected shared object under the same observable ordering.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-004-R4",
+          "objective": "T73.04.d",
+          "criterion": "Messages become owned buffers and handlers may enqueue to themselves: implement deterministic destruction of abandoned messages without recursive dispatch. Delayed assessment receives a late reply addressed to a previous incarnation after restart; route it to an explicit dead-letter sink and prevent delivery to the replacement actor.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Messages become owned buffers and handlers may enqueue to themselves: implement deterministic destruction of abandoned messages without recursive dispatch. Delayed assessment receives a late reply addressed to a previous incarnation after restart; route it to an explicit dead-letter sink and prevent delivery to the replacement actor."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-004.md",
+      "target_scope": "host",
+      "scope": "Explain mailbox ownership, actor identity across restart, run-to-completion serialization and the limit of let-it-crash recovery when effects have already escaped the actor.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-OTP-SUP",
+          "locator": "Principles",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-08",
+      "project": "PR-T73-04",
+      "title": "Falsify and transfer: Actor incarnations, copied mailboxes and failure boundaries",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T73.04.a",
+        "T73.04.b",
+        "T73.04.c",
+        "T73.04.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Test full mailbox, stale identity, nested step, failure with queued work, restart while alive and generation exhaustion. Reject stale-generation admission and retained-dead-mailbox mutants. Record effects before failure to show they are not rolled back. Compare actor serialization to a mutex-protected shared object under the same observable ordering.",
+        "Messages become owned buffers and handlers may enqueue to themselves: implement deterministic destruction of abandoned messages without recursive dispatch. Delayed assessment receives a late reply addressed to a previous incarnation after restart; route it to an explicit dead-letter sink and prevent delivery to the replacement actor."
+      ],
+      "checks": [
+        "Enqueue2,99,3 for generation1, where handler99 fails. Step2 adds2, step99 fails and queued3 is discarded. Restart creates generation2; generation1 messages are STALE and cannot affect the new actor. Recursive step while a handler is active returns BUSY.",
+        "Test full mailbox, stale identity, nested step, failure with queued work, restart while alive and generation exhaustion. Reject stale-generation admission and retained-dead-mailbox mutants. Record effects before failure to show they are not rolled back. Compare actor serialization to a mutex-protected shared object under the same observable ordering."
+      ],
+      "reasoning": [
+        "Explain mailbox ownership, actor identity across restart, run-to-completion serialization and the limit of let-it-crash recovery when effects have already escaped the actor."
+      ],
+      "deliverables": [
+        "Implement admission, dispatch, death and reincarnation with finite generation retirement; design the channel-to-actor executor boundary and message-drop ownership.",
+        "Test full mailbox, stale identity, nested step, failure with queued work, restart while alive and generation exhaustion. Reject stale-generation admission and retained-dead-mailbox mutants. Record effects before failure to show they are not rolled back. Compare actor serialization to a mutex-protected shared object under the same observable ordering.",
+        "Messages become owned buffers and handlers may enqueue to themselves: implement deterministic destruction of abandoned messages without recursive dispatch. Delayed assessment receives a late reply addressed to a previous incarnation after restart; route it to an explicit dead-letter sink and prevent delivery to the replacement actor."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-004-R1",
+          "objective": "T73.04.a",
+          "criterion": "Explain mailbox ownership, actor identity across restart, run-to-completion serialization and the limit of let-it-crash recovery when effects have already escaped the actor.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-004-R2",
+          "objective": "T73.04.b",
+          "criterion": "Implement admission, dispatch, death and reincarnation with finite generation retirement; design the channel-to-actor executor boundary and message-drop ownership.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-004-R3",
+          "objective": "T73.04.c",
+          "criterion": "Test full mailbox, stale identity, nested step, failure with queued work, restart while alive and generation exhaustion. Reject stale-generation admission and retained-dead-mailbox mutants. Record effects before failure to show they are not rolled back. Compare actor serialization to a mutex-protected shared object under the same observable ordering.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-004-R4",
+          "objective": "T73.04.d",
+          "criterion": "Messages become owned buffers and handlers may enqueue to themselves: implement deterministic destruction of abandoned messages without recursive dispatch. Delayed assessment receives a late reply addressed to a previous incarnation after restart; route it to an explicit dead-letter sink and prevent delivery to the replacement actor.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Messages become owned buffers and handlers may enqueue to themselves: implement deterministic destruction of abandoned messages without recursive dispatch. Delayed assessment receives a late reply addressed to a previous incarnation after restart; route it to an explicit dead-letter sink and prevent delivery to the replacement actor."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-004.md",
+      "target_scope": "host",
+      "scope": "Explain mailbox ownership, actor identity across restart, run-to-completion serialization and the limit of let-it-crash recovery when effects have already escaped the actor.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-OTP-SUP",
+          "locator": "Principles",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-09",
+      "project": "PR-T73-05",
+      "title": "Construct: Supervision trees with restart budgets and ordered quiescence",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T73.05.a",
+        "T73.05.b",
+        "T73.05.c",
+        "T73.05.d"
+      ],
+      "tests": [
+        "messaging.supervision"
+      ],
+      "steps": [
+        "Derive restart topology, intensity accounting and the error-kernel boundary; explain why restarting healthy siblings may be necessary and why unlimited restart can amplify faults.",
+        "Implement ordered restart plans with bounded timestamp storage and an actor execution adapter that preserves quiescence and accounts for partial restart failure."
+      ],
+      "checks": [
+        "REST failure at child1 yields[-4,-3,-2,2,3,4]. With limit2/window10, failures at0 and1 restart; failure at2 escalates with[-4,-3,-2,-1]. With limit1/window10, failures at1 and11 are both admitted because the older event is outside the strict window.",
+        "Independently enumerate all12 strategy/failed-child selections, test exact window boundary, backwards time, maximum timestamps and escalation permanence. Reject forward-stop and omitted-start mutants. Inject handler and restart failures, compare emitted action order and prove no restarted child observes a dependency that is still stopped."
+      ],
+      "reasoning": [
+        "Derive restart topology, intensity accounting and the error-kernel boundary; explain why restarting healthy siblings may be necessary and why unlimited restart can amplify faults."
+      ],
+      "deliverables": [
+        "Implement ordered restart plans with bounded timestamp storage and an actor execution adapter that preserves quiescence and accounts for partial restart failure.",
+        "Independently enumerate all12 strategy/failed-child selections, test exact window boundary, backwards time, maximum timestamps and escalation permanence. Reject forward-stop and omitted-start mutants. Inject handler and restart failures, compare emitted action order and prove no restarted child observes a dependency that is still stopped.",
+        "Replace the flat four-child group with a two-level tree and distinct parent/child budgets. Delayed assessment makes child2 depend on child1 initialization and fail during restart; derive whether to escalate, roll back already restarted children or retain a documented degraded state."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-005-R1",
+          "objective": "T73.05.a",
+          "criterion": "Derive restart topology, intensity accounting and the error-kernel boundary; explain why restarting healthy siblings may be necessary and why unlimited restart can amplify faults.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-005-R2",
+          "objective": "T73.05.b",
+          "criterion": "Implement ordered restart plans with bounded timestamp storage and an actor execution adapter that preserves quiescence and accounts for partial restart failure.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-005-R3",
+          "objective": "T73.05.c",
+          "criterion": "Independently enumerate all12 strategy/failed-child selections, test exact window boundary, backwards time, maximum timestamps and escalation permanence. Reject forward-stop and omitted-start mutants. Inject handler and restart failures, compare emitted action order and prove no restarted child observes a dependency that is still stopped.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-005-R4",
+          "objective": "T73.05.d",
+          "criterion": "Replace the flat four-child group with a two-level tree and distinct parent/child budgets. Delayed assessment makes child2 depend on child1 initialization and fail during restart; derive whether to escalate, roll back already restarted children or retain a documented degraded state.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Replace the flat four-child group with a two-level tree and distinct parent/child budgets. Delayed assessment makes child2 depend on child1 initialization and fail during restart; derive whether to escalate, roll back already restarted children or retain a documented degraded state."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-005.md",
+      "target_scope": "host",
+      "scope": "Derive restart topology, intensity accounting and the error-kernel boundary; explain why restarting healthy siblings may be necessary and why unlimited restart can amplify faults.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-OTP-SUP",
+          "locator": "Principles",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-10",
+      "project": "PR-T73-05",
+      "title": "Falsify and transfer: Supervision trees with restart budgets and ordered quiescence",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T73.05.a",
+        "T73.05.b",
+        "T73.05.c",
+        "T73.05.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Independently enumerate all12 strategy/failed-child selections, test exact window boundary, backwards time, maximum timestamps and escalation permanence. Reject forward-stop and omitted-start mutants. Inject handler and restart failures, compare emitted action order and prove no restarted child observes a dependency that is still stopped.",
+        "Replace the flat four-child group with a two-level tree and distinct parent/child budgets. Delayed assessment makes child2 depend on child1 initialization and fail during restart; derive whether to escalate, roll back already restarted children or retain a documented degraded state."
+      ],
+      "checks": [
+        "REST failure at child1 yields[-4,-3,-2,2,3,4]. With limit2/window10, failures at0 and1 restart; failure at2 escalates with[-4,-3,-2,-1]. With limit1/window10, failures at1 and11 are both admitted because the older event is outside the strict window.",
+        "Independently enumerate all12 strategy/failed-child selections, test exact window boundary, backwards time, maximum timestamps and escalation permanence. Reject forward-stop and omitted-start mutants. Inject handler and restart failures, compare emitted action order and prove no restarted child observes a dependency that is still stopped."
+      ],
+      "reasoning": [
+        "Derive restart topology, intensity accounting and the error-kernel boundary; explain why restarting healthy siblings may be necessary and why unlimited restart can amplify faults."
+      ],
+      "deliverables": [
+        "Implement ordered restart plans with bounded timestamp storage and an actor execution adapter that preserves quiescence and accounts for partial restart failure.",
+        "Independently enumerate all12 strategy/failed-child selections, test exact window boundary, backwards time, maximum timestamps and escalation permanence. Reject forward-stop and omitted-start mutants. Inject handler and restart failures, compare emitted action order and prove no restarted child observes a dependency that is still stopped.",
+        "Replace the flat four-child group with a two-level tree and distinct parent/child budgets. Delayed assessment makes child2 depend on child1 initialization and fail during restart; derive whether to escalate, roll back already restarted children or retain a documented degraded state."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-005-R1",
+          "objective": "T73.05.a",
+          "criterion": "Derive restart topology, intensity accounting and the error-kernel boundary; explain why restarting healthy siblings may be necessary and why unlimited restart can amplify faults.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-005-R2",
+          "objective": "T73.05.b",
+          "criterion": "Implement ordered restart plans with bounded timestamp storage and an actor execution adapter that preserves quiescence and accounts for partial restart failure.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-005-R3",
+          "objective": "T73.05.c",
+          "criterion": "Independently enumerate all12 strategy/failed-child selections, test exact window boundary, backwards time, maximum timestamps and escalation permanence. Reject forward-stop and omitted-start mutants. Inject handler and restart failures, compare emitted action order and prove no restarted child observes a dependency that is still stopped.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-005-R4",
+          "objective": "T73.05.d",
+          "criterion": "Replace the flat four-child group with a two-level tree and distinct parent/child budgets. Delayed assessment makes child2 depend on child1 initialization and fail during restart; derive whether to escalate, roll back already restarted children or retain a documented degraded state.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Replace the flat four-child group with a two-level tree and distinct parent/child budgets. Delayed assessment makes child2 depend on child1 initialization and fail during restart; derive whether to escalate, roll back already restarted children or retain a documented degraded state."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-005.md",
+      "target_scope": "host",
+      "scope": "Derive restart topology, intensity accounting and the error-kernel boundary; explain why restarting healthy siblings may be necessary and why unlimited restart can amplify faults.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-OTP-SUP",
+          "locator": "Principles",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-11",
+      "project": "PR-T73-06",
+      "title": "Construct: Bounded work stealing with an explicit C memory-order proof",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T73.06.a",
+        "T73.06.b",
+        "T73.06.c",
+        "T73.06.d"
+      ],
+      "tests": [
+        "messaging.stealing"
+      ],
+      "steps": [
+        "Identify linearization and ownership in owner/thief races, last-item arbitration, finite-index exhaustion and stale slot reads; distinguish SC correctness from weak-order proof and actual lock-free progress.",
+        "Derive a circular representation with monotonic nonwrapping indices and atomic slots; implement push/pop/steal with a proof for empty, full, last-item and reused-slot states."
+      ],
+      "checks": [
+        "Push7,push8,pop,steal,steal returns OK,OK,8,7,EMPTY. Eight live entries fill capacity and a ninth push leaves state unchanged. Empty pop preserves its output canary. Starting quiescent top=bottom=SIZE_MAX-1 makes push return OVERFLOW. Two thieves plus owner process4000 distinct IDs exactly once in the supplied threaded anchor.",
+        "Differentially compare1095 bounded sequential traces with Python deque, include repeated empty pops and capacity reuse, record concurrent invocation/response histories and check small histories for legal linearizations. Reject wrong-pop and omitted-steal-CAS mutants. Run TSan, inspect generated instructions and report atomic_is_lock_free; do not infer weak-memory correctness from x86 stress."
+      ],
+      "reasoning": [
+        "Identify linearization and ownership in owner/thief races, last-item arbitration, finite-index exhaustion and stale slot reads; distinguish SC correctness from weak-order proof and actual lock-free progress."
+      ],
+      "deliverables": [
+        "Derive a circular representation with monotonic nonwrapping indices and atomic slots; implement push/pop/steal with a proof for empty, full, last-item and reused-slot states.",
+        "Differentially compare1095 bounded sequential traces with Python deque, include repeated empty pops and capacity reuse, record concurrent invocation/response histories and check small histories for legal linearizations. Reject wrong-pop and omitted-steal-CAS mutants. Run TSan, inspect generated instructions and report atomic_is_lock_free; do not infer weak-memory correctness from x86 stress.",
+        "Weaken SC to acquire/release/fences one edge at a time, deriving a C memory-model argument and model-checker counterexamples before benchmarking. Delayed assessment changes payloads to pointers and permits array growth: add a reclamation scheme and prove a losing thief cannot dereference freed storage."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-006-R1",
+          "objective": "T73.06.a",
+          "criterion": "Identify linearization and ownership in owner/thief races, last-item arbitration, finite-index exhaustion and stale slot reads; distinguish SC correctness from weak-order proof and actual lock-free progress.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-006-R2",
+          "objective": "T73.06.b",
+          "criterion": "Derive a circular representation with monotonic nonwrapping indices and atomic slots; implement push/pop/steal with a proof for empty, full, last-item and reused-slot states.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-006-R3",
+          "objective": "T73.06.c",
+          "criterion": "Differentially compare1095 bounded sequential traces with Python deque, include repeated empty pops and capacity reuse, record concurrent invocation/response histories and check small histories for legal linearizations. Reject wrong-pop and omitted-steal-CAS mutants. Run TSan, inspect generated instructions and report atomic_is_lock_free; do not infer weak-memory correctness from x86 stress.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-006-R4",
+          "objective": "T73.06.d",
+          "criterion": "Weaken SC to acquire/release/fences one edge at a time, deriving a C memory-model argument and model-checker counterexamples before benchmarking. Delayed assessment changes payloads to pointers and permits array growth: add a reclamation scheme and prove a losing thief cannot dereference freed storage.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Weaken SC to acquire/release/fences one edge at a time, deriving a C memory-model argument and model-checker counterexamples before benchmarking. Delayed assessment changes payloads to pointers and permits array growth: add a reclamation scheme and prove a losing thief cannot dereference freed storage."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-006.md",
+      "target_scope": "host",
+      "scope": "Identify linearization and ownership in owner/thief races, last-item arbitration, finite-index exhaustion and stale slot reads; distinguish SC correctness from weak-order proof and actual lock-free progress.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-CHASE-LEV-C11",
+          "locator": "Section2 and2.1",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-MOD-P0690",
+          "locator": "2 Background",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-12",
+      "project": "PR-T73-06",
+      "title": "Falsify and transfer: Bounded work stealing with an explicit C memory-order proof",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T73.06.a",
+        "T73.06.b",
+        "T73.06.c",
+        "T73.06.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Differentially compare1095 bounded sequential traces with Python deque, include repeated empty pops and capacity reuse, record concurrent invocation/response histories and check small histories for legal linearizations. Reject wrong-pop and omitted-steal-CAS mutants. Run TSan, inspect generated instructions and report atomic_is_lock_free; do not infer weak-memory correctness from x86 stress.",
+        "Weaken SC to acquire/release/fences one edge at a time, deriving a C memory-model argument and model-checker counterexamples before benchmarking. Delayed assessment changes payloads to pointers and permits array growth: add a reclamation scheme and prove a losing thief cannot dereference freed storage."
+      ],
+      "checks": [
+        "Push7,push8,pop,steal,steal returns OK,OK,8,7,EMPTY. Eight live entries fill capacity and a ninth push leaves state unchanged. Empty pop preserves its output canary. Starting quiescent top=bottom=SIZE_MAX-1 makes push return OVERFLOW. Two thieves plus owner process4000 distinct IDs exactly once in the supplied threaded anchor.",
+        "Differentially compare1095 bounded sequential traces with Python deque, include repeated empty pops and capacity reuse, record concurrent invocation/response histories and check small histories for legal linearizations. Reject wrong-pop and omitted-steal-CAS mutants. Run TSan, inspect generated instructions and report atomic_is_lock_free; do not infer weak-memory correctness from x86 stress."
+      ],
+      "reasoning": [
+        "Identify linearization and ownership in owner/thief races, last-item arbitration, finite-index exhaustion and stale slot reads; distinguish SC correctness from weak-order proof and actual lock-free progress."
+      ],
+      "deliverables": [
+        "Derive a circular representation with monotonic nonwrapping indices and atomic slots; implement push/pop/steal with a proof for empty, full, last-item and reused-slot states.",
+        "Differentially compare1095 bounded sequential traces with Python deque, include repeated empty pops and capacity reuse, record concurrent invocation/response histories and check small histories for legal linearizations. Reject wrong-pop and omitted-steal-CAS mutants. Run TSan, inspect generated instructions and report atomic_is_lock_free; do not infer weak-memory correctness from x86 stress.",
+        "Weaken SC to acquire/release/fences one edge at a time, deriving a C memory-model argument and model-checker counterexamples before benchmarking. Delayed assessment changes payloads to pointers and permits array growth: add a reclamation scheme and prove a losing thief cannot dereference freed storage."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-006-R1",
+          "objective": "T73.06.a",
+          "criterion": "Identify linearization and ownership in owner/thief races, last-item arbitration, finite-index exhaustion and stale slot reads; distinguish SC correctness from weak-order proof and actual lock-free progress.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-006-R2",
+          "objective": "T73.06.b",
+          "criterion": "Derive a circular representation with monotonic nonwrapping indices and atomic slots; implement push/pop/steal with a proof for empty, full, last-item and reused-slot states.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-006-R3",
+          "objective": "T73.06.c",
+          "criterion": "Differentially compare1095 bounded sequential traces with Python deque, include repeated empty pops and capacity reuse, record concurrent invocation/response histories and check small histories for legal linearizations. Reject wrong-pop and omitted-steal-CAS mutants. Run TSan, inspect generated instructions and report atomic_is_lock_free; do not infer weak-memory correctness from x86 stress.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-006-R4",
+          "objective": "T73.06.d",
+          "criterion": "Weaken SC to acquire/release/fences one edge at a time, deriving a C memory-model argument and model-checker counterexamples before benchmarking. Delayed assessment changes payloads to pointers and permits array growth: add a reclamation scheme and prove a losing thief cannot dereference freed storage.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Weaken SC to acquire/release/fences one edge at a time, deriving a C memory-model argument and model-checker counterexamples before benchmarking. Delayed assessment changes payloads to pointers and permits array growth: add a reclamation scheme and prove a losing thief cannot dereference freed storage."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-006.md",
+      "target_scope": "host",
+      "scope": "Identify linearization and ownership in owner/thief races, last-item arbitration, finite-index exhaustion and stale slot reads; distinguish SC correctness from weak-order proof and actual lock-free progress.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-CHASE-LEV-C11",
+          "locator": "Section2 and2.1",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-MOD-P0690",
+          "locator": "2 Background",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-13",
+      "project": "PR-T73-07",
+      "title": "Construct: TL2-style software transactions over actual C17 atomics",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T73.07.a",
+        "T73.07.b",
+        "T73.07.c",
+        "T73.07.d"
+      ],
+      "tests": [
+        "messaging.transactions"
+      ],
+      "steps": [
+        "Derive snapshot validation, write-set locking, abort restoration and the distinction between transaction isolation, atomic C accesses and memory reclamation; explain inconsistent-read hazards before commit.",
+        "Implement bounded read/write sets, read-your-writes, nonblocking lock acquisition and validated commit using the declared SC baseline; prove failed commits leave payload unchanged while allowing timestamp gaps."
+      ],
+      "checks": [
+        "TransactionA starts, B writes cell0=7 and commits: A reading cell0 returns CONFLICT without changing output99. If A reads7 before B commits8, then stages cell1=9, A commit conflicts and cell1 remains0 with its lock clear. Two concurrent increment transactions over two equal cells produce2000 committed increments and never expose unequal admitted reads.",
+        "Force conflict before a read, after a read and during partial lock acquisition; test repeated writes, empty/read-only transactions and timestamp exhaustion. Reject missing read validation and missing commit validation mutants. Use an independent serial-history model for small schedules, TSan for actual threads and fault hooks for every commit phase. Explain why atomic individual loads alone do not provide a coherent transaction."
+      ],
+      "reasoning": [
+        "Derive snapshot validation, write-set locking, abort restoration and the distinction between transaction isolation, atomic C accesses and memory reclamation; explain inconsistent-read hazards before commit."
+      ],
+      "deliverables": [
+        "Implement bounded read/write sets, read-your-writes, nonblocking lock acquisition and validated commit using the declared SC baseline; prove failed commits leave payload unchanged while allowing timestamp gaps.",
+        "Force conflict before a read, after a read and during partial lock acquisition; test repeated writes, empty/read-only transactions and timestamp exhaustion. Reject missing read validation and missing commit validation mutants. Use an independent serial-history model for small schedules, TSan for actual threads and fault hooks for every commit phase. Explain why atomic individual loads alone do not provide a coherent transaction.",
+        "Introduce a retryable callback with a synthetic log effect: stage it for commit or supply compensation rather than replaying it blindly. Delayed assessment allows dynamically allocated nodes and privatization; show why the fixed-cell proof says nothing about reclaimed node lifetime and design a compatible reclamation protocol."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-007-R1",
+          "objective": "T73.07.a",
+          "criterion": "Derive snapshot validation, write-set locking, abort restoration and the distinction between transaction isolation, atomic C accesses and memory reclamation; explain inconsistent-read hazards before commit.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-007-R2",
+          "objective": "T73.07.b",
+          "criterion": "Implement bounded read/write sets, read-your-writes, nonblocking lock acquisition and validated commit using the declared SC baseline; prove failed commits leave payload unchanged while allowing timestamp gaps.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-007-R3",
+          "objective": "T73.07.c",
+          "criterion": "Force conflict before a read, after a read and during partial lock acquisition; test repeated writes, empty/read-only transactions and timestamp exhaustion. Reject missing read validation and missing commit validation mutants. Use an independent serial-history model for small schedules, TSan for actual threads and fault hooks for every commit phase. Explain why atomic individual loads alone do not provide a coherent transaction.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-007-R4",
+          "objective": "T73.07.d",
+          "criterion": "Introduce a retryable callback with a synthetic log effect: stage it for commit or supply compensation rather than replaying it blindly. Delayed assessment allows dynamically allocated nodes and privatization; show why the fixed-cell proof says nothing about reclaimed node lifetime and design a compatible reclamation protocol.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce a retryable callback with a synthetic log effect: stage it for commit or supply compensation rather than replaying it blindly. Delayed assessment allows dynamically allocated nodes and privatization; show why the fixed-cell proof says nothing about reclaimed node lifetime and design a compatible reclamation protocol."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-007.md",
+      "target_scope": "host",
+      "scope": "Derive snapshot validation, write-set locking, abort restoration and the distinction between transaction isolation, atomic C accesses and memory reclamation; explain inconsistent-read hazards before commit.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-TL2",
+          "locator": "1.1–1.4 motivation and inconsistent reads",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-14",
+      "project": "PR-T73-07",
+      "title": "Falsify and transfer: TL2-style software transactions over actual C17 atomics",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T73.07.a",
+        "T73.07.b",
+        "T73.07.c",
+        "T73.07.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Force conflict before a read, after a read and during partial lock acquisition; test repeated writes, empty/read-only transactions and timestamp exhaustion. Reject missing read validation and missing commit validation mutants. Use an independent serial-history model for small schedules, TSan for actual threads and fault hooks for every commit phase. Explain why atomic individual loads alone do not provide a coherent transaction.",
+        "Introduce a retryable callback with a synthetic log effect: stage it for commit or supply compensation rather than replaying it blindly. Delayed assessment allows dynamically allocated nodes and privatization; show why the fixed-cell proof says nothing about reclaimed node lifetime and design a compatible reclamation protocol."
+      ],
+      "checks": [
+        "TransactionA starts, B writes cell0=7 and commits: A reading cell0 returns CONFLICT without changing output99. If A reads7 before B commits8, then stages cell1=9, A commit conflicts and cell1 remains0 with its lock clear. Two concurrent increment transactions over two equal cells produce2000 committed increments and never expose unequal admitted reads.",
+        "Force conflict before a read, after a read and during partial lock acquisition; test repeated writes, empty/read-only transactions and timestamp exhaustion. Reject missing read validation and missing commit validation mutants. Use an independent serial-history model for small schedules, TSan for actual threads and fault hooks for every commit phase. Explain why atomic individual loads alone do not provide a coherent transaction."
+      ],
+      "reasoning": [
+        "Derive snapshot validation, write-set locking, abort restoration and the distinction between transaction isolation, atomic C accesses and memory reclamation; explain inconsistent-read hazards before commit."
+      ],
+      "deliverables": [
+        "Implement bounded read/write sets, read-your-writes, nonblocking lock acquisition and validated commit using the declared SC baseline; prove failed commits leave payload unchanged while allowing timestamp gaps.",
+        "Force conflict before a read, after a read and during partial lock acquisition; test repeated writes, empty/read-only transactions and timestamp exhaustion. Reject missing read validation and missing commit validation mutants. Use an independent serial-history model for small schedules, TSan for actual threads and fault hooks for every commit phase. Explain why atomic individual loads alone do not provide a coherent transaction.",
+        "Introduce a retryable callback with a synthetic log effect: stage it for commit or supply compensation rather than replaying it blindly. Delayed assessment allows dynamically allocated nodes and privatization; show why the fixed-cell proof says nothing about reclaimed node lifetime and design a compatible reclamation protocol."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-007-R1",
+          "objective": "T73.07.a",
+          "criterion": "Derive snapshot validation, write-set locking, abort restoration and the distinction between transaction isolation, atomic C accesses and memory reclamation; explain inconsistent-read hazards before commit.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-007-R2",
+          "objective": "T73.07.b",
+          "criterion": "Implement bounded read/write sets, read-your-writes, nonblocking lock acquisition and validated commit using the declared SC baseline; prove failed commits leave payload unchanged while allowing timestamp gaps.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-007-R3",
+          "objective": "T73.07.c",
+          "criterion": "Force conflict before a read, after a read and during partial lock acquisition; test repeated writes, empty/read-only transactions and timestamp exhaustion. Reject missing read validation and missing commit validation mutants. Use an independent serial-history model for small schedules, TSan for actual threads and fault hooks for every commit phase. Explain why atomic individual loads alone do not provide a coherent transaction.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-007-R4",
+          "objective": "T73.07.d",
+          "criterion": "Introduce a retryable callback with a synthetic log effect: stage it for commit or supply compensation rather than replaying it blindly. Delayed assessment allows dynamically allocated nodes and privatization; show why the fixed-cell proof says nothing about reclaimed node lifetime and design a compatible reclamation protocol.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Introduce a retryable callback with a synthetic log effect: stage it for commit or supply compensation rather than replaying it blindly. Delayed assessment allows dynamically allocated nodes and privatization; show why the fixed-cell proof says nothing about reclaimed node lifetime and design a compatible reclamation protocol."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-007.md",
+      "target_scope": "host",
+      "scope": "Derive snapshot validation, write-set locking, abort restoration and the distinction between transaction isolation, atomic C accesses and memory reclamation; explain inconsistent-read hazards before commit.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-TL2",
+          "locator": "1.1–1.4 motivation and inconsistent reads",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-15",
+      "project": "PR-T73-08",
+      "title": "Construct: Multiversion visibility, reader pins and bounded reclamation",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T73.08.a",
+        "T73.08.b",
+        "T73.08.c",
+        "T73.08.d"
+      ],
+      "tests": [
+        "messaging.snapshots"
+      ],
+      "steps": [
+        "Derive version visibility and retention from reader lifetimes, distinguish repeatable snapshot reads from stronger isolation, and identify how a forgotten pin creates resource retention.",
+        "Implement timestamped publication, exact pin identity, visible-version selection and reclamation with a bounded-space proof under the four-reader assumption."
+      ],
+      "checks": [
+        "PinA at[0,0], publish[1,2], publish[3,4]: A still reads[0,0]. DropA and reuse its pin slot forB: old handleA is STALE and B reads[3,4]. A clock at UINT64_MAX refuses publish. Snapshot visibility is repeatable for the two-field value; no multi-object serializability or durability is claimed.",
+        "Enumerate pin/publish/read/drop traces against an independent immutable-history model, test four pins at different versions and a fifth refusal, stale slot reuse and generation retirement. Reject pin-ignorant collection and missing-generation mutants. Track retained version counts before/after releases and compare the mutex cost with read-copy-update assumptions."
+      ],
+      "reasoning": [
+        "Derive version visibility and retention from reader lifetimes, distinguish repeatable snapshot reads from stronger isolation, and identify how a forgotten pin creates resource retention."
+      ],
+      "deliverables": [
+        "Implement timestamped publication, exact pin identity, visible-version selection and reclamation with a bounded-space proof under the four-reader assumption.",
+        "Enumerate pin/publish/read/drop traces against an independent immutable-history model, test four pins at different versions and a fifth refusal, stale slot reuse and generation retirement. Reject pin-ignorant collection and missing-generation mutants. Track retained version counts before/after releases and compare the mutex cost with read-copy-update assumptions.",
+        "Give each version separately owned payload storage whose clone can fail; publish only after full construction and preserve old readers on failure. Delayed assessment adds independent keys and predicate queries: construct write skew under snapshot isolation and explain what validation or locking would establish the stronger requested property."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-008-R1",
+          "objective": "T73.08.a",
+          "criterion": "Derive version visibility and retention from reader lifetimes, distinguish repeatable snapshot reads from stronger isolation, and identify how a forgotten pin creates resource retention.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-008-R2",
+          "objective": "T73.08.b",
+          "criterion": "Implement timestamped publication, exact pin identity, visible-version selection and reclamation with a bounded-space proof under the four-reader assumption.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-008-R3",
+          "objective": "T73.08.c",
+          "criterion": "Enumerate pin/publish/read/drop traces against an independent immutable-history model, test four pins at different versions and a fifth refusal, stale slot reuse and generation retirement. Reject pin-ignorant collection and missing-generation mutants. Track retained version counts before/after releases and compare the mutex cost with read-copy-update assumptions.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-008-R4",
+          "objective": "T73.08.d",
+          "criterion": "Give each version separately owned payload storage whose clone can fail; publish only after full construction and preserve old readers on failure. Delayed assessment adds independent keys and predicate queries: construct write skew under snapshot isolation and explain what validation or locking would establish the stronger requested property.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Give each version separately owned payload storage whose clone can fail; publish only after full construction and preserve old readers on failure. Delayed assessment adds independent keys and predicate queries: construct write skew under snapshot isolation and explain what validation or locking would establish the stronger requested property."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-008.md",
+      "target_scope": "host",
+      "scope": "Derive version visibility and retention from reader lifetimes, distinguish repeatable snapshot reads from stronger isolation, and identify how a forgotten pin creates resource retention.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-PG-MVCC",
+          "locator": "13.1 Introduction",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-16",
+      "project": "PR-T73-08",
+      "title": "Falsify and transfer: Multiversion visibility, reader pins and bounded reclamation",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T73.08.a",
+        "T73.08.b",
+        "T73.08.c",
+        "T73.08.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate pin/publish/read/drop traces against an independent immutable-history model, test four pins at different versions and a fifth refusal, stale slot reuse and generation retirement. Reject pin-ignorant collection and missing-generation mutants. Track retained version counts before/after releases and compare the mutex cost with read-copy-update assumptions.",
+        "Give each version separately owned payload storage whose clone can fail; publish only after full construction and preserve old readers on failure. Delayed assessment adds independent keys and predicate queries: construct write skew under snapshot isolation and explain what validation or locking would establish the stronger requested property."
+      ],
+      "checks": [
+        "PinA at[0,0], publish[1,2], publish[3,4]: A still reads[0,0]. DropA and reuse its pin slot forB: old handleA is STALE and B reads[3,4]. A clock at UINT64_MAX refuses publish. Snapshot visibility is repeatable for the two-field value; no multi-object serializability or durability is claimed.",
+        "Enumerate pin/publish/read/drop traces against an independent immutable-history model, test four pins at different versions and a fifth refusal, stale slot reuse and generation retirement. Reject pin-ignorant collection and missing-generation mutants. Track retained version counts before/after releases and compare the mutex cost with read-copy-update assumptions."
+      ],
+      "reasoning": [
+        "Derive version visibility and retention from reader lifetimes, distinguish repeatable snapshot reads from stronger isolation, and identify how a forgotten pin creates resource retention."
+      ],
+      "deliverables": [
+        "Implement timestamped publication, exact pin identity, visible-version selection and reclamation with a bounded-space proof under the four-reader assumption.",
+        "Enumerate pin/publish/read/drop traces against an independent immutable-history model, test four pins at different versions and a fifth refusal, stale slot reuse and generation retirement. Reject pin-ignorant collection and missing-generation mutants. Track retained version counts before/after releases and compare the mutex cost with read-copy-update assumptions.",
+        "Give each version separately owned payload storage whose clone can fail; publish only after full construction and preserve old readers on failure. Delayed assessment adds independent keys and predicate queries: construct write skew under snapshot isolation and explain what validation or locking would establish the stronger requested property."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-008-R1",
+          "objective": "T73.08.a",
+          "criterion": "Derive version visibility and retention from reader lifetimes, distinguish repeatable snapshot reads from stronger isolation, and identify how a forgotten pin creates resource retention.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-008-R2",
+          "objective": "T73.08.b",
+          "criterion": "Implement timestamped publication, exact pin identity, visible-version selection and reclamation with a bounded-space proof under the four-reader assumption.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-008-R3",
+          "objective": "T73.08.c",
+          "criterion": "Enumerate pin/publish/read/drop traces against an independent immutable-history model, test four pins at different versions and a fifth refusal, stale slot reuse and generation retirement. Reject pin-ignorant collection and missing-generation mutants. Track retained version counts before/after releases and compare the mutex cost with read-copy-update assumptions.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-008-R4",
+          "objective": "T73.08.d",
+          "criterion": "Give each version separately owned payload storage whose clone can fail; publish only after full construction and preserve old readers on failure. Delayed assessment adds independent keys and predicate queries: construct write skew under snapshot isolation and explain what validation or locking would establish the stronger requested property.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Give each version separately owned payload storage whose clone can fail; publish only after full construction and preserve old readers on failure. Delayed assessment adds independent keys and predicate queries: construct write skew under snapshot isolation and explain what validation or locking would establish the stronger requested property."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-008.md",
+      "target_scope": "host",
+      "scope": "Derive version visibility and retention from reader lifetimes, distinguish repeatable snapshot reads from stronger isolation, and identify how a forgotten pin creates resource retention.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-PG-MVCC",
+          "locator": "13.1 Introduction",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-17",
+      "project": "PR-T73-09",
+      "title": "Construct: Sequence validation without racing ordinary C payloads",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T73.09.a",
+        "T73.09.b",
+        "T73.09.c",
+        "T73.09.d"
+      ],
+      "tests": [
+        "messaging.sequences"
+      ],
+      "steps": [
+        "Separate storage race freedom, coherent snapshot validation, writer serialization, retry bounds and counter lifetime; identify what SC proves and what a later weakened implementation must re-establish.",
+        "Derive the atomic representation and SC ordering argument, implement bounded retry and nonwrapping writer publication, and account for every output and failure effect."
+      ],
+      "checks": [
+        "With sequence1, three attempts return BUSY and outputs stay[99,99]. Writing[7,14] then reading succeeds. Zero attempts is BUSY. SequenceUINT_MAX-1 rejects a new write without modification. The threaded anchor writes10000 pairs[i,2*i] and rejects any successfully returned incoherent pair.",
+        "Test odd/even transitions, zero retry, interrupted writer state, output canaries and counter exhaustion. Reject odd-sequence acceptance and omitted-payload-write mutants. Run actual concurrent stress and TSan while explaining that clean runs do not prove weak-order correctness. Inspect disassembly and compare lock-free status and fences with an equivalent mutex snapshot."
+      ],
+      "reasoning": [
+        "Separate storage race freedom, coherent snapshot validation, writer serialization, retry bounds and counter lifetime; identify what SC proves and what a later weakened implementation must re-establish."
+      ],
+      "deliverables": [
+        "Derive the atomic representation and SC ordering argument, implement bounded retry and nonwrapping writer publication, and account for every output and failure effect.",
+        "Test odd/even transitions, zero retry, interrupted writer state, output canaries and counter exhaustion. Reject odd-sequence acceptance and omitted-payload-write mutants. Run actual concurrent stress and TSan while explaining that clean runs do not prove weak-order correctness. Inspect disassembly and compare lock-free status and fences with an equivalent mutex snapshot.",
+        "Derive a weaker-order version from explicit synchronization/fence reasoning and check it with a C memory-model tool before comparing costs. Delayed assessment uses pointer payloads and a reader that pauses after loading one pointer; add lifetime protection or reject the design, since sequence validation does not retain pointees."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-009-R1",
+          "objective": "T73.09.a",
+          "criterion": "Separate storage race freedom, coherent snapshot validation, writer serialization, retry bounds and counter lifetime; identify what SC proves and what a later weakened implementation must re-establish.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-009-R2",
+          "objective": "T73.09.b",
+          "criterion": "Derive the atomic representation and SC ordering argument, implement bounded retry and nonwrapping writer publication, and account for every output and failure effect.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-009-R3",
+          "objective": "T73.09.c",
+          "criterion": "Test odd/even transitions, zero retry, interrupted writer state, output canaries and counter exhaustion. Reject odd-sequence acceptance and omitted-payload-write mutants. Run actual concurrent stress and TSan while explaining that clean runs do not prove weak-order correctness. Inspect disassembly and compare lock-free status and fences with an equivalent mutex snapshot.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-009-R4",
+          "objective": "T73.09.d",
+          "criterion": "Derive a weaker-order version from explicit synchronization/fence reasoning and check it with a C memory-model tool before comparing costs. Delayed assessment uses pointer payloads and a reader that pauses after loading one pointer; add lifetime protection or reject the design, since sequence validation does not retain pointees.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Derive a weaker-order version from explicit synchronization/fence reasoning and check it with a C memory-model tool before comparing costs. Delayed assessment uses pointer payloads and a reader that pauses after loading one pointer; add lifetime protection or reject the design, since sequence validation does not retain pointees."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-009.md",
+      "target_scope": "host",
+      "scope": "Separate storage race freedom, coherent snapshot validation, writer serialization, retry bounds and counter lifetime; identify what SC proves and what a later weakened implementation must re-establish.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-P1478",
+          "locator": "Seqlocks",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-MOD-P0690",
+          "locator": "2 Background",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-18",
+      "project": "PR-T73-09",
+      "title": "Falsify and transfer: Sequence validation without racing ordinary C payloads",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T73.09.a",
+        "T73.09.b",
+        "T73.09.c",
+        "T73.09.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Test odd/even transitions, zero retry, interrupted writer state, output canaries and counter exhaustion. Reject odd-sequence acceptance and omitted-payload-write mutants. Run actual concurrent stress and TSan while explaining that clean runs do not prove weak-order correctness. Inspect disassembly and compare lock-free status and fences with an equivalent mutex snapshot.",
+        "Derive a weaker-order version from explicit synchronization/fence reasoning and check it with a C memory-model tool before comparing costs. Delayed assessment uses pointer payloads and a reader that pauses after loading one pointer; add lifetime protection or reject the design, since sequence validation does not retain pointees."
+      ],
+      "checks": [
+        "With sequence1, three attempts return BUSY and outputs stay[99,99]. Writing[7,14] then reading succeeds. Zero attempts is BUSY. SequenceUINT_MAX-1 rejects a new write without modification. The threaded anchor writes10000 pairs[i,2*i] and rejects any successfully returned incoherent pair.",
+        "Test odd/even transitions, zero retry, interrupted writer state, output canaries and counter exhaustion. Reject odd-sequence acceptance and omitted-payload-write mutants. Run actual concurrent stress and TSan while explaining that clean runs do not prove weak-order correctness. Inspect disassembly and compare lock-free status and fences with an equivalent mutex snapshot."
+      ],
+      "reasoning": [
+        "Separate storage race freedom, coherent snapshot validation, writer serialization, retry bounds and counter lifetime; identify what SC proves and what a later weakened implementation must re-establish."
+      ],
+      "deliverables": [
+        "Derive the atomic representation and SC ordering argument, implement bounded retry and nonwrapping writer publication, and account for every output and failure effect.",
+        "Test odd/even transitions, zero retry, interrupted writer state, output canaries and counter exhaustion. Reject odd-sequence acceptance and omitted-payload-write mutants. Run actual concurrent stress and TSan while explaining that clean runs do not prove weak-order correctness. Inspect disassembly and compare lock-free status and fences with an equivalent mutex snapshot.",
+        "Derive a weaker-order version from explicit synchronization/fence reasoning and check it with a C memory-model tool before comparing costs. Delayed assessment uses pointer payloads and a reader that pauses after loading one pointer; add lifetime protection or reject the design, since sequence validation does not retain pointees."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-009-R1",
+          "objective": "T73.09.a",
+          "criterion": "Separate storage race freedom, coherent snapshot validation, writer serialization, retry bounds and counter lifetime; identify what SC proves and what a later weakened implementation must re-establish.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-009-R2",
+          "objective": "T73.09.b",
+          "criterion": "Derive the atomic representation and SC ordering argument, implement bounded retry and nonwrapping writer publication, and account for every output and failure effect.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-009-R3",
+          "objective": "T73.09.c",
+          "criterion": "Test odd/even transitions, zero retry, interrupted writer state, output canaries and counter exhaustion. Reject odd-sequence acceptance and omitted-payload-write mutants. Run actual concurrent stress and TSan while explaining that clean runs do not prove weak-order correctness. Inspect disassembly and compare lock-free status and fences with an equivalent mutex snapshot.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-009-R4",
+          "objective": "T73.09.d",
+          "criterion": "Derive a weaker-order version from explicit synchronization/fence reasoning and check it with a C memory-model tool before comparing costs. Delayed assessment uses pointer payloads and a reader that pauses after loading one pointer; add lifetime protection or reject the design, since sequence validation does not retain pointees.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Derive a weaker-order version from explicit synchronization/fence reasoning and check it with a C memory-model tool before comparing costs. Delayed assessment uses pointer payloads and a reader that pauses after loading one pointer; add lifetime protection or reject the design, since sequence validation does not retain pointees."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-009.md",
+      "target_scope": "host",
+      "scope": "Separate storage race freedom, coherent snapshot validation, writer serialization, retry bounds and counter lifetime; identify what SC proves and what a later weakened implementation must re-establish.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-P1478",
+          "locator": "Seqlocks",
+          "purpose": "Bounded source comparison for this mechanism"
+        },
+        {
+          "resource_id": "R-MOD-P0690",
+          "locator": "2 Background",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-19",
+      "project": "PR-T73-10",
+      "title": "Construct: Demand signaling, terminal events and bounded reentrancy",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "independent design",
+      "kind": "implementation",
+      "objectives": [
+        "T73.10.a",
+        "T73.10.b",
+        "T73.10.c",
+        "T73.10.d"
+      ],
+      "tests": [
+        "messaging.streams"
+      ],
+      "steps": [
+        "Derive demand accounting, signal ordering, cancellation and reentrancy limits; compare the original C subset to selected Reactive Streams rules without claiming interface or certification equivalence.",
+        "Implement explicit demand/terminal/delivering state, saturating unbounded arithmetic and callback ownership; construct a channel adapter that never delivers more items than requested."
+      ],
+      "checks": [
+        "Emit with demand0 is EMPTY. Request1 then emit99 whose callback requests1 leaves demand1 without recursive delivery; emit7 consumes it. UINT64_MAX then request1 stays unbounded. Complete then error produces one terminal event; later emit is CLOSED. Cancellation prevents subsequent emits but does not establish cross-thread callback quiescence.",
+        "Enumerate request/emit/cancel/end traces, test zero and maximum demand, callback requests/cancellation and recursive emission. Reject emission without credit and repeated-terminal mutants. Independently account for requested versus delivered finite items, retain callback context through return and test that end requires no demand."
+      ],
+      "reasoning": [
+        "Derive demand accounting, signal ordering, cancellation and reentrancy limits; compare the original C subset to selected Reactive Streams rules without claiming interface or certification equivalence."
+      ],
+      "deliverables": [
+        "Implement explicit demand/terminal/delivering state, saturating unbounded arithmetic and callback ownership; construct a channel adapter that never delivers more items than requested.",
+        "Enumerate request/emit/cancel/end traces, test zero and maximum demand, callback requests/cancellation and recursive emission. Reject emission without credit and repeated-terminal mutants. Independently account for requested versus delivered finite items, retain callback context through return and test that end requires no demand.",
+        "Make signals originate on several threads: serialize them through one executor and retain the subscription until all in-flight signals quiesce. Delayed assessment introduces a slow subscriber and bounded channel capacity; compare blocking, dropping and failure policies under the same stated delivery contract, with T75 owning the overload decision."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-010-R1",
+          "objective": "T73.10.a",
+          "criterion": "Derive demand accounting, signal ordering, cancellation and reentrancy limits; compare the original C subset to selected Reactive Streams rules without claiming interface or certification equivalence.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-010-R2",
+          "objective": "T73.10.b",
+          "criterion": "Implement explicit demand/terminal/delivering state, saturating unbounded arithmetic and callback ownership; construct a channel adapter that never delivers more items than requested.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-010-R3",
+          "objective": "T73.10.c",
+          "criterion": "Enumerate request/emit/cancel/end traces, test zero and maximum demand, callback requests/cancellation and recursive emission. Reject emission without credit and repeated-terminal mutants. Independently account for requested versus delivered finite items, retain callback context through return and test that end requires no demand.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-010-R4",
+          "objective": "T73.10.d",
+          "criterion": "Make signals originate on several threads: serialize them through one executor and retain the subscription until all in-flight signals quiesce. Delayed assessment introduces a slow subscriber and bounded channel capacity; compare blocking, dropping and failure policies under the same stated delivery contract, with T75 owning the overload decision.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Make signals originate on several threads: serialize them through one executor and retain the subscription until all in-flight signals quiesce. Delayed assessment introduces a slow subscriber and bounded channel capacity; compare blocking, dropping and failure policies under the same stated delivery contract, with T75 owning the overload decision."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-010.md",
+      "target_scope": "host",
+      "scope": "Derive demand accounting, signal ordering, cancellation and reentrancy limits; compare the original C subset to selected Reactive Streams rules without claiming interface or certification equivalence.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-REACTIVE",
+          "locator": "Publisher rules1.1–1.11",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    },
+    {
+      "id": "LAB-SC-20",
+      "project": "PR-T73-10",
+      "title": "Falsify and transfer: Demand signaling, terminal events and bounded reentrancy",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent design",
+      "kind": "adaptation",
+      "objectives": [
+        "T73.10.a",
+        "T73.10.b",
+        "T73.10.c",
+        "T73.10.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate request/emit/cancel/end traces, test zero and maximum demand, callback requests/cancellation and recursive emission. Reject emission without credit and repeated-terminal mutants. Independently account for requested versus delivered finite items, retain callback context through return and test that end requires no demand.",
+        "Make signals originate on several threads: serialize them through one executor and retain the subscription until all in-flight signals quiesce. Delayed assessment introduces a slow subscriber and bounded channel capacity; compare blocking, dropping and failure policies under the same stated delivery contract, with T75 owning the overload decision."
+      ],
+      "checks": [
+        "Emit with demand0 is EMPTY. Request1 then emit99 whose callback requests1 leaves demand1 without recursive delivery; emit7 consumes it. UINT64_MAX then request1 stays unbounded. Complete then error produces one terminal event; later emit is CLOSED. Cancellation prevents subsequent emits but does not establish cross-thread callback quiescence.",
+        "Enumerate request/emit/cancel/end traces, test zero and maximum demand, callback requests/cancellation and recursive emission. Reject emission without credit and repeated-terminal mutants. Independently account for requested versus delivered finite items, retain callback context through return and test that end requires no demand."
+      ],
+      "reasoning": [
+        "Derive demand accounting, signal ordering, cancellation and reentrancy limits; compare the original C subset to selected Reactive Streams rules without claiming interface or certification equivalence."
+      ],
+      "deliverables": [
+        "Implement explicit demand/terminal/delivering state, saturating unbounded arithmetic and callback ownership; construct a channel adapter that never delivers more items than requested.",
+        "Enumerate request/emit/cancel/end traces, test zero and maximum demand, callback requests/cancellation and recursive emission. Reject emission without credit and repeated-terminal mutants. Independently account for requested versus delivered finite items, retain callback context through return and test that end requires no demand.",
+        "Make signals originate on several threads: serialize them through one executor and retain the subscription until all in-flight signals quiesce. Delayed assessment introduces a slow subscriber and bounded channel capacity; compare blocking, dropping and failure policies under the same stated delivery contract, with T75 owning the overload decision."
+      ],
+      "rubric": [
+        {
+          "id": "X-T73-010-R1",
+          "objective": "T73.10.a",
+          "criterion": "Derive demand accounting, signal ordering, cancellation and reentrancy limits; compare the original C subset to selected Reactive Streams rules without claiming interface or certification equivalence.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-010-R2",
+          "objective": "T73.10.b",
+          "criterion": "Implement explicit demand/terminal/delivering state, saturating unbounded arithmetic and callback ownership; construct a channel adapter that never delivers more items than requested.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-010-R3",
+          "objective": "T73.10.c",
+          "criterion": "Enumerate request/emit/cancel/end traces, test zero and maximum demand, callback requests/cancellation and recursive emission. Reject emission without credit and repeated-terminal mutants. Independently account for requested versus delivered finite items, retain callback context through return and test that end requires no demand.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        },
+        {
+          "id": "X-T73-010-R4",
+          "objective": "T73.10.d",
+          "criterion": "Make signals originate on several threads: serialize them through one executor and retain the subscription until all in-flight signals quiesce. Delayed assessment introduces a slow subscriber and bounded channel capacity; compare blocking, dropping and failure policies under the same stated delivery contract, with T75 owning the overload decision.",
+          "levels": {
+            "0": "Missing or contradicted by the stated contract.",
+            "1": "Nominal test only; fails to explain the listed mechanism or boundary.",
+            "2": "Meets this complete criterion with justified assumptions and independent evidence.",
+            "3": "Meets it under the unseen changed-condition variant and explains a counterexample to the former assumptions."
+          }
+        }
+      ],
+      "variants": [
+        "Make signals originate on several threads: serialize them through one executor and retain the subscription until all in-flight signals quiesce. Delayed assessment introduces a slow subscriber and bounded channel capacity; compare blocking, dropping and failure policies under the same stated delivery contract, with T75 owning the overload decision."
+      ],
+      "assessor_analysis": "assessor/messaging/analyses/X-T73-010.md",
+      "target_scope": "host",
+      "scope": "Derive demand accounting, signal ordering, cancellation and reentrancy limits; compare the original C subset to selected Reactive Streams rules without claiming interface or certification equivalence.",
+      "remaining_evidence": "Independent reasoning, changed-condition implementation and all resource/target claims outside the anchor remain separate.",
+      "references": [
+        {
+          "resource_id": "R-MOD-REACTIVE",
+          "locator": "Publisher rules1.1–1.11",
+          "purpose": "Bounded source comparison for this mechanism"
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "X-T73-001",
+      "project": "PR-T73-01",
+      "tests": [
+        "messaging.nursery"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T73-002",
+      "project": "PR-T73-02",
+      "tests": [
+        "messaging.channels"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T73-003",
+      "project": "PR-T73-03",
+      "tests": [
+        "messaging.operations"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T73-004",
+      "project": "PR-T73-04",
+      "tests": [
+        "messaging.actors"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T73-005",
+      "project": "PR-T73-05",
+      "tests": [
+        "messaging.supervision"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T73-006",
+      "project": "PR-T73-06",
+      "tests": [
+        "messaging.stealing"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T73-007",
+      "project": "PR-T73-07",
+      "tests": [
+        "messaging.transactions"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T73-008",
+      "project": "PR-T73-08",
+      "tests": [
+        "messaging.snapshots"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T73-009",
+      "project": "PR-T73-09",
+      "tests": [
+        "messaging.sequences"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T73-010",
+      "project": "PR-T73-10",
+      "tests": [
+        "messaging.streams"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    }
+  ],
+  "tests": [
+    "messaging.nursery",
+    "messaging.channels",
+    "messaging.operations",
+    "messaging.actors",
+    "messaging.supervision",
+    "messaging.stealing",
+    "messaging.transactions",
+    "messaging.snapshots",
+    "messaging.sequences",
+    "messaging.streams"
+  ],
+  "modules": [
+    "T73"
+  ],
+  "contract": "labs/messaging/CONTRACTS.md",
+  "campaign": {
+    "producer": "tools/run_messaging.py",
+    "receipt": "messaging_campaign.json",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "gcc-tsan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan",
+      "clang-tsan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "SC_CHECK:",
+    "fixture_oracle": "tools/verify_messaging_fixtures.py",
+    "oracle_driver": "messaging-oracle-driver"
+  },
+  "dependencies": [],
+  "scope": "Hosted mechanism evidence only; no independent learner or strict target acceptance."
+}

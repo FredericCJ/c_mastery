@@ -1,0 +1,58 @@
+{
+  "scope": "Author smoke checks before generic source-bound campaign",
+  "status": "bounded-checks-passed",
+  "commands": [
+    {
+      "command": "cmake -S labs/modern_bridge -B /tmp/cmastery-mbr-debug -DCMAKE_BUILD_TYPE=Debug -DCMASTERY_ASSESSOR_ROOT=/mnt/f/Learning/Curricula/c_mastery/assessor; cmake --build /tmp/cmastery-mbr-debug -j8; ctest --test-dir /tmp/cmastery-mbr-debug --output-on-failure",
+      "observed": "12/12 passed:4 anchors8 semantic mutants; once100 rounds3 pthreads per round"
+    },
+    {
+      "command": "cmake -S labs/modern_bridge -B /tmp/cmastery-mbr-asan -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug -DCMASTERY_SANITIZE=ON -DCMASTERY_ASSESSOR_ROOT=/mnt/f/Learning/Curricula/c_mastery/assessor; cmake --build /tmp/cmastery-mbr-asan -j8; ctest --test-dir /tmp/cmastery-mbr-asan --output-on-failure",
+      "observed": "12/12 passed under ASan+UBSan"
+    },
+    {
+      "command": "cmake -S labs/modern_bridge -B /tmp/cmastery-mbr-learner -DCMAKE_BUILD_TYPE=Debug; cmake --build /tmp/cmastery-mbr-learner -j8; ctest --test-dir /tmp/cmastery-mbr-learner --output-on-failure",
+      "observed": "Configure/build passed. CTest returned1 with all4 intended MB_CHECK failures at first mechanism admission, not compiler failures or crashes."
+    },
+    {
+      "command": "gcc -std=c17 -ffreestanding -fno-builtin -O2 -Ilabs/modern_bridge/include -c assessor/modern_bridge/bridge.c -o /tmp/mbr-core.o; nm -u /tmp/mbr-core.o",
+      "observed": "Compile succeeded; nm -u emitted no symbols for this host object only."
+    },
+    {
+      "command": ".conda/python.exe labs/modern_bridge/tests/verify_fixtures.py",
+      "observed": {
+        "checked": 4,
+        "failed": 0,
+        "independent_alignment_cases": 4620,
+        "hazard_SC_orders": 10
+      }
+    },
+    {
+      "command": "cmastery.exercises.validate on each of X-T16-003,X-T51-002,X-T55-002,X-T55-003 canonical JSON/body",
+      "observed": "All4 validated"
+    }
+  ],
+  "limitations": [
+    "No independent human assessment",
+    "No physical evidence",
+    "Serialized epoch and controlled hazard anchors are not complete concurrent/container implementations",
+    "Generic campaign receipt supersedes these smoke checks for frozen source identity"
+  ],
+  "source_sha256": {
+    "labs/modern_bridge/CMakeLists.txt": "84c51fe3cdf0e28caef2f70b363d86212852d784918b2c4a58c9e111755804f1",
+    "labs/modern_bridge/CONTRACTS.md": "63eab7e6884a435cf35cd58a92bbaf13dec1e20f76654d8753a8a79da972199e",
+    "labs/modern_bridge/family.json": "e5f2a2de56562e6b710c92d29010049485cebd35fd40e9796196349566f106e9",
+    "labs/modern_bridge/README.md": "301c361e4a3bde86fd35d46c9fe43591c96575367ebed25800a0ba84eeae1f82",
+    "labs/modern_bridge/include/bridge.h": "c2917831caa64bdeb1ef2c9aee29a04466a1f2ec5f5aba0dd527e50b8dfa2e26",
+    "labs/modern_bridge/src/bridge.c": "4c3898e2f5f55acf40bc5c693b03b36af9eee9f1c6d98e41e078aa2a3d2cdc56",
+    "labs/modern_bridge/tests/reject_mutant.py": "fab0febd3a2d741b9512e4867970dab74d1e4560399841bf7706146906c3eac5",
+    "labs/modern_bridge/tests/tests.c": "ad37430a0f67876ab308322490482db5e57759212e4b874c3338bd6d10fbdfa6",
+    "labs/modern_bridge/tests/verify_fixtures.py": "b6e2482af9fbad371339faefdb3df5724eb152304ffc5fd94a6eaa12daf85f07",
+    "assessor/modern_bridge/bridge.c": "c465fca4c56010d1fdff3636379bf4b093c4304a40cfad713b4c4c637abb5da6",
+    "assessor/modern_bridge/analyses/X-T16-003.md": "9da52ff494436909ab600b82d55faa44800528527b074a67c37467742f50cec3",
+    "assessor/modern_bridge/analyses/X-T51-002.md": "d1d3546213e54921039a602f4e69c7eeb73248205a7f5b4959cf160d1eba58a8",
+    "assessor/modern_bridge/analyses/X-T55-002.md": "00c6a60d37b31ef8a927f1f462fdb1b822dae5b1ce2343bf97eb7b74e27f7413",
+    "assessor/modern_bridge/analyses/X-T55-003.md": "2a1e4c251f86743e5137462aa143e1fc84613b98469fa8c00961c0ef2dd52db2",
+    "fixtures/modern_bridge/cases.json": "3013a31adfe9287d81dc4bfe5caf97dc1fa0193707dcc9da791b18d5e5cf4f4a"
+  }
+}

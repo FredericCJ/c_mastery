@@ -1,0 +1,48 @@
+{
+  "id": "T65",
+  "domain": {
+    "family": "errors",
+    "prefix": "ER",
+    "phase": 11,
+    "strand": "toolbox",
+    "research_gate": "research/v5/modern/errors_research_gate.json",
+    "imports": {
+      "*": [
+        "bytes.checked"
+      ],
+      "PR-T65-03": [
+        "bytes.checked",
+        "io.stream"
+      ]
+    },
+    "artifacts": [
+      {
+        "id": "errors.result",
+        "producer": "PR-T65-04",
+        "contract": "C17 tagged uint32 result with explicit error offsets and lazy map/and_then/or_else composition; success/failure payload admission and callback short-circuiting are explicit runtime contracts. No automatic unwinding, static refinement or foreign-language layout equivalence is promised.",
+        "critical_objectives": [
+          "T65.04.a",
+          "T65.04.b",
+          "T65.04.c"
+        ]
+      }
+    ],
+    "decisions": {
+      "PR-T65-01": {
+        "question": "Which representation preserves every required optional payload?",
+        "alternatives": [
+          "explicit tag and uint32 payload",
+          "zero-reserved niche"
+        ],
+        "discriminator": "Present zero, UINT32_MAX and an absent value distinguish the admitted states; measure layout only after equalizing the contract.",
+        "reversal_trigger": "Zero becomes a valid resource identity or payload gains ownership."
+      }
+    }
+  },
+  "new_executable_counts": {
+    "ER": 9
+  },
+  "fixture_oracles": [
+    "verify_errors_fixtures.py"
+  ]
+}

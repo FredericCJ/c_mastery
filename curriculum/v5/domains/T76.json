@@ -1,0 +1,98 @@
+{
+  "id": "T76",
+  "domain": {
+    "family": "replicated",
+    "prefix": "RP",
+    "phase": 12,
+    "strand": "toolbox",
+    "research_gate": "research/v5/modern/replicated_research_gate.json",
+    "imports": {
+      "PR-T76-01": [
+        "persist.hamt",
+        "codec.records",
+        "storage.pages",
+        "testing.faults"
+      ],
+      "PR-T76-02": [
+        "storage.pages",
+        "ipc.local",
+        "testing.faults"
+      ],
+      "PR-T76-03": [
+        "codec.records",
+        "testing.faults"
+      ],
+      "PR-T76-04": [
+        "codec.records",
+        "io.frame"
+      ],
+      "PR-T76-05": [
+        "codec.records",
+        "io.frame",
+        "testing.faults"
+      ],
+      "PR-T76-06": [
+        "codec.records",
+        "persist.hamt"
+      ],
+      "PR-T76-07": [
+        "codec.records",
+        "io.frame"
+      ],
+      "PR-T76-08": [
+        "codec.records",
+        "io.frame",
+        "testing.faults"
+      ],
+      "PR-T76-09": [
+        "persist.hamt",
+        "storage.pages",
+        "codec.records",
+        "io.frame",
+        "ipc.local",
+        "testing.faults"
+      ]
+    },
+    "artifacts": [
+      {
+        "id": "log.event_store",
+        "producer": "PR-T76-01",
+        "contract": "Original bounded16-event positioned memory log using persist.hamt snapshot roots. Append is failure-atomic in reachable memory; keys0..31, int32 values, arena lifetime explicit. No disk durability or full replay-effect atomicity implied.",
+        "critical_objectives": [
+          "T76.01.a",
+          "T76.01.b",
+          "T76.01.c",
+          "T76.01.d"
+        ]
+      },
+      {
+        "id": "crdt.state",
+        "producer": "PR-T76-05",
+        "contract": "Original fixed2-writer/4-value observed-remove tagged set with16 lifetime add identities, retained tombstones and idempotent state/delta merge. PN/register contracts are supplied by PR-T76-04. No dynamic membership, Byzantine admission or safe garbage collection implied.",
+        "critical_objectives": [
+          "T76.05.a",
+          "T76.05.b",
+          "T76.05.c",
+          "T76.05.d"
+        ]
+      }
+    ],
+    "decisions": {
+      "PR-T76-01": {
+        "question": "Choose the authority and commit boundary of your event log, snapshot and externally visible effects before seeing the failure campaign.",
+        "alternatives": [
+          "Immutable event authority with rebuildable projections and explicitly committed effects",
+          "Snapshot authority with a versioned recovery log and explicitly stated lost-update/replay policy"
+        ],
+        "discriminator": "Seal the selected invariant and crash-point predictions before implementation; compare recovery after each cut.",
+        "reversal_trigger": "A new non-idempotent receiver or cross-file durability boundary invalidates the assumed atomic commit."
+      }
+    }
+  },
+  "new_executable_counts": {
+    "RP": 9
+  },
+  "fixture_oracles": [
+    "verify_replicated_fixtures.py"
+  ]
+}

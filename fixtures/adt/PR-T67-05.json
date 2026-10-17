@@ -1,0 +1,31 @@
+{
+  "id": "PR-T67-05",
+  "description": "Branded pool handles with checked generations",
+  "input": {
+    "case": "brands"
+  },
+  "expected": {
+    "contract": "A handle frompoolA is rejected bypoolB; release/reacquire invalidates the old generation; release atUINT_MAX retires its slot and reduces usable capacity to3."
+  },
+  "cases": [
+    {
+      "kind": "brands",
+      "example": "A handle frompoolA is rejected bypoolB; release/reacquire invalidates the old generation; release atUINT_MAX retires its slot and reduces usable capacity to3.",
+      "input": {
+        "events": [
+          "acquire",
+          "release",
+          "acquire",
+          "old_get"
+        ],
+        "initial_generation": 1
+      },
+      "expected": {
+        "generation": 2,
+        "old_valid": false
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

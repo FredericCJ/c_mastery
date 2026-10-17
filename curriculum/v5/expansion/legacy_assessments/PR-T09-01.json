@@ -1,0 +1,774 @@
+{
+  "schema_version": 1,
+  "project": "PR-T09-01",
+  "domain": "T09",
+  "title": "ELF symbols and archive resolution — explicit depth assessments",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T09.md",
+        "sha256": "d99d0c1d84f774ae19d65bfa6c60c3014fcf12210a233836d2718cef14709e55",
+        "passages": [
+          "Topic teaching passages and reading guidance for T09.01, T09.02, T09.03"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T09-01.md",
+        "sha256": "6d2af28b26058783a96e2dc269107fc643c8c7a8228215eccea59480d1873ca9",
+        "passages": [
+          "Contract, Steps, Failure cases, Acceptance and linked-objective checklist"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T09-01.json",
+        "sha256": "bc2658c74b5a749500e190ea0c0c8da2de4c8397c3a42583d1df0137cb0d356b",
+        "passages": [
+          "Complete synthetic fixture and expected values"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "oracle branches used by this fixture; synthetic reference is not target execution"
+        ]
+      },
+      {
+        "path": "labs/machine_image/README.md",
+        "sha256": "0472b1599c030ab1240c22633db3da5e60a0363607ec1e366dbe13f4ef90f7e2",
+        "passages": [
+          "All twelve bounded laboratory contracts and explicit remaining obligations"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/runtime.c",
+        "sha256": "2cd3dc97c292cc6e5ed2f3b867b2f32bdd0f7fbc3c1c1aa38ebdaf93f17d66b2",
+        "passages": [
+          "abi, hostile, bytes and wide cases"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/artifacts.py",
+        "sha256": "f74dd8b6944dff1f9e36f6d870e3ae83c183db5f8cbc1bda28db14383bbb97ff",
+        "passages": [
+          "archive, relocation, tls, budget, entry, syscall, helpers, byte_closure, closure and image branches"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T09.md",
+        "anchors": [
+          "T09.01",
+          "T09.02",
+          "T09.03"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-MI-03",
+      "U-T09-01-02",
+      "U-T09-01-03",
+      "U-T09-01-04"
+    ],
+    "inspection_limits": [
+      "Project contract/steps/checklists and module teaching inspected; source registers are not treated as actual book inspections.",
+      "Unit objective/test links and selected operation steps inspected; no fresh complete historical portfolio review.",
+      "No new execution or independent learner assessment in this authoring wave."
+    ]
+  },
+  "environment": {
+    "language": "Active C17 baseline. C11/C23 comparisons require their explicitly identified wording; GNU assembly, __int128, ELF and operating-system contracts are extensions/platform rules.",
+    "target": "Linux x86-64 SysV for executable host observations; foreign targets are compile/analysis-only unless explicitly supported and recorded.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile exactly. Host Python, build and binary inspection tools remain outside restricted target closures; no library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, CMake/Ninja/Make and binutils versions and effective flags",
+      "Unsupported target or instrumentation cells remain unavailable"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LSYS-ELF",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "Header entry/table bounds and Program header PT_LOAD/PT_INTERP, lines 244-413; Symbol table fields and bindings, lines 900-1011"
+      ]
+    },
+    {
+      "id": "R-LSYS-GCC-LINK",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "3.16 -l order; -nostartfiles; -nodefaultlibs; -nostdlib; -pie; -static-pie; -static; -shared"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact published C17/C23 text and private CS:APP/TLPI passages were not newly inspected.",
+    "Primary sources listed cover only the named passages; other parent references retain their historical status without a new inspection claim.",
+    "Current full ELF gABI and historical AMD64 0.99 PDF fetch unavailable; full loader/TLS implementation and selected library service contracts remain required for claims beyond supplied passages."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T09-01.md",
+    "fixtures/systems/PR-T09-01.json",
+    "tools/verify_systems_fixtures.py"
+  ],
+  "execution_support": {
+    "kind": "retained partial baseline laboratory anchors",
+    "scope": "Tests exercise only their named bounded cases; broad project acceptance and these supplemental criteria require separate evidence.",
+    "tests": [
+      "machine_image.archive"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T09-01-T09.01.a",
+      "title": "Parse headers, section tables, program headers, and symbol tables.",
+      "objective": "T09.01.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Write a bounded ELF64 little-endian inspection tool for original object/executable/shared artifacts, reporting header, section, program-header and symbol entries. Reject short headers, overflowing count-times-entry extents and unsupported classes without dereferencing file bytes as native structs.",
+      "purpose": "A valid magic number makes subsequent file offsets trustworthy.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.01 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A valid magic number makes subsequent file offsets trustworthy. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A valid magic number makes subsequent file offsets trustworthy.",
+        "D2": "Write a bounded ELF64 little-endian inspection tool for original object/executable/shared artifacts, reporting header, section, program-header and symbol entries. Reject short headers, overflowing count-times-entry extents and unsupported classes without dereferencing file bytes as native structs.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add ELF32 or big-endian decoding while retaining the same checked byte-reader contract."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Every table extent must be checked against file length before decoding; unaligned casts and host layout assumptions are unnecessary. Unsupported extended counts must reject explicitly or be implemented correctly.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Every table extent must be checked against file length before decoding; unaligned casts and host layout assumptions are unnecessary. Unsupported extended counts must reject explicitly or be implemented correctly. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add ELF32 or big-endian decoding while retaining the same checked byte-reader contract. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Validate file extents before interpreting table entries.",
+        "Program headers describe loading; section tables describe link organization and may not be needed by a loader."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-01-T09.01.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add ELF32 or big-endian decoding while retaining the same checked byte-reader contract."
+        }
+      ],
+      "assessor_anchor": "#t0901a",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.01 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-01-T09.01.b",
+      "title": "Distinguish link-editor organization from loader-visible mappings.",
+      "objective": "T09.01.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "For a synthetic PT_LOAD with offset0x1000, vaddr0x400000, filesz0x30, memsz0x50, derive mapped initialized and zero-fill ranges. Compare with a real original ELF and its section-to-segment mapping.",
+      "purpose": "The section table alone specifies what the loader maps.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.01 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "The section table alone specifies what the loader maps. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: The section table alone specifies what the loader maps.",
+        "D2": "For a synthetic PT_LOAD with offset0x1000, vaddr0x400000, filesz0x30, memsz0x50, derive mapped initialized and zero-fill ranges. Compare with a real original ELF and its section-to-segment mapping.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Remove the section table from an otherwise supported original executable and explain which loader facts remain available."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The declared segment contributes0x30 file-backed bytes and0x20 zero-filled bytes; sections and segments answer different questions. Filesz greater than memsz must reject.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The declared segment contributes0x30 file-backed bytes and0x20 zero-filled bytes; sections and segments answer different questions. Filesz greater than memsz must reject. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Remove the section table from an otherwise supported original executable and explain which loader facts remain available. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Validate file extents before interpreting table entries.",
+        "Program headers describe loading; section tables describe link organization and may not be needed by a loader."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-01-T09.01.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Remove the section table from an otherwise supported original executable and explain which loader facts remain available."
+        }
+      ],
+      "assessor_anchor": "#t0901b",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.01 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-01-T09.01.c",
+      "title": "Inspect relocatable objects, executables, and shared objects.",
+      "objective": "T09.01.c",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Build one source as ET_REL, executable and shared object; inspect entry, undefined symbols, relocation tables and program headers. Classify each artifact before any execution attempt.",
+      "purpose": "All files named .o or .so have identical loading responsibilities.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.01 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "All files named .o or .so have identical loading responsibilities. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: All files named .o or .so have identical loading responsibilities.",
+        "D2": "Build one source as ET_REL, executable and shared object; inspect entry, undefined symbols, relocation tables and program headers. Classify each artifact before any execution attempt.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add static PIE and explain why ET_DYN alone does not distinguish every executable from every shared library."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "File extension is not authoritative; object type and metadata establish stage-specific meaning. ET_REL addresses cannot simply be treated as process addresses.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "File extension is not authoritative; object type and metadata establish stage-specific meaning. ET_REL addresses cannot simply be treated as process addresses. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add static PIE and explain why ET_DYN alone does not distinguish every executable from every shared library. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Validate file extents before interpreting table entries.",
+        "Program headers describe loading; section tables describe link organization and may not be needed by a loader."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-01-T09.01.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Add static PIE and explain why ET_DYN alone does not distinguish every executable from every shared library."
+        }
+      ],
+      "assessor_anchor": "#t0901c",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.01 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-01-T09.02.a",
+      "title": "Explain local, global, weak, undefined, and common symbols.",
+      "objective": "T09.02.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Create separate local, global, weak, undefined and tentative-definition examples, using explicit GCC extension/flag labels for weak and common behavior. Explain nm/readelf output and default -fno-common separately from ISO C definitions.",
+      "purpose": "Identical symbol spelling implies one entity and common is a C storage class.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.02 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Identical symbol spelling implies one entity and common is a C storage class. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Identical symbol spelling implies one entity and common is a C storage class.",
+        "D2": "Create separate local, global, weak, undefined and tentative-definition examples, using explicit GCC extension/flag labels for weak and common behavior. Explain nm/readelf output and default -fno-common separately from ISO C definitions.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Change tentative definitions to explicit initialized definitions and predict which formerly merged cases become conflicts."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Local names can coexist; weak/common are object/tool rules, while source declarations retain C constraints. Modern defaults must be recorded rather than assumed.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Local names can coexist; weak/common are object/tool rules, while source declarations retain C constraints. Modern defaults must be recorded rather than assumed. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Change tentative definitions to explicit initialized definitions and predict which formerly merged cases become conflicts. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Maintain a ledger of binding, definition and owning object.",
+        "Check whether an archive member was extracted before deciding which definition should win."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-01-T09.02.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Change tentative definitions to explicit initialized definitions and predict which formerly merged cases become conflicts."
+        }
+      ],
+      "assessor_anchor": "#t0902a",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.02 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-01-T09.02.b",
+      "title": "Trace symbol resolution across objects and archives.",
+      "objective": "T09.02.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Construct main -> a -> b across two objects and an archive; maintain the unresolved/defined symbol sets after each input. Add a strong definition competing with a weak one and compare the chosen origin in the link map.",
+      "purpose": "The linker searches all possible definitions symmetrically and chooses arbitrarily.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.02 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "The linker searches all possible definitions symmetrically and chooses arbitrarily. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: The linker searches all possible definitions symmetrically and chooses arbitrarily.",
+        "D2": "Construct main -> a -> b across two objects and an archive; maintain the unresolved/defined symbol sets after each input. Add a strong definition competing with a weak one and compare the chosen origin in the link map.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Put the competing definition in an unextracted archive member and redo the trace."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Input order, extraction and binding rules explain the selected definition; a trace must identify the supplying object rather than only the final value.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Input order, extraction and binding rules explain the selected definition; a trace must identify the supplying object rather than only the final value. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Put the competing definition in an unextracted archive member and redo the trace. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Maintain a ledger of binding, definition and owning object.",
+        "Check whether an archive member was extracted before deciding which definition should win."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-01-T09.02.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Put the competing definition in an unextracted archive member and redo the trace."
+        }
+      ],
+      "assessor_anchor": "#t0902b",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.02 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-01-T09.02.c",
+      "title": "Diagnose duplicate definitions and accidentally exported internals.",
+      "objective": "T09.02.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Give two original TUs an accidental nonstatic helper named helper and retain the duplicate-definition diagnostic; repair ownership with internal linkage. Separately restrict shared-library dynamic exports and inspect the actual exported set.",
+      "purpose": "Suppressing duplicate-definition errors repairs conflicting ownership.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.02 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Suppressing duplicate-definition errors repairs conflicting ownership. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Suppressing duplicate-definition errors repairs conflicting ownership.",
+        "D2": "Give two original TUs an accidental nonstatic helper named helper and retain the duplicate-definition diagnostic; repair ownership with internal linkage. Separately restrict shared-library dynamic exports and inspect the actual exported set.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Move one helper into the public API and define a single authoritative implementation/versioned contract."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The repair gives each internal helper the intended scope; dynamic visibility and C internal linkage are related but distinct controls.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The repair gives each internal helper the intended scope; dynamic visibility and C internal linkage are related but distinct controls. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Move one helper into the public API and define a single authoritative implementation/versioned contract. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Maintain a ledger of binding, definition and owning object.",
+        "Check whether an archive member was extracted before deciding which definition should win."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-01-T09.02.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Move one helper into the public API and define a single authoritative implementation/versioned contract."
+        }
+      ],
+      "assessor_anchor": "#t0902c",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.02 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-01-T09.03.a",
+      "title": "Build and inspect archive indexes and members.",
+      "objective": "T09.03.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Create a three-member archive where only one member is initially needed. Inspect members and symbol index; map each exported symbol to a member and preserve the archive command and ordering.",
+      "purpose": "A static archive is already a fully linked executable component.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.03 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A static archive is already a fully linked executable component. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A static archive is already a fully linked executable component.",
+        "D2": "Create a three-member archive where only one member is initially needed. Inspect members and symbol index; map each exported symbol to a member and preserve the archive command and ordering.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Rebuild the archive after removing a stale member and prove the old object cannot remain silently selected."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The archive groups relocatable members and an index; it does not resolve all internal references or establish final inclusion.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The archive groups relocatable members and an index; it does not resolve all internal references or establish final inclusion. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Rebuild the archive after removing a stale member and prove the old object cannot remain silently selected. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Track unresolved names at the instant each archive is examined.",
+        "Separate forcing a member into the link from keeping one of its sections after extraction."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-01-T09.03.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Rebuild the archive after removing a stale member and prove the old object cannot remain silently selected."
+        }
+      ],
+      "assessor_anchor": "#t0903a",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.03 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-01-T09.03.b",
+      "title": "Explain demand-driven extraction and link-order sensitivity.",
+      "objective": "T09.03.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Use main calling a(), archive A member a calling b(), and archive B member b returning42. Predict main,A,B and main,B,A before linking, then explain each unresolved-set transition.",
+      "purpose": "Archive ordering is cosmetic.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.03 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Archive ordering is cosmetic. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Archive ordering is cosmetic.",
+        "D2": "Use main calling a(), archive A member a calling b(), and archive B member b returning42. Predict main,A,B and main,B,A before linking, then explain each unresolved-set transition.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Create a backward reference from B to a second member of A and show why repeating or grouping A may be needed."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Demand-driven extraction explains the successful and unresolved cases under the declared linker; a missing compiler is not the intended order failure.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Demand-driven extraction explains the successful and unresolved cases under the declared linker; a missing compiler is not the intended order failure. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Create a backward reference from B to a second member of A and show why repeating or grouping A may be needed. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Track unresolved names at the instant each archive is examined.",
+        "Separate forcing a member into the link from keeping one of its sections after extraction."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-01-T09.03.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Create a backward reference from B to a second member of A and show why repeating or grouping A may be needed."
+        }
+      ],
+      "assessor_anchor": "#t0903b",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.03 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-01-T09.03.c",
+      "title": "Use grouping or whole-archive behavior only with explicit justification.",
+      "objective": "T09.03.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Compare normal extraction, a minimal group and whole-archive for a registration-only member plus unrelated dead code. Explain exactly which member requires forcing and measure included sections.",
+      "purpose": "Whole-archive is a harmless universal fix for missing symbols.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.03 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-01 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Whole-archive is a harmless universal fix for missing symbols. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Whole-archive is a harmless universal fix for missing symbols.",
+        "D2": "Compare normal extraction, a minimal group and whole-archive for a registration-only member plus unrelated dead code. Explain exactly which member requires forcing and measure included sections.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add a conflicting unused definition and diagnose why whole-archive newly fails while targeted extraction succeeds."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Forcing all members can add initialization, code and conflicts; justify the smallest retention/extraction policy and separate section GC from member extraction.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Forcing all members can add initialization, code and conflicts; justify the smallest retention/extraction policy and separate section GC from member extraction. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a conflicting unused definition and diagnose why whole-archive newly fails while targeted extraction succeeds. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Track unresolved names at the instant each archive is examined.",
+        "Separate forcing a member into the link from keeping one of its sections after extraction."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-01-T09.03.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a conflicting unused definition and diagnose why whole-archive newly fails while targeted extraction succeeds."
+        }
+      ],
+      "assessor_anchor": "#t0903c",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.03 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-01 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T09-01.md",
+  "status": {
+    "content": "authored",
+    "execution": "not-run supplemental assessments",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite visible tests are not absolute mastery.",
+      "No baseline hours, IDs, source bytes or historical acceptance receipts changed."
+    ]
+  }
+}

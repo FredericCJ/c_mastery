@@ -1,0 +1,36 @@
+{
+  "id": "PR-T76-01",
+  "description": "Positioned event logs and persistent snapshot roots",
+  "input": {
+    "case": "log"
+  },
+  "expected": {
+    "contract": "Append(3,7),append(3,9): prefix1 returns7 and prefix2 returns9. Inject each allocation ordinal1..3 on the next append: count stays2, used count is restored and prior roots still resolve. The17th append returns RP_FULL without consuming nodes."
+  },
+  "cases": [
+    {
+      "kind": "log",
+      "example": "Append(3,7),append(3,9): prefix1 returns7 and prefix2 returns9. Inject each allocation ordinal1..3 on the next append: count stays2, used count is restored and prior roots still resolve. The17th append returns RP_FULL without consuming nodes.",
+      "input": {
+        "events": [
+          [
+            3,
+            7
+          ],
+          [
+            3,
+            9
+          ]
+        ],
+        "prefix": 1,
+        "key": 3
+      },
+      "expected": {
+        "value": 7,
+        "nodes": 6
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

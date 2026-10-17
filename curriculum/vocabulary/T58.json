@@ -1,0 +1,698 @@
+{
+  "domain": "T58",
+  "entries": [
+    {
+      "id": "V-T58-01-1",
+      "term": "ABI stack extent",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Allocated interval between current stack pointer and stack base.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "reserved stack region",
+          "distinction": "The reserved region may be larger than the active extent."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "ABI stack extent requires an explicit contract."
+      ],
+      "symbols": [
+        "po_stack"
+      ],
+      "objectives": [
+        "T58.01.a",
+        "T58.01.b",
+        "T58.01.c"
+      ],
+      "misconception": "A port aligns to8 because pointers are8 bytes, violating the16-byte call boundary. A linker-defined top is not proof that subtraction stays in the reserved stack.",
+      "recall": {
+        "define": "Define ABI stack extent with its invariant.",
+        "distinguish": "Distinguish ABI stack extent from reserved stack region.",
+        "counterexample": "Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion."
+      }
+    },
+    {
+      "id": "V-T58-01-2",
+      "term": "public-call alignment",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Stack alignment required at an ABI-visible call boundary.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "C object alignment",
+          "distinction": "Object alignment does not define an execution stack ABI."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "public-call alignment requires an explicit contract."
+      ],
+      "symbols": [
+        "po_stack"
+      ],
+      "objectives": [
+        "T58.01.a",
+        "T58.01.b",
+        "T58.01.c"
+      ],
+      "misconception": "A port aligns to8 because pointers are8 bytes, violating the16-byte call boundary. A linker-defined top is not proof that subtraction stays in the reserved stack.",
+      "recall": {
+        "define": "Define public-call alignment with its invariant.",
+        "distinguish": "Distinguish public-call alignment from C object alignment.",
+        "counterexample": "Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion."
+      }
+    },
+    {
+      "id": "V-T58-02-1",
+      "term": "port save set",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Explicit subset of machine state preserved by an execution boundary.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "full machine context",
+          "distinction": "A full context may include privilege, vector and control state."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "port save set requires an explicit contract."
+      ],
+      "symbols": [
+        "po_saved"
+      ],
+      "objectives": [
+        "T58.02.a",
+        "T58.02.b",
+        "T58.02.c"
+      ],
+      "misconception": "A context port omits SP or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains.",
+      "recall": {
+        "define": "Define port save set with its invariant.",
+        "distinguish": "Distinguish port save set from full machine context.",
+        "counterexample": "Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements."
+      }
+    },
+    {
+      "id": "V-T58-02-2",
+      "term": "platform register reservation",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "ABI restriction assigning a register to platform-specific state.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "callee-save convention",
+          "distinction": "Saving an otherwise forbidden register does not necessarily permit using it."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "platform register reservation requires an explicit contract."
+      ],
+      "symbols": [
+        "po_saved"
+      ],
+      "objectives": [
+        "T58.02.a",
+        "T58.02.b",
+        "T58.02.c"
+      ],
+      "misconception": "A context port omits SP or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains.",
+      "recall": {
+        "define": "Define platform register reservation with its invariant.",
+        "distinguish": "Distinguish platform register reservation from callee-save convention.",
+        "counterexample": "Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements."
+      }
+    },
+    {
+      "id": "V-T58-03-1",
+      "term": "argument exhaustion boundary",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Point where an ABI parameter class no longer has argument registers.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "source parameter count",
+          "distinction": "Different argument classes and hidden parameters change allocation."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "argument exhaustion boundary requires an explicit contract."
+      ],
+      "symbols": [
+        "po_arg"
+      ],
+      "objectives": [
+        "T58.03.a",
+        "T58.03.b",
+        "T58.03.c"
+      ],
+      "misconception": "A callee reads the ninth argument one slot above its defined location. All eight-register tests pass; the hostile ninth argument must falsify it.",
+      "recall": {
+        "define": "Define argument exhaustion boundary with its invariant.",
+        "distinguish": "Distinguish argument exhaustion boundary from source parameter count.",
+        "counterexample": "Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI."
+      }
+    },
+    {
+      "id": "V-T58-03-2",
+      "term": "entry-SP offset",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Address offset measured from the callee entry stack pointer.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "frame-local offset",
+          "distinction": "The current frame may have moved SP."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "entry-SP offset requires an explicit contract."
+      ],
+      "symbols": [
+        "po_arg"
+      ],
+      "objectives": [
+        "T58.03.a",
+        "T58.03.b",
+        "T58.03.c"
+      ],
+      "misconception": "A callee reads the ninth argument one slot above its defined location. All eight-register tests pass; the hostile ninth argument must falsify it.",
+      "recall": {
+        "define": "Define entry-SP offset with its invariant.",
+        "distinguish": "Distinguish entry-SP offset from frame-local offset.",
+        "counterexample": "Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI."
+      }
+    },
+    {
+      "id": "V-T58-04-1",
+      "term": "owned port context",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Architecture-tagged saved state with a separately owned live stack.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "serialized register bytes",
+          "distinction": "Bytes alone do not confer permission to resume execution."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "owned port context requires an explicit contract."
+      ],
+      "symbols": [
+        "po_save"
+      ],
+      "objectives": [
+        "T58.04.a",
+        "T58.04.b",
+        "T58.04.c"
+      ],
+      "misconception": "Repair restoration of an RV image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility.",
+      "recall": {
+        "define": "Define owned port context with its invariant.",
+        "distinguish": "Distinguish owned port context from serialized register bytes.",
+        "counterexample": "Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets."
+      }
+    },
+    {
+      "id": "V-T58-04-2",
+      "term": "resume validity",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Precondition that continuation address and stack belong to a resumable execution state.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "numeric address validity",
+          "distinction": "A representable address can still be an invalid continuation."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "resume validity requires an explicit contract."
+      ],
+      "symbols": [
+        "po_save"
+      ],
+      "objectives": [
+        "T58.04.a",
+        "T58.04.b",
+        "T58.04.c"
+      ],
+      "misconception": "Repair restoration of an RV image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility.",
+      "recall": {
+        "define": "Define resume validity with its invariant.",
+        "distinguish": "Distinguish resume validity from numeric address validity.",
+        "counterexample": "Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets."
+      }
+    },
+    {
+      "id": "V-T58-05-1",
+      "term": "immediate sign reconstruction",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Recovering a signed mathematical value from a fixed-width instruction field.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "signed C shift",
+          "distinction": "C shift semantics are not a general ISA decoding rule."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "immediate sign reconstruction requires an explicit contract."
+      ],
+      "symbols": [
+        "po_sign12"
+      ],
+      "objectives": [
+        "T58.05.a",
+        "T58.05.b",
+        "T58.05.c"
+      ],
+      "misconception": "Truncating an odd branch displacement silently redirects execution. A range-only check is insufficient; a passing assembler can still hide linker-added veneers.",
+      "recall": {
+        "define": "Define immediate sign reconstruction with its invariant.",
+        "distinguish": "Distinguish immediate sign reconstruction from signed C shift.",
+        "counterexample": "Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers."
+      }
+    },
+    {
+      "id": "V-T58-05-2",
+      "term": "relocation admission range",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Displacements representable by a selected relocation encoding and alignment.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "linker success",
+          "distinction": "A linker may transform the call with relaxation or veneers."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "relocation admission range requires an explicit contract."
+      ],
+      "symbols": [
+        "po_sign12"
+      ],
+      "objectives": [
+        "T58.05.a",
+        "T58.05.b",
+        "T58.05.c"
+      ],
+      "misconception": "Truncating an odd branch displacement silently redirects execution. A range-only check is insufficient; a passing assembler can still hide linker-added veneers.",
+      "recall": {
+        "define": "Define relocation admission range with its invariant.",
+        "distinguish": "Distinguish relocation admission range from linker success.",
+        "counterexample": "Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers."
+      }
+    },
+    {
+      "id": "V-T58-06-1",
+      "term": "trap interrupt-enable stack",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Current and prior interrupt-enable fields updated by trap entry/return.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "call save set",
+          "distinction": "A procedure ABI does not define privileged trap transitions."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "trap interrupt-enable stack requires an explicit contract."
+      ],
+      "symbols": [
+        "po_trap"
+      ],
+      "objectives": [
+        "T58.06.a",
+        "T58.06.b",
+        "T58.06.c"
+      ],
+      "misconception": "Repair stale prior-privilege state after return and a nested handler that overwrites the first saved PC. The model cannot establish interrupt controller acknowledgement behavior.",
+      "recall": {
+        "define": "Define trap interrupt-enable stack with its invariant.",
+        "distinguish": "Distinguish trap interrupt-enable stack from call save set.",
+        "counterexample": "Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing."
+      }
+    },
+    {
+      "id": "V-T58-06-2",
+      "term": "prior privilege field",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Architectural record controlling the privilege selected on trap return.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "current execution mode",
+          "distinction": "The saved prior mode is not necessarily the current mode."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "prior privilege field requires an explicit contract."
+      ],
+      "symbols": [
+        "po_trap"
+      ],
+      "objectives": [
+        "T58.06.a",
+        "T58.06.b",
+        "T58.06.c"
+      ],
+      "misconception": "Repair stale prior-privilege state after return and a nested handler that overwrites the first saved PC. The model cannot establish interrupt controller acknowledgement behavior.",
+      "recall": {
+        "define": "Define prior privilege field with its invariant.",
+        "distinguish": "Distinguish prior privilege field from current execution mode.",
+        "counterexample": "Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing."
+      }
+    },
+    {
+      "id": "V-T58-07-1",
+      "term": "supervisor user-data window",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Explicit policy interval permitting supervisor data access to user pages.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "supervisor user execution",
+          "distinction": "The inspected RV rule still forbids supervisor instruction fetch from user pages."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "supervisor user-data window requires an explicit contract."
+      ],
+      "symbols": [
+        "po_access"
+      ],
+      "objectives": [
+        "T58.07.a",
+        "T58.07.b",
+        "T58.07.c"
+      ],
+      "misconception": "Repair a supervisor execute path that assumes SUM permits executing user memory. A model allow decision never grants C pointer provenance or physical access.",
+      "recall": {
+        "define": "Define supervisor user-data window with its invariant.",
+        "distinguish": "Distinguish supervisor user-data window from supervisor user execution.",
+        "counterexample": "Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences."
+      }
+    },
+    {
+      "id": "V-T58-07-2",
+      "term": "permission composition",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Combination of page attributes, operation and processor state before an access.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "pointer validity",
+          "distinction": "Hardware permission and C language pointer validity are distinct."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "permission composition requires an explicit contract."
+      ],
+      "symbols": [
+        "po_access"
+      ],
+      "objectives": [
+        "T58.07.a",
+        "T58.07.b",
+        "T58.07.c"
+      ],
+      "misconception": "Repair a supervisor execute path that assumes SUM permits executing user memory. A model allow decision never grants C pointer provenance or physical access.",
+      "recall": {
+        "define": "Define permission composition with its invariant.",
+        "distinguish": "Distinguish permission composition from pointer validity.",
+        "counterexample": "Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences."
+      }
+    },
+    {
+      "id": "V-T58-08-1",
+      "term": "target runtime closure",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Complete approved provider set for all emitted target references.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "freestanding flag",
+          "distinction": "The flag alone does not supply or forbid every runtime helper."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "target runtime closure requires an explicit contract."
+      ],
+      "symbols": [
+        "po_closure"
+      ],
+      "objectives": [
+        "T58.08.a",
+        "T58.08.b",
+        "T58.08.c"
+      ],
+      "misconception": "A port links only because the developer machine supplies libgcc or libc; removing the runtime reveals a hidden helper. Report this as missing target support, not a compiler bug.",
+      "recall": {
+        "define": "Define target runtime closure with its invariant.",
+        "distinguish": "Distinguish target runtime closure from freestanding flag.",
+        "counterexample": "Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion."
+      }
+    },
+    {
+      "id": "V-T58-08-2",
+      "term": "port evidence boundary",
+      "owner": "T58",
+      "kind": "course",
+      "definition": "Separation of model, build, emulator and physical claims for an execution port.",
+      "authority": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "cross compilation",
+          "distinction": "Encoding an image does not demonstrate its execution."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "port evidence boundary requires an explicit contract."
+      ],
+      "symbols": [
+        "po_closure"
+      ],
+      "objectives": [
+        "T58.08.a",
+        "T58.08.b",
+        "T58.08.c"
+      ],
+      "misconception": "A port links only because the developer machine supplies libgcc or libc; removing the runtime reveals a hidden helper. Report this as missing target support, not a compiler bug.",
+      "recall": {
+        "define": "Define port evidence boundary with its invariant.",
+        "distinguish": "Distinguish port evidence boundary from cross compilation.",
+        "counterexample": "Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion."
+      }
+    }
+  ],
+  "recall": {
+    "define": "For RISC-V and AArch64 execution ports, define ABI stack extent, public-call alignment, port save set, platform register reservation, argument exhaustion boundary, entry-SP offset, owned port context, resume validity, immediate sign reconstruction, relocation admission range, trap interrupt-enable stack, prior privilege field, supervisor user-data window, permission composition, target runtime closure, port evidence boundary, giving each invariant.",
+    "distinguish": "For RISC-V and AArch64 execution ports, distinguish these near concepts: ABI stack extent versus reserved stack region; public-call alignment versus C object alignment; port save set versus full machine context; platform register reservation versus callee-save convention; argument exhaustion boundary versus source parameter count; entry-SP offset versus frame-local offset; owned port context versus serialized register bytes; resume validity versus numeric address validity; immediate sign reconstruction versus signed C shift; relocation admission range versus linker success; trap interrupt-enable stack versus call save set; prior privilege field versus current execution mode; supervisor user-data window versus supervisor user execution; permission composition versus pointer validity; target runtime closure versus freestanding flag; port evidence boundary versus cross compilation.",
+    "apply": "Reuse ports.context for coroutine/task adapters; an ABI-preserving call switch, an interrupt frame and a process context must remain separately specified."
+  }
+}

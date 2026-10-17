@@ -16,7 +16,11 @@ def main():
     objectives={o['id'] for d in taxonomy for t in d['subtopics'] for o in t['objectives']}
     graph=read_json(ROOT/'curriculum/project_graph.json')
     errors+=check_graph(graph,projects,objectives)
-    new={key for key in projects if projects[key]['meta']['module'] in {f'T{i}' for i in range(49,57)}}
+    required_domains = {f'T{i}' for i in range(49,57)}
+    edition_path = ROOT / 'curriculum/edition.json'
+    if edition_path.is_file():
+        required_domains.update(read_json(edition_path).get('new_domains', []))
+    new={key for key in projects if projects[key]['meta']['module'] in required_domains}
     declarations={}; families=[]
     for path in sorted((ROOT/'labs').glob('*/family.json')):
         manifest=read_json(path); families.append(path.parent.name)

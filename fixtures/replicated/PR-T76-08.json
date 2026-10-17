@@ -1,0 +1,38 @@
+{
+  "id": "PR-T76-08",
+  "description": "Field tags, minimal varints and canonical bytes",
+  "input": {
+    "case": "wire"
+  },
+  "expected": {
+    "contract": "Bytes18 07 10 01 08 96 01 (hex) decode and canonicalize to08 96 01 10 01 18 07. 08 80 00 10 01 is rejected as nonminimal. ZigZag(-1)=1, INT32_MIN maps to UINT32_MAX, INT32_MAX maps to UINT32_MAX-1."
+  },
+  "cases": [
+    {
+      "kind": "wire",
+      "example": "Bytes18 07 10 01 08 96 01 (hex) decode and canonicalize to08 96 01 10 01 18 07. 08 80 00 10 01 is rejected as nonminimal. ZigZag(-1)=1, INT32_MIN maps to UINT32_MAX, INT32_MAX maps to UINT32_MAX-1.",
+      "input": {
+        "bytes": [
+          24,
+          7,
+          16,
+          1,
+          8,
+          150,
+          1
+        ]
+      },
+      "expected": [
+        8,
+        150,
+        1,
+        16,
+        1,
+        24,
+        7
+      ],
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

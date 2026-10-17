@@ -1,0 +1,33 @@
+{
+  "id": "PR-T66-03",
+  "description": "Move protocols, source poisoning and the limits of must-use diagnostics",
+  "input": {
+    "case": "move"
+  },
+  "expected": {
+    "contract": "After moving three blocks, destination.count=3 and source.count=0. Consuming the source returns DEAD; consuming the destination releases three blocks once; a second consume returns DEAD. A direct C assignment copying the original owner is a counterexample to an alleged static move-only guarantee."
+  },
+  "cases": [
+    {
+      "id": "move-7",
+      "kind": "move",
+      "input": {
+        "source": [
+          1,
+          2,
+          3
+        ]
+      },
+      "expected": {
+        "source": [],
+        "destination": [
+          1,
+          2,
+          3
+        ],
+        "release_count": 3
+      }
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

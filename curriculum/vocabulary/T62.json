@@ -1,0 +1,698 @@
+{
+  "domain": "T62",
+  "entries": [
+    {
+      "id": "V-T62-01-1",
+      "term": "vectored progress cursor",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Element index and intra-element offset identifying the unaccepted suffix.",
+      "authority": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "iovec count",
+          "distinction": "A count alone cannot represent a partial element."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "vectored progress cursor requires an explicit contract."
+      ],
+      "symbols": [
+        "li_advance"
+      ],
+      "objectives": [
+        "T62.01.a",
+        "T62.01.b",
+        "T62.01.c"
+      ],
+      "misconception": "The faulty cursor resets the within-element offset after a short write, duplicating the first byte of the next span on retry.",
+      "recall": {
+        "define": "Define vectored progress cursor with its invariant.",
+        "distinguish": "Distinguish vectored progress cursor from iovec count.",
+        "counterexample": "Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers."
+      }
+    },
+    {
+      "id": "V-T62-01-2",
+      "term": "local I/O acceptance",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Bytes accepted by a local operation according to its return contract.",
+      "authority": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "delivery or durability",
+          "distinction": "Acceptance does not imply peer receipt or stable storage."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "local I/O acceptance requires an explicit contract."
+      ],
+      "symbols": [
+        "li_advance"
+      ],
+      "objectives": [
+        "T62.01.a",
+        "T62.01.b",
+        "T62.01.c"
+      ],
+      "misconception": "The faulty cursor resets the within-element offset after a short write, duplicating the first byte of the next span on retry.",
+      "recall": {
+        "define": "Define local I/O acceptance with its invariant.",
+        "distinguish": "Distinguish local I/O acceptance from delivery or durability.",
+        "counterexample": "Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers."
+      }
+    },
+    {
+      "id": "V-T62-02-1",
+      "term": "remembered edge readiness",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Local state retaining known-ready work until exhaustion is observed.",
+      "authority": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "epoll event count",
+          "distinction": "One notification can cover many bytes or operations."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "remembered edge readiness requires an explicit contract."
+      ],
+      "symbols": [
+        "li_ready_after"
+      ],
+      "objectives": [
+        "T62.02.a",
+        "T62.02.b",
+        "T62.02.c"
+      ],
+      "misconception": "The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash.",
+      "recall": {
+        "define": "Define remembered edge readiness with its invariant.",
+        "distinguish": "Distinguish remembered edge readiness from epoll event count.",
+        "counterexample": "Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts."
+      }
+    },
+    {
+      "id": "V-T62-02-2",
+      "term": "dispatch fairness budget",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Bound on one ready source’s work before serving others.",
+      "authority": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "readiness exhaustion",
+          "distinction": "Budget exhaustion does not imply EAGAIN."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "dispatch fairness budget requires an explicit contract."
+      ],
+      "symbols": [
+        "li_ready_after"
+      ],
+      "objectives": [
+        "T62.02.a",
+        "T62.02.b",
+        "T62.02.c"
+      ],
+      "misconception": "The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash.",
+      "recall": {
+        "define": "Define dispatch fairness budget with its invariant.",
+        "distinguish": "Distinguish dispatch fairness budget from readiness exhaustion.",
+        "counterexample": "Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts."
+      }
+    },
+    {
+      "id": "V-T62-03-1",
+      "term": "ring live distance",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Unsigned counter difference representing outstanding entries under a bounded-distance assumption.",
+      "authority": [
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "masked index",
+          "distinction": "The same index recurs across different queue generations."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "ring live distance requires an explicit contract."
+      ],
+      "symbols": [
+        "li_slot"
+      ],
+      "objectives": [
+        "T62.03.a",
+        "T62.03.b",
+        "T62.03.c"
+      ],
+      "misconception": "A producer masks tail and overwrites a still-owned full slot. Adding a barrier cannot repair missing capacity admission.",
+      "recall": {
+        "define": "Define ring live distance with its invariant.",
+        "distinguish": "Distinguish ring live distance from masked index.",
+        "counterexample": "Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof."
+      }
+    },
+    {
+      "id": "V-T62-03-2",
+      "term": "submission publication",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Ordering point making a fully initialized request visible to the consumer.",
+      "authority": [
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "slot reservation",
+          "distinction": "Reserved storage need not yet be visible as work."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "submission publication requires an explicit contract."
+      ],
+      "symbols": [
+        "li_slot"
+      ],
+      "objectives": [
+        "T62.03.a",
+        "T62.03.b",
+        "T62.03.c"
+      ],
+      "misconception": "A producer masks tail and overwrites a still-owned full slot. Adding a barrier cannot repair missing capacity admission.",
+      "recall": {
+        "define": "Define submission publication with its invariant.",
+        "distinguish": "Distinguish submission publication from slot reservation.",
+        "counterexample": "Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof."
+      }
+    },
+    {
+      "id": "V-T62-04-1",
+      "term": "completion incarnation",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Generation identifying the specific operation occupying a reusable slot.",
+      "authority": [
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "file descriptor value",
+          "distinction": "Descriptor numbers can be reused."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "completion incarnation requires an explicit contract."
+      ],
+      "symbols": [
+        "li_event"
+      ],
+      "objectives": [
+        "T62.04.a",
+        "T62.04.b",
+        "T62.04.c"
+      ],
+      "misconception": "The mutant ignores generation and lets a stale completion finish a new request. Demonstrate harmless wrong-result publication using two synthetic requests, not another process’s data.",
+      "recall": {
+        "define": "Define completion incarnation with its invariant.",
+        "distinguish": "Distinguish completion incarnation from file descriptor value.",
+        "counterexample": "Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags."
+      }
+    },
+    {
+      "id": "V-T62-04-2",
+      "term": "terminal completion owner",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Unique consumer authorized to release a completed operation’s resources.",
+      "authority": [
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "submission owner",
+          "distinction": "Submitting work does not imply it has finished."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "terminal completion owner requires an explicit contract."
+      ],
+      "symbols": [
+        "li_event"
+      ],
+      "objectives": [
+        "T62.04.a",
+        "T62.04.b",
+        "T62.04.c"
+      ],
+      "misconception": "The mutant ignores generation and lets a stale completion finish a new request. Demonstrate harmless wrong-result publication using two synthetic requests, not another process’s data.",
+      "recall": {
+        "define": "Define terminal completion owner with its invariant.",
+        "distinguish": "Distinguish terminal completion owner from submission owner.",
+        "counterexample": "Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags."
+      }
+    },
+    {
+      "id": "V-T62-05-1",
+      "term": "cancel acknowledgement",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Completion result of the operation requesting cancellation.",
+      "authority": [
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "target terminal completion",
+          "distinction": "The target has a separate lifecycle and result."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "cancel acknowledgement requires an explicit contract."
+      ],
+      "symbols": [
+        "li_releasable"
+      ],
+      "objectives": [
+        "T62.05.a",
+        "T62.05.b",
+        "T62.05.c"
+      ],
+      "misconception": "The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability.",
+      "recall": {
+        "define": "Define cancel acknowledgement with its invariant.",
+        "distinguish": "Distinguish cancel acknowledgement from target terminal completion.",
+        "counterexample": "Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics."
+      }
+    },
+    {
+      "id": "V-T62-05-2",
+      "term": "late completion obligation",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Duty to safely consume a target result arriving after cancellation or close initiation.",
+      "authority": [
+        {
+          "resource_id": "R-B06-URING",
+          "locator": "Memory ordering; SQE pointer lifetimes and data stability"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "ignored event",
+          "distinction": "Discarding an event may leak or prematurely free its owned resources."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "late completion obligation requires an explicit contract."
+      ],
+      "symbols": [
+        "li_releasable"
+      ],
+      "objectives": [
+        "T62.05.a",
+        "T62.05.b",
+        "T62.05.c"
+      ],
+      "misconception": "The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability.",
+      "recall": {
+        "define": "Define late completion obligation with its invariant.",
+        "distinguish": "Distinguish late completion obligation from ignored event.",
+        "counterexample": "Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics."
+      }
+    },
+    {
+      "id": "V-T62-06-1",
+      "term": "operation total deadline",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Time bound from operation start independent of intermediate progress.",
+      "authority": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "idle deadline",
+          "distinction": "An idle deadline may refresh on progress."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "operation total deadline requires an explicit contract."
+      ],
+      "symbols": [
+        "li_expired"
+      ],
+      "objectives": [
+        "T62.06.a",
+        "T62.06.b",
+        "T62.06.c"
+      ],
+      "misconception": "The faulty start+duration comparison wraps the deadline and expires an operation prematurely. Resetting the total deadline after each byte also permits indefinite slow progress.",
+      "recall": {
+        "define": "Define operation total deadline with its invariant.",
+        "distinguish": "Distinguish operation total deadline from idle deadline.",
+        "counterexample": "Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds."
+      }
+    },
+    {
+      "id": "V-T62-06-2",
+      "term": "tick half-range assumption",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Bound making modular elapsed-time comparisons unambiguous.",
+      "authority": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "unbounded uptime",
+          "distinction": "A finite counter alone cannot distinguish arbitrarily old events."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "tick half-range assumption requires an explicit contract."
+      ],
+      "symbols": [
+        "li_expired"
+      ],
+      "objectives": [
+        "T62.06.a",
+        "T62.06.b",
+        "T62.06.c"
+      ],
+      "misconception": "The faulty start+duration comparison wraps the deadline and expires an operation prematurely. Resetting the total deadline after each byte also permits indefinite slow progress.",
+      "recall": {
+        "define": "Define tick half-range assumption with its invariant.",
+        "distinguish": "Distinguish tick half-range assumption from unbounded uptime.",
+        "counterexample": "Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds."
+      }
+    },
+    {
+      "id": "V-T62-07-1",
+      "term": "durable pathname replacement",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Replacement whose data and directory metadata meet the declared persistence contract.",
+      "authority": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "atomic rename",
+          "distinction": "Atomic observation does not by itself establish crash persistence."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "durable pathname replacement requires an explicit contract."
+      ],
+      "symbols": [
+        "li_durable"
+      ],
+      "objectives": [
+        "T62.07.a",
+        "T62.07.b",
+        "T62.07.c"
+      ],
+      "misconception": "A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee.",
+      "recall": {
+        "define": "Define durable pathname replacement with its invariant.",
+        "distinguish": "Distinguish durable pathname replacement from atomic rename.",
+        "counterexample": "Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated."
+      }
+    },
+    {
+      "id": "V-T62-07-2",
+      "term": "crash-cut ledger",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Expected recoverable state at every modeled persistence boundary.",
+      "authority": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "ordinary process test",
+          "distinction": "Normal shutdown does not simulate every power-loss state."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "crash-cut ledger requires an explicit contract."
+      ],
+      "symbols": [
+        "li_durable"
+      ],
+      "objectives": [
+        "T62.07.a",
+        "T62.07.b",
+        "T62.07.c"
+      ],
+      "misconception": "A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee.",
+      "recall": {
+        "define": "Define crash-cut ledger with its invariant.",
+        "distinguish": "Distinguish crash-cut ledger from ordinary process test.",
+        "counterexample": "Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated."
+      }
+    },
+    {
+      "id": "V-T62-08-1",
+      "term": "copy-avoidance contract",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Precisely identified copy omitted by a data-transfer path.",
+      "authority": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "zero data movement",
+          "distinction": "Caches, devices and kernel paths may still move bytes."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "copy-avoidance contract requires an explicit contract."
+      ],
+      "symbols": [
+        "li_buffer_release"
+      ],
+      "objectives": [
+        "T62.08.a",
+        "T62.08.b",
+        "T62.08.c"
+      ],
+      "misconception": "The mutant releases after terminal I/O while an application borrower still uses the buffer. Kernel completion does not revoke independent application ownership.",
+      "recall": {
+        "define": "Define copy-avoidance contract with its invariant.",
+        "distinguish": "Distinguish copy-avoidance contract from zero data movement.",
+        "counterexample": "Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability."
+      }
+    },
+    {
+      "id": "V-T62-08-2",
+      "term": "retained I/O buffer",
+      "owner": "T62",
+      "kind": "course",
+      "definition": "Storage kept live by a pending transfer or borrower.",
+      "authority": [
+        {
+          "resource_id": "R-B06-EPOLL",
+          "locator": "Level-triggered and edge-triggered; Questions and answers; Possible pitfalls"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "submitted buffer",
+          "distinction": "Submission alone does not determine its release point."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "retained I/O buffer requires an explicit contract."
+      ],
+      "symbols": [
+        "li_buffer_release"
+      ],
+      "objectives": [
+        "T62.08.a",
+        "T62.08.b",
+        "T62.08.c"
+      ],
+      "misconception": "The mutant releases after terminal I/O while an application borrower still uses the buffer. Kernel completion does not revoke independent application ownership.",
+      "recall": {
+        "define": "Define retained I/O buffer with its invariant.",
+        "distinguish": "Distinguish retained I/O buffer from submitted buffer.",
+        "counterexample": "Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability."
+      }
+    }
+  ],
+  "recall": {
+    "define": "For Advanced Linux I/O and completion ownership, define vectored progress cursor, local I/O acceptance, remembered edge readiness, dispatch fairness budget, ring live distance, submission publication, completion incarnation, terminal completion owner, cancel acknowledgement, late completion obligation, operation total deadline, tick half-range assumption, durable pathname replacement, crash-cut ledger, copy-avoidance contract, retained I/O buffer, giving each invariant.",
+    "distinguish": "For Advanced Linux I/O and completion ownership, distinguish these near concepts: vectored progress cursor versus iovec count; local I/O acceptance versus delivery or durability; remembered edge readiness versus epoll event count; dispatch fairness budget versus readiness exhaustion; ring live distance versus masked index; submission publication versus slot reservation; completion incarnation versus file descriptor value; terminal completion owner versus submission owner; cancel acknowledgement versus target terminal completion; late completion obligation versus ignored event; operation total deadline versus idle deadline; tick half-range assumption versus unbounded uptime; durable pathname replacement versus atomic rename; crash-cut ledger versus ordinary process test; copy-avoidance contract versus zero data movement; retained I/O buffer versus submitted buffer.",
+    "apply": "Reuse completion_owner in local server and firmware DMA adapters; revisit which event actually permits release and whether observed completion implies durability."
+  }
+}

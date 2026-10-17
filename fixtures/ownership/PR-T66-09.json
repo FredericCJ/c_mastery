@@ -1,0 +1,27 @@
+{
+  "id": "PR-T66-09",
+  "description": "Adversarial allocation through the existing typed callback ABI",
+  "input": {
+    "case": "allocator"
+  },
+  "expected": {
+    "contract": "Take16 succeeds; fail-at2 makes take1 return null. Live1,peak1,attempts2. Release poisons all16 requested elements, gives live0/releases1; a second release only records an invalid-release event. Starting attempts at SIZE_MAX refuses allocation and leaves it at SIZE_MAX."
+  },
+  "cases": [
+    {
+      "id": "allocator-15",
+      "kind": "allocator",
+      "input": {
+        "fail_at": 2
+      },
+      "expected": {
+        "attempts": 2,
+        "peak": 1,
+        "releases": 1,
+        "live": 0,
+        "poison": -2147483648
+      }
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

@@ -1,0 +1,33 @@
+{
+  "id": "PR-T76-03",
+  "description": "Lamport, vector and hybrid logical clock boundaries",
+  "input": {
+    "case": "clocks"
+  },
+  "expected": {
+    "contract": "Lamport(2,8)=9. Vectors[1,0,0] and[0,1,0] are concurrent; receive at replica0 gives[2,1,0]. HLC local(10,2),remote(10,7),wall9 gives(10,8); wall11 on a subsequent local event resets logical to0. UINT32_MAX logical overflow fails unchanged."
+  },
+  "cases": [
+    {
+      "kind": "clocks",
+      "example": "Lamport(2,8)=9. Vectors[1,0,0] and[0,1,0] are concurrent; receive at replica0 gives[2,1,0]. HLC local(10,2),remote(10,7),wall9 gives(10,8); wall11 on a subsequent local event resets logical to0. UINT32_MAX logical overflow fails unchanged.",
+      "input": {
+        "local": [
+          10,
+          2
+        ],
+        "remote": [
+          10,
+          7
+        ],
+        "wall": 9
+      },
+      "expected": [
+        10,
+        8
+      ],
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

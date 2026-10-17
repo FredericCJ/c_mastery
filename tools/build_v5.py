@@ -13,13 +13,17 @@ from v5_common import HISTORICAL, RECEIPTS, V5
 CHECKS = ['validate.py', 'check_fixtures.py', 'check_contract_guards.py', 'check_v3.py', 'check_v5.py',
           'check_learning_v4.py', 'check_release_v5.py', 'publish_v5.py', 'check_html.py', 'check_markdown.py']
 OPTIONAL_CHECKS = ['check_authored_v5.py', 'check_vocabulary.py', 'check_terminology_ledger.py']
+OPTIONAL_CHECKS += ['check_exercises_v5.py', 'check_exercise_workflow.py', 'check_graph_preservation_v5.py']
+OPTIONAL_CHECKS += ['check_modern_coverage.py', 'check_v5_authoring_contracts.py']
+OPTIONAL_CHECKS += ['check_legacy_assessments.py']
+OPTIONAL_CHECKS += ['check_publication_links.py']
 
 
 def run_tool(name, *arguments):
     return subprocess.run([sys.executable, '-X', 'utf8', str(ROOT / 'tools' / name), *arguments], cwd=ROOT)
 
 
-def main():
+def build():
     if not (V5 / 'baseline.json').is_file():
         raise SystemExit('Run tools/prepare_v5_baseline.py before the fifth-edition build')
     historical = {p: p.read_bytes() for folder in HISTORICAL for p in (ROOT / folder).rglob('*') if p.is_file()}
@@ -61,6 +65,12 @@ def main():
     finally:
         for path, content in historical.items():
             path.write_bytes(content)
+
+
+def main():
+    from expansion_evidence import preserve_receipts
+    with preserve_receipts(ROOT / RECEIPTS):
+        build()
 
 
 if __name__ == '__main__':

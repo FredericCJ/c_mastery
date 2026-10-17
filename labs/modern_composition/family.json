@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "family": "modern_composition",
+  "title": "Composing actual ownership and asynchronous components",
+  "build_system": "cmake",
+  "assessor_root": "assessor/modern_composition",
+  "dependencies": [
+    "errors",
+    "ownership",
+    "coroutines",
+    "messaging"
+  ],
+  "tests": [
+    "modern_composition.publish",
+    "modern_composition.async"
+  ],
+  "projects": [
+    {
+      "id": "PR-T66-02",
+      "tests": [
+        "modern_composition.publish"
+      ],
+      "scope": "Cross-component exercise; use its explicit prerequisites."
+    },
+    {
+      "id": "PR-T73-03",
+      "tests": [
+        "modern_composition.async"
+      ],
+      "scope": "Cross-component exercise; use its explicit prerequisites."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "X-T66-011",
+      "project": "PR-T66-02",
+      "tests": [
+        "modern_composition.publish"
+      ]
+    },
+    {
+      "id": "X-T73-011",
+      "project": "PR-T73-03",
+      "tests": [
+        "modern_composition.async"
+      ]
+    }
+  ],
+  "campaign": {
+    "producer": "tools/run_modern_composition.py",
+    "receipt": "modern_composition_campaign.json",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "MC_CHECK:"
+  },
+  "limits": [
+    "Hosted serialized adapters; no real I/O cancellation, concurrency proof, physical execution or learner assessment."
+  ]
+}

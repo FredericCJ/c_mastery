@@ -64,12 +64,15 @@ def swe(args):
     corpus = json.loads((SWE / 'data/corpus.json').read_text(encoding='utf-8-sig'))
     elements = json.loads((SWE / 'data/elements.json').read_text(encoding='utf-8-sig'))
     records = list(corpus.get('nodes', []))
+    # Element records carry mechanisms absent from bibliographic work titles.
+    # They remain discovery leads, never document-inspection evidence.
+    records += list(elements.get('nodes', []))
     works = elements.get('works', {})
     records += list(works.values()) if isinstance(works, dict) else works
     words = [q.casefold() for q in args.query.split('|')]
     hits = [r for r in records if any(q in json.dumps(r, ensure_ascii=False).casefold() for q in words)]
     write_private(args.output, hits)
-    print(json.dumps({'matches': len(hits), 'records': [{'id': r.get('id'), 'title': r.get('title'), 'verified': r.get('verified')} for r in hits[:args.limit]]}, ensure_ascii=False, indent=2))
+    print(json.dumps({'matches': len(hits), 'records': [{'id': r.get('id'), 'title': r.get('title', r.get('name')), 'verified': r.get('verified')} for r in hits[:args.limit]]}, ensure_ascii=False, indent=2))
 
 def pins(args):
     selected = ['LIBRARY_RULES.yaml', 'LIBRARY_AGENTS.yaml', '_census/agents/SHARED.md', '_census/agents/roles/chief_librarian.md', '_census/agents/roles/metadata_provenance.md', '_census/v2/CURRENT.json', '_census/library_database/CURRENT.json', 'Library/_database/manifest.json']

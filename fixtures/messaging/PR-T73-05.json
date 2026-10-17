@@ -1,0 +1,193 @@
+{
+  "id": "PR-T73-05",
+  "description": "Supervision trees with restart budgets and ordered quiescence",
+  "input": {
+    "case": "supervision"
+  },
+  "expected": {
+    "contract": "REST failure at child1 yields[-4,-3,-2,2,3,4]. With limit2/window10, failures at0 and1 restart; failure at2 escalates with[-4,-3,-2,-1]. With limit1/window10, failures at1 and11 are both admitted because the older event is outside the strict window."
+  },
+  "cases": [
+    {
+      "id": "one-0",
+      "kind": "supervision",
+      "input": [
+        "one",
+        0
+      ],
+      "expected": [
+        -1,
+        1
+      ]
+    },
+    {
+      "id": "one-1",
+      "kind": "supervision",
+      "input": [
+        "one",
+        1
+      ],
+      "expected": [
+        -2,
+        2
+      ]
+    },
+    {
+      "id": "one-2",
+      "kind": "supervision",
+      "input": [
+        "one",
+        2
+      ],
+      "expected": [
+        -3,
+        3
+      ]
+    },
+    {
+      "id": "one-3",
+      "kind": "supervision",
+      "input": [
+        "one",
+        3
+      ],
+      "expected": [
+        -4,
+        4
+      ]
+    },
+    {
+      "id": "all-0",
+      "kind": "supervision",
+      "input": [
+        "all",
+        0
+      ],
+      "expected": [
+        -4,
+        -3,
+        -2,
+        -1,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "all-1",
+      "kind": "supervision",
+      "input": [
+        "all",
+        1
+      ],
+      "expected": [
+        -4,
+        -3,
+        -2,
+        -1,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "all-2",
+      "kind": "supervision",
+      "input": [
+        "all",
+        2
+      ],
+      "expected": [
+        -4,
+        -3,
+        -2,
+        -1,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "all-3",
+      "kind": "supervision",
+      "input": [
+        "all",
+        3
+      ],
+      "expected": [
+        -4,
+        -3,
+        -2,
+        -1,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "rest-0",
+      "kind": "supervision",
+      "input": [
+        "rest",
+        0
+      ],
+      "expected": [
+        -4,
+        -3,
+        -2,
+        -1,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "rest-1",
+      "kind": "supervision",
+      "input": [
+        "rest",
+        1
+      ],
+      "expected": [
+        -4,
+        -3,
+        -2,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "rest-2",
+      "kind": "supervision",
+      "input": [
+        "rest",
+        2
+      ],
+      "expected": [
+        -4,
+        -3,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "rest-3",
+      "kind": "supervision",
+      "input": [
+        "rest",
+        3
+      ],
+      "expected": [
+        -4,
+        4
+      ]
+    }
+  ],
+  "verification_method": "Deque and supervisor rows have independent Python models; other cases are named C semantic anchors and require the written independent assessment."
+}

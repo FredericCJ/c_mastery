@@ -1,0 +1,698 @@
+{
+  "domain": "T64",
+  "entries": [
+    {
+      "id": "V-T64-01-1",
+      "term": "fixed-point scale contract",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Relationship between a stored integer and its represented real value.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "integer range",
+          "distinction": "The same integer bits can represent different scales."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "fixed-point scale contract requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_q15"
+      ],
+      "objectives": [
+        "T64.01.a",
+        "T64.01.b",
+        "T64.01.c"
+      ],
+      "misconception": "The mutant truncates toward zero, failing positive and negative half-way cases. A signed right shift is not a portable replacement for the specified rounding rule.",
+      "recall": {
+        "define": "Define fixed-point scale contract with its invariant.",
+        "distinguish": "Distinguish fixed-point scale contract from integer range.",
+        "counterexample": "Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants."
+      }
+    },
+    {
+      "id": "V-T64-01-2",
+      "term": "saturation after rounding",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Clamping the correctly rounded wide result before narrowing.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "overflow recovery",
+          "distinction": "Undefined signed overflow cannot be repaired afterward."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "saturation after rounding requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_q15"
+      ],
+      "objectives": [
+        "T64.01.a",
+        "T64.01.b",
+        "T64.01.c"
+      ],
+      "misconception": "The mutant truncates toward zero, failing positive and negative half-way cases. A signed right shift is not a portable replacement for the specified rounding rule.",
+      "recall": {
+        "define": "Define saturation after rounding with its invariant.",
+        "distinguish": "Distinguish saturation after rounding from overflow recovery.",
+        "counterexample": "Change to Q3.12 and compare wrap, saturate and error-return APIs. Derive a dot-product accumulator width from maximum length instead of copying the Q1.15 constants."
+      }
+    },
+    {
+      "id": "V-T64-02-1",
+      "term": "half-way parity rule",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Tie resolution choosing the even neighboring integer.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "ties away",
+          "distinction": "The two rules disagree when the nearer magnitude below the tie is even."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "half-way parity rule requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_round_even"
+      ],
+      "objectives": [
+        "T64.02.a",
+        "T64.02.b",
+        "T64.02.c"
+      ],
+      "misconception": "The mutant rounds every tie away from zero. A test corpus containing only odd lower endpoints misses the defect; a changed rounding mode cannot be assumed to affect every compiler-folded expression.",
+      "recall": {
+        "define": "Define half-way parity rule with its invariant.",
+        "distinguish": "Distinguish half-way parity rule from ties away.",
+        "counterexample": "Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding."
+      }
+    },
+    {
+      "id": "V-T64-02-2",
+      "term": "rounding oracle domain",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Exact bounded rational domain used to predict a rounded result.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "floating evaluation",
+          "distinction": "Binary approximation of a rational may move it off the tie."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "rounding oracle domain requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_round_even"
+      ],
+      "objectives": [
+        "T64.02.a",
+        "T64.02.b",
+        "T64.02.c"
+      ],
+      "misconception": "The mutant rounds every tie away from zero. A test corpus containing only odd lower endpoints misses the defect; a changed rounding mode cannot be assumed to affect every compiler-folded expression.",
+      "recall": {
+        "define": "Define rounding oracle domain with its invariant.",
+        "distinguish": "Distinguish rounding oracle domain from floating evaluation.",
+        "counterexample": "Compare the rational oracle with volatile double operations under each available fenv rounding mode, retaining compiler flags and FENV_ACCESS support limits. Distinguish conversion behavior from arithmetic rounding."
+      }
+    },
+    {
+      "id": "V-T64-03-1",
+      "term": "accumulation range proof",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Bound on every partial sum under the permitted workload.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "product range",
+          "distinction": "A safe individual product does not bound a long reduction."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "accumulation range proof requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_dot"
+      ],
+      "objectives": [
+        "T64.03.a",
+        "T64.03.b",
+        "T64.03.c"
+      ],
+      "misconception": "The mutant narrows the completed sum to32 bits. On a target with a different conversion behavior, report implementation-defined narrowing separately from the violated mathematical output contract.",
+      "recall": {
+        "define": "Define accumulation range proof with its invariant.",
+        "distinguish": "Distinguish accumulation range proof from product range.",
+        "counterexample": "Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness."
+      }
+    },
+    {
+      "id": "V-T64-03-2",
+      "term": "exact reduction contract",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Requirement to return the mathematical sum within a proved integer range.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "floating reduction",
+          "distinction": "Floating addition may depend on evaluation order."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "exact reduction contract requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_dot"
+      ],
+      "objectives": [
+        "T64.03.a",
+        "T64.03.b",
+        "T64.03.c"
+      ],
+      "misconception": "The mutant narrows the completed sum to32 bits. On a target with a different conversion behavior, report implementation-defined narrowing separately from the violated mathematical output contract.",
+      "recall": {
+        "define": "Define exact reduction contract with its invariant.",
+        "distinguish": "Distinguish exact reduction contract from floating reduction.",
+        "counterexample": "Vectorize into several wide partial sums and compare exact results for every tail length. Change n beyond the proved bound and design checked partial accumulation without silently weakening exactness."
+      }
+    },
+    {
+      "id": "V-T64-04-1",
+      "term": "compensation state",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Additional reduction state estimating contributions lost to rounding.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "extra precision guarantee",
+          "distinction": "A correction variable is not arbitrary precision or a universal proof."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "compensation state requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_sum"
+      ],
+      "objectives": [
+        "T64.04.a",
+        "T64.04.b",
+        "T64.04.c"
+      ],
+      "misconception": "The mutant drops compensation and returns0 for [1e16,1,-1e16]. Reassociation permitted by fast-math can invalidate the correction identity even when the source text is unchanged.",
+      "recall": {
+        "define": "Define compensation state with its invariant.",
+        "distinguish": "Distinguish compensation state from extra precision guarantee.",
+        "counterexample": "Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract."
+      }
+    },
+    {
+      "id": "V-T64-04-2",
+      "term": "reduction order contract",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Specified sequence or tree of arithmetic operations.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "mathematical associativity",
+          "distinction": "Finite arithmetic need not preserve reassociation."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "reduction order contract requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_sum"
+      ],
+      "objectives": [
+        "T64.04.a",
+        "T64.04.b",
+        "T64.04.c"
+      ],
+      "misconception": "The mutant drops compensation and returns0 for [1e16,1,-1e16]. Reassociation permitted by fast-math can invalidate the correction identity even when the source text is unchanged.",
+      "recall": {
+        "define": "Define reduction order contract with its invariant.",
+        "distinguish": "Distinguish reduction order contract from mathematical associativity.",
+        "counterexample": "Implement pairwise summation and a fixed reduction tree for parallel execution. Compare accuracy, stack use, reproducibility and throughput under an equivalent exceptional-value contract."
+      }
+    },
+    {
+      "id": "V-T64-05-1",
+      "term": "scaled sum of squares",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Norm representation separating a magnitude scale from dimensionless squared ratios.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "naive square accumulation",
+          "distinction": "The naive method can overflow before a representable final norm."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "scaled sum of squares requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_norm"
+      ],
+      "objectives": [
+        "T64.05.a",
+        "T64.05.b",
+        "T64.05.c"
+      ],
+      "misconception": "The naive mutant squares3e200 before scaling and rejects a representable5e200 result. Testing only unit-scale data fails to distinguish the two algorithms.",
+      "recall": {
+        "define": "Define scaled sum of squares with its invariant.",
+        "distinguish": "Distinguish scaled sum of squares from naive square accumulation.",
+        "counterexample": "Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract."
+      }
+    },
+    {
+      "id": "V-T64-05-2",
+      "term": "intermediate representability",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Requirement that the chosen evaluation path fits its arithmetic domain.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "final representability",
+          "distinction": "A representable answer does not ensure all naive intermediates fit."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "intermediate representability requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_norm"
+      ],
+      "objectives": [
+        "T64.05.a",
+        "T64.05.b",
+        "T64.05.c"
+      ],
+      "misconception": "The naive mutant squares3e200 before scaling and rejects a representable5e200 result. Testing only unit-scale data fails to distinguish the two algorithms.",
+      "recall": {
+        "define": "Define intermediate representability with its invariant.",
+        "distinguish": "Distinguish intermediate representability from final representability.",
+        "counterexample": "Handle subnormal inputs under gradual underflow and a documented flush-to-zero target. Compare results and generated instructions, then revise the admitted accuracy contract."
+      }
+    },
+    {
+      "id": "V-T64-06-1",
+      "term": "layout-equivalent kernel",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Implementation preserving the same logical matrix operation across physical layout changes.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "same loop count",
+          "distinction": "Equal operation counts do not establish equal indices."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "layout-equivalent kernel requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_matmul"
+      ],
+      "objectives": [
+        "T64.06.a",
+        "T64.06.b",
+        "T64.06.c"
+      ],
+      "misconception": "The mutant reuses column0 for every result column. Square or identity-only examples can hide layout errors; use rectangular and asymmetric values.",
+      "recall": {
+        "define": "Define layout-equivalent kernel with its invariant.",
+        "distinguish": "Distinguish layout-equivalent kernel from same loop count.",
+        "counterexample": "Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs."
+      }
+    },
+    {
+      "id": "V-T64-06-2",
+      "term": "transactional numeric output",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Result buffer unchanged when input admission fails.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "partial numeric result",
+          "distinction": "Partial publication requires a different caller contract."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "transactional numeric output requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_matmul"
+      ],
+      "objectives": [
+        "T64.06.a",
+        "T64.06.b",
+        "T64.06.c"
+      ],
+      "misconception": "The mutant reuses column0 for every result column. Square or identity-only examples can hide layout errors; use rectangular and asymmetric values.",
+      "recall": {
+        "define": "Define transactional numeric output with its invariant.",
+        "distinguish": "Distinguish transactional numeric output from partial numeric result.",
+        "counterexample": "Add transposed-B and blocked variants with uneven dimensions and partial tiles. Compare exact output, code size, working set and timing, including cache-warm and cache-cold runs."
+      }
+    },
+    {
+      "id": "V-T64-07-1",
+      "term": "lane-tail partition",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Disjoint complete-vector body and remainder covering every requested element.",
+      "authority": [
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "rounded workload",
+          "distinction": "Ignoring a remainder changes the problem being solved."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "lane-tail partition requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_add"
+      ],
+      "objectives": [
+        "T64.07.a",
+        "T64.07.b",
+        "T64.07.c"
+      ],
+      "misconception": "The mutant rounds n down to a four-lane boundary and leaves the tail unchanged. A benchmark using only multiples of the lane count can conceal this correctness failure.",
+      "recall": {
+        "define": "Define lane-tail partition with its invariant.",
+        "distinguish": "Distinguish lane-tail partition from rounded workload.",
+        "counterexample": "Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions."
+      }
+    },
+    {
+      "id": "V-T64-07-2",
+      "term": "vector arithmetic contract",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Explicit lane type, overflow, promotion and alignment rules for an extension or ISA.",
+      "authority": [
+        {
+          "resource_id": "R-B06-VECTOR",
+          "locator": "Using Vector Instructions through Built-in Functions: vector_size, operators, shifts, comparisons"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "ISO scalar promotion",
+          "distinction": "Vector operators may have different promotion rules."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "vector arithmetic contract requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_add"
+      ],
+      "objectives": [
+        "T64.07.a",
+        "T64.07.b",
+        "T64.07.c"
+      ],
+      "misconception": "The mutant rounds n down to a four-lane boundary and leaves the tail unchanged. A benchmark using only multiples of the lane count can conceal this correctness failure.",
+      "recall": {
+        "define": "Define vector arithmetic contract with its invariant.",
+        "distinguish": "Distinguish vector arithmetic contract from ISO scalar promotion.",
+        "counterexample": "Change lane width and input alignment; implement a runtime-dispatched path with a scalar fallback. Inspect ISA/OS feature checks, emitted instructions and equal-contract performance distributions."
+      }
+    },
+    {
+      "id": "V-T64-08-1",
+      "term": "accuracy admission predicate",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Declared numerical relation used to accept or reject an observed result.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "error theorem",
+          "distinction": "A comparison rule alone does not prove the algorithm satisfies it."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "accuracy admission predicate requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_close"
+      ],
+      "objectives": [
+        "T64.08.a",
+        "T64.08.b",
+        "T64.08.c"
+      ],
+      "misconception": "The mutant removes the absolute component, rejecting a permitted near-zero error. Conversely a loose tolerance selected after seeing failures can hide a wrong algorithm.",
+      "recall": {
+        "define": "Define accuracy admission predicate with its invariant.",
+        "distinguish": "Distinguish accuracy admission predicate from error theorem.",
+        "counterexample": "Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem."
+      }
+    },
+    {
+      "id": "V-T64-08-2",
+      "term": "near-zero error policy",
+      "owner": "T64",
+      "kind": "course",
+      "definition": "Absolute component defining acceptable error when relative scale vanishes.",
+      "authority": [
+        {
+          "resource_id": "R-B06-GOLDBERG",
+          "locator": "Rounding Error; Relative Error and Ulps; Cancellation"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "C17 baseline",
+          "note": "This laboratory abstraction is a program contract; ISO C does not enforce its lifecycle or target-specific obligations."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "relative-only tolerance",
+          "distinction": "Relative tolerance contributes nothing at expected zero."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "near-zero error policy requires an explicit contract."
+      ],
+      "symbols": [
+        "ns_close"
+      ],
+      "objectives": [
+        "T64.08.a",
+        "T64.08.b",
+        "T64.08.c"
+      ],
+      "misconception": "The mutant removes the absolute component, rejecting a permitted near-zero error. Conversely a loose tolerance selected after seeing failures can hide a wrong algorithm.",
+      "recall": {
+        "define": "Define near-zero error policy with its invariant.",
+        "distinguish": "Distinguish near-zero error policy from relative-only tolerance.",
+        "counterexample": "Construct condition-sensitive and metamorphic tests whose predictions do not use the implementation output as the oracle. Compare ulp-based and absolute/relative policies around subnormals, signed zero and an ill-conditioned problem."
+      }
+    }
+  ],
+  "recall": {
+    "define": "For Numerical contracts and SIMD from first principles, define fixed-point scale contract, saturation after rounding, half-way parity rule, rounding oracle domain, accumulation range proof, exact reduction contract, compensation state, reduction order contract, scaled sum of squares, intermediate representability, layout-equivalent kernel, transactional numeric output, lane-tail partition, vector arithmetic contract, accuracy admission predicate, near-zero error policy, giving each invariant.",
+    "distinguish": "For Numerical contracts and SIMD from first principles, distinguish these near concepts: fixed-point scale contract versus integer range; saturation after rounding versus overflow recovery; half-way parity rule versus ties away; rounding oracle domain versus floating evaluation; accumulation range proof versus product range; exact reduction contract versus floating reduction; compensation state versus extra precision guarantee; reduction order contract versus mathematical associativity; scaled sum of squares versus naive square accumulation; intermediate representability versus final representability; layout-equivalent kernel versus same loop count; transactional numeric output versus partial numeric result; lane-tail partition versus rounded workload; vector arithmetic contract versus ISO scalar promotion; accuracy admission predicate versus error theorem; near-zero error policy versus relative-only tolerance.",
+    "apply": "Compose reduction contracts with compiler transformations, numerical simulation and modern iteration abstractions. Reject an optimization when it changes the accepted arithmetic or exceptional-value contract."
+  }
+}

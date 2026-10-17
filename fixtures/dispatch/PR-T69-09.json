@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "PR-T69-09",
+  "exercise": "X-T69-009",
+  "anchor": "dispatch.capabilities",
+  "input_contract": "Implement the original DSAuthority/DSCapability model over a synthetic int counter. Rights bits1(read) and2(add), owner identity and finite epochs enforce checked API requests. Issue and attenuation must never add rights; add requires both root and capability permission; revoke invalidates old epochs and retires after3. Attack only this cooperative local model by requesting a stronger mask, reusing a revoked capability and crossing owners. Then analyze a C client that directly forges exposed fields: explain why this violates the model and refutes a broader security claim. Design an opaque broker/process boundary that can enforce the stronger threat model.",
+  "expected": "A full-rights capability can add5. Its attenuated read-only capability cannot change the counter. Attempting to attenuate read-only rights to full rights rejects with output unchanged. After revocation, the former full capability returns stale and the counter remains5.",
+  "independent_oracle": "Enumerate rights0–3 and all subset/non-subset requests. Retain capabilities through each revoke and retirement, comparing the counter and status to an independent set/epoch model. Mutation1 permits amplification; mutation2 accepts a stale epoch. Success is an observable synthetic counter change contrary to the declared policy, not a crash or privilege escalation. Repairs require both rejection and preserved state.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "attenuated": [
+      "read"
+    ],
+    "counter": 5,
+    "amplification_allowed": false
+  },
+  "verification_method": "labs/dispatch/tests/verify_fixtures.py recomputes bounded arithmetic/ownership/authority expectations independently of reference C"
+}

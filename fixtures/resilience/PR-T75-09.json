@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "id": "PR-T75-09",
+  "exercise": "X-T75-009",
+  "anchor": "resilience.service",
+  "input_contract": "Implement RZService by composing the accepted deadline, limiter, breaker, receiver, pending queue and actual T73 MsgHub. Reserve notification capacity before committing a new synthetic effect; flush only consumes a pending ID when channel send accepts it. Then build the full local telemetry service through the existing IPC/reactor/TCP-fault artifacts, using the wheel for retries and deadlines, limiter for all original/retry/hedge work, breaker permits until terminal completion, and deduplication for repeated requests. Keep the executable anchor and this required integration as distinct evidence obligations.",
+  "expected": "A new delta2 request applies once and queues its ID. Flush to channel0 allows msg_select to observe that exact ID. Filling the four pending slots rejects the next request before changing receiver.total. A full/cancelled imported channel retains pending notifications. Cancellation after an admitted effect cannot make its already-reserved notification disappear.",
+  "independent_oracle": "For the public anchor, fill/drain the real MsgHub, close/cancel it and compare pending IDs with receiver records. Mutation1 commits after notification capacity is exhausted; mutation2 discards an item without channel acceptance. For the full integration, enumerate each acquisition/failure prefix and replay randomized seeded event traces with an independent total/effect ledger. Retain exact compiler/link dependencies and actual measured traces. Do not record a simulated timer observation as hardware/network latency.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "first_notification": 1,
+    "pending_before_rejection": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "effect_total": 10,
+    "pending_after_full": [
+      3,
+      4,
+      5
+    ]
+  }
+}

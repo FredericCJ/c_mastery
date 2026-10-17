@@ -1,0 +1,14 @@
+{
+  "contract_version": 1,
+  "policy": "Build each changed implementation successfully, then require exit 1 with FD_CHECK identifying a failed semantic assertion. A compiler error, sanitizer-only failure, signal, timeout, or surviving mutation is not an accepted rejection.",
+  "mutations": [
+    {"case": "semantic", "macro": "FD_MUTATE_SEMANTIC", "defect": "Classify unsequenced modifications as unspecified order.", "witness": "Assessor-only exact verdict for i++ + i++."},
+    {"case": "extent", "macro": "FD_MUTATE_EXTENT", "defect": "Compute a wrapped sum/product and inspect the result afterwards.", "witness": "offset=SIZE_MAX, count=1, width=1, limit=SIZE_MAX must fail and preserve output."},
+    {"case": "cursor", "macro": "FD_MUTATE_CURSOR", "defect": "Consume the remaining range when an oversized extraction fails.", "witness": "Seven-byte array, position=1, count=SIZE_MAX must preserve position and output."},
+    {"case": "codec", "macro": "FD_MUTATE_CODEC", "defect": "Erase the wire sign bit before decoding.", "witness": "Wire ffffffff denotes -1, and 80000000 denotes INT32_MIN."},
+    {"case": "lifecycle", "macro": "FD_MUTATE_LIFECYCLE", "defect": "Leave allocated storage acquired after initializer failure.", "witness": "Nonzero initializer result must restore empty and exactly one free without destruction."},
+    {"case": "overlap", "macro": "FD_MUTATE_OVERLAP", "defect": "Always copy forward, destroying unread source bytes when moving right.", "witness": "Snapshot oracle over every admitted source/destination/count window in a 12-byte array."},
+    {"case": "handles", "macro": "FD_MUTATE_HANDLES", "defect": "Wrap generation 3 to 1 instead of permanently retiring the slot.", "witness": "Nine acquire/release histories require distinct slot/generation identities and eventual exhaustion."},
+    {"case": "defense", "macro": "FD_MUTATE_DEFENSE", "defect": "Publish the arithmetic result before checking trusted authority.", "witness": "Denied synthetic record count=2,value=3 must leave counter=10 instead of 16."}
+  ]
+}

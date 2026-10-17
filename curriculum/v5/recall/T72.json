@@ -1,0 +1,653 @@
+{
+  "schema_version": 5,
+  "sets": [
+    {
+      "id": "T72.01",
+      "title": "Lazy fused pull pipelines and typed early termination",
+      "objectives": [
+        "T72.01.a",
+        "T72.01.b",
+        "T72.01.c",
+        "T72.01.d"
+      ],
+      "objective_text": {
+        "T72.01.a": "Derive evaluation order, consumption and side effects for filter-even/map-square/take, and distinguish external next from an internal fold with typed break.",
+        "T72.01.b": "Implement co_next, co_flow_next and co_fold without an iterator library, then build an unfused equivalent and compare exact source-pull and callback counts before timing.",
+        "T72.01.c": "Enumerate half-open ranges, nonunit steps, empty take, exhaustion and early break against a materialized mathematical oracle. Check UINT16-edge squaring and resumed iteration; reject extra-pull-after-take and skipped-map mutants.",
+        "T72.01.d": "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input."
+      },
+      "projects": [
+        "PR-T72-01"
+      ],
+      "variants": [
+        {
+          "id": "T72.01-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T72.01.a",
+            "T72.01.b",
+            "T72.01.c",
+            "T72.01.d"
+          ],
+          "prompt": "Derive evaluation order, consumption and side effects for filter-even/map-square/take, and distinguish external next from an internal fold with typed break.",
+          "checklist": [
+            "Derive evaluation order, consumption and side effects for filter-even/map-square/take, and distinguish external next from an internal fold with typed break.",
+            "Implement co_next, co_flow_next and co_fold without an iterator library, then build an unfused equivalent and compare exact source-pull and callback counts before timing.",
+            "Enumerate half-open ranges, nonunit steps, empty take, exhaustion and early break against a materialized mathematical oracle. Check UINT16-edge squaring and resumed iteration; reject extra-pull-after-take and skipped-map mutants.",
+            "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input."
+          ]
+        },
+        {
+          "id": "T72.01-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T72.01.a",
+            "T72.01.b",
+            "T72.01.c",
+            "T72.01.d"
+          ],
+          "prompt": "range0..10, step1, take3 emits0,4,16 after1,3,5 source pulls; the next call returns DONE without a sixth pull. Breaking after two outputs leaves16 as the next output.",
+          "checklist": [
+            "Derive evaluation order, consumption and side effects for filter-even/map-square/take, and distinguish external next from an internal fold with typed break.",
+            "Implement co_next, co_flow_next and co_fold without an iterator library, then build an unfused equivalent and compare exact source-pull and callback counts before timing.",
+            "Enumerate half-open ranges, nonunit steps, empty take, exhaustion and early break against a materialized mathematical oracle. Check UINT16-edge squaring and resumed iteration; reject extra-pull-after-take and skipped-map mutants.",
+            "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input."
+          ]
+        },
+        {
+          "id": "T72.01-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T72.01.a",
+            "T72.01.b",
+            "T72.01.c",
+            "T72.01.d"
+          ],
+          "prompt": "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input.",
+          "checklist": [
+            "Derive evaluation order, consumption and side effects for filter-even/map-square/take, and distinguish external next from an internal fold with typed break.",
+            "Implement co_next, co_flow_next and co_fold without an iterator library, then build an unfused equivalent and compare exact source-pull and callback counts before timing.",
+            "Enumerate half-open ranges, nonunit steps, empty take, exhaustion and early break against a materialized mathematical oracle. Check UINT16-edge squaring and resumed iteration; reject extra-pull-after-take and skipped-map mutants.",
+            "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T72.02",
+      "title": "Volcano scan/filter/group operators with pull backpressure",
+      "objectives": [
+        "T72.02.a",
+        "T72.02.b",
+        "T72.02.c",
+        "T72.02.d"
+      ],
+      "objective_text": {
+        "T72.02.a": "Explain open/next/close and group-boundary ownership in a pull dataflow plan; distinguish iterator backpressure from unbounded eager materialization.",
+        "T72.02.b": "Implement the fused contiguous-key nonnegative-sum query, an unfused scan/filter/group operator chain and a bounded push adapter with identical error and order contracts.",
+        "T72.02.c": "Compare all short key/value streams against an independent grouping oracle, including negative-only groups, overflow, repeated keys separated by another group, early close and output canaries. Reject negative-value inclusion and consuming-later-groups mutants.",
+        "T72.02.d": "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission."
+      },
+      "projects": [
+        "PR-T72-02"
+      ],
+      "variants": [
+        {
+          "id": "T72.02-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T72.02.a",
+            "T72.02.b",
+            "T72.02.c",
+            "T72.02.d"
+          ],
+          "prompt": "Explain open/next/close and group-boundary ownership in a pull dataflow plan; distinguish iterator backpressure from unbounded eager materialization.",
+          "checklist": [
+            "Explain open/next/close and group-boundary ownership in a pull dataflow plan; distinguish iterator backpressure from unbounded eager materialization.",
+            "Implement the fused contiguous-key nonnegative-sum query, an unfused scan/filter/group operator chain and a bounded push adapter with identical error and order contracts.",
+            "Compare all short key/value streams against an independent grouping oracle, including negative-only groups, overflow, repeated keys separated by another group, early close and output canaries. Reject negative-value inclusion and consuming-later-groups mutants.",
+            "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission."
+          ]
+        },
+        {
+          "id": "T72.02-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T72.02.a",
+            "T72.02.b",
+            "T72.02.c",
+            "T72.02.d"
+          ],
+          "prompt": "Rows(1,-1),(1,3),(1,4),(2,-8),(3,5),(4,6) produce(1,7),(3,5),(4,6). A first next stops at index3 and cannot consume group3.",
+          "checklist": [
+            "Explain open/next/close and group-boundary ownership in a pull dataflow plan; distinguish iterator backpressure from unbounded eager materialization.",
+            "Implement the fused contiguous-key nonnegative-sum query, an unfused scan/filter/group operator chain and a bounded push adapter with identical error and order contracts.",
+            "Compare all short key/value streams against an independent grouping oracle, including negative-only groups, overflow, repeated keys separated by another group, early close and output canaries. Reject negative-value inclusion and consuming-later-groups mutants.",
+            "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission."
+          ]
+        },
+        {
+          "id": "T72.02-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T72.02.a",
+            "T72.02.b",
+            "T72.02.c",
+            "T72.02.d"
+          ],
+          "prompt": "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission.",
+          "checklist": [
+            "Explain open/next/close and group-boundary ownership in a pull dataflow plan; distinguish iterator backpressure from unbounded eager materialization.",
+            "Implement the fused contiguous-key nonnegative-sum query, an unfused scan/filter/group operator chain and a bounded push adapter with identical error and order contracts.",
+            "Compare all short key/value streams against an independent grouping oracle, including negative-only groups, overflow, repeated keys separated by another group, early close and output canaries. Reject negative-value inclusion and consuming-later-groups mutants.",
+            "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T72.03",
+      "title": "Allocated coroutine frames and generator ownership",
+      "objectives": [
+        "T72.03.a",
+        "T72.03.b",
+        "T72.03.c",
+        "T72.03.d"
+      ],
+      "objective_text": {
+        "T72.03.a": "Derive frame state, suspension lifetime, allocation failure and destruction rules; distinguish compiler-generated C++ coroutine storage from an explicit C frame.",
+        "T72.03.b": "Implement allocator-backed Fibonacci generators with one owned frame, stable DONE, cancellation through destroy and exactly-once release, plus a caller-provided-frame alternative under an equal value contract.",
+        "T72.03.c": "Inject allocation failure, count0/1/47, suspension then destroy, repeated destroy through the cleared owner and interleaved generators. Compare every value with an independent integer recurrence and record allocation counts; reject extra-yield and omitted-release mutants.",
+        "T72.03.d": "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame."
+      },
+      "projects": [
+        "PR-T72-03"
+      ],
+      "variants": [
+        {
+          "id": "T72.03-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T72.03.a",
+            "T72.03.b",
+            "T72.03.c",
+            "T72.03.d"
+          ],
+          "prompt": "Derive frame state, suspension lifetime, allocation failure and destruction rules; distinguish compiler-generated C++ coroutine storage from an explicit C frame.",
+          "checklist": [
+            "Derive frame state, suspension lifetime, allocation failure and destruction rules; distinguish compiler-generated C++ coroutine storage from an explicit C frame.",
+            "Implement allocator-backed Fibonacci generators with one owned frame, stable DONE, cancellation through destroy and exactly-once release, plus a caller-provided-frame alternative under an equal value contract.",
+            "Inject allocation failure, count0/1/47, suspension then destroy, repeated destroy through the cleared owner and interleaved generators. Compare every value with an independent integer recurrence and record allocation counts; reject extra-yield and omitted-release mutants.",
+            "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame."
+          ]
+        },
+        {
+          "id": "T72.03-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T72.03.a",
+            "T72.03.b",
+            "T72.03.c",
+            "T72.03.d"
+          ],
+          "prompt": "count3 emits0,1,1 then stable DONE. count47 ends at1836311903. Allocation failure leaves the caller output unchanged and performs no release.",
+          "checklist": [
+            "Derive frame state, suspension lifetime, allocation failure and destruction rules; distinguish compiler-generated C++ coroutine storage from an explicit C frame.",
+            "Implement allocator-backed Fibonacci generators with one owned frame, stable DONE, cancellation through destroy and exactly-once release, plus a caller-provided-frame alternative under an equal value contract.",
+            "Inject allocation failure, count0/1/47, suspension then destroy, repeated destroy through the cleared owner and interleaved generators. Compare every value with an independent integer recurrence and record allocation counts; reject extra-yield and omitted-release mutants.",
+            "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame."
+          ]
+        },
+        {
+          "id": "T72.03-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T72.03.a",
+            "T72.03.b",
+            "T72.03.c",
+            "T72.03.d"
+          ],
+          "prompt": "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame.",
+          "checklist": [
+            "Derive frame state, suspension lifetime, allocation failure and destruction rules; distinguish compiler-generated C++ coroutine storage from an explicit C frame.",
+            "Implement allocator-backed Fibonacci generators with one owned frame, stable DONE, cancellation through destroy and exactly-once release, plus a caller-provided-frame alternative under an equal value contract.",
+            "Inject allocation failure, count0/1/47, suspension then destroy, repeated destroy through the cleared owner and interleaved generators. Compare every value with an independent integer recurrence and record allocation counts; reject extra-yield and omitted-release mutants.",
+            "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T72.04",
+      "title": "Actual x86-64 stack switching, ABI state and sanitizer fibers",
+      "objectives": [
+        "T72.04.a",
+        "T72.04.b",
+        "T72.04.c",
+        "T72.04.d"
+      ],
+      "objective_text": {
+        "T72.04.a": "Derive the SysV stack-entry alignment and callee-preserved context, separating ABI obligations, ISO C, compiler extensions and detector annotations.",
+        "T72.04.b": "Implement the assembly context switch plus fresh/resume/yield/completed/destroyed lifecycle on a caller-owned aligned stack; preserve FP control and integrate ASan/TSan fiber APIs.",
+        "T72.04.c": "Run real two-yield callbacks with persistent locals, architectural RSP inside the supplied stack and independent caller/fiber rounding modes. Reject FP-control omission and suspended-destruction mutants. Inspect ELF notes, disassembly, registers, detector results and exact unsupported ABI features.",
+        "T72.04.d": "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code."
+      },
+      "projects": [
+        "PR-T72-04"
+      ],
+      "variants": [
+        {
+          "id": "T72.04-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T72.04.a",
+            "T72.04.b",
+            "T72.04.c",
+            "T72.04.d"
+          ],
+          "prompt": "Derive the SysV stack-entry alignment and callee-preserved context, separating ABI obligations, ISO C, compiler extensions and detector annotations.",
+          "checklist": [
+            "Derive the SysV stack-entry alignment and callee-preserved context, separating ABI obligations, ISO C, compiler extensions and detector annotations.",
+            "Implement the assembly context switch plus fresh/resume/yield/completed/destroyed lifecycle on a caller-owned aligned stack; preserve FP control and integrate ASan/TSan fiber APIs.",
+            "Run real two-yield callbacks with persistent locals, architectural RSP inside the supplied stack and independent caller/fiber rounding modes. Reject FP-control omission and suspended-destruction mutants. Inspect ELF notes, disassembly, registers, detector results and exact unsupported ABI features.",
+            "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code."
+          ]
+        },
+        {
+          "id": "T72.04-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T72.04.a",
+            "T72.04.b",
+            "T72.04.c",
+            "T72.04.d"
+          ],
+          "prompt": "The callback sees its own128KiB stack, local17 then29 survive yields, caller rounding changes remain independent of fiber FE_DOWNWARD, and destruction while suspended rejects.",
+          "checklist": [
+            "Derive the SysV stack-entry alignment and callee-preserved context, separating ABI obligations, ISO C, compiler extensions and detector annotations.",
+            "Implement the assembly context switch plus fresh/resume/yield/completed/destroyed lifecycle on a caller-owned aligned stack; preserve FP control and integrate ASan/TSan fiber APIs.",
+            "Run real two-yield callbacks with persistent locals, architectural RSP inside the supplied stack and independent caller/fiber rounding modes. Reject FP-control omission and suspended-destruction mutants. Inspect ELF notes, disassembly, registers, detector results and exact unsupported ABI features.",
+            "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code."
+          ]
+        },
+        {
+          "id": "T72.04-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T72.04.a",
+            "T72.04.b",
+            "T72.04.c",
+            "T72.04.d"
+          ],
+          "prompt": "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code.",
+          "checklist": [
+            "Derive the SysV stack-entry alignment and callee-preserved context, separating ABI obligations, ISO C, compiler extensions and detector annotations.",
+            "Implement the assembly context switch plus fresh/resume/yield/completed/destroyed lifecycle on a caller-owned aligned stack; preserve FP control and integrate ASan/TSan fiber APIs.",
+            "Run real two-yield callbacks with persistent locals, architectural RSP inside the supplied stack and independent caller/fiber rounding modes. Reject FP-control omission and suspended-destruction mutants. Inspect ELF notes, disassembly, registers, detector results and exact unsupported ABI features.",
+            "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T72.05",
+      "title": "Defunctionalized continuations and a budgeted trampoline",
+      "objectives": [
+        "T72.05.a",
+        "T72.05.b",
+        "T72.05.c",
+        "T72.05.d"
+      ],
+      "objective_text": {
+        "T72.05.a": "Transform recursive factorial into continuation-passing form and then a finite continuation representation, explaining which control and environment values were made explicit.",
+        "T72.05.b": "Implement the factorial0..12 frame with a bounded multiplier stack, one-transition budgets, stable completion and cancellation, without recursive calls or tail-call optimization assumptions.",
+        "T72.05.c": "Compare factorial values with Python integers for every admitted n and every budget partition, including budget0 and cancellation at each state. Assert maximum depth and output publication; reject zero-base and omitted-multiplication mutants.",
+        "T72.05.d": "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return."
+      },
+      "projects": [
+        "PR-T72-05"
+      ],
+      "variants": [
+        {
+          "id": "T72.05-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T72.05.a",
+            "T72.05.b",
+            "T72.05.c",
+            "T72.05.d"
+          ],
+          "prompt": "Transform recursive factorial into continuation-passing form and then a finite continuation representation, explaining which control and environment values were made explicit.",
+          "checklist": [
+            "Transform recursive factorial into continuation-passing form and then a finite continuation representation, explaining which control and environment values were made explicit.",
+            "Implement the factorial0..12 frame with a bounded multiplier stack, one-transition budgets, stable completion and cancellation, without recursive calls or tail-call optimization assumptions.",
+            "Compare factorial values with Python integers for every admitted n and every budget partition, including budget0 and cancellation at each state. Assert maximum depth and output publication; reject zero-base and omitted-multiplication mutants.",
+            "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return."
+          ]
+        },
+        {
+          "id": "T72.05-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T72.05.a",
+            "T72.05.b",
+            "T72.05.c",
+            "T72.05.d"
+          ],
+          "prompt": "factorial6 takes14 single-transition steps: six pushes, one base transition, six pops and one completion. Output stays91 until completion then becomes720.",
+          "checklist": [
+            "Transform recursive factorial into continuation-passing form and then a finite continuation representation, explaining which control and environment values were made explicit.",
+            "Implement the factorial0..12 frame with a bounded multiplier stack, one-transition budgets, stable completion and cancellation, without recursive calls or tail-call optimization assumptions.",
+            "Compare factorial values with Python integers for every admitted n and every budget partition, including budget0 and cancellation at each state. Assert maximum depth and output publication; reject zero-base and omitted-multiplication mutants.",
+            "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return."
+          ]
+        },
+        {
+          "id": "T72.05-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T72.05.a",
+            "T72.05.b",
+            "T72.05.c",
+            "T72.05.d"
+          ],
+          "prompt": "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return.",
+          "checklist": [
+            "Transform recursive factorial into continuation-passing form and then a finite continuation representation, explaining which control and environment values were made explicit.",
+            "Implement the factorial0..12 frame with a bounded multiplier stack, one-transition budgets, stable completion and cancellation, without recursive calls or tail-call optimization assumptions.",
+            "Compare factorial values with Python integers for every admitted n and every budget partition, including budget0 and cancellation at each state. Assert maximum depth and output publication; reject zero-base and omitted-multiplication mutants.",
+            "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T72.06",
+      "title": "Cursor parser combinators with rollback and progress checks",
+      "objectives": [
+        "T72.06.a",
+        "T72.06.b",
+        "T72.06.c",
+        "T72.06.d"
+      ],
+      "objective_text": {
+        "T72.06.a": "Derive ordered-choice, sequence and repetition semantics over a cursor, distinguishing ordinary mismatch from resource/structural failure and identifying nullable repetition nontermination.",
+        "T72.06.b": "Implement literal/empty/sequence/choice/many on the bounded immutable parser DAG with a node-visit budget, output rollback and no parser library; integrate an explicit bytes.cursor adapter.",
+        "T72.06.c": "Enumerate short strings against an independently written grammar evaluator, including ambiguous prefixes, empty input, exhausted budgets, malformed graph edges and many(empty). Reject committed-choice and nullable-many acceptance mutants.",
+        "T72.06.d": "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH."
+      },
+      "projects": [
+        "PR-T72-06"
+      ],
+      "variants": [
+        {
+          "id": "T72.06-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T72.06.a",
+            "T72.06.b",
+            "T72.06.c",
+            "T72.06.d"
+          ],
+          "prompt": "Derive ordered-choice, sequence and repetition semantics over a cursor, distinguishing ordinary mismatch from resource/structural failure and identifying nullable repetition nontermination.",
+          "checklist": [
+            "Derive ordered-choice, sequence and repetition semantics over a cursor, distinguishing ordinary mismatch from resource/structural failure and identifying nullable repetition nontermination.",
+            "Implement literal/empty/sequence/choice/many on the bounded immutable parser DAG with a node-visit budget, output rollback and no parser library; integrate an explicit bytes.cursor adapter.",
+            "Enumerate short strings against an independently written grammar evaluator, including ambiguous prefixes, empty input, exhausted budgets, malformed graph edges and many(empty). Reject committed-choice and nullable-many acceptance mutants.",
+            "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH."
+          ]
+        },
+        {
+          "id": "T72.06-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T72.06.a",
+            "T72.06.b",
+            "T72.06.c",
+            "T72.06.d"
+          ],
+          "prompt": "choice(sequence(a,b),a) parses ac through position1 and ab through2. many(empty) returns STATE with end unchanged; budget0 returns RANGE with zero visits.",
+          "checklist": [
+            "Derive ordered-choice, sequence and repetition semantics over a cursor, distinguishing ordinary mismatch from resource/structural failure and identifying nullable repetition nontermination.",
+            "Implement literal/empty/sequence/choice/many on the bounded immutable parser DAG with a node-visit budget, output rollback and no parser library; integrate an explicit bytes.cursor adapter.",
+            "Enumerate short strings against an independently written grammar evaluator, including ambiguous prefixes, empty input, exhausted budgets, malformed graph edges and many(empty). Reject committed-choice and nullable-many acceptance mutants.",
+            "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH."
+          ]
+        },
+        {
+          "id": "T72.06-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T72.06.a",
+            "T72.06.b",
+            "T72.06.c",
+            "T72.06.d"
+          ],
+          "prompt": "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH.",
+          "checklist": [
+            "Derive ordered-choice, sequence and repetition semantics over a cursor, distinguishing ordinary mismatch from resource/structural failure and identifying nullable repetition nontermination.",
+            "Implement literal/empty/sequence/choice/many on the bounded immutable parser DAG with a node-visit budget, output rollback and no parser library; integrate an explicit bytes.cursor adapter.",
+            "Enumerate short strings against an independently written grammar evaluator, including ambiguous prefixes, empty input, exhausted budgets, malformed graph edges and many(empty). Reject committed-choice and nullable-many acceptance mutants.",
+            "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T72.07",
+      "title": "Packrat success and failure memoization with explicit cache identity",
+      "objectives": [
+        "T72.07.a",
+        "T72.07.b",
+        "T72.07.c",
+        "T72.07.d"
+      ],
+      "objective_text": {
+        "T72.07.a": "Derive the memo key and time/space bound for the fixed ordered-choice grammar; explain why mutable semantic state, input revision and hidden iterative work can invalidate a linear-time claim.",
+        "T72.07.b": "Implement the bounded S grammar with caller-owned success/failure cells, full-input acceptance and per-cell evaluation counts, preserving payload output on mismatch.",
+        "T72.07.c": "Enumerate all short strings over a,b,c,x against a direct language-shape recognizer, then test deep c-ending branches that revisit the same inner S. Assert at most n+1 cell evaluations and exact endpoints; reject omitted memo lookup and wrong cached endpoint mutants.",
+        "T72.07.d": "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy."
+      },
+      "projects": [
+        "PR-T72-07"
+      ],
+      "variants": [
+        {
+          "id": "T72.07-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T72.07.a",
+            "T72.07.b",
+            "T72.07.c",
+            "T72.07.d"
+          ],
+          "prompt": "Derive the memo key and time/space bound for the fixed ordered-choice grammar; explain why mutable semantic state, input revision and hidden iterative work can invalidate a linear-time claim.",
+          "checklist": [
+            "Derive the memo key and time/space bound for the fixed ordered-choice grammar; explain why mutable semantic state, input revision and hidden iterative work can invalidate a linear-time claim.",
+            "Implement the bounded S grammar with caller-owned success/failure cells, full-input acceptance and per-cell evaluation counts, preserving payload output on mismatch.",
+            "Enumerate all short strings over a,b,c,x against a direct language-shape recognizer, then test deep c-ending branches that revisit the same inner S. Assert at most n+1 cell evaluations and exact endpoints; reject omitted memo lookup and wrong cached endpoint mutants.",
+            "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy."
+          ]
+        },
+        {
+          "id": "T72.07-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T72.07.a",
+            "T72.07.b",
+            "T72.07.c",
+            "T72.07.d"
+          ],
+          "prompt": "aaxcc succeeds at5 with exactly3 evaluated S cells. Twelve a characters, x and twelve c characters use13 cells despite repeated alternative attempts. aac fails without changing end.",
+          "checklist": [
+            "Derive the memo key and time/space bound for the fixed ordered-choice grammar; explain why mutable semantic state, input revision and hidden iterative work can invalidate a linear-time claim.",
+            "Implement the bounded S grammar with caller-owned success/failure cells, full-input acceptance and per-cell evaluation counts, preserving payload output on mismatch.",
+            "Enumerate all short strings over a,b,c,x against a direct language-shape recognizer, then test deep c-ending branches that revisit the same inner S. Assert at most n+1 cell evaluations and exact endpoints; reject omitted memo lookup and wrong cached endpoint mutants.",
+            "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy."
+          ]
+        },
+        {
+          "id": "T72.07-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T72.07.a",
+            "T72.07.b",
+            "T72.07.c",
+            "T72.07.d"
+          ],
+          "prompt": "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy.",
+          "checklist": [
+            "Derive the memo key and time/space bound for the fixed ordered-choice grammar; explain why mutable semantic state, input revision and hidden iterative work can invalidate a linear-time claim.",
+            "Implement the bounded S grammar with caller-owned success/failure cells, full-input acceptance and per-cell evaluation counts, preserving payload output on mismatch.",
+            "Enumerate all short strings over a,b,c,x against a direct language-shape recognizer, then test deep c-ending branches that revisit the same inner S. Assert at most n+1 cell evaluations and exact endpoints; reject omitted memo lookup and wrong cached endpoint mutants.",
+            "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T72.08",
+      "title": "Readiness-based async frames and the register/recheck race",
+      "objectives": [
+        "T72.08.a",
+        "T72.08.b",
+        "T72.08.c",
+        "T72.08.d"
+      ],
+      "objective_text": {
+        "T72.08.a": "Explain readiness as a hint, partial progress as frame state, and registration/quiescence lifetime; distinguish this model from completion submission rings and automatic Rust Future pinning.",
+        "T72.08.b": "Implement exact-length asynchronous reads with at most two reads per poll, arm-then-recheck, generation-scoped notifications, synchronous disarm and cancelled/error terminal states. Build an io.reactor/io.stream/io.deadline adapter.",
+        "T72.08.c": "Script readiness arriving between the first AGAIN and arm, repeated spurious wakeups, short progress plus ERROR, EOF, stale notifications and cancel. Preserve final output until complete and count all callbacks; reject omitted recheck and omitted disarm mutants.",
+        "T72.08.d": "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message."
+      },
+      "projects": [
+        "PR-T72-08"
+      ],
+      "variants": [
+        {
+          "id": "T72.08-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T72.08.a",
+            "T72.08.b",
+            "T72.08.c",
+            "T72.08.d"
+          ],
+          "prompt": "Explain readiness as a hint, partial progress as frame state, and registration/quiescence lifetime; distinguish this model from completion submission rings and automatic Rust Future pinning.",
+          "checklist": [
+            "Explain readiness as a hint, partial progress as frame state, and registration/quiescence lifetime; distinguish this model from completion submission rings and automatic Rust Future pinning.",
+            "Implement exact-length asynchronous reads with at most two reads per poll, arm-then-recheck, generation-scoped notifications, synchronous disarm and cancelled/error terminal states. Build an io.reactor/io.stream/io.deadline adapter.",
+            "Script readiness arriving between the first AGAIN and arm, repeated spurious wakeups, short progress plus ERROR, EOF, stale notifications and cancel. Preserve final output until complete and count all callbacks; reject omitted recheck and omitted disarm mutants.",
+            "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message."
+          ]
+        },
+        {
+          "id": "T72.08-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T72.08.a",
+            "T72.08.b",
+            "T72.08.c",
+            "T72.08.d"
+          ],
+          "prompt": "The fake reader returns AGAIN until arm, then supplies all three bytes on the immediate recheck: one poll completes after2 reads,1 arm,1 disarm. A stale generation cannot mark the next frame ready.",
+          "checklist": [
+            "Explain readiness as a hint, partial progress as frame state, and registration/quiescence lifetime; distinguish this model from completion submission rings and automatic Rust Future pinning.",
+            "Implement exact-length asynchronous reads with at most two reads per poll, arm-then-recheck, generation-scoped notifications, synchronous disarm and cancelled/error terminal states. Build an io.reactor/io.stream/io.deadline adapter.",
+            "Script readiness arriving between the first AGAIN and arm, repeated spurious wakeups, short progress plus ERROR, EOF, stale notifications and cancel. Preserve final output until complete and count all callbacks; reject omitted recheck and omitted disarm mutants.",
+            "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message."
+          ]
+        },
+        {
+          "id": "T72.08-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T72.08.a",
+            "T72.08.b",
+            "T72.08.c",
+            "T72.08.d"
+          ],
+          "prompt": "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message.",
+          "checklist": [
+            "Explain readiness as a hint, partial progress as frame state, and registration/quiescence lifetime; distinguish this model from completion submission rings and automatic Rust Future pinning.",
+            "Implement exact-length asynchronous reads with at most two reads per poll, arm-then-recheck, generation-scoped notifications, synchronous disarm and cancelled/error terminal states. Build an io.reactor/io.stream/io.deadline adapter.",
+            "Script readiness arriving between the first AGAIN and arm, repeated spurious wakeups, short progress plus ERROR, EOF, stale notifications and cancel. Preserve final output until complete and count all callbacks; reject omitted recheck and omitted disarm mutants.",
+            "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "T72.09",
+      "title": "Single-shot resumable effects with explicit continuation ownership",
+      "objectives": [
+        "T72.09.a",
+        "T72.09.b",
+        "T72.09.c",
+        "T72.09.d"
+      ],
+      "objective_text": {
+        "T72.09.a": "Derive a two-question effect program and its defunctionalized continuation environment, separating single-shot runtime tokens from effect typing and multi-shot control capture.",
+        "T72.09.b": "Implement start/resume/abort with owner+generation tokens, checked second-answer addition, consumed continuation handles and unchanged state on arithmetic rejection.",
+        "T72.09.c": "Enumerate answer pairs and replay every stale token while the frame is live; test overflow followed by a valid retry, abort and completed reuse. Reject replay-admission and dropped-first-answer mutants; record synthetic duplicate-result attempts as bounded property violations.",
+        "T72.09.d": "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers."
+      },
+      "projects": [
+        "PR-T72-09"
+      ],
+      "variants": [
+        {
+          "id": "T72.09-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T72.09.a",
+            "T72.09.b",
+            "T72.09.c",
+            "T72.09.d"
+          ],
+          "prompt": "Derive a two-question effect program and its defunctionalized continuation environment, separating single-shot runtime tokens from effect typing and multi-shot control capture.",
+          "checklist": [
+            "Derive a two-question effect program and its defunctionalized continuation environment, separating single-shot runtime tokens from effect typing and multi-shot control capture.",
+            "Implement start/resume/abort with owner+generation tokens, checked second-answer addition, consumed continuation handles and unchanged state on arithmetic rejection.",
+            "Enumerate answer pairs and replay every stale token while the frame is live; test overflow followed by a valid retry, abort and completed reuse. Reject replay-admission and dropped-first-answer mutants; record synthetic duplicate-result attempts as bounded property violations.",
+            "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers."
+          ]
+        },
+        {
+          "id": "T72.09-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T72.09.a",
+            "T72.09.b",
+            "T72.09.c",
+            "T72.09.d"
+          ],
+          "prompt": "Answers12 then30 produce42. The copied question1 continuation rejects after the first resume. A rejected overflowing second answer leaves its continuation available for correction or abort.",
+          "checklist": [
+            "Derive a two-question effect program and its defunctionalized continuation environment, separating single-shot runtime tokens from effect typing and multi-shot control capture.",
+            "Implement start/resume/abort with owner+generation tokens, checked second-answer addition, consumed continuation handles and unchanged state on arithmetic rejection.",
+            "Enumerate answer pairs and replay every stale token while the frame is live; test overflow followed by a valid retry, abort and completed reuse. Reject replay-admission and dropped-first-answer mutants; record synthetic duplicate-result attempts as bounded property violations.",
+            "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers."
+          ]
+        },
+        {
+          "id": "T72.09-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T72.09.a",
+            "T72.09.b",
+            "T72.09.c",
+            "T72.09.d"
+          ],
+          "prompt": "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers.",
+          "checklist": [
+            "Derive a two-question effect program and its defunctionalized continuation environment, separating single-shot runtime tokens from effect typing and multi-shot control capture.",
+            "Implement start/resume/abort with owner+generation tokens, checked second-answer addition, consumed continuation handles and unchanged state on arithmetic rejection.",
+            "Enumerate answer pairs and replay every stale token while the frame is live; test overflow followed by a valid retry, abort and completed reuse. Reject replay-admission and dropped-first-answer mutants; record synthetic duplicate-result attempts as bounded property violations.",
+            "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers."
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,655 @@
+{
+  "domain": "T70",
+  "sets": [
+    {
+      "id": "T70.01",
+      "title": "Hot and cold columns with transactional numeric updates",
+      "objectives": [
+        "T70.01.a",
+        "T70.01.b",
+        "T70.01.c",
+        "T70.01.d",
+        "T70.01.e"
+      ],
+      "objective_text": {
+        "T70.01.a": "Derive AoS and SoA address/traffic models for a position-only update and a whole-record consumer, including padding, cache-line assumptions and the different identity of a record after splitting fields.",
+        "T70.01.b": "Implement a staged SoA update and an equal-contract AoS version generated from a shared field list; distinguish token-driven generation from runtime or language reflection.",
+        "T70.01.c": "Enumerate small signed input products and all failing record positions with an independent integer oracle; verify untouched columns and kill skipped-update and premature-prefix-commit mutants.",
+        "T70.01.d": "Measure warmed and cold working sets, vectorization reports, code size and conversion costs under equal overflow semantics. Report crossover uncertainty; demonstrate a whole-record workload where SoA can lose.",
+        "T70.01.e": "Transfer to an array-of-small-tiles layout with an optional cold column. Derive row/column bounds and schema evolution before changing the implementation; C diagnostics do not verify field-list semantic consistency."
+      },
+      "projects": [
+        "PR-T70-01"
+      ],
+      "variants": [
+        {
+          "id": "T70.01-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T70.01.a",
+            "T70.01.b",
+            "T70.01.c",
+            "T70.01.d",
+            "T70.01.e"
+          ],
+          "prompt": "Derive AoS and SoA address/traffic models for a position-only update and a whole-record consumer, including padding, cache-line assumptions and the different identity of a record after splitting fields.",
+          "checklist": [
+            "Derive AoS and SoA address/traffic models for a position-only update and a whole-record consumer, including padding, cache-line assumptions and the different identity of a record after splitting fields.",
+            "Implement a staged SoA update and an equal-contract AoS version generated from a shared field list; distinguish token-driven generation from runtime or language reflection.",
+            "Enumerate small signed input products and all failing record positions with an independent integer oracle; verify untouched columns and kill skipped-update and premature-prefix-commit mutants.",
+            "Measure warmed and cold working sets, vectorization reports, code size and conversion costs under equal overflow semantics. Report crossover uncertainty; demonstrate a whole-record workload where SoA can lose.",
+            "Transfer to an array-of-small-tiles layout with an optional cold column. Derive row/column bounds and schema evolution before changing the implementation; C diagnostics do not verify field-list semantic consistency."
+          ]
+        },
+        {
+          "id": "T70.01-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T70.01.a",
+            "T70.01.b",
+            "T70.01.c",
+            "T70.01.d",
+            "T70.01.e"
+          ],
+          "prompt": "Positions[1,2,3,4], velocities[2,-1,1,0], ticks2 produce[5,0,5,4] with cold labels unchanged. If the last position is INT32_MAX and velocity1, ticks1 rejects without changing even the first position. Derive the state before executing.",
+          "checklist": [
+            "Derive AoS and SoA address/traffic models for a position-only update and a whole-record consumer, including padding, cache-line assumptions and the different identity of a record after splitting fields.",
+            "Implement a staged SoA update and an equal-contract AoS version generated from a shared field list; distinguish token-driven generation from runtime or language reflection.",
+            "Enumerate small signed input products and all failing record positions with an independent integer oracle; verify untouched columns and kill skipped-update and premature-prefix-commit mutants.",
+            "Measure warmed and cold working sets, vectorization reports, code size and conversion costs under equal overflow semantics. Report crossover uncertainty; demonstrate a whole-record workload where SoA can lose.",
+            "Transfer to an array-of-small-tiles layout with an optional cold column. Derive row/column bounds and schema evolution before changing the implementation; C diagnostics do not verify field-list semantic consistency."
+          ]
+        },
+        {
+          "id": "T70.01-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T70.01.a",
+            "T70.01.b",
+            "T70.01.c",
+            "T70.01.d",
+            "T70.01.e"
+          ],
+          "prompt": "X-T70-001-DELAYED: add a nullable cold label column and tile width3. The last tile is partial. Implement conversion in both directions with unchanged output on capacity failure and compare against the original AoS oracle.",
+          "checklist": [
+            "Derive AoS and SoA address/traffic models for a position-only update and a whole-record consumer, including padding, cache-line assumptions and the different identity of a record after splitting fields.",
+            "Implement a staged SoA update and an equal-contract AoS version generated from a shared field list; distinguish token-driven generation from runtime or language reflection.",
+            "Enumerate small signed input products and all failing record positions with an independent integer oracle; verify untouched columns and kill skipped-update and premature-prefix-commit mutants.",
+            "Measure warmed and cold working sets, vectorization reports, code size and conversion costs under equal overflow semantics. Report crossover uncertainty; demonstrate a whole-record workload where SoA can lose.",
+            "Transfer to an array-of-small-tiles layout with an optional cold column. Derive row/column bounds and schema evolution before changing the implementation; C diagnostics do not verify field-list semantic consistency."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DOD-FLECS"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T70.02",
+      "title": "Inline bytes, allocator failure and explicit relocation",
+      "objectives": [
+        "T70.02.a",
+        "T70.02.b",
+        "T70.02.c",
+        "T70.02.d",
+        "T70.02.e"
+      ],
+      "objective_text": {
+        "T70.02.a": "Derive the representation invariant for empty, inline and heap states and the exact invalidation events for borrowed views; explain why alignment of a character array alone does not permit arbitrary typed C objects.",
+        "T70.02.b": "Implement all capacity transitions and a fixed-capacity alternative using allocator injection, with strong append rejection and exactly-once resource release under move/reset.",
+        "T70.02.c": "Inject every allocation failure and test capacity16/17, maximum128, zero append, self move, nonempty destination, repeated reset and compact after truncation; compare byte sequences with an independent list model.",
+        "T70.02.d": "Compare the documented LLVM inline-vector idea with this C byte representation and a typed-union alternative. Measure owner footprint, allocations, copy traffic and spill hysteresis rather than claiming universal zero overhead.",
+        "T70.02.e": "Integrate dod.small_buffer with an erased closure byte capture: define which values can be encoded, which callbacks own external resources and why memcpy of a self-referential capture is not relocation."
+      },
+      "projects": [
+        "PR-T70-02"
+      ],
+      "variants": [
+        {
+          "id": "T70.02-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T70.02.a",
+            "T70.02.b",
+            "T70.02.c",
+            "T70.02.d",
+            "T70.02.e"
+          ],
+          "prompt": "Derive the representation invariant for empty, inline and heap states and the exact invalidation events for borrowed views; explain why alignment of a character array alone does not permit arbitrary typed C objects.",
+          "checklist": [
+            "Derive the representation invariant for empty, inline and heap states and the exact invalidation events for borrowed views; explain why alignment of a character array alone does not permit arbitrary typed C objects.",
+            "Implement all capacity transitions and a fixed-capacity alternative using allocator injection, with strong append rejection and exactly-once resource release under move/reset.",
+            "Inject every allocation failure and test capacity16/17, maximum128, zero append, self move, nonempty destination, repeated reset and compact after truncation; compare byte sequences with an independent list model.",
+            "Compare the documented LLVM inline-vector idea with this C byte representation and a typed-union alternative. Measure owner footprint, allocations, copy traffic and spill hysteresis rather than claiming universal zero overhead.",
+            "Integrate dod.small_buffer with an erased closure byte capture: define which values can be encoded, which callbacks own external resources and why memcpy of a self-referential capture is not relocation."
+          ]
+        },
+        {
+          "id": "T70.02-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T70.02.a",
+            "T70.02.b",
+            "T70.02.c",
+            "T70.02.d",
+            "T70.02.e"
+          ],
+          "prompt": "Appending16 bytes performs no allocation. A failed17th byte preserves length16 and all bytes. Successful spill followed by move leaves the source empty and transfers exactly one allocation. Truncating to8 and compacting frees that allocation once; resetting both owners performs no second free. Derive the state before executing.",
+          "checklist": [
+            "Derive the representation invariant for empty, inline and heap states and the exact invalidation events for borrowed views; explain why alignment of a character array alone does not permit arbitrary typed C objects.",
+            "Implement all capacity transitions and a fixed-capacity alternative using allocator injection, with strong append rejection and exactly-once resource release under move/reset.",
+            "Inject every allocation failure and test capacity16/17, maximum128, zero append, self move, nonempty destination, repeated reset and compact after truncation; compare byte sequences with an independent list model.",
+            "Compare the documented LLVM inline-vector idea with this C byte representation and a typed-union alternative. Measure owner footprint, allocations, copy traffic and spill hysteresis rather than claiming universal zero overhead.",
+            "Integrate dod.small_buffer with an erased closure byte capture: define which values can be encoded, which callbacks own external resources and why memcpy of a self-referential capture is not relocation."
+          ]
+        },
+        {
+          "id": "T70.02-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T70.02.a",
+            "T70.02.b",
+            "T70.02.c",
+            "T70.02.d",
+            "T70.02.e"
+          ],
+          "prompt": "X-T70-002-DELAYED: inline capacity becomes0 and the allocator has a128-byte total quota shared by two buffers. Implement move and rollback when one buffer spills during composition; demonstrate that allocator rollback and byte-state rollback are different properties.",
+          "checklist": [
+            "Derive the representation invariant for empty, inline and heap states and the exact invalidation events for borrowed views; explain why alignment of a character array alone does not permit arbitrary typed C objects.",
+            "Implement all capacity transitions and a fixed-capacity alternative using allocator injection, with strong append rejection and exactly-once resource release under move/reset.",
+            "Inject every allocation failure and test capacity16/17, maximum128, zero append, self move, nonempty destination, repeated reset and compact after truncation; compare byte sequences with an independent list model.",
+            "Compare the documented LLVM inline-vector idea with this C byte representation and a typed-union alternative. Measure owner footprint, allocations, copy traffic and spill hysteresis rather than claiming universal zero overhead.",
+            "Integrate dod.small_buffer with an erased closure byte capture: define which values can be encoded, which callbacks own external resources and why memcpy of a self-referential capture is not relocation."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DOD-LLVM"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T70.03",
+      "title": "Four saturating byte lanes without cross-lane carries",
+      "objectives": [
+        "T70.03.a",
+        "T70.03.b",
+        "T70.03.c",
+        "T70.03.d"
+      ],
+      "objective_text": {
+        "T70.03.a": "Derive low7-bit addition, high-bit combination and saturation masks, proving which intermediate carries can occur and why neighboring lanes remain independent.",
+        "T70.03.b": "Implement the unsigned SWAR expression and an independent scalar oracle without relying on char signedness, endian memory reinterpretation or vector extensions.",
+        "T70.03.c": "Exhaust all65,536 lane input pairs in every position and with neighboring boundary lanes, then add deterministic mixed-lane random words; kill ordinary packed-add and inverted-overflow-mask mutants.",
+        "T70.03.d": "Compare scalar and SWAR code under equal saturation semantics at multiple optimization levels, checking generated instructions and a changed16-bit-lane derivation. Distinguish source-level branchlessness from timing guarantees and ISA support."
+      },
+      "projects": [
+        "PR-T70-03"
+      ],
+      "variants": [
+        {
+          "id": "T70.03-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T70.03.a",
+            "T70.03.b",
+            "T70.03.c",
+            "T70.03.d"
+          ],
+          "prompt": "Derive low7-bit addition, high-bit combination and saturation masks, proving which intermediate carries can occur and why neighboring lanes remain independent.",
+          "checklist": [
+            "Derive low7-bit addition, high-bit combination and saturation masks, proving which intermediate carries can occur and why neighboring lanes remain independent.",
+            "Implement the unsigned SWAR expression and an independent scalar oracle without relying on char signedness, endian memory reinterpretation or vector extensions.",
+            "Exhaust all65,536 lane input pairs in every position and with neighboring boundary lanes, then add deterministic mixed-lane random words; kill ordinary packed-add and inverted-overflow-mask mutants.",
+            "Compare scalar and SWAR code under equal saturation semantics at multiple optimization levels, checking generated instructions and a changed16-bit-lane derivation. Distinguish source-level branchlessness from timing guarantees and ISA support."
+          ]
+        },
+        {
+          "id": "T70.03-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T70.03.a",
+            "T70.03.b",
+            "T70.03.c",
+            "T70.03.d"
+          ],
+          "prompt": "0xff00ff00 plus0x01010101 produces0xff01ff01. A255+1 low lane must saturate without adding1 to the adjacent lane. Every pair of byte inputs must agree with min(255,a+b). Derive the state before executing.",
+          "checklist": [
+            "Derive low7-bit addition, high-bit combination and saturation masks, proving which intermediate carries can occur and why neighboring lanes remain independent.",
+            "Implement the unsigned SWAR expression and an independent scalar oracle without relying on char signedness, endian memory reinterpretation or vector extensions.",
+            "Exhaust all65,536 lane input pairs in every position and with neighboring boundary lanes, then add deterministic mixed-lane random words; kill ordinary packed-add and inverted-overflow-mask mutants.",
+            "Compare scalar and SWAR code under equal saturation semantics at multiple optimization levels, checking generated instructions and a changed16-bit-lane derivation. Distinguish source-level branchlessness from timing guarantees and ISA support."
+          ]
+        },
+        {
+          "id": "T70.03-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T70.03.a",
+            "T70.03.b",
+            "T70.03.c",
+            "T70.03.d"
+          ],
+          "prompt": "X-T70-003-DELAYED: implement two saturating signed16-bit lanes with an explicit mathematical range oracle. Derive signed overflow detection without evaluating overflowing signed expressions; compare costs to the unsigned version.",
+          "checklist": [
+            "Derive low7-bit addition, high-bit combination and saturation masks, proving which intermediate carries can occur and why neighboring lanes remain independent.",
+            "Implement the unsigned SWAR expression and an independent scalar oracle without relying on char signedness, endian memory reinterpretation or vector extensions.",
+            "Exhaust all65,536 lane input pairs in every position and with neighboring boundary lanes, then add deterministic mixed-lane random words; kill ordinary packed-add and inverted-overflow-mask mutants.",
+            "Compare scalar and SWAR code under equal saturation semantics at multiple optimization levels, checking generated instructions and a changed16-bit-lane derivation. Distinguish source-level branchlessness from timing guarantees and ISA support."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DOD-LLVM"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T70.04",
+      "title": "Stable typed slots, dense iteration and finite identity",
+      "objectives": [
+        "T70.04.a",
+        "T70.04.b",
+        "T70.04.c",
+        "T70.04.d"
+      ],
+      "objective_text": {
+        "T70.04.a": "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime.",
+        "T70.04.b": "Implement swap-erased dense IDs with typed slot storage, generation admission and retirement; implement a two-page extension without moving live payload objects.",
+        "T70.04.c": "Explore all add/remove sequences up to length7 over four IDs against an independent live-set model, checking stale and foreign-owner handles, last-row removal and pool exhaustion.",
+        "T70.04.d": "Transfer to a payload owning a resource and a consumer holding a raw pointer. Define destruction and invalidation, then show why generation checks do not revoke that pointer or authorize concurrent reclamation."
+      },
+      "projects": [
+        "PR-T70-04"
+      ],
+      "variants": [
+        {
+          "id": "T70.04-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T70.04.a",
+            "T70.04.b",
+            "T70.04.c",
+            "T70.04.d"
+          ],
+          "prompt": "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime.",
+          "checklist": [
+            "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime.",
+            "Implement swap-erased dense IDs with typed slot storage, generation admission and retirement; implement a two-page extension without moving live payload objects.",
+            "Explore all add/remove sequences up to length7 over four IDs against an independent live-set model, checking stale and foreign-owner handles, last-row removal and pool exhaustion.",
+            "Transfer to a payload owning a resource and a consumer holding a raw pointer. Define destruction and invalidation, then show why generation checks do not revoke that pointer or authorize concurrent reclamation."
+          ]
+        },
+        {
+          "id": "T70.04-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T70.04.a",
+            "T70.04.b",
+            "T70.04.c",
+            "T70.04.d"
+          ],
+          "prompt": "After inserting11,22,33 and removing22, the dense list contains the slots for11 and33; rank of33 is1. The removed handle rejects and preserves output. Removing/reusing slot0 through generation3 retires it; further insertion must choose another slot or report full. Derive the state before executing.",
+          "checklist": [
+            "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime.",
+            "Implement swap-erased dense IDs with typed slot storage, generation admission and retirement; implement a two-page extension without moving live payload objects.",
+            "Explore all add/remove sequences up to length7 over four IDs against an independent live-set model, checking stale and foreign-owner handles, last-row removal and pool exhaustion.",
+            "Transfer to a payload owning a resource and a consumer holding a raw pointer. Define destruction and invalidation, then show why generation checks do not revoke that pointer or authorize concurrent reclamation."
+          ]
+        },
+        {
+          "id": "T70.04-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T70.04.a",
+            "T70.04.b",
+            "T70.04.c",
+            "T70.04.d"
+          ],
+          "prompt": "X-T70-004-DELAYED: preserve insertion iteration order while retaining stable payload addresses and O(1) handle lookup. Derive a tombstone/linked-order alternative and measure the new deletion or iteration costs.",
+          "checklist": [
+            "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime.",
+            "Implement swap-erased dense IDs with typed slot storage, generation admission and retirement; implement a two-page extension without moving live payload objects.",
+            "Explore all add/remove sequences up to length7 over four IDs against an independent live-set model, checking stale and foreign-owner handles, last-row removal and pool exhaustion.",
+            "Transfer to a payload owning a resource and a consumer holding a raw pointer. Define destruction and invalidation, then show why generation checks do not revoke that pointer or authorize concurrent reclamation."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DOD-LLVM"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T70.05",
+      "title": "Archetype migration with capacity admission and row repair",
+      "objectives": [
+        "T70.05.a",
+        "T70.05.b",
+        "T70.05.c",
+        "T70.05.d"
+      ],
+      "objective_text": {
+        "T70.05.a": "Derive entity-to-table/row and table-row-to-entity invariants, query mask semantics and the distinction between stable entity ID and invalidated row references.",
+        "T70.05.b": "Implement migration with destination admission before source removal, swap-row repair and transactional query updates; implement required/excluded-mask query selection and versioned cache invalidation.",
+        "T70.05.c": "Enumerate create/migrate/update sequences against an independent per-entity dictionary, inject destination-full and arithmetic rejection, and diagnose lost-entity and stale-row-map mutants.",
+        "T70.05.d": "Compare sparse-set and archetype storage under query-heavy and mutation-heavy workloads, including migration copies, cache maintenance and iterator invalidation. Compose with typed stable handles under a changed deletion/reuse policy."
+      },
+      "projects": [
+        "PR-T70-05"
+      ],
+      "variants": [
+        {
+          "id": "T70.05-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T70.05.a",
+            "T70.05.b",
+            "T70.05.c",
+            "T70.05.d"
+          ],
+          "prompt": "Derive entity-to-table/row and table-row-to-entity invariants, query mask semantics and the distinction between stable entity ID and invalidated row references.",
+          "checklist": [
+            "Derive entity-to-table/row and table-row-to-entity invariants, query mask semantics and the distinction between stable entity ID and invalidated row references.",
+            "Implement migration with destination admission before source removal, swap-row repair and transactional query updates; implement required/excluded-mask query selection and versioned cache invalidation.",
+            "Enumerate create/migrate/update sequences against an independent per-entity dictionary, inject destination-full and arithmetic rejection, and diagnose lost-entity and stale-row-map mutants.",
+            "Compare sparse-set and archetype storage under query-heavy and mutation-heavy workloads, including migration copies, cache maintenance and iterator invalidation. Compose with typed stable handles under a changed deletion/reuse policy."
+          ]
+        },
+        {
+          "id": "T70.05-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T70.05.a",
+            "T70.05.b",
+            "T70.05.c",
+            "T70.05.d"
+          ],
+          "prompt": "Create entity0/1 in mask1 and entity2 in mask3. Moving0 into mask3 succeeds and moves1 to row0 of mask1. Moving1 into now-full mask3 rejects without deleting it. Step changes both-component positions30,10 with velocities2,1 into32,11; a later overflow preserves the whole table. Derive the state before executing.",
+          "checklist": [
+            "Derive entity-to-table/row and table-row-to-entity invariants, query mask semantics and the distinction between stable entity ID and invalidated row references.",
+            "Implement migration with destination admission before source removal, swap-row repair and transactional query updates; implement required/excluded-mask query selection and versioned cache invalidation.",
+            "Enumerate create/migrate/update sequences against an independent per-entity dictionary, inject destination-full and arithmetic rejection, and diagnose lost-entity and stale-row-map mutants.",
+            "Compare sparse-set and archetype storage under query-heavy and mutation-heavy workloads, including migration copies, cache maintenance and iterator invalidation. Compose with typed stable handles under a changed deletion/reuse policy."
+          ]
+        },
+        {
+          "id": "T70.05-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T70.05.a",
+            "T70.05.b",
+            "T70.05.c",
+            "T70.05.d"
+          ],
+          "prompt": "X-T70-005-DELAYED: entities can be deleted and IDs reused. Integrate DSparse-style generations, then deliver a deferred migration command list whose capacity failure leaves the currently iterated tables unchanged.",
+          "checklist": [
+            "Derive entity-to-table/row and table-row-to-entity invariants, query mask semantics and the distinction between stable entity ID and invalidated row references.",
+            "Implement migration with destination admission before source removal, swap-row repair and transactional query updates; implement required/excluded-mask query selection and versioned cache invalidation.",
+            "Enumerate create/migrate/update sequences against an independent per-entity dictionary, inject destination-full and arithmetic rejection, and diagnose lost-entity and stale-row-map mutants.",
+            "Compare sparse-set and archetype storage under query-heavy and mutation-heavy workloads, including migration copies, cache maintenance and iterator invalidation. Compose with typed stable handles under a changed deletion/reuse policy."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DOD-FLECS"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T70.06",
+      "title": "Path copying, zipper contexts and retained-version costs",
+      "objectives": [
+        "T70.06.a",
+        "T70.06.b",
+        "T70.06.c",
+        "T70.06.d",
+        "T70.06.e"
+      ],
+      "objective_text": {
+        "T70.06.a": "Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer.",
+        "T70.06.b": "Implement leaf-to-root path copying, an explicit zipper reconstruction and failure rollback without mutating published nodes; state allocator ownership and snapshot lifetime.",
+        "T70.06.c": "Inject failure at every cloned-node ordinal, compare all8 cells of every retained root with independent array snapshots, and recompute reachability and sharing from roots.",
+        "T70.06.d": "Analyze fresh-node work, retained-node space, stack depth and region reclamation latency; implement a bounded reference-count alternative with exactly-once reclamation for a shared child and explain why it is not concurrent safe by itself.",
+        "T70.06.e": "Transfer to a tree with owned string leaves and a clone callback that can fail. Define rollback for already cloned resources and compare the documented persistent-collection Clone requirement with C programmer discipline."
+      },
+      "projects": [
+        "PR-T70-06"
+      ],
+      "variants": [
+        {
+          "id": "T70.06-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T70.06.a",
+            "T70.06.b",
+            "T70.06.c",
+            "T70.06.d",
+            "T70.06.e"
+          ],
+          "prompt": "Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer.",
+          "checklist": [
+            "Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer.",
+            "Implement leaf-to-root path copying, an explicit zipper reconstruction and failure rollback without mutating published nodes; state allocator ownership and snapshot lifetime.",
+            "Inject failure at every cloned-node ordinal, compare all8 cells of every retained root with independent array snapshots, and recompute reachability and sharing from roots.",
+            "Analyze fresh-node work, retained-node space, stack depth and region reclamation latency; implement a bounded reference-count alternative with exactly-once reclamation for a shared child and explain why it is not concurrent safe by itself.",
+            "Transfer to a tree with owned string leaves and a clone callback that can fail. Define rollback for already cloned resources and compare the documented persistent-collection Clone requirement with C programmer discipline."
+          ]
+        },
+        {
+          "id": "T70.06-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T70.06.a",
+            "T70.06.b",
+            "T70.06.c",
+            "T70.06.d",
+            "T70.06.e"
+          ],
+          "prompt": "Updating root0 cell3=17 creates4 nodes; updating that root cell6=29 creates4 more. The first root still reads cell6=0. Each of the four allocation-failure ordinals rejects with the output root and previously reachable nodes unchanged. Derive the state before executing.",
+          "checklist": [
+            "Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer.",
+            "Implement leaf-to-root path copying, an explicit zipper reconstruction and failure rollback without mutating published nodes; state allocator ownership and snapshot lifetime.",
+            "Inject failure at every cloned-node ordinal, compare all8 cells of every retained root with independent array snapshots, and recompute reachability and sharing from roots.",
+            "Analyze fresh-node work, retained-node space, stack depth and region reclamation latency; implement a bounded reference-count alternative with exactly-once reclamation for a shared child and explain why it is not concurrent safe by itself.",
+            "Transfer to a tree with owned string leaves and a clone callback that can fail. Define rollback for already cloned resources and compare the documented persistent-collection Clone requirement with C programmer discipline."
+          ]
+        },
+        {
+          "id": "T70.06-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T70.06.a",
+            "T70.06.b",
+            "T70.06.c",
+            "T70.06.d",
+            "T70.06.e"
+          ],
+          "prompt": "X-T70-006-DELAYED: replace region reset with incremental reclamation under an explicit work budget. Return unfinished reclamation state; prove no live root is reclaimed and report worst-case retained nodes while work is deferred.",
+          "checklist": [
+            "Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer.",
+            "Implement leaf-to-root path copying, an explicit zipper reconstruction and failure rollback without mutating published nodes; state allocator ownership and snapshot lifetime.",
+            "Inject failure at every cloned-node ordinal, compare all8 cells of every retained root with independent array snapshots, and recompute reachability and sharing from roots.",
+            "Analyze fresh-node work, retained-node space, stack depth and region reclamation latency; implement a bounded reference-count alternative with exactly-once reclamation for a shared child and explain why it is not concurrent safe by itself.",
+            "Transfer to a tree with owned string leaves and a clone callback that can fail. Define rollback for already cloned resources and compare the documented persistent-collection Clone requirement with C programmer discipline."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DOD-IM"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T70.07",
+      "title": "Bitmap rank, full-hash collisions and persistent map updates",
+      "objectives": [
+        "T70.07.a",
+        "T70.07.b",
+        "T70.07.c",
+        "T70.07.d"
+      ],
+      "objective_text": {
+        "T70.07.a": "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality.",
+        "T70.07.b": "Implement lookup/update with collision buckets and path copying, then deletion with defined empty-node normalization and immutable prior snapshots.",
+        "T70.07.c": "Exhaust keys0–31 and insertion/deletion permutations for collision pairs and differing bitmap positions; compare each version with an independent dictionary and inject every clone failure.",
+        "T70.07.d": "Analyze hash quality, collision-bucket growth, retained versions and pointer/bitmap costs under equal contracts. Transfer to an attacker-selected constant hash and specify bounded denial-of-service behavior without claiming constant worst-case lookup."
+      },
+      "projects": [
+        "PR-T70-07"
+      ],
+      "variants": [
+        {
+          "id": "T70.07-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T70.07.a",
+            "T70.07.b",
+            "T70.07.c",
+            "T70.07.d"
+          ],
+          "prompt": "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality.",
+          "checklist": [
+            "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality.",
+            "Implement lookup/update with collision buckets and path copying, then deletion with defined empty-node normalization and immutable prior snapshots.",
+            "Exhaust keys0–31 and insertion/deletion permutations for collision pairs and differing bitmap positions; compare each version with an independent dictionary and inject every clone failure.",
+            "Analyze hash quality, collision-bucket growth, retained versions and pointer/bitmap costs under equal contracts. Transfer to an attacker-selected constant hash and specify bounded denial-of-service behavior without claiming constant worst-case lookup."
+          ]
+        },
+        {
+          "id": "T70.07-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T70.07.a",
+            "T70.07.b",
+            "T70.07.c",
+            "T70.07.d"
+          ],
+          "prompt": "Keys1 and17 deliberately share the full4-bit hash but retain values10 and20. Updating17 to88 in a new root leaves20 in the old root. Inserting key0 changes bitmap rank and must not make key1 unreachable. Each of3 allocation failure points preserves old snapshots. Derive the state before executing.",
+          "checklist": [
+            "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality.",
+            "Implement lookup/update with collision buckets and path copying, then deletion with defined empty-node normalization and immutable prior snapshots.",
+            "Exhaust keys0–31 and insertion/deletion permutations for collision pairs and differing bitmap positions; compare each version with an independent dictionary and inject every clone failure.",
+            "Analyze hash quality, collision-bucket growth, retained versions and pointer/bitmap costs under equal contracts. Transfer to an attacker-selected constant hash and specify bounded denial-of-service behavior without claiming constant worst-case lookup."
+          ]
+        },
+        {
+          "id": "T70.07-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T70.07.a",
+            "T70.07.b",
+            "T70.07.c",
+            "T70.07.d"
+          ],
+          "prompt": "X-T70-007-DELAYED: use two-byte keys and a caller-supplied hash/equality dictionary. Construct unequal keys with equal hash and equal logical keys with different backing bytes; define canonical equality and ownership, then re-evaluate collision and failure costs.",
+          "checklist": [
+            "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality.",
+            "Implement lookup/update with collision buckets and path copying, then deletion with defined empty-node normalization and immutable prior snapshots.",
+            "Exhaust keys0–31 and insertion/deletion permutations for collision pairs and differing bitmap positions; compare each version with an independent dictionary and inject every clone failure.",
+            "Analyze hash quality, collision-bucket growth, retained versions and pointer/bitmap costs under equal contracts. Transfer to an attacker-selected constant hash and specify bounded denial-of-service behavior without claiming constant worst-case lookup."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DOD-HAMT",
+        "R-MOD-DOD-IM"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T70.08",
+      "title": "Shared text DAGs, editing alternatives and coordinate meaning",
+      "objectives": [
+        "T70.08.a",
+        "T70.08.b",
+        "T70.08.c",
+        "T70.08.d",
+        "T70.08.e"
+      ],
+      "objective_text": {
+        "T70.08.a": "Prove ordered-DAG sequence semantics, cached length consistency and ownership of shared leaves; distinguish byte, codepoint, grapheme and line coordinates.",
+        "T70.08.b": "Implement transactional leaf/concat/flatten and byte-index/split operations, including empty boundaries and shared subgraphs without cycles.",
+        "T70.08.c": "Implement gap-buffer and piece-table editing with complete capacity and source-lifetime contracts; drive identical insert/delete scripts through all representations and an independent flat oracle.",
+        "T70.08.d": "Investigate chain depth, rebalancing, fragmentation and retained backing storage using adversarial concatenation and edit locality; derive a balance criterion from the inspected rope paper without importing its measurements as this lab results.",
+        "T70.08.e": "Transfer to UTF-8 scalar-index edits and invalid byte sequences. Define validation, coordinate conversion and snapshot ownership, then demonstrate a case where byte equality alone does not establish the requested text operation."
+      },
+      "projects": [
+        "PR-T70-08"
+      ],
+      "variants": [
+        {
+          "id": "T70.08-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T70.08.a",
+            "T70.08.b",
+            "T70.08.c",
+            "T70.08.d",
+            "T70.08.e"
+          ],
+          "prompt": "Prove ordered-DAG sequence semantics, cached length consistency and ownership of shared leaves; distinguish byte, codepoint, grapheme and line coordinates.",
+          "checklist": [
+            "Prove ordered-DAG sequence semantics, cached length consistency and ownership of shared leaves; distinguish byte, codepoint, grapheme and line coordinates.",
+            "Implement transactional leaf/concat/flatten and byte-index/split operations, including empty boundaries and shared subgraphs without cycles.",
+            "Implement gap-buffer and piece-table editing with complete capacity and source-lifetime contracts; drive identical insert/delete scripts through all representations and an independent flat oracle.",
+            "Investigate chain depth, rebalancing, fragmentation and retained backing storage using adversarial concatenation and edit locality; derive a balance criterion from the inspected rope paper without importing its measurements as this lab results.",
+            "Transfer to UTF-8 scalar-index edits and invalid byte sequences. Define validation, coordinate conversion and snapshot ownership, then demonstrate a case where byte equality alone does not establish the requested text operation."
+          ]
+        },
+        {
+          "id": "T70.08-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T70.08.a",
+            "T70.08.b",
+            "T70.08.c",
+            "T70.08.d",
+            "T70.08.e"
+          ],
+          "prompt": "Leaves ab and cd concatenate to abcd; concatenating that root with itself flattens to abcdabcd while the ab leaf remains ab. Capacity7 rejects an8-byte flatten without touching the output canary or written. An empty leaf returns root0. Derive the state before executing.",
+          "checklist": [
+            "Prove ordered-DAG sequence semantics, cached length consistency and ownership of shared leaves; distinguish byte, codepoint, grapheme and line coordinates.",
+            "Implement transactional leaf/concat/flatten and byte-index/split operations, including empty boundaries and shared subgraphs without cycles.",
+            "Implement gap-buffer and piece-table editing with complete capacity and source-lifetime contracts; drive identical insert/delete scripts through all representations and an independent flat oracle.",
+            "Investigate chain depth, rebalancing, fragmentation and retained backing storage using adversarial concatenation and edit locality; derive a balance criterion from the inspected rope paper without importing its measurements as this lab results.",
+            "Transfer to UTF-8 scalar-index edits and invalid byte sequences. Define validation, coordinate conversion and snapshot ownership, then demonstrate a case where byte equality alone does not establish the requested text operation."
+          ]
+        },
+        {
+          "id": "T70.08-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T70.08.a",
+            "T70.08.b",
+            "T70.08.c",
+            "T70.08.d",
+            "T70.08.e"
+          ],
+          "prompt": "X-T70-008-DELAYED: preserve immutable snapshots while compacting piece-table backing storage under a fixed additional-memory budget. State whether compaction may fail, how old snapshots remain valid and which reclamation event releases the previous backing store.",
+          "checklist": [
+            "Prove ordered-DAG sequence semantics, cached length consistency and ownership of shared leaves; distinguish byte, codepoint, grapheme and line coordinates.",
+            "Implement transactional leaf/concat/flatten and byte-index/split operations, including empty boundaries and shared subgraphs without cycles.",
+            "Implement gap-buffer and piece-table editing with complete capacity and source-lifetime contracts; drive identical insert/delete scripts through all representations and an independent flat oracle.",
+            "Investigate chain depth, rebalancing, fragmentation and retained backing storage using adversarial concatenation and edit locality; derive a balance criterion from the inspected rope paper without importing its measurements as this lab results.",
+            "Transfer to UTF-8 scalar-index edits and invalid byte sequences. Define validation, coordinate conversion and snapshot ownership, then demonstrate a case where byte equality alone does not establish the requested text operation."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-DOD-ROPES"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    }
+  ],
+  "schema_version": 5
+}

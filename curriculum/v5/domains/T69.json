@@ -1,0 +1,94 @@
+{
+  "id": "T69",
+  "domain": {
+    "family": "dispatch",
+    "prefix": "DS",
+    "phase": 11,
+    "strand": "toolbox",
+    "research_gate": "research/v5/modern/dispatch_research_gate.json",
+    "imports": {
+      "PR-T69-01": [
+        "io.stream",
+        "containers.array"
+      ],
+      "PR-T69-02": [
+        "containers.array",
+        "measurement.capture"
+      ],
+      "PR-T69-03": [
+        "containers.array",
+        "measurement.capture"
+      ],
+      "PR-T69-04": [
+        "containers.array"
+      ],
+      "PR-T69-05": [
+        "dod.small_buffer",
+        "memory.pool"
+      ],
+      "PR-T69-06": [
+        "containers.array",
+        "measurement.capture"
+      ],
+      "PR-T69-07": [
+        "containers.array",
+        "memory.pool"
+      ],
+      "PR-T69-08": [
+        "io.stream",
+        "containers.array"
+      ],
+      "PR-T69-09": [
+        "memory.pool"
+      ],
+      "PR-T69-10": [
+        "io.stream",
+        "memory.pool",
+        "measurement.capture"
+      ],
+      "PR-T69-11": [
+        "io.stream",
+        "containers.array",
+        "measurement.capture"
+      ]
+    },
+    "artifacts": [
+      {
+        "id": "dispatch.erased_fn",
+        "producer": "PR-T69-05",
+        "contract": "Explicit owning byte-encoded captures over dod.small_buffer, compatible call thunk, transfer-on-success construction and explicit move/drop; no automatic borrow or linearity proof.",
+        "critical_objectives": [
+          "T69.05.a",
+          "T69.05.b",
+          "T69.05.c"
+        ]
+      },
+      {
+        "id": "plugin.host",
+        "producer": "PR-T69-11",
+        "contract": "Original local Linux plugin ABI with explicit borrowed-code quiescence, staged state migration and retained cleanup ownership; no sandbox or transparent asynchronous reload guarantee.",
+        "critical_objectives": [
+          "T69.11.a",
+          "T69.11.b",
+          "T69.11.c"
+        ]
+      }
+    ],
+    "decisions": {
+      "PR-T69-05": {
+        "question": "Which callable representation matches retention and movement requirements?",
+        "alternatives": [
+          "borrowed immediate function reference",
+          "owning byte-encoded small capture",
+          "owning typed heap capture"
+        ],
+        "discriminator": "Escaping retention, self pointers, alignment, destruction and allocation failure distinguish contracts before dispatch timing.",
+        "reversal_trigger": "Callback becomes asynchronous, capture gains a self-reference or resource clone can fail."
+      }
+    }
+  },
+  "new_executable_counts": {
+    "DS": 11
+  },
+  "fixture_oracles": []
+}

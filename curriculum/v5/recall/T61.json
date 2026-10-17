@@ -1,0 +1,477 @@
+{
+  "domain": "T61",
+  "sets": [
+    {
+      "id": "T61.01",
+      "title": "Bitvector arithmetic and complete bounds",
+      "objectives": [
+        "T61.01.a",
+        "T61.01.b",
+        "T61.01.c"
+      ],
+      "objective_text": {
+        "T61.01.a": "Derive and defend: Derive the pre-add inequality without executing overflowing signed arithmetic. Prove unchanged output on failure as a separate postcondition and identify pointer validity assumptions.",
+        "T61.01.b": "Implement and investigate: Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code.",
+        "T61.01.c": "Falsify and transfer: Repair wrapping arithmetic that reports success and a harness that assumes away every overflow input. Demonstrate a witness satisfying the assumptions and violating the mutant. Then Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate."
+      },
+      "projects": [
+        "PR-T61-01"
+      ],
+      "resource_ids": [
+        "R-B06-CBMC",
+        "R-B06-FUZZ",
+        "R-B06-ASAN",
+        "R-B06-KUNIT"
+      ],
+      "variants": [
+        {
+          "id": "T61.01-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T61.01.a"
+          ],
+          "prompt": "Derive the pre-add inequality without executing overflowing signed arithmetic. Prove unchanged output on failure as a separate postcondition and identify pointer validity assumptions.",
+          "checklist": [
+            "The arithmetic bound is b<=MAX-a when both operands are unsigned and valid."
+          ]
+        },
+        {
+          "id": "T61.01-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T61.01.b"
+          ],
+          "prompt": "Repair wrapping arithmetic that reports success and a harness that assumes away every overflow input. Demonstrate a witness satisfying the assumptions and violating the mutant.",
+          "checklist": [
+            "Implement vf_add(a,b,out) for uint32_t: return1 and sum when representable, else0 with unchanged output. Write a CBMC harness for every input and a sentinel output, with overflow checks enabled; separately exhaust a reduced8-bit domain and explain why that enumeration is not a proof for32-bit implementation code."
+          ]
+        },
+        {
+          "id": "T61.01-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T61.01.c"
+          ],
+          "prompt": "Generalize to checked multiplication and mixed-width conversion, deriving a new precondition rather than mechanically substituting the addition predicate.",
+          "checklist": [
+            "Derive the pre-add inequality without executing overflowing signed arithmetic. Prove unchanged output on failure as a separate postcondition and identify pointer validity assumptions."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T61.02",
+      "title": "Loop invariants and binary-search termination",
+      "objectives": [
+        "T61.02.a",
+        "T61.02.b",
+        "T61.02.c"
+      ],
+      "objective_text": {
+        "T61.02.a": "Derive and defend: Prove all indices below lo are<key, all at/above hi are>=key, and hi-lo strictly decreases. Derive memory bounds and handle duplicate values without changing the intended first-position contract.",
+        "T61.02.b": "Implement and investigate: Implement vf_lower_bound on a sorted nondecreasing uint32_t array, returning the first index with value>=key or n. Use half-open[lo,hi), calculate midpoint without overflow and retain O(log n) comparisons. Empty input permits a null array. Establish sortedness as a precondition, not a fact proved by a search test.",
+        "T61.02.c": "Falsify and transfer: A <= comparison implements upper_bound, which passes unique-key examples. An incorrect midpoint update can also loop forever on a singleton interval. Then Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities."
+      },
+      "projects": [
+        "PR-T61-02"
+      ],
+      "resource_ids": [
+        "R-B06-CBMC",
+        "R-B06-FUZZ",
+        "R-B06-ASAN",
+        "R-B06-KUNIT"
+      ],
+      "variants": [
+        {
+          "id": "T61.02-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T61.02.a"
+          ],
+          "prompt": "Prove all indices below lo are<key, all at/above hi are>=key, and hi-lo strictly decreases. Derive memory bounds and handle duplicate values without changing the intended first-position contract.",
+          "checklist": [
+            "The loop variant is the nonnegative interval length, which every branch strictly reduces."
+          ]
+        },
+        {
+          "id": "T61.02-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T61.02.b"
+          ],
+          "prompt": "A <= comparison implements upper_bound, which passes unique-key examples. An incorrect midpoint update can also loop forever on a singleton interval.",
+          "checklist": [
+            "Implement vf_lower_bound on a sorted nondecreasing uint32_t array, returning the first index with value>=key or n. Use half-open[lo,hi), calculate midpoint without overflow and retain O(log n) comparisons. Empty input permits a null array. Establish sortedness as a precondition, not a fact proved by a search test."
+          ]
+        },
+        {
+          "id": "T61.02-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T61.02.c"
+          ],
+          "prompt": "Change to a descending comparator and an opaque record key; rederive the invariant and verify comparator consistency assumptions instead of copying inequalities.",
+          "checklist": [
+            "Prove all indices below lo are<key, all at/above hi are>=key, and hi-lo strictly decreases. Derive memory bounds and handle duplicate values without changing the intended first-position contract."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T61.03",
+      "title": "Stateful property harness and ownership",
+      "objectives": [
+        "T61.03.a",
+        "T61.03.b",
+        "T61.03.c"
+      ],
+      "objective_text": {
+        "T61.03.a": "Derive and defend: Prove size conservation and rejection atomicity at each step; define ownership of queued elements separately from the scalar ring indices. Explain why an oracle sharing the same count representation could reproduce the defect.",
+        "T61.03.b": "Implement and investigate: Implement vf_ring_step for VFRing with positive capacity, head<capacity, size<=capacity. op0 push rejects full and increments size; op1 pop rejects empty, advances head modulo capacity and decrements size. Reject invalid state or operation without mutation. Build a sequence harness using a Python list oracle and generation from valid/invalid transition classes.",
+        "T61.03.c": "Falsify and transfer: The mutant permits a push into a full ring, producing size>capacity. A final pop-only test can conceal this intermediate violation. Then Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions."
+      },
+      "projects": [
+        "PR-T61-03"
+      ],
+      "resource_ids": [
+        "R-B06-CBMC",
+        "R-B06-FUZZ",
+        "R-B06-ASAN",
+        "R-B06-KUNIT"
+      ],
+      "variants": [
+        {
+          "id": "T61.03-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T61.03.a"
+          ],
+          "prompt": "Prove size conservation and rejection atomicity at each step; define ownership of queued elements separately from the scalar ring indices. Explain why an oracle sharing the same count representation could reproduce the defect.",
+          "checklist": [
+            "Use a sequence/list oracle rather than copy the ring indexing equations."
+          ]
+        },
+        {
+          "id": "T61.03-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T61.03.b"
+          ],
+          "prompt": "The mutant permits a push into a full ring, producing size>capacity. A final pop-only test can conceal this intermediate violation.",
+          "checklist": [
+            "Implement vf_ring_step for VFRing with positive capacity, head<capacity, size<=capacity. op0 push rejects full and increments size; op1 pop rejects empty, advances head modulo capacity and decrements size. Reject invalid state or operation without mutation. Build a sequence harness using a Python list oracle and generation from valid/invalid transition classes."
+          ]
+        },
+        {
+          "id": "T61.03-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T61.03.c"
+          ],
+          "prompt": "Add borrowed payloads with destructor callbacks and injected construction failure; extend the model to exactly-once lifetime obligations and reentrant callback restrictions.",
+          "checklist": [
+            "Prove size conservation and rejection atomicity at each step; define ownership of queued elements separately from the scalar ring indices. Explain why an oracle sharing the same count representation could reproduce the defect."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T61.04",
+      "title": "Parser fuzzing with semantic oracles",
+      "objectives": [
+        "T61.04.a",
+        "T61.04.b",
+        "T61.04.c"
+      ],
+      "objective_text": {
+        "T61.04.a": "Derive and defend: Separate memory-safety, grammar, integrity and canonicalization properties; bound fuzz input processing without excluding empty, malformed or huge harness inputs.",
+        "T61.04.b": "Implement and investigate: Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure.",
+        "T61.04.c": "Falsify and transfer: The parser ignores checksum mismatch yet never crashes, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame. Then Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch."
+      },
+      "projects": [
+        "PR-T61-04"
+      ],
+      "resource_ids": [
+        "R-B06-CBMC",
+        "R-B06-FUZZ",
+        "R-B06-ASAN",
+        "R-B06-KUNIT"
+      ],
+      "variants": [
+        {
+          "id": "T61.04-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T61.04.a"
+          ],
+          "prompt": "Separate memory-safety, grammar, integrity and canonicalization properties; bound fuzz input processing without excluding empty, malformed or huge harness inputs.",
+          "checklist": [
+            "A fuzz callback returns normally for all malformed inputs and restores per-input state."
+          ]
+        },
+        {
+          "id": "T61.04-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T61.04.b"
+          ],
+          "prompt": "The parser ignores checksum mismatch yet never crashes, so sanitizer-only fuzzing misses the defect. The semantic oracle must reject the corrupted frame.",
+          "checklist": [
+            "Implement vf_frame for bytes[length,payload...,xor]. Require n>=2, length<=16, exact n=length+2 and XOR of payload equal final byte; publish length only on success. Empty payload is valid with bytes[0,0]. Fuzz all inputs0..64 bytes, check round-trip canonical encoding on success and output sentinel on failure."
+          ]
+        },
+        {
+          "id": "T61.04-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T61.04.c"
+          ],
+          "prompt": "Introduce streaming segmentation and state reset between repeated calls; compare every split with the single-shot decoder and minimize a split-sensitive mismatch.",
+          "checklist": [
+            "Separate memory-safety, grammar, integrity and canonicalization properties; bound fuzz input processing without excluding empty, malformed or huge harness inputs."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T61.05",
+      "title": "Counterexample minimization",
+      "objectives": [
+        "T61.05.a",
+        "T61.05.b",
+        "T61.05.c"
+      ],
+      "objective_text": {
+        "T61.05.a": "Derive and defend: Prove predicate preservation after each deletion and justify termination. Distinguish1-minimality from globally optimal shrinking and discuss order-dependent outcomes.",
+        "T61.05.b": "Implement and investigate: Implement vf_shrink for an in-place byte vector of length at most65535 whose failure predicate is sum(bytes)>=threshold. Greedily remove each byte when the remaining sum still fails; retry the same position after removal. Return final length. If the original does not fail, leave it unchanged. The result is1-minimal under deletion, not globally shortest.",
+        "T61.05.c": "Falsify and transfer: The faulty shrinker increments its index after deletion, skipping the shifted byte and leaving a removable element. A merely smaller result is not the stated minimality guarantee. Then Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit."
+      },
+      "projects": [
+        "PR-T61-05"
+      ],
+      "resource_ids": [
+        "R-B06-CBMC",
+        "R-B06-FUZZ",
+        "R-B06-ASAN",
+        "R-B06-KUNIT"
+      ],
+      "variants": [
+        {
+          "id": "T61.05-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T61.05.a"
+          ],
+          "prompt": "Prove predicate preservation after each deletion and justify termination. Distinguish1-minimality from globally optimal shrinking and discuss order-dependent outcomes.",
+          "checklist": [
+            "Check every single deletion of the final result and distinguish that property from shortest length."
+          ]
+        },
+        {
+          "id": "T61.05-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T61.05.b"
+          ],
+          "prompt": "The faulty shrinker increments its index after deletion, skipping the shifted byte and leaving a removable element. A merely smaller result is not the stated minimality guarantee.",
+          "checklist": [
+            "Implement vf_shrink for an in-place byte vector of length at most65535 whose failure predicate is sum(bytes)>=threshold. Greedily remove each byte when the remaining sum still fails; retry the same position after removal. Return final length. If the original does not fail, leave it unchanged. The result is1-minimal under deletion, not globally shortest."
+          ]
+        },
+        {
+          "id": "T61.05-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T61.05.c"
+          ],
+          "prompt": "Shrink an event schedule while preserving the same violated lifecycle invariant and first divergent transition, rather than preserving any nonzero exit.",
+          "checklist": [
+            "Prove predicate preservation after each deletion and justify termination. Distinguish1-minimality from globally optimal shrinking and discuss order-dependent outcomes."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T61.06",
+      "title": "Bounded schedule exploration",
+      "objectives": [
+        "T61.06.a",
+        "T61.06.b",
+        "T61.06.c"
+      ],
+      "objective_text": {
+        "T61.06.a": "Derive and defend: State the safety invariant released implies completed and derive every reachable state. Explain which liveness claims require a scheduler/environment assumption beyond finite enumeration.",
+        "T61.06.b": "Implement and investigate: Implement vf_request for events0 submit,1 cancel,2 complete,3 release. Submit once; cancellation only after submit and before completion; complete once after submit whether or not cancelled; release only after completion and only once. Enumerate all event words through length6 and compare state/rejection to an independent transition relation.",
+        "T61.06.c": "Falsify and transfer: The mutant releases on cancellation before completion, allowing a late callback to access released storage. A mutex alone does not fix the incorrect state transition. Then Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence."
+      },
+      "projects": [
+        "PR-T61-06"
+      ],
+      "resource_ids": [
+        "R-B06-CBMC",
+        "R-B06-FUZZ",
+        "R-B06-ASAN",
+        "R-B06-KUNIT"
+      ],
+      "variants": [
+        {
+          "id": "T61.06-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T61.06.a"
+          ],
+          "prompt": "State the safety invariant released implies completed and derive every reachable state. Explain which liveness claims require a scheduler/environment assumption beyond finite enumeration.",
+          "checklist": [
+            "A finite word bound establishes only the declared bounded safety scope unless an inductive argument closes it."
+          ]
+        },
+        {
+          "id": "T61.06-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T61.06.b"
+          ],
+          "prompt": "The mutant releases on cancellation before completion, allowing a late callback to access released storage. A mutex alone does not fix the incorrect state transition.",
+          "checklist": [
+            "Implement vf_request for events0 submit,1 cancel,2 complete,3 release. Submit once; cancellation only after submit and before completion; complete once after submit whether or not cancelled; release only after completion and only once. Enumerate all event words through length6 and compare state/rejection to an independent transition relation."
+          ]
+        },
+        {
+          "id": "T61.06-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T61.06.c"
+          ],
+          "prompt": "Split submission and publication into separate steps, add two actors and a weak-memory litmus; identify which additional ordering assumptions need model checking or target evidence.",
+          "checklist": [
+            "State the safety invariant released implies completed and derive every reachable state. Explain which liveness claims require a scheduler/environment assumption beyond finite enumeration."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T61.07",
+      "title": "Deterministic fuzz harness composition",
+      "objectives": [
+        "T61.07.a",
+        "T61.07.b",
+        "T61.07.c"
+      ],
+      "objective_text": {
+        "T61.07.a": "Derive and defend: Derive the required isolation between fuzz invocations, including allocator cleanup and thread joining. Distinguish deterministic input-derived randomness from wall-clock seeding.",
+        "T61.07.b": "Implement and investigate: Implement vf_digest(frame,n,out): validate with vf_frame, then derive a32-bit rolling digest starting from0 for that input only, digest=digest*33+byte across payload bytes. Preserve output on invalid input. Repeated A,B,A calls must give the same results for A. Keep corpus generation and sanitizer runtime outside the target dependency graph.",
+        "T61.07.c": "Falsify and transfer: The mutant retains the prior hash globally, creating a history-dependent mismatch. A single fresh-process run passes and therefore misses the defect. Then Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions."
+      },
+      "projects": [
+        "PR-T61-07"
+      ],
+      "resource_ids": [
+        "R-B06-CBMC",
+        "R-B06-FUZZ",
+        "R-B06-ASAN",
+        "R-B06-KUNIT"
+      ],
+      "variants": [
+        {
+          "id": "T61.07-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T61.07.a"
+          ],
+          "prompt": "Derive the required isolation between fuzz invocations, including allocator cleanup and thread joining. Distinguish deterministic input-derived randomness from wall-clock seeding.",
+          "checklist": [
+            "Encode intentional history in the test input so the failure remains reproducible."
+          ]
+        },
+        {
+          "id": "T61.07-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T61.07.b"
+          ],
+          "prompt": "The mutant retains the prior hash globally, creating a history-dependent mismatch. A single fresh-process run passes and therefore misses the defect.",
+          "checklist": [
+            "Implement vf_digest(frame,n,out): validate with vf_frame, then derive a32-bit rolling digest starting from0 for that input only, digest=digest*33+byte across payload bytes. Preserve output on invalid input. Repeated A,B,A calls must give the same results for A. Keep corpus generation and sanitizer runtime outside the target dependency graph."
+          ]
+        },
+        {
+          "id": "T61.07-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T61.07.c"
+          ],
+          "prompt": "Deliberately fuzz a multi-command protocol where history is meaningful; encode the entire session in one input and reset only between sessions.",
+          "checklist": [
+            "Derive the required isolation between fuzz invocations, including allocator cleanup and thread joining. Distinguish deterministic input-derived randomness from wall-clock seeding."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T61.08",
+      "title": "Proof claim audit and independent transfer",
+      "objectives": [
+        "T61.08.a",
+        "T61.08.b",
+        "T61.08.c"
+      ],
+      "objective_text": {
+        "T61.08.a": "Derive and defend: Bind the claim to source, compiler/solver configuration, assumptions, model bound and checked properties. Explain why local self-reported flags cannot establish reviewer independence or tool honesty.",
+        "T61.08.b": "Implement and investigate: Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes.",
+        "T61.08.c": "Falsify and transfer: A receipt omits complete unwinding but labels a loop universally safe. Reproduce the missing iteration counterexample and narrow the claim before attempting a genuine inductive proof. Then Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days."
+      },
+      "projects": [
+        "PR-T61-08"
+      ],
+      "resource_ids": [
+        "R-B06-CBMC",
+        "R-B06-FUZZ",
+        "R-B06-ASAN",
+        "R-B06-KUNIT"
+      ],
+      "variants": [
+        {
+          "id": "T61.08-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T61.08.a"
+          ],
+          "prompt": "Bind the claim to source, compiler/solver configuration, assumptions, model bound and checked properties. Explain why local self-reported flags cannot establish reviewer independence or tool honesty.",
+          "checklist": [
+            "Separate proof scope, execution observations, reviewer status and learner assessment."
+          ]
+        },
+        {
+          "id": "T61.08-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T61.08.b"
+          ],
+          "prompt": "A receipt omits complete unwinding but labels a loop universally safe. Reproduce the missing iteration counterexample and narrow the claim before attempting a genuine inductive proof.",
+          "checklist": [
+            "Implement vf_claim(tool_success,unwinding_complete,assumptions_witnessed,unchecked_properties): accept a bounded-proof receipt only when the first three flags are exactly1 and unchecked count0. Use this predicate as a checklist, not a cryptographic verifier, and audit the saved CBMC/fuzz campaigns against actual logs and source hashes."
+          ]
+        },
+        {
+          "id": "T61.08-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T61.08.c"
+          ],
+          "prompt": "Audit a new allocator or parser without the worked harness; choose proof, fuzzing and differential methods based on mechanisms and defend residual gaps after seven days.",
+          "checklist": [
+            "Bind the claim to source, compiler/solver configuration, assumptions, model bound and checked properties. Explain why local self-reported flags cannot establish reviewer independence or tool honesty."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    }
+  ]
+}

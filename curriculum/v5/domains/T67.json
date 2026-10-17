@@ -1,0 +1,83 @@
+{
+  "id": "T67",
+  "domain": {
+    "family": "adt",
+    "prefix": "AD",
+    "phase": 11,
+    "strand": "toolbox",
+    "research_gate": "research/v5/modern/adt_research_gate.json",
+    "imports": {
+      "PR-T67-01": [],
+      "PR-T67-02": [
+        "bytes.checked",
+        "parser.integer"
+      ],
+      "PR-T67-03": [
+        "bytes.checked"
+      ],
+      "PR-T67-04": [
+        "bytes.cursor",
+        "bytes.checked"
+      ],
+      "PR-T67-05": [
+        "memory.pool"
+      ],
+      "PR-T67-06": [
+        "bytes.checked"
+      ],
+      "PR-T67-07": [],
+      "PR-T67-08": [],
+      "PR-T67-09": [
+        "codec.records",
+        "bytes.cursor"
+      ],
+      "PR-T67-10": [
+        "bytes.cursor",
+        "bytes.checked",
+        "codec.records",
+        "io.frame"
+      ]
+    },
+    "artifacts": [
+      {
+        "id": "adt.packet_view",
+        "producer": "PR-T67-10",
+        "contract": "Borrowed stable exact-extent packet view; explicit error sum and zero-copy lifetime obligations.",
+        "critical_objectives": [
+          "T67.10.a",
+          "T67.10.b",
+          "T67.10.c",
+          "T67.10.d"
+        ]
+      },
+      {
+        "id": "adt.brand",
+        "producer": "PR-T67-05",
+        "contract": "Nominal pool handle category with live owner/index/nonwrapping generation validation; no linearity or cross-lifetime identity promise.",
+        "critical_objectives": [
+          "T67.05.a",
+          "T67.05.b",
+          "T67.05.c",
+          "T67.05.d"
+        ]
+      }
+    ],
+    "decisions": {
+      "PR-T67-01": {
+        "question": "Should unknown advisory packet variants be rejected or preserved as exact borrowed bytes?",
+        "alternatives": [
+          "closed validated sum",
+          "open sum with retained unknown bytes"
+        ],
+        "discriminator": "Round-trip an unrecognized synthetic variant through a version1relay and test whether version2recovers it without weakening critical-tag rejection.",
+        "reversal_trigger": "Change to an authenticated canonical format where unknown fields cannot be safely forwarded without an explicitly signed extension policy."
+      }
+    }
+  },
+  "new_executable_counts": {
+    "AD": 10
+  },
+  "fixture_oracles": [
+    "verify_adt_fixtures.py"
+  ]
+}

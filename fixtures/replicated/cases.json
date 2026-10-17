@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "kind": "log",
+      "example": "Append(3,7),append(3,9): prefix1 returns7 and prefix2 returns9. Inject each allocation ordinal1..3 on the next append: count stays2, used count is restored and prior roots still resolve. The17th append returns RP_FULL without consuming nodes.",
+      "input": {
+        "events": [
+          [
+            3,
+            7
+          ],
+          [
+            3,
+            9
+          ]
+        ],
+        "prefix": 1,
+        "key": 3
+      },
+      "expected": {
+        "value": 7,
+        "nodes": 6
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "projection",
+      "example": "Apply(1,0,7) twice yields total7,count1. Reuse position1 with8 conflicts; position3 before2 is a gap. Two synchronized threads each delivering values1..16 yield count16,total136;128 fresh concurrent runs test the adapter.",
+      "input": {
+        "deliveries": [
+          [
+            1,
+            0,
+            7
+          ],
+          [
+            1,
+            0,
+            7
+          ]
+        ]
+      },
+      "expected": {
+        "count": 1,
+        "total": 7
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "clocks",
+      "example": "Lamport(2,8)=9. Vectors[1,0,0] and[0,1,0] are concurrent; receive at replica0 gives[2,1,0]. HLC local(10,2),remote(10,7),wall9 gives(10,8); wall11 on a subsequent local event resets logical to0. UINT32_MAX logical overflow fails unchanged.",
+      "input": {
+        "local": [
+          10,
+          2
+        ],
+        "remote": [
+          10,
+          7
+        ],
+        "wall": 9
+      },
+      "expected": [
+        10,
+        8
+      ],
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "counters",
+      "example": "Replica0 adds5; replica1 subtracts3. Merge yields2 and repeating the same merge remains2. Register(7,0,1) joined with(7,2,9) chooses9; another payload at(7,2) is a conflict. Adding UINT32_MAX to component5 fails unchanged.",
+      "input": {
+        "positive": [
+          5,
+          0,
+          0
+        ],
+        "negative": [
+          0,
+          3,
+          0
+        ]
+      },
+      "expected": 2,
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "sets",
+      "example": "Replica0 adds value2; replica1 observes it. Replica0 removes while replica1 concurrently adds its own tag. Join retains value2. Removing after observing both tags and replaying either old add delta does not resurrect it. The ninth add by one replica fails without resetting its identity counter.",
+      "input": {
+        "observed": [
+          1
+        ],
+        "concurrent": [
+          256
+        ],
+        "removed": [
+          1
+        ]
+      },
+      "expected": {
+        "live": [
+          256
+        ]
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "sequence",
+      "example": "Insert A(id1,parent0),B(id2,parent0),C(id3,parent1) in either admissible arrival order: render BAC. Delete id1: render BC, retaining descendant C. Two inserts at position0 with priorities1 and2 transform the higher-priority-number insertion to position1.",
+      "input": {
+        "nodes": [
+          [
+            1,
+            0,
+            65
+          ],
+          [
+            2,
+            0,
+            66
+          ],
+          [
+            3,
+            1,
+            67
+          ]
+        ],
+        "removed": [
+          1
+        ]
+      },
+      "expected": [
+        66,
+        67
+      ],
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "merkle",
+      "example": "SHA256(empty)=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855. Trees[1,2,3] and[1,2,9] differ only at bit2 (mask4); empty trees give mask0. Compare every count0..8 with a separately implemented Python hashlib construction.",
+      "input": {
+        "left": [
+          1,
+          2,
+          3
+        ],
+        "right": [
+          1,
+          2,
+          9
+        ]
+      },
+      "expected": {
+        "difference_mask": 4
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "wire",
+      "example": "Bytes18 07 10 01 08 96 01 (hex) decode and canonicalize to08 96 01 10 01 18 07. 08 80 00 10 01 is rejected as nonminimal. ZigZag(-1)=1, INT32_MIN maps to UINT32_MAX, INT32_MAX maps to UINT32_MAX-1.",
+      "input": {
+        "bytes": [
+          24,
+          7,
+          16,
+          1,
+          8,
+          150,
+          1
+        ]
+      },
+      "expected": [
+        8,
+        150,
+        1,
+        16,
+        1,
+        24,
+        7
+      ],
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "replay",
+      "example": "Initial(0,0,0,1),movement-1 gives position15,random1015568748,score0; next movement1 gives position0,score3. Eight inputs[1,1,0,-1,1,0,1,-1] produce score12. Replacing input4 with1 and replaying from the prior snapshot equals a fresh corrected fold. All six checkpoint failure cuts preserve the published root and used count.",
+      "input": {
+        "moves": [
+          1,
+          1,
+          0,
+          -1,
+          1,
+          0,
+          1,
+          -1
+        ]
+      },
+      "expected": {
+        "tick": 8,
+        "position": 2,
+        "score": 12,
+        "random": 2388811721
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ]
+}

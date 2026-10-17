@@ -1,0 +1,34 @@
+{
+  "id": "PR-T67-04",
+  "description": "UTF-8 smart constructors and validated borrowed text",
+  "input": {
+    "case": "text"
+  },
+  "expected": {
+    "contract": "41 E2 82 AC F4 8F BF BF is8bytes/3scalars; C0 80 and ED A0 80 fail; empty NULL input succeeds with0scalars; prefix41 E2 82 fails."
+  },
+  "cases": [
+    {
+      "kind": "text",
+      "example": "41 E2 82 AC F4 8F BF BF is8bytes/3scalars; C0 80 and ED A0 80 fail; empty NULL input succeeds with0scalars; prefix41 E2 82 fails.",
+      "input": {
+        "hex": [
+          "41e282acf48fbfbf",
+          "c080",
+          "eda080",
+          "f4908080",
+          ""
+        ]
+      },
+      "expected": [
+        3,
+        null,
+        null,
+        null,
+        0
+      ],
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

@@ -1,0 +1,53 @@
+```json
+{
+  "id": "PR-T69-04",
+  "title": "Capture ownership and shared, mutable, consuming invocation",
+  "module": "T69",
+  "topics": [
+    "T69.04"
+  ],
+  "status": "core",
+  "hours": 8,
+  "profile": "C",
+  "fixtures": [
+    "fixtures/dispatch/PR-T69-04.json"
+  ],
+  "edition": 5,
+  "requires_projects": [
+    "PR-T18-01"
+  ],
+  "evidence_template": "component"
+}
+```
+
+# PR-T69-04: Capture ownership and shared, mutable, consuming invocation
+
+## Contract
+
+Implement DSClosure init/call with shared, mutable and once modes. The concrete body performs checked int addition of capture and argument. Shared keeps capture, mutable stores a successful result, and once consumes on the first admitted attempt even if arithmetic fails. Add a typed closure holding a borrowed array slice and a once closure owning a synthetic resource with a no-fail release callback. Define capture lifetime, allowed invocation and failure cleanup explicitly for each.
+
+The full required exercise is {ref}`X-T69-004`; its shared contracts, D1–D4, objective-specific rubric and delayed variant are part of this project. Eight hours is descriptive accounting, not a ceiling on required work.
+
+## Inputs and expected results
+
+Capture3 shared calls with2 return5 repeatedly without capture mutation. Mutable calls return5 then7. Once capture1 with2 returns3 and later DS_EMPTY. Once INT_MAX with1 returns DS_RANGE with unchanged output and becomes inactive.
+
+## Steps
+
+- **T69.04:** Implement the three explicit modes with checked arithmetic, exactly-once consumption and clear borrowed/owned capture lifetimes; add borrowed-slice and owning-resource closures. Complete every exercise deliverable, including separately specified extensions.
+
+## Failure cases
+
+Capture form and call capability answer different questions. A local runtime flag cannot make all aliases obey linear consumption, and error paths need a defined consumption policy. Enumerate captures/arguments-4..4 for all modes, retain mode/state/output after every call, then test int extrema. In the resource variant inject rejection before and after invocation admission and count release exactly once. Do not dereference ended borrowed storage; use an instrumented lifetime token to demonstrate rejection and separately analyze the raw-pointer counterexample.
+
+## Acceptance and evidence
+
+- **T69.04:** Enumerate captures/arguments-4..4 for all modes, retain mode/state/output after every call, then test int extrema. In the resource variant inject rejection before and after invocation admission and count release exactly once. Do not dereference ended borrowed storage; use an instrumented lifetime token to demonstrate rejection and separately analyze the raw-pointer counterexample. Assess each leaf independently with the exercise rubric and retain unresolved evidence as a gap.
+
+## Hints and recovery
+
+Define whether a failed invocation consumes before writing code. An int capture copied by value owns only that int, not any referent represented by a pointer. Move capture and mutable/consuming invocation are separate axes.
+
+## Transfer challenge
+
+X-T69-004-DELAYED: the once body takes ownership of a resource before returning a recoverable failure. Design a result that returns the resource when retry is possible, and distinguish that from the original consumed-on-attempt policy.

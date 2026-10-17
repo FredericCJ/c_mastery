@@ -1,0 +1,666 @@
+{
+  "schema_version": 1,
+  "project": "PR-T28-04",
+  "domain": "T28",
+  "title": "Bounded SPI and one-byte I2C transaction — explicit depth assessments",
+  "required": true,
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T28.md",
+        "sha256": "7edcfdae8b3faae5296f5096fa9eac72a9515a7132fa329b58fd757b2d14a908",
+        "passages": [
+          "All assigned topic teaching and prerequisite/reading metadata"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T28-04.md",
+        "sha256": "f8a3247b79ea0b462ff64fff4a36a87c76a5d65078646ba2b97ab3f0801a43de",
+        "passages": [
+          "Metadata, Contract, Steps, Failure cases, Acceptance, Hints and changed-condition work"
+        ]
+      },
+      {
+        "path": "fixtures/embedded/PR-T28-04.json",
+        "sha256": "ec32d509a3ad8ee5d069b8fd51518faaa543caedbc5796199f320f2969331cb9",
+        "passages": [
+          "Complete synthetic inputs and expected outputs"
+        ]
+      },
+      {
+        "path": "tools/verify_embedded_fixtures.py",
+        "sha256": "bcb6348ba8820ca376dacf379f30d7aba88452114a78a03ede5e223aab99468d",
+        "passages": [
+          "Exact branches used by the assigned synthetic fixture; not target execution"
+        ]
+      },
+      {
+        "path": "labs/firmware_io/README.md",
+        "sha256": "7f4b34765c9115c4347a93df49dccbb0fa4127644af61afcc2d00afa2bd57293",
+        "passages": [
+          "Named implementation contracts and explicit execution/physical limitations"
+        ]
+      },
+      {
+        "path": "labs/firmware_io/CONTRACTS.md",
+        "sha256": "615356a658bd7e53dc20dc142e5dab30f9d994357348ee97dfd8a9fe8988dee7",
+        "passages": [
+          "All operation contracts, preconditions, failure and ownership boundaries"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T28.md",
+        "anchors": [
+          "T28.07",
+          "T28.08"
+        ]
+      }
+    ],
+    "units": [
+      "U-T28-04-01",
+      "U-T28-04-02",
+      "U-T28-04-03",
+      "U-T28-04-04"
+    ],
+    "inspection_limits": [
+      "All assigned topic teaching, project contract/steps/failure/acceptance and complete fixture inspected.",
+      "Unit objective/test links and first substantive steps inspected; no complete historical learner portfolio review.",
+      "Selected baseline laboratory contracts/tests and assessor functions inspected; exact scopes are in the audit, not inferred from titles."
+    ]
+  },
+  "environment": {
+    "language": "Active C17. N1570 is a C11 draft comparison, not a substitute citation for C17/C23. GNU/POSIX/Linux, ABI, ISA and board rules are labeled separately.",
+    "target": "Dedicated MPS2 emulator or explicitly identified STM32 teaching board; host register models are separate from target behavior.",
+    "profile": "E",
+    "dependencies": "Retain the parent profile. Python, host fixture tools and hosted verification harnesses are distinct from restricted learner/target closures. No library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, build tools, target triple, optimization and generated helper/link dependencies.",
+      "Device/VM/tool unavailability is a missing observation, not a passing result."
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LRUN-RM21",
+      "path": "research/v5/expansion/legacy_runtime/resources.json",
+      "passages": [
+        "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+        "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+        "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+        "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+        "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+        "18.3.9 PWM edge-aligned comparison, p614",
+        "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+        "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+        "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Published C17/C23 texts and private TLPI/CS:APP/book passages are not newly inspected; N1570 and listed primary passages have only their recorded scope.",
+    "Historical reading metadata is not promoted to a new source-inspection claim.",
+    "Selected current device datasheet, exact board schematic/revision, errata and full vendor startup pair still require inspection; RM0090 Rev21 is historical, and MPS2 is a different target.",
+    "Physical electrical behavior, peripheral timing, cache maintenance and reset/boot observations remain unvalidated; this authoring task performs no flashing."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T28-04.md",
+    "fixtures/embedded/PR-T28-04.json",
+    "tools/verify_embedded_fixtures.py",
+    "labs/firmware_io/README.md"
+  ],
+  "execution_support": {
+    "kind": "retained implementation/analysis contracts and bounded partial anchors",
+    "scope": "Only the named cases count as executed support. The full criterion and independent transfer require separate learner evidence.",
+    "tests": [],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T28-04-T28.07.a",
+      "title": "Specify mode, word size, chip-select timing, and transfer ownership.",
+      "objective": "T28.07.a",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Declare SPI CPOL/CPHA,8 bit words, bit order, CS ownership and setup/hold requirements for an original synthetic partner. Reject a transaction that releases CS before the selected controller's final completion condition.",
+      "purpose": "SPI defines the target device's complete command protocol.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.07 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "SPI defines the target device's complete command protocol. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: SPI defines the target device's complete command protocol.",
+        "D2": "Declare SPI CPOL/CPHA,8 bit words, bit order, CS ownership and setup/hold requirements for an original synthetic partner. Reject a transaction that releases CS before the selected controller's final completion condition.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Use a partner requiring CS held across command and response and derive the composite transaction boundary."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Controller framing and device command/CS requirements are separate inspected contracts; unknown device timing cannot be guessed.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Controller framing and device command/CS requirements are separate inspected contracts; unknown device timing cannot be guessed. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Use a partner requiring CS held across command and response and derive the composite transaction boundary. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Place chip-select edges on the transaction timeline.",
+        "The last data write, last received word and bus-not-busy observation are separate milestones."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-04-T28.07.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Use a partner requiring CS held across command and response and derive the composite transaction boundary."
+        }
+      ],
+      "assessor_anchor": "#t2807a",
+      "facet_scope": {
+        "teaching": "Retained T28.07 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-04-T28.07.b",
+      "title": "Handle full-duplex data flow and partial transactions.",
+      "objective": "T28.07.b",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Transfer three original bytes while consuming all three received bytes, injecting timeout before TXE, before RXNE and while BSY remains set. Preserve partial progress and release/retain CS according to a documented terminal policy.",
+      "purpose": "Transmit-only application intent means receive state can be ignored.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.07 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Transmit-only application intent means receive state can be ignored. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Transmit-only application intent means receive state can be ignored.",
+        "D2": "Transfer three original bytes while consuming all three received bytes, injecting timeout before TXE, before RXNE and while BSY remains set. Preserve partial progress and release/retain CS according to a documented terminal policy.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Introduce DMA on both directions and determine which completion events establish buffer and CS ownership independently."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Full-duplex clocks both directions; unconsumed receive state can overrun, and TXE differs from end-of-transfer. Partial completion is not rollback.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Full-duplex clocks both directions; unconsumed receive state can overrun, and TXE differs from end-of-transfer. Partial completion is not rollback. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Introduce DMA on both directions and determine which completion events establish buffer and CS ownership independently. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Place chip-select edges on the transaction timeline.",
+        "The last data write, last received word and bus-not-busy observation are separate milestones."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-04-T28.07.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Introduce DMA on both directions and determine which completion events establish buffer and CS ownership independently."
+        }
+      ],
+      "assessor_anchor": "#t2807b",
+      "facet_scope": {
+        "teaching": "Retained T28.07 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-04-T28.07.c",
+      "title": "Separate peripheral register operation from device protocol semantics.",
+      "objective": "T28.07.c",
+      "families": [
+        "B",
+        "C",
+        "D",
+        "G",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Build a portable command decoder above the SPI byte adapter and replay identical byte/error sequences through a mock and actual available controller. Separate command rejection from bus failure.",
+      "purpose": "A controller transfer success means the device accepted the command.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.07 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A controller transfer success means the device accepted the command. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A controller transfer success means the device accepted the command.",
+        "D2": "Build a portable command decoder above the SPI byte adapter and replay identical byte/error sequences through a mock and actual available controller. Separate command rejection from bus failure.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Change the command protocol while preserving controller mode and show which tests transfer unchanged."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Transport completion does not establish device-level meaning; each layer has its own status and retry policy.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Transport completion does not establish device-level meaning; each layer has its own status and retry policy. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Change the command protocol while preserving controller mode and show which tests transfer unchanged. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Place chip-select edges on the transaction timeline.",
+        "The last data write, last received word and bus-not-busy observation are separate milestones."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-04-T28.07.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change the command protocol while preserving controller mode and show which tests transfer unchanged."
+        }
+      ],
+      "assessor_anchor": "#t2807c",
+      "facet_scope": {
+        "teaching": "Retained T28.07 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-04-T28.08.a",
+      "title": "Model address, start, repeated-start, transfer, acknowledgement, and stop phases.",
+      "objective": "T28.08.a",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "G",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "For address 0x52, register 0x10 and one-byte result 0x5A derive wire addresses 0xA4/0xA5 and START,write-address,register,repeated-START,read-address,byte,NACK,STOP. Enforce ACK-disable-before-ADDR-clear for the inspected single-byte receive.",
+      "purpose": "A seven-bit address is transmitted unchanged and single-byte closing matches arbitrary multibyte closing.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A seven-bit address is transmitted unchanged and single-byte closing matches arbitrary multibyte closing. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A seven-bit address is transmitted unchanged and single-byte closing matches arbitrary multibyte closing.",
+        "D2": "For address 0x52, register 0x10 and one-byte result 0x5A derive wire addresses 0xA4/0xA5 and START,write-address,register,repeated-START,read-address,byte,NACK,STOP. Enforce ACK-disable-before-ADDR-clear for the inspected single-byte receive.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Add a two-byte read only after deriving its complete ACK/STOP timing from an inspected applicable procedure."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Direction occupies the low wire bit, and the single-byte receive has a specific closing sequence; optimized multibyte handling requires new inspection.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Direction occupies the low wire bit, and the single-byte receive has a specific closing sequence; optimized multibyte handling requires new inspection. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a two-byte read only after deriving its complete ACK/STOP timing from an inspected applicable procedure. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate the seven-bit address from the shifted wire byte.",
+        "For one-byte receive, the ACK/ADDR/STOP order is controller-specific; do not import a longer-read sequence unchanged."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-04-T28.08.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a two-byte read only after deriving its complete ACK/STOP timing from an inspected applicable procedure."
+        }
+      ],
+      "assessor_anchor": "#t2808a",
+      "facet_scope": {
+        "teaching": "Retained T28.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-04-T28.08.b",
+      "title": "Handle timeouts, arbitration outcomes, and device-specific recovery.",
+      "objective": "T28.08.b",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "G",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Inject NACK, arbitration loss, stretched clock and stuck SDA into the original phase model. Bound every wait; perform recovery pulses only under the exclusive-single-master precondition, never while another master may own the bus.",
+      "purpose": "A timeout permits forcibly toggling the bus until it responds.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "A timeout permits forcibly toggling the bus until it responds. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: A timeout permits forcibly toggling the bus until it responds.",
+        "D2": "Inject NACK, arbitration loss, stretched clock and stuck SDA into the original phase model. Bound every wait; perform recovery pulses only under the exclusive-single-master precondition, never while another master may own the bus.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Allow a second master in the model and redesign recovery/admission rather than reusing exclusive-bus assumptions."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Timeout and arbitration outcomes establish different ownership; recovery must respect electrical/controller contracts and can fail boundedly.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Timeout and arbitration outcomes establish different ownership; recovery must respect electrical/controller contracts and can fail boundedly. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Allow a second master in the model and redesign recovery/admission rather than reusing exclusive-bus assumptions. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate the seven-bit address from the shifted wire byte.",
+        "For one-byte receive, the ACK/ADDR/STOP order is controller-specific; do not import a longer-read sequence unchanged."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-04-T28.08.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Allow a second master in the model and redesign recovery/admission rather than reusing exclusive-bus assumptions."
+        }
+      ],
+      "assessor_anchor": "#t2808b",
+      "facet_scope": {
+        "teaching": "Retained T28.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    },
+    {
+      "id": "AX-PR-T28-04-T28.08.c",
+      "title": "Keep bus-level error handling separate from application retry policy.",
+      "objective": "T28.08.c",
+      "families": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "G",
+        "F",
+        "J"
+      ],
+      "source_records": [
+        {
+          "id": "R-LRUN-RM21",
+          "path": "research/v5/expansion/legacy_runtime/resources.json",
+          "passages": [
+            "2.3.1 Embedded SRAM and2.4 Boot configuration, pp68–69",
+            "6.2.1–6.2.3 clock sources/PLL and selected RCC_CR fields, pp156–157 and164",
+            "8.3.3–8.3.7 GPIO control/data/BSRR/locking/AF, pp277–278",
+            "10.3.2 DMA transactions and10.3.3 channel selection, pp309–310",
+            "13.3.1–13.3.4 ADC control/clock/selection/single conversion and13.5–13.6 sampling/trigger, pp393–394 and400",
+            "18.3.9 PWM edge-aligned comparison, p614",
+            "27.3.3 I2C master start/address/transmit/single-byte receive closing, pp849–852",
+            "28.3.3 SPI master setup and28.3.5 full-duplex completion, pp885 and889–890",
+            "30.3.3 receiver and30.3.4 baud generation, pp977 and981"
+          ]
+        }
+      ],
+      "task": "Model a device command whose effect occurs before an acknowledgment is lost. Separate bus retry from application idempotence, and preserve an uncertain outcome if repeating could duplicate the effect.",
+      "purpose": "Any NACK/timeout proves the command had no effect.",
+      "prerequisites": {
+        "knowledge": [
+          "Retained T28.08 teaching passage and parent prerequisites",
+          "Active C17 semantics kept separate from POSIX/Linux, ISA, ABI and selected board contracts"
+        ],
+        "artifacts": [
+          "PR-T28-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture result before inspecting its expected data"
+        ]
+      },
+      "reasoning": [
+        "Any NACK/timeout proves the command had no effect. Refute this explanation with the smallest relevant state or execution.",
+        "State valid inputs, operation pre/postconditions, object ownership/lifetime and failure/publication boundaries for the specified mechanism.",
+        "Account for resource bounds and progress/complexity under the declared participant, storage and target assumptions. Name genuinely inapplicable costs instead of inventing them."
+      ],
+      "deliverables": {
+        "D1": "Pre-experiment prediction and causal argument addressing: Any NACK/timeout proves the command had no effect.",
+        "D2": "Model a device command whose effect occurs before an acknowledgment is lost. Separate bus retry from application idempotence, and preserve an uncertain outcome if repeating could duplicate the effect.",
+        "D3": "Exact commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for this leaf. Retain unsupported-tool/target outcomes separately.",
+        "D4": "Change from a register read to an increment command and revise retry policy without changing bus code blindly."
+      },
+      "verification": {
+        "procedure": "Predict the specified result first; execute or derive the concrete task within the shared and parent contracts. Retain its ordinary case, boundary/failure case and a criterion-specific falsification control. Compare to the independent expected argument below, not only to the old synthetic fixture. Record implementation/target versions and all source dependencies.",
+        "expected": "Bus observations may leave application state uncertain; readback/request identity or operation-specific idempotence is needed for retry.",
+        "pass": "Every task clause and the expected causal argument must be supported by the actual learner artifact/trace. A matching number with the stated misconception, missing ownership boundary or unsupported target claim fails this objective.",
+        "limits": "Authored per-leaf work is unattempted. Named laboratory anchors cover only their explicit cases. Newly executed lifecycle tests are assessor-reference evidence, not learner completion or the full project."
+      },
+      "rubric": {
+        "0": "Missing/incorrect artifact, violated containment/precondition, or a false semantic claim.",
+        "1": "Reproduces the ordinary case but cannot reject this leaf’s stated misconception or establish its boundary.",
+        "2": "Bus observations may leave application state uncertain; readback/request identity or operation-specific idempotence is needed for retry. Supplies the criterion-specific evidence and a distinct falsification control.",
+        "3": "Change from a register read to an increment command and revise retry policy without changing bus code blindly. Derives and verifies the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Separate the seven-bit address from the shifted wire byte.",
+        "For one-byte receive, the ACK/ADDR/STOP order is controller-specific; do not import a longer-read sequence unchanged."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T28-04-T28.08.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change from a register read to an increment command and revise retry policy without changing bus code blindly."
+        }
+      ],
+      "assessor_anchor": "#t2808c",
+      "facet_scope": {
+        "teaching": "Retained T28.08 teaching passage; inspected source passages listed separately.",
+        "implementation_or_analysis": "Retain the parent construction contract and add this explicit investigation. No new accepted unit or historical hour is counted.",
+        "boundary_adversarial": "The concrete altered, invalid, stalled, exhausted or failure state in this task has a separate expected result and evidence obligation.",
+        "independent_assessment": "New per-objective level2 rubric and seven-day changed-condition level3 variant; no attempt or reviewer independence claimed.",
+        "remaining": "Learner artifact, criterion evidence review and delayed attempt remain required. Unavailable source, hardware, guest and broader experiment gaps remain open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs, synthetic local data, owned PTYs and emulators only. Native invalid-lifetime/race cases are analyzed or modeled unless an explicitly isolated original teaching experiment is supplied. Kernel execution is restricted to disposable VMs; no host policy changes or board flashing are performed by this authoring work."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T28-04.md",
+  "status": {
+    "content": "authored",
+    "execution": "Only the explicitly linked lifecycle assessor anchors were newly executed; supplemental learner investigations remain unattempted.",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite tests do not prove absolute mastery.",
+      "Accepted source bytes, IDs, units, historical hours and receipts remain unchanged.",
+      "Historical optional labels do not exclude required expansion work."
+    ]
+  }
+}

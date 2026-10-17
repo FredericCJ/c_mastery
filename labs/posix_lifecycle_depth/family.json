@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "family": "posix_lifecycle_depth",
+  "title": "Process image replacement and partial thread acquisition",
+  "build_system": "cmake",
+  "assessor_root": "assessor/posix_lifecycle_depth",
+  "tests": ["posix_lifecycle_depth.launch", "posix_lifecycle_depth.pool"],
+  "projects": [
+    {"id": "PR-T23-01", "tests": ["posix_lifecycle_depth.launch"], "scope": "Original-helper error pipe, result classification, parent acquisition cleanup and exact child reap."},
+    {"id": "PR-T25-01", "tests": ["posix_lifecycle_depth.pool"], "scope": "At most four actual pthreads, injected creation failure, successful-prefix join ownership and result accounting."}
+  ],
+  "assessment_contracts": ["curriculum/v5/expansion/legacy_assessments/PR-T23-01.json", "curriculum/v5/expansion/legacy_assessments/PR-T25-01.json"],
+  "campaign": {
+    "producer": "tools/run_posix_lifecycle_depth.py",
+    "receipt": "posix_lifecycle_depth_campaign.json",
+    "profiles": ["gcc-debug", "gcc-release", "gcc-asan", "clang-debug", "clang-release", "clang-asan", "gcc-tsan", "clang-tsan"],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "PL_CHECK:",
+    "fixture_oracle": "tools/verify_posix_lifecycle_depth_fixtures.py"
+  },
+  "limits": ["Additive AX anchors; no old accepted unit is replaced or recounted.", "No generic cancellation/reaper interference, arbitrary child deadlines, detached-thread ownership or physical observation is claimed."]
+}

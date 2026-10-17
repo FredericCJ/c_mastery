@@ -814,11 +814,15 @@ def study_status(profile):
     core_projects = {data["units"][key]["project"] for key in core_units}
     gates = {u["project"]: key for key, u in data["units"].items() if u.get("project_completion")}
     completed = {project for project, key in gates.items() if key in historical}
+    from . import exercises
+    expansion = exercises.progress(profile)
     return {"profile": str(Path(profile).resolve()), "studied": sorted({e["unit"] for e in history if e["kind"] == "unit-studied"}),
             "accepted": sorted(historical),
             "current_acceptances": [key for key, result in assessed.items() if result["valid"]],
             "reopened": {key: result["reason"] for key, result in assessed.items() if not result["valid"]},
             "due_sets": len(due(profile)), "active_sets": len(recall_states(profile)),
+            "expansion_completion": expansion,
+            "comprehensive_complete": core_projects <= completed and core_units <= historical and expansion["complete"],
             "completion": {"projects": sorted(completed), "pending_projects": sorted(core_projects - completed),
                            "missing_completion_gates": sorted(core_projects - set(gates)),
                            "core_route_complete": core_projects <= completed and core_units <= historical,
@@ -826,9 +830,14 @@ def study_status(profile):
             "limits": "Due recall does not revoke historical implementation evidence. Only scoped acceptance consumes current prerequisites."}
 
 
-def study_next(profile, studied=None):
+def study_next(profile, studied=None, studied_exercise=None):
+    if studied and studied_exercise:
+        raise ValueError("Record either a studied unit or a studied exercise")
     if studied:
         mark_studied(profile, studied)
+    if studied_exercise:
+        from . import exercises
+        exercises.studied(profile, studied_exercise)
     state = study_status(profile)
     accepted_ids = set(state["accepted"])
     data = catalog()
@@ -838,6 +847,7 @@ def study_next(profile, studied=None):
     return {"review_minutes": cfg["session_minutes"], "recall": due(profile)[:cfg.get("sets_per_session", 2)],
             "available_units": [{"id": u["id"], "title": u["title"], "hours": u["hours"], "project": u["project"],
                                   "decision_required": u.get("decision_required", False)} for u in available[:8]],
+            "available_exercises": state["expansion_completion"]["available_exercises"],
             "limits": "Practice and check remain available even when an acceptance prerequisite needs repair."}
 
 
@@ -1018,10 +1028,14 @@ def register(sub):
         parser = study_sub.add_parser(action)
         parser.add_argument("profile")
         if action == "next":
-            parser.add_argument("--studied", help="Record completed study and activate linked recall")
+            selection = parser.add_mutually_exclusive_group()
+            selection.add_argument("--studied", help="Record completed study and activate linked recall")
+            selection.add_argument("--studied-exercise", help="Record exercise study separately from accepted units")
         if action == "sheet":
             parser.add_argument("output")
-            parser.add_argument("--unit")
+            selection = parser.add_mutually_exclusive_group()
+            selection.add_argument("--unit")
+            selection.add_argument("--exercise")
             parser.add_argument("--assessment-template", help="Write an unaccepted JSON assessment template for the selected unit")
     recall = sub.add_parser("recall", help="Original attempts, objective-specific feedback, and spaced retries")
     recall_sub = recall.add_subparsers(dest="action", required=True)
@@ -1050,14 +1064,20 @@ def register(sub):
     parser.add_argument("--profile", dest="dependency_profile", required=True); parser.add_argument("--target", required=True)
     parser = sub.add_parser("accept", help="Record scoped learner acceptance without conflating evidence types")
     parser.add_argument("profile"); parser.add_argument("workspace")
-    parser.add_argument("--unit", required=True); parser.add_argument("--assessment", required=True)
+    selection = parser.add_mutually_exclusive_group(required=True)
+    selection.add_argument("--unit")
+    selection.add_argument("--exercise")
+    parser.add_argument("--assessment", required=True)
 
 
 def dispatch(args):
     if args.command == "study":
         if args.action == "init": return study_init(args.profile)
-        if args.action == "next": return study_next(args.profile, args.studied)
+        if args.action == "next": return study_next(args.profile, args.studied, args.studied_exercise)
         if args.action == "status": return study_status(args.profile)
+        if args.exercise:
+            from . import exercises
+            return exercises.sheet(args.profile, args.output, args.exercise, args.assessment_template)
         return study_sheet(args.profile, args.output, args.unit, args.assessment_template)
     if args.command == "recall":
         if args.action == "due": return {"due": due(args.profile)}
@@ -1068,4 +1088,7 @@ def dispatch(args):
     if args.command == "artifact":
         if args.action == "export": return artifact_export(args.profile, args.workspace, args.artifact, args.destination, args.manifest)
         return artifact_link(args.profile, args.workspace, args.bundle, args.dependency_profile, args.target)
+    if args.exercise:
+        from . import exercises
+        return exercises.acceptance(args.profile, args.workspace, args.exercise, args.assessment)
     return acceptance(args.profile, args.workspace, args.unit, args.assessment)

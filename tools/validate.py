@@ -9,6 +9,16 @@ from common import ROOT, dump, load, load_taxonomy, read_json, sha, check_taxono
 MODULE_HEADINGS = ['Purpose and outcomes', 'Entry check and remediation', 'Study sequence and teaching', 'Reading guidance', 'Implementation projects', 'Mastery gate and feedback', 'Consolidation and transfer', 'Environment and limits']
 PROJECT_HEADINGS = ['Contract', 'Inputs and expected results', 'Steps', 'Failure cases', 'Acceptance and evidence', 'Hints and recovery', 'Transfer challenge']
 
+def project_allocation_error(meta):
+    """Preserve historical accounting; new allocations never cap learner work."""
+    hours = meta.get('hours')
+    if type(hours) is not int or hours <= 0:
+        return 'project requires positive integral descriptive hours'
+    if meta.get('edition', 0) < 5 and not 4 <= hours <= 12:
+        return 'historical project allocation must remain within its 4–12-hour schema'
+    return None
+
+
 def check_data(taxonomy, modules, projects, resources):
     errors, coverage = check_taxonomy_preservation(taxonomy), []
     expected = {d['id'] for d in taxonomy}
@@ -35,8 +45,9 @@ def check_data(taxonomy, modules, projects, resources):
             for prelude in meta.get(field,[]):
                 if prelude not in valid_leaves:
                     errors.append(key + ': invalid project prelude in ' + field + ': ' + str(prelude))
-        if type(meta.get('hours')) is not int or not 4 <= meta['hours'] <= 12:
-            errors.append(key + ': project must have 4–12-hour budget')
+        allocation_error = project_allocation_error(meta)
+        if allocation_error:
+            errors.append(key + ': ' + allocation_error)
         if meta.get('profile') not in ['A', 'B', 'C', 'D', 'E', 'F']:
             errors.append(key + ': missing dependency profile')
         if not meta.get('fixtures'):
@@ -82,7 +93,7 @@ def check_data(taxonomy, modules, projects, resources):
         if set(workload) != {'reading', 'implementation', 'verification', 'assessment', 'consolidation'} or any(type(v) is not int or v < 0 for v in workload.values()):
             errors.append(key + ': invalid workload breakdown')
         if sum(r.get('hours', 0) for r in readings) > workload.get('reading', 0):
-            errors.append(key + ': assigned readings exceed reading budget')
+            errors.append(key + ': assigned reading allocations do not reconcile; account for additions without reducing required reading')
         pids = meta.get('projects', [])
         if any(p not in projects for p in pids):
             errors.append(key + ': missing referenced projects')

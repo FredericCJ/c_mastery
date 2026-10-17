@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "ER-F01",
+      "operation": "optional",
+      "input": [
+        0,
+        1,
+        91
+      ],
+      "expected": [
+        "RANGE",
+        91
+      ]
+    },
+    {
+      "id": "ER-F02",
+      "operation": "optional",
+      "input": [
+        17,
+        0,
+        91
+      ],
+      "expected": [
+        "OK",
+        0
+      ]
+    },
+    {
+      "id": "ER-F03",
+      "operation": "parse",
+      "input": "1:65534",
+      "expected": [
+        "OK",
+        65535
+      ]
+    },
+    {
+      "id": "ER-F04",
+      "operation": "parse",
+      "input": "65536:0",
+      "expected": [
+        "RANGE",
+        4
+      ]
+    },
+    {
+      "id": "ER-F05",
+      "operation": "parse",
+      "input": "1:2x",
+      "expected": [
+        "INVALID",
+        3
+      ]
+    },
+    {
+      "id": "ER-F06",
+      "operation": "parse",
+      "input": "1:65535",
+      "expected": [
+        "RANGE",
+        7
+      ]
+    },
+    {
+      "id": "ER-F07",
+      "operation": "progress",
+      "input": [
+        4,
+        0,
+        2,
+        "AGAIN"
+      ],
+      "expected": [
+        "AGAIN",
+        2
+      ]
+    },
+    {
+      "id": "ER-F08",
+      "operation": "progress",
+      "input": [
+        4,
+        2,
+        1,
+        "IO"
+      ],
+      "expected": [
+        "IO",
+        3
+      ]
+    },
+    {
+      "id": "ER-F09",
+      "operation": "progress",
+      "input": [
+        4,
+        3,
+        2,
+        "IO"
+      ],
+      "expected": [
+        "CONTRACT",
+        3
+      ]
+    },
+    {
+      "id": "ER-F10",
+      "operation": "composition",
+      "input": [
+        "IO",
+        7,
+        "map"
+      ],
+      "expected": [
+        "IO",
+        7,
+        0
+      ]
+    },
+    {
+      "id": "ER-F11",
+      "operation": "composition",
+      "input": [
+        "OK",
+        5,
+        "then"
+      ],
+      "expected": [
+        "RANGE",
+        5,
+        1
+      ]
+    },
+    {
+      "id": "ER-F12",
+      "operation": "validation",
+      "input": [
+        -1,
+        1025,
+        0,
+        2
+      ],
+      "expected": [
+        3,
+        [
+          1,
+          2
+        ],
+        true
+      ]
+    },
+    {
+      "id": "ER-F13",
+      "operation": "validation",
+      "input": [
+        150,
+        1024,
+        1,
+        0
+      ],
+      "expected": [
+        0,
+        [],
+        false
+      ]
+    },
+    {
+      "id": "ER-F14",
+      "operation": "boundary",
+      "input": [
+        [
+          1,
+          2
+        ],
+        "THROWN"
+      ],
+      "expected": [
+        "THROWN",
+        [
+          2,
+          1
+        ],
+        0
+      ]
+    },
+    {
+      "id": "ER-F15",
+      "operation": "arithmetic",
+      "input": [
+        65535,
+        1,
+        "checked",
+        77
+      ],
+      "expected": [
+        "RANGE",
+        77
+      ]
+    },
+    {
+      "id": "ER-F16",
+      "operation": "arithmetic",
+      "input": [
+        65535,
+        1,
+        "wrapping",
+        77
+      ],
+      "expected": [
+        "OK",
+        0
+      ]
+    },
+    {
+      "id": "ER-F17",
+      "operation": "arithmetic",
+      "input": [
+        65535,
+        1,
+        "saturating",
+        77
+      ],
+      "expected": [
+        "OK",
+        65535
+      ]
+    },
+    {
+      "id": "ER-F18",
+      "operation": "contracts",
+      "input": [
+        90,
+        20,
+        "enforce",
+        0
+      ],
+      "expected": [
+        "CONTRACT",
+        90,
+        1
+      ]
+    },
+    {
+      "id": "ER-F19",
+      "operation": "contracts",
+      "input": [
+        90,
+        20,
+        "observe",
+        0
+      ],
+      "expected": [
+        "OK",
+        100,
+        1
+      ]
+    },
+    {
+      "id": "ER-F20",
+      "operation": "refinement",
+      "input": [
+        6,
+        8
+      ],
+      "expected": [
+        "OK",
+        3,
+        4
+      ]
+    },
+    {
+      "id": "ER-F21",
+      "operation": "refinement",
+      "input": [
+        0,
+        13
+      ],
+      "expected": [
+        "OK",
+        0,
+        1
+      ]
+    },
+    {
+      "id": "ER-F22",
+      "operation": "refinement",
+      "input": [
+        3,
+        0
+      ],
+      "expected": [
+        "INVALID",
+        91,
+        92
+      ]
+    }
+  ],
+  "verification_method": "Unbounded integer, grammar and transition oracle in tools/verify_errors_fixtures.py; C differential checks are separately executed."
+}

@@ -1,0 +1,711 @@
+{
+  "schema_version": 5,
+  "sets": [
+    {
+      "id": "T75.01",
+      "title": "Cancellation trees and budgets across clock domains",
+      "objectives": [
+        "T75.01.a",
+        "T75.01.b",
+        "T75.01.c",
+        "T75.01.d"
+      ],
+      "objective_text": {
+        "T75.01.a": "Derive deadline versus timeout semantics, cancellation precedence, parent lifetime and nonextension of inherited budget. Distinguish stopping admission from acknowledgement and rollback.",
+        "T75.01.b": "Implement checked scope construction and cross-clock remaining-budget encoding, including zero budget, numeric horizon, depth exhaustion and stale parent-lifetime counterexamples without executing invalid access.",
+        "T75.01.c": "Enumerate cancellation/expiry/finish orderings and verify output preservation, no later child deadline, idempotent cancellation and delayed borrower cleanup. Inject a completion after cancellation and retain its state until acknowledgement.",
+        "T75.01.d": "Transfer to an RPC chain with queued transport delay and independent clocks. Quantify which latency assumptions bound end-to-end completion and show why repeated per-hop timeout resets or copying an absolute monotonic timestamp violate the intended budget."
+      },
+      "projects": [
+        "PR-T75-01"
+      ],
+      "variants": [
+        {
+          "id": "T75.01-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T75.01.a",
+            "T75.01.b",
+            "T75.01.c",
+            "T75.01.d"
+          ],
+          "prompt": "Derive deadline versus timeout semantics, cancellation precedence, parent lifetime and nonextension of inherited budget. Distinguish stopping admission from acknowledgement and rollback.",
+          "checklist": [
+            "Derive deadline versus timeout semantics, cancellation precedence, parent lifetime and nonextension of inherited budget. Distinguish stopping admission from acknowledgement and rollback.",
+            "Implement checked scope construction and cross-clock remaining-budget encoding, including zero budget, numeric horizon, depth exhaustion and stale parent-lifetime counterexamples without executing invalid access.",
+            "Enumerate cancellation/expiry/finish orderings and verify output preservation, no later child deadline, idempotent cancellation and delayed borrower cleanup. Inject a completion after cancellation and retain its state until acknowledgement.",
+            "Transfer to an RPC chain with queued transport delay and independent clocks. Quantify which latency assumptions bound end-to-end completion and show why repeated per-hop timeout resets or copying an absolute monotonic timestamp violate the intended budget."
+          ]
+        },
+        {
+          "id": "T75.01-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T75.01.a",
+            "T75.01.b",
+            "T75.01.c",
+            "T75.01.d"
+          ],
+          "prompt": "Parent created at10 with budget10 expires20. A child at13 asking100 still expires20; at19 remaining is1 and at20 it is expired. Cancelling the parent makes the child CANCELLED. No borrowed storage becomes reclaimable solely because cancellation was requested. Derive the state before executing.",
+          "checklist": [
+            "Derive deadline versus timeout semantics, cancellation precedence, parent lifetime and nonextension of inherited budget. Distinguish stopping admission from acknowledgement and rollback.",
+            "Implement checked scope construction and cross-clock remaining-budget encoding, including zero budget, numeric horizon, depth exhaustion and stale parent-lifetime counterexamples without executing invalid access.",
+            "Enumerate cancellation/expiry/finish orderings and verify output preservation, no later child deadline, idempotent cancellation and delayed borrower cleanup. Inject a completion after cancellation and retain its state until acknowledgement.",
+            "Transfer to an RPC chain with queued transport delay and independent clocks. Quantify which latency assumptions bound end-to-end completion and show why repeated per-hop timeout resets or copying an absolute monotonic timestamp violate the intended budget."
+          ]
+        },
+        {
+          "id": "T75.01-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T75.01.a",
+            "T75.01.b",
+            "T75.01.c",
+            "T75.01.d"
+          ],
+          "prompt": "X-T75-001-DELAYED: a child outlives its stack-allocated parent creator. Replace parent-pointer traversal with an explicitly owned cancellation cell or prove structured joining; include resource cleanup when construction fails halfway through three children.",
+          "checklist": [
+            "Derive deadline versus timeout semantics, cancellation precedence, parent lifetime and nonextension of inherited budget. Distinguish stopping admission from acknowledgement and rollback.",
+            "Implement checked scope construction and cross-clock remaining-budget encoding, including zero budget, numeric horizon, depth exhaustion and stale parent-lifetime counterexamples without executing invalid access.",
+            "Enumerate cancellation/expiry/finish orderings and verify output preservation, no later child deadline, idempotent cancellation and delayed borrower cleanup. Inject a completion after cancellation and retain its state until acknowledgement.",
+            "Transfer to an RPC chain with queued transport delay and independent clocks. Quantify which latency assumptions bound end-to-end completion and show why repeated per-hop timeout resets or copying an absolute monotonic timestamp violate the intended budget."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-RZ-GRPC-DEADLINE",
+        "R-MOD-RZ-GO-CONTEXT"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T75.02",
+      "title": "Five overload policies and bounded pending producers",
+      "objectives": [
+        "T75.02.a",
+        "T75.02.b",
+        "T75.02.c",
+        "T75.02.d"
+      ],
+      "objective_text": {
+        "T75.02.a": "Specify each policy in terms of observable loss, ordering, caller ownership and completion; distinguish application admission, transport buffering and receiver consumption.",
+        "T75.02.b": "Implement all five policies, closed draining and the real channel adapter, including exactly-once transfer and explicit retained pending state.",
+        "T75.02.c": "Implement a two-producer readiness/cancellation adapter and falsify missed-wakeup, double-transfer and unbounded-pending assumptions with controlled event traces; bound queue plus producer-held memory together. Add explicit credit messages: start with four credits, consume one on admission, return one only when receiver capacity is released, and reject duplicate/stale credit returns so granted minus consumed plus returned never exceeds actual capacity.",
+        "T75.02.d": "Compare block/reject/drop/overwrite/degrade under an identical synthetic producer/consumer schedule, measuring accepted, lost, coalesced, queued and pending work separately. Transfer to owned payloads with a disposer and prove exactly-once cleanup on every rejected or discarded path."
+      },
+      "projects": [
+        "PR-T75-02"
+      ],
+      "variants": [
+        {
+          "id": "T75.02-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T75.02.a",
+            "T75.02.b",
+            "T75.02.c",
+            "T75.02.d"
+          ],
+          "prompt": "Specify each policy in terms of observable loss, ordering, caller ownership and completion; distinguish application admission, transport buffering and receiver consumption.",
+          "checklist": [
+            "Specify each policy in terms of observable loss, ordering, caller ownership and completion; distinguish application admission, transport buffering and receiver consumption.",
+            "Implement all five policies, closed draining and the real channel adapter, including exactly-once transfer and explicit retained pending state.",
+            "Implement a two-producer readiness/cancellation adapter and falsify missed-wakeup, double-transfer and unbounded-pending assumptions with controlled event traces; bound queue plus producer-held memory together. Add explicit credit messages: start with four credits, consume one on admission, return one only when receiver capacity is released, and reject duplicate/stale credit returns so granted minus consumed plus returned never exceeds actual capacity.",
+            "Compare block/reject/drop/overwrite/degrade under an identical synthetic producer/consumer schedule, measuring accepted, lost, coalesced, queued and pending work separately. Transfer to owned payloads with a disposer and prove exactly-once cleanup on every rejected or discarded path."
+          ]
+        },
+        {
+          "id": "T75.02-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T75.02.a",
+            "T75.02.b",
+            "T75.02.c",
+            "T75.02.d"
+          ],
+          "prompt": "Queue[1,2,3,4] plus DROP9 remains[1,2,3,4]; OVERWRITE9 becomes[2,3,4,9]; DEGRADE10 changes newest to10 and reports DEGRADED. BLOCK retains pending ownership. Expiry before a later retry terminates that offer without enqueuing it. A full imported channel leaves the local head in place. Derive the state before executing.",
+          "checklist": [
+            "Specify each policy in terms of observable loss, ordering, caller ownership and completion; distinguish application admission, transport buffering and receiver consumption.",
+            "Implement all five policies, closed draining and the real channel adapter, including exactly-once transfer and explicit retained pending state.",
+            "Implement a two-producer readiness/cancellation adapter and falsify missed-wakeup, double-transfer and unbounded-pending assumptions with controlled event traces; bound queue plus producer-held memory together. Add explicit credit messages: start with four credits, consume one on admission, return one only when receiver capacity is released, and reject duplicate/stale credit returns so granted minus consumed plus returned never exceeds actual capacity.",
+            "Compare block/reject/drop/overwrite/degrade under an identical synthetic producer/consumer schedule, measuring accepted, lost, coalesced, queued and pending work separately. Transfer to owned payloads with a disposer and prove exactly-once cleanup on every rejected or discarded path."
+          ]
+        },
+        {
+          "id": "T75.02-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T75.02.a",
+            "T75.02.b",
+            "T75.02.c",
+            "T75.02.d"
+          ],
+          "prompt": "X-T75-002-DELAYED: both endpoints hold full outbound buffers and synchronously await send completion. Construct the deadlock, then integrate receive progress or explicit credits without violating per-direction message ownership.",
+          "checklist": [
+            "Specify each policy in terms of observable loss, ordering, caller ownership and completion; distinguish application admission, transport buffering and receiver consumption.",
+            "Implement all five policies, closed draining and the real channel adapter, including exactly-once transfer and explicit retained pending state.",
+            "Implement a two-producer readiness/cancellation adapter and falsify missed-wakeup, double-transfer and unbounded-pending assumptions with controlled event traces; bound queue plus producer-held memory together. Add explicit credit messages: start with four credits, consume one on admission, return one only when receiver capacity is released, and reject duplicate/stale credit returns so granted minus consumed plus returned never exceeds actual capacity.",
+            "Compare block/reject/drop/overwrite/degrade under an identical synthetic producer/consumer schedule, measuring accepted, lost, coalesced, queued and pending work separately. Transfer to owned payloads with a disposer and prove exactly-once cleanup on every rejected or discarded path."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-RZ-GRPC-FLOW",
+        "R-MOD-RZ-GO-CONTEXT"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T75.03",
+      "title": "Hashed timer-wheel collisions, cancellation and expiry work",
+      "objectives": [
+        "T75.03.a",
+        "T75.03.b",
+        "T75.03.c",
+        "T75.03.d"
+      ],
+      "objective_text": {
+        "T75.03.a": "Derive bucket index, full due identity, list invariants and generation retirement. Prove why modulo bucket equality alone is insufficient across revolutions.",
+        "T75.03.b": "Implement bounded schedule/cancel/tick and a two-level cascade extension with no lost or duplicate expiries, explicit horizon, late tick and immediate timer policies.",
+        "T75.03.c": "Enumerate delays1..16, cancellation/reuse traces and same-bucket collisions against an ordered due-event oracle; test numeric exhaustion and every link removal position.",
+        "T75.03.d": "Compare heap, ordered list and wheel using equivalent ordering, horizon and cancellation guarantees. Measure worst expiry burst, empty-tick work, memory and jitter; distinguish per-timer output cost from constant bookkeeping claims."
+      },
+      "projects": [
+        "PR-T75-03"
+      ],
+      "variants": [
+        {
+          "id": "T75.03-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T75.03.a",
+            "T75.03.b",
+            "T75.03.c",
+            "T75.03.d"
+          ],
+          "prompt": "Derive bucket index, full due identity, list invariants and generation retirement. Prove why modulo bucket equality alone is insufficient across revolutions.",
+          "checklist": [
+            "Derive bucket index, full due identity, list invariants and generation retirement. Prove why modulo bucket equality alone is insufficient across revolutions.",
+            "Implement bounded schedule/cancel/tick and a two-level cascade extension with no lost or duplicate expiries, explicit horizon, late tick and immediate timer policies.",
+            "Enumerate delays1..16, cancellation/reuse traces and same-bucket collisions against an ordered due-event oracle; test numeric exhaustion and every link removal position.",
+            "Compare heap, ordered list and wheel using equivalent ordering, horizon and cancellation guarantees. Measure worst expiry burst, empty-tick work, memory and jitter; distinguish per-timer output cost from constant bookkeeping claims."
+          ]
+        },
+        {
+          "id": "T75.03-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T75.03.a",
+            "T75.03.b",
+            "T75.03.c",
+            "T75.03.d"
+          ],
+          "prompt": "At now0 a delay5 timer maps to bucket1 but must not fire at tick1; it fires exactly at5. Cancelling generation1 then reusing that slot at generation2 makes the old ID STALE. Simultaneous due timers all appear in the returned mask, without invoking callbacks during linkage traversal. Derive the state before executing.",
+          "checklist": [
+            "Derive bucket index, full due identity, list invariants and generation retirement. Prove why modulo bucket equality alone is insufficient across revolutions.",
+            "Implement bounded schedule/cancel/tick and a two-level cascade extension with no lost or duplicate expiries, explicit horizon, late tick and immediate timer policies.",
+            "Enumerate delays1..16, cancellation/reuse traces and same-bucket collisions against an ordered due-event oracle; test numeric exhaustion and every link removal position.",
+            "Compare heap, ordered list and wheel using equivalent ordering, horizon and cancellation guarantees. Measure worst expiry burst, empty-tick work, memory and jitter; distinguish per-timer output cost from constant bookkeeping claims."
+          ]
+        },
+        {
+          "id": "T75.03-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T75.03.a",
+            "T75.03.b",
+            "T75.03.c",
+            "T75.03.d"
+          ],
+          "prompt": "X-T75-003-DELAYED: suspend tick processing for100 virtual ticks while timers continue to be admitted by another component. Specify synchronization, catch-up cost and whether deadlines report lateness rather than silently moving into the future.",
+          "checklist": [
+            "Derive bucket index, full due identity, list invariants and generation retirement. Prove why modulo bucket equality alone is insufficient across revolutions.",
+            "Implement bounded schedule/cancel/tick and a two-level cascade extension with no lost or duplicate expiries, explicit horizon, late tick and immediate timer policies.",
+            "Enumerate delays1..16, cancellation/reuse traces and same-bucket collisions against an ordered due-event oracle; test numeric exhaustion and every link removal position.",
+            "Compare heap, ordered list and wheel using equivalent ordering, horizon and cancellation guarantees. Measure worst expiry burst, empty-tick work, memory and jitter; distinguish per-timer output cost from constant bookkeeping claims."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-RZ-WHEEL"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T75.04",
+      "title": "Overflow-safe token buckets and competing rate contracts",
+      "objectives": [
+        "T75.04.a",
+        "T75.04.b",
+        "T75.04.c",
+        "T75.04.d"
+      ],
+      "objective_text": {
+        "T75.04.a": "Derive the burst-plus-rate admission bound, initial credit, dimensional units and distinction between a policer, shaper, peak limit and concurrency limit.",
+        "T75.04.b": "Implement overflow-safe lazy refill and fixed-point fractional credit, specifying rounding, numeric horizon and which state changes persist on a rejected spend.",
+        "T75.04.c": "Exhaust small capacities/rates/time jumps against arbitrary-precision arithmetic and adversarial boundary costs; verify cumulative admitted cost bounds and kill free-refill/equality-rejection mutants.",
+        "T75.04.d": "Compose average and peak limits with atomic admission across both budgets. Compare token bucket and fixed/sliding windows under the same burst policy, and identify when different results arise from different contracts rather than implementation quality."
+      },
+      "projects": [
+        "PR-T75-04"
+      ],
+      "variants": [
+        {
+          "id": "T75.04-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T75.04.a",
+            "T75.04.b",
+            "T75.04.c",
+            "T75.04.d"
+          ],
+          "prompt": "Derive the burst-plus-rate admission bound, initial credit, dimensional units and distinction between a policer, shaper, peak limit and concurrency limit.",
+          "checklist": [
+            "Derive the burst-plus-rate admission bound, initial credit, dimensional units and distinction between a policer, shaper, peak limit and concurrency limit.",
+            "Implement overflow-safe lazy refill and fixed-point fractional credit, specifying rounding, numeric horizon and which state changes persist on a rejected spend.",
+            "Exhaust small capacities/rates/time jumps against arbitrary-precision arithmetic and adversarial boundary costs; verify cumulative admitted cost bounds and kill free-refill/equality-rejection mutants.",
+            "Compose average and peak limits with atomic admission across both budgets. Compare token bucket and fixed/sliding windows under the same burst policy, and identify when different results arise from different contracts rather than implementation quality."
+          ]
+        },
+        {
+          "id": "T75.04-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T75.04.a",
+            "T75.04.b",
+            "T75.04.c",
+            "T75.04.d"
+          ],
+          "prompt": "Capacity4/rate1 starts with4. Spending4 at0 succeeds; another1 at0 is FULL. At1 one token is available and exactly-cost admission succeeds. Advancing to UINT64_MAX fills only to4 without arithmetic overflow. Backward time is INVALID without mutation. Derive the state before executing.",
+          "checklist": [
+            "Derive the burst-plus-rate admission bound, initial credit, dimensional units and distinction between a policer, shaper, peak limit and concurrency limit.",
+            "Implement overflow-safe lazy refill and fixed-point fractional credit, specifying rounding, numeric horizon and which state changes persist on a rejected spend.",
+            "Exhaust small capacities/rates/time jumps against arbitrary-precision arithmetic and adversarial boundary costs; verify cumulative admitted cost bounds and kill free-refill/equality-rejection mutants.",
+            "Compose average and peak limits with atomic admission across both budgets. Compare token bucket and fixed/sliding windows under the same burst policy, and identify when different results arise from different contracts rather than implementation quality."
+          ]
+        },
+        {
+          "id": "T75.04-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T75.04.a",
+            "T75.04.b",
+            "T75.04.c",
+            "T75.04.d"
+          ],
+          "prompt": "X-T75-004-DELAYED: migrate limiter state between processes with different monotonic clock origins. Preserve token credit and refill age under an explicit downtime policy; demonstrate why transmitting last as a raw timestamp is invalid.",
+          "checklist": [
+            "Derive the burst-plus-rate admission bound, initial credit, dimensional units and distinction between a policer, shaper, peak limit and concurrency limit.",
+            "Implement overflow-safe lazy refill and fixed-point fractional credit, specifying rounding, numeric horizon and which state changes persist on a rejected spend.",
+            "Exhaust small capacities/rates/time jumps against arbitrary-precision arithmetic and adversarial boundary costs; verify cumulative admitted cost bounds and kill free-refill/equality-rejection mutants.",
+            "Compose average and peak limits with atomic admission across both budgets. Compare token bucket and fixed/sliding windows under the same burst policy, and identify when different results arise from different contracts rather than implementation quality."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-RZ-TBF",
+        "R-MOD-RZ-RETRY"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T75.05",
+      "title": "Jittered retry schedules with a shared deadline and attempt budget",
+      "objectives": [
+        "T75.05.a",
+        "T75.05.b",
+        "T75.05.c",
+        "T75.05.d"
+      ],
+      "objective_text": {
+        "T75.05.a": "Derive bounded exponential windows, count the original attempt separately and explain why nested retries multiply work. Classify retryable outcomes without treating timeout as absence of side effects.",
+        "T75.05.b": "Implement schedule, unbiased bounded PRNG adapter and actual fault-model dispatch with a common limiter, preserving ownership of outstanding attempts until completion.",
+        "T75.05.c": "Enumerate every allowed draw for windows2/4/8, deadlines at each boundary and all capped attempt histories; use fault traces where an effect commits but its acknowledgement is lost.",
+        "T75.05.d": "Compare no-jitter, full-jitter and a documented alternative under fixed seeds and equal retry/deadline budgets. Measure peak synchronized work as well as completion latency; transfer to correlated client seeds and expose why jitter is not a security or safety guarantee."
+      },
+      "projects": [
+        "PR-T75-05"
+      ],
+      "variants": [
+        {
+          "id": "T75.05-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T75.05.a",
+            "T75.05.b",
+            "T75.05.c",
+            "T75.05.d"
+          ],
+          "prompt": "Derive bounded exponential windows, count the original attempt separately and explain why nested retries multiply work. Classify retryable outcomes without treating timeout as absence of side effects.",
+          "checklist": [
+            "Derive bounded exponential windows, count the original attempt separately and explain why nested retries multiply work. Classify retryable outcomes without treating timeout as absence of side effects.",
+            "Implement schedule, unbiased bounded PRNG adapter and actual fault-model dispatch with a common limiter, preserving ownership of outstanding attempts until completion.",
+            "Enumerate every allowed draw for windows2/4/8, deadlines at each boundary and all capped attempt histories; use fault traces where an effect commits but its acknowledgement is lost.",
+            "Compare no-jitter, full-jitter and a documented alternative under fixed seeds and equal retry/deadline budgets. Measure peak synchronized work as well as completion latency; transfer to correlated client seeds and expose why jitter is not a security or safety guarantee."
+          ]
+        },
+        {
+          "id": "T75.05-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T75.05.a",
+            "T75.05.b",
+            "T75.05.c",
+            "T75.05.d"
+          ],
+          "prompt": "Base2/cap8 produces draw windows[0,2],[0,4],[0,8]. At now9 with deadline10, draw1 rejects and preserves attempt count. A non-idempotent request rejects before scheduling. Three admitted retries exhaust a maximum3 budget even if all draws were zero. Derive the state before executing.",
+          "checklist": [
+            "Derive bounded exponential windows, count the original attempt separately and explain why nested retries multiply work. Classify retryable outcomes without treating timeout as absence of side effects.",
+            "Implement schedule, unbiased bounded PRNG adapter and actual fault-model dispatch with a common limiter, preserving ownership of outstanding attempts until completion.",
+            "Enumerate every allowed draw for windows2/4/8, deadlines at each boundary and all capped attempt histories; use fault traces where an effect commits but its acknowledgement is lost.",
+            "Compare no-jitter, full-jitter and a documented alternative under fixed seeds and equal retry/deadline budgets. Measure peak synchronized work as well as completion latency; transfer to correlated client seeds and expose why jitter is not a security or safety guarantee."
+          ]
+        },
+        {
+          "id": "T75.05-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T75.05.a",
+            "T75.05.b",
+            "T75.05.c",
+            "T75.05.d"
+          ],
+          "prompt": "X-T75-005-DELAYED: a server returns an explicit retry-after interval larger than the client remaining deadline. Define precedence and refuse a retry that cannot satisfy the end-to-end budget; retain completion of an already outstanding attempt.",
+          "checklist": [
+            "Derive bounded exponential windows, count the original attempt separately and explain why nested retries multiply work. Classify retryable outcomes without treating timeout as absence of side effects.",
+            "Implement schedule, unbiased bounded PRNG adapter and actual fault-model dispatch with a common limiter, preserving ownership of outstanding attempts until completion.",
+            "Enumerate every allowed draw for windows2/4/8, deadlines at each boundary and all capped attempt histories; use fault traces where an effect commits but its acknowledgement is lost.",
+            "Compare no-jitter, full-jitter and a documented alternative under fixed seeds and equal retry/deadline budgets. Measure peak synchronized work as well as completion latency; transfer to correlated client seeds and expose why jitter is not a security or safety guarantee."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-RZ-RETRY",
+        "R-MOD-RZ-IDEMPOTENCE",
+        "R-MOD-RZ-HEDGE"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T75.06",
+      "title": "Health breakers, bulkheads and stale completions",
+      "objectives": [
+        "T75.06.a",
+        "T75.06.b",
+        "T75.06.c",
+        "T75.06.d"
+      ],
+      "objective_text": {
+        "T75.06.a": "Derive distinct health and capacity invariants, permit ownership, epoch identity and neutral-versus-backend-failure classification; explain why a failure window is not a concurrency bound.",
+        "T75.06.b": "Implement bounded admission/completion with generation and epoch exhaustion, including late old-epoch results and four-tick cooldown overflow retirement.",
+        "T75.06.c": "Model every two-permit completion ordering, stale/duplicate completion and half-open race. Add and test a sliding-window policy with an independent recomputation of its retained observations.",
+        "T75.06.d": "Transfer to two tenants and heterogeneous request costs. Derive isolation guarantees, starvation tradeoffs and cancellation acknowledgement, then compare recovery latency and retained resources under equal admission policies."
+      },
+      "projects": [
+        "PR-T75-06"
+      ],
+      "variants": [
+        {
+          "id": "T75.06-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T75.06.a",
+            "T75.06.b",
+            "T75.06.c",
+            "T75.06.d"
+          ],
+          "prompt": "Derive distinct health and capacity invariants, permit ownership, epoch identity and neutral-versus-backend-failure classification; explain why a failure window is not a concurrency bound.",
+          "checklist": [
+            "Derive distinct health and capacity invariants, permit ownership, epoch identity and neutral-versus-backend-failure classification; explain why a failure window is not a concurrency bound.",
+            "Implement bounded admission/completion with generation and epoch exhaustion, including late old-epoch results and four-tick cooldown overflow retirement.",
+            "Model every two-permit completion ordering, stale/duplicate completion and half-open race. Add and test a sliding-window policy with an independent recomputation of its retained observations.",
+            "Transfer to two tenants and heterogeneous request costs. Derive isolation guarantees, starvation tradeoffs and cancellation acknowledgement, then compare recovery latency and retained resources under equal admission policies."
+          ]
+        },
+        {
+          "id": "T75.06-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T75.06.a",
+            "T75.06.b",
+            "T75.06.c",
+            "T75.06.d"
+          ],
+          "prompt": "With limit1, a second simultaneous admission returns BUSY even while CLOSED. Two classified failures open. An older outstanding success releases capacity but leaves the newer OPEN state unchanged. At cooldown equality one probe may enter, a second is BUSY, and successful probe closes. Repeated completion is STALE. Derive the state before executing.",
+          "checklist": [
+            "Derive distinct health and capacity invariants, permit ownership, epoch identity and neutral-versus-backend-failure classification; explain why a failure window is not a concurrency bound.",
+            "Implement bounded admission/completion with generation and epoch exhaustion, including late old-epoch results and four-tick cooldown overflow retirement.",
+            "Model every two-permit completion ordering, stale/duplicate completion and half-open race. Add and test a sliding-window policy with an independent recomputation of its retained observations.",
+            "Transfer to two tenants and heterogeneous request costs. Derive isolation guarantees, starvation tradeoffs and cancellation acknowledgement, then compare recovery latency and retained resources under equal admission policies."
+          ]
+        },
+        {
+          "id": "T75.06-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T75.06.a",
+            "T75.06.b",
+            "T75.06.c",
+            "T75.06.d"
+          ],
+          "prompt": "X-T75-006-DELAYED: cancellation is requested for both active operations, but one backend ignores it. Design a shutdown and tenant-capacity policy without counting a requested cancellation as a released resource.",
+          "checklist": [
+            "Derive distinct health and capacity invariants, permit ownership, epoch identity and neutral-versus-backend-failure classification; explain why a failure window is not a concurrency bound.",
+            "Implement bounded admission/completion with generation and epoch exhaustion, including late old-epoch results and four-tick cooldown overflow retirement.",
+            "Model every two-permit completion ordering, stale/duplicate completion and half-open race. Add and test a sliding-window policy with an independent recomputation of its retained observations.",
+            "Transfer to two tenants and heterogeneous request costs. Derive isolation guarantees, starvation tradeoffs and cancellation acknowledgement, then compare recovery latency and retained resources under equal admission policies."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-RZ-BREAKER",
+        "R-MOD-RZ-BULKHEAD",
+        "R-MOD-RZ-RETRY"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T75.07",
+      "title": "Hedged responses and ownership of losing work",
+      "objectives": [
+        "T75.07.a",
+        "T75.07.b",
+        "T75.07.c",
+        "T75.07.d"
+      ],
+      "objective_text": {
+        "T75.07.a": "Separate first response from first acceptable response, result commitment from quiescence, and cancellation request from completed losing work. State prerequisites for safe hedging of side effects.",
+        "T75.07.b": "Implement exactly one winner and separately owned attempt lifetimes, with expiry, late response, repeated completion and unstarted-attempt rejection.",
+        "T75.07.c": "Implement and verify a synchronized two-worker completion arbiter, exercising both simultaneous success orders and winner/cancellation/timeout races under a controlled scheduler plus sanitizer checks.",
+        "T75.07.d": "Measure tail latency and total backend work under explicit independent versus correlated delay models. Transfer to a slow loser that completes after the client abandons its wait; preserve cleanup and prevent a stale generation from completing a new request."
+      },
+      "projects": [
+        "PR-T75-07"
+      ],
+      "variants": [
+        {
+          "id": "T75.07-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T75.07.a",
+            "T75.07.b",
+            "T75.07.c",
+            "T75.07.d"
+          ],
+          "prompt": "Separate first response from first acceptable response, result commitment from quiescence, and cancellation request from completed losing work. State prerequisites for safe hedging of side effects.",
+          "checklist": [
+            "Separate first response from first acceptable response, result commitment from quiescence, and cancellation request from completed losing work. State prerequisites for safe hedging of side effects.",
+            "Implement exactly one winner and separately owned attempt lifetimes, with expiry, late response, repeated completion and unstarted-attempt rejection.",
+            "Implement and verify a synchronized two-worker completion arbiter, exercising both simultaneous success orders and winner/cancellation/timeout races under a controlled scheduler plus sanitizer checks.",
+            "Measure tail latency and total backend work under explicit independent versus correlated delay models. Transfer to a slow loser that completes after the client abandons its wait; preserve cleanup and prevent a stale generation from completing a new request."
+          ]
+        },
+        {
+          "id": "T75.07-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T75.07.a",
+            "T75.07.b",
+            "T75.07.c",
+            "T75.07.d"
+          ],
+          "prompt": "A rejected response7 at1 does not win. Start the hedge at2; acceptable8 at3 wins. If original0 remains outstanding, result8 is available but quiescent is false and cancel_requested includes0. Its later response7 cannot replace8; only its completion makes the operation reclaimable. Derive the state before executing.",
+          "checklist": [
+            "Separate first response from first acceptable response, result commitment from quiescence, and cancellation request from completed losing work. State prerequisites for safe hedging of side effects.",
+            "Implement exactly one winner and separately owned attempt lifetimes, with expiry, late response, repeated completion and unstarted-attempt rejection.",
+            "Implement and verify a synchronized two-worker completion arbiter, exercising both simultaneous success orders and winner/cancellation/timeout races under a controlled scheduler plus sanitizer checks.",
+            "Measure tail latency and total backend work under explicit independent versus correlated delay models. Transfer to a slow loser that completes after the client abandons its wait; preserve cleanup and prevent a stale generation from completing a new request."
+          ]
+        },
+        {
+          "id": "T75.07-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T75.07.a",
+            "T75.07.b",
+            "T75.07.c",
+            "T75.07.d"
+          ],
+          "prompt": "X-T75-007-DELAYED: attempts return owned variable-size payloads with fallible decoding. Define acceptable response after decoding, then prove each losing or rejected payload is freed exactly once even when the winning decoder fails late.",
+          "checklist": [
+            "Separate first response from first acceptable response, result commitment from quiescence, and cancellation request from completed losing work. State prerequisites for safe hedging of side effects.",
+            "Implement exactly one winner and separately owned attempt lifetimes, with expiry, late response, repeated completion and unstarted-attempt rejection.",
+            "Implement and verify a synchronized two-worker completion arbiter, exercising both simultaneous success orders and winner/cancellation/timeout races under a controlled scheduler plus sanitizer checks.",
+            "Measure tail latency and total backend work under explicit independent versus correlated delay models. Transfer to a slow loser that completes after the client abandons its wait; preserve cleanup and prevent a stale generation from completing a new request."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-RZ-HEDGE",
+        "R-MOD-RZ-GO-CONTEXT",
+        "R-MOD-RZ-IDEMPOTENCE"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T75.08",
+      "title": "Idempotent effects, finite deduplication and storage fencing",
+      "objectives": [
+        "T75.08.a",
+        "T75.08.b",
+        "T75.08.c",
+        "T75.08.d"
+      ],
+      "objective_text": {
+        "T75.08.a": "Derive request identity versus payload equality, finite retention, authentication assumption and monotonic fencing enforcement at the actual effect resource. Identify which failures make a result uncertain.",
+        "T75.08.b": "Implement atomic in-memory record/effect publication, original-response replay, parameter mismatch rejection, no live-record eviction and checked arithmetic.",
+        "T75.08.c": "Demonstrate harmless replay/stale-writer violations using original mutants, then add a journal recovery model with crash injection at every write/flush/commit boundary and independently recompute recovered effects.",
+        "T75.08.d": "Transfer to multiple clients, reordered messages, restarted token issuer and expired dedup entries. State durability, uniqueness and monotonicity assumptions necessary for each guarantee; reject claims of network exactly-once delivery from a local lookup table."
+      },
+      "projects": [
+        "PR-T75-08"
+      ],
+      "variants": [
+        {
+          "id": "T75.08-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T75.08.a",
+            "T75.08.b",
+            "T75.08.c",
+            "T75.08.d"
+          ],
+          "prompt": "Derive request identity versus payload equality, finite retention, authentication assumption and monotonic fencing enforcement at the actual effect resource. Identify which failures make a result uncertain.",
+          "checklist": [
+            "Derive request identity versus payload equality, finite retention, authentication assumption and monotonic fencing enforcement at the actual effect resource. Identify which failures make a result uncertain.",
+            "Implement atomic in-memory record/effect publication, original-response replay, parameter mismatch rejection, no live-record eviction and checked arithmetic.",
+            "Demonstrate harmless replay/stale-writer violations using original mutants, then add a journal recovery model with crash injection at every write/flush/commit boundary and independently recompute recovered effects.",
+            "Transfer to multiple clients, reordered messages, restarted token issuer and expired dedup entries. State durability, uniqueness and monotonicity assumptions necessary for each guarantee; reject claims of network exactly-once delivery from a local lookup table."
+          ]
+        },
+        {
+          "id": "T75.08-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T75.08.a",
+            "T75.08.b",
+            "T75.08.c",
+            "T75.08.d"
+          ],
+          "prompt": "Client0/id1/fence2/delta3 at0 applies total3. Its replay at1 returns3 without another effect; delta4 with that ID conflicts. Client1 at fence1 is stale. With retention4, the same id at4 is no longer retained and may apply again, producing6. This bounded window is not indefinite exactly-once execution. Derive the state before executing.",
+          "checklist": [
+            "Derive request identity versus payload equality, finite retention, authentication assumption and monotonic fencing enforcement at the actual effect resource. Identify which failures make a result uncertain.",
+            "Implement atomic in-memory record/effect publication, original-response replay, parameter mismatch rejection, no live-record eviction and checked arithmetic.",
+            "Demonstrate harmless replay/stale-writer violations using original mutants, then add a journal recovery model with crash injection at every write/flush/commit boundary and independently recompute recovered effects.",
+            "Transfer to multiple clients, reordered messages, restarted token issuer and expired dedup entries. State durability, uniqueness and monotonicity assumptions necessary for each guarantee; reject claims of network exactly-once delivery from a local lookup table."
+          ]
+        },
+        {
+          "id": "T75.08-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T75.08.a",
+            "T75.08.b",
+            "T75.08.c",
+            "T75.08.d"
+          ],
+          "prompt": "X-T75-008-DELAYED: a stale writer holds fence4 while a new writer commits fence5, but delayed storage replicas accept writes independently. Explain why a client-side check is insufficient and define where monotonic fencing must be serialized or durably replicated.",
+          "checklist": [
+            "Derive request identity versus payload equality, finite retention, authentication assumption and monotonic fencing enforcement at the actual effect resource. Identify which failures make a result uncertain.",
+            "Implement atomic in-memory record/effect publication, original-response replay, parameter mismatch rejection, no live-record eviction and checked arithmetic.",
+            "Demonstrate harmless replay/stale-writer violations using original mutants, then add a journal recovery model with crash injection at every write/flush/commit boundary and independently recompute recovered effects.",
+            "Transfer to multiple clients, reordered messages, restarted token issuer and expired dedup entries. State durability, uniqueness and monotonicity assumptions necessary for each guarantee; reject claims of network exactly-once delivery from a local lookup table."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-RZ-IDEMPOTENCE",
+        "R-MOD-RZ-FENCING"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    },
+    {
+      "id": "T75.09",
+      "title": "Resilient telemetry admission, committed effects and draining",
+      "objectives": [
+        "T75.09.a",
+        "T75.09.b",
+        "T75.09.c",
+        "T75.09.d"
+      ],
+      "objective_text": {
+        "T75.09.a": "Derive a composition contract with admission, effect commit, reply availability, notification enqueue, delivery and cleanup as distinct events. Account for every retained buffer, timer, permit and borrowed owner.",
+        "T75.09.b": "Implement the bounded service anchor using actual conc.channel and all required local IPC/reactor/fault adapters; preserve exactly-once notification for a new retained request and explicit replay/expiry semantics.",
+        "T75.09.c": "Inject allocation/partial-I/O/timeout/reset/cancellation/late-completion faults across the integrated service, checking effect and notification accounting with an independent event-sourced oracle and all declared capacity bounds.",
+        "T75.09.d": "Run an independently designed workload with burst arrivals, long tails, correlated faults and slow consumers. Seal a composition decision, apply all13 cost dimensions, and explain changed results under different correctness contracts or clock assumptions."
+      },
+      "projects": [
+        "PR-T75-09"
+      ],
+      "variants": [
+        {
+          "id": "T75.09-explain",
+          "kind": "mechanism",
+          "objectives": [
+            "T75.09.a",
+            "T75.09.b",
+            "T75.09.c",
+            "T75.09.d"
+          ],
+          "prompt": "Derive a composition contract with admission, effect commit, reply availability, notification enqueue, delivery and cleanup as distinct events. Account for every retained buffer, timer, permit and borrowed owner.",
+          "checklist": [
+            "Derive a composition contract with admission, effect commit, reply availability, notification enqueue, delivery and cleanup as distinct events. Account for every retained buffer, timer, permit and borrowed owner.",
+            "Implement the bounded service anchor using actual conc.channel and all required local IPC/reactor/fault adapters; preserve exactly-once notification for a new retained request and explicit replay/expiry semantics.",
+            "Inject allocation/partial-I/O/timeout/reset/cancellation/late-completion faults across the integrated service, checking effect and notification accounting with an independent event-sourced oracle and all declared capacity bounds.",
+            "Run an independently designed workload with burst arrivals, long tails, correlated faults and slow consumers. Seal a composition decision, apply all13 cost dimensions, and explain changed results under different correctness contracts or clock assumptions."
+          ]
+        },
+        {
+          "id": "T75.09-trace",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T75.09.a",
+            "T75.09.b",
+            "T75.09.c",
+            "T75.09.d"
+          ],
+          "prompt": "A new delta2 request applies once and queues its ID. Flush to channel0 allows msg_select to observe that exact ID. Filling the four pending slots rejects the next request before changing receiver.total. A full/cancelled imported channel retains pending notifications. Cancellation after an admitted effect cannot make its already-reserved notification disappear. Derive the state before executing.",
+          "checklist": [
+            "Derive a composition contract with admission, effect commit, reply availability, notification enqueue, delivery and cleanup as distinct events. Account for every retained buffer, timer, permit and borrowed owner.",
+            "Implement the bounded service anchor using actual conc.channel and all required local IPC/reactor/fault adapters; preserve exactly-once notification for a new retained request and explicit replay/expiry semantics.",
+            "Inject allocation/partial-I/O/timeout/reset/cancellation/late-completion faults across the integrated service, checking effect and notification accounting with an independent event-sourced oracle and all declared capacity bounds.",
+            "Run an independently designed workload with burst arrivals, long tails, correlated faults and slow consumers. Seal a composition decision, apply all13 cost dimensions, and explain changed results under different correctness contracts or clock assumptions."
+          ]
+        },
+        {
+          "id": "T75.09-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T75.09.a",
+            "T75.09.b",
+            "T75.09.c",
+            "T75.09.d"
+          ],
+          "prompt": "X-T75-009-DELAYED: restart the service after journal commit but before notification acknowledgement. Define whether notifications are at-least-once or deduplicated at the consumer, implement the chosen recovery rule, and expose the limitation of relying only on the volatile pending queue.",
+          "checklist": [
+            "Derive a composition contract with admission, effect commit, reply availability, notification enqueue, delivery and cleanup as distinct events. Account for every retained buffer, timer, permit and borrowed owner.",
+            "Implement the bounded service anchor using actual conc.channel and all required local IPC/reactor/fault adapters; preserve exactly-once notification for a new retained request and explicit replay/expiry semantics.",
+            "Inject allocation/partial-I/O/timeout/reset/cancellation/late-completion faults across the integrated service, checking effect and notification accounting with an independent event-sourced oracle and all declared capacity bounds.",
+            "Run an independently designed workload with burst arrivals, long tails, correlated faults and slow consumers. Seal a composition decision, apply all13 cost dimensions, and explain changed results under different correctness contracts or clock assumptions."
+          ]
+        }
+      ],
+      "resource_ids": [
+        "R-MOD-RZ-GRPC-DEADLINE",
+        "R-MOD-RZ-GRPC-FLOW",
+        "R-MOD-RZ-RETRY",
+        "R-MOD-RZ-IDEMPOTENCE"
+      ],
+      "elective": false,
+      "grading": "Objective-specific evidence; consulted solutions are assisted practice."
+    }
+  ]
+}

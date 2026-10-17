@@ -1,0 +1,2131 @@
+{
+  "version": 5,
+  "family": "subset_compiler",
+  "title": "A C-subset compiler with original x86-64 and Thumb backends",
+  "build_system": "cmake",
+  "assessor_root": "assessor/subset_compiler",
+  "modules": [
+    "T60"
+  ],
+  "projects": [
+    {
+      "id": "PR-T60-01",
+      "tests": [
+        "subset_compiler.token"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement cc_token over a nonterminated byte span. Skip ASCII space/newline/tab; recognize decimal0..65535(kind1), x(2), ((3), )(4), +(5), *(6), and end(0). Return1 on token/end,0 on invalid or overflow. On failure preserve offset/kind/value. On success set value0 except constants. Do not call strtol or a lexer library.",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+    },
+    {
+      "id": "PR-T60-02",
+      "tests": [
+        "subset_compiler.parse"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement cc_parse from the declared expression grammar, generating postfix CONST/ARG/ADD/MUL followed by RET. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and IR capacity to caller storage. On failure used remains unchanged; partially written IR scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+    },
+    {
+      "id": "PR-T60-03",
+      "tests": [
+        "subset_compiler.types"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement cc_binary(op,a,b,out) for op3 addition and4 multiplication modulo2^32, using uint64_t intermediates and explicit conversion. Reject other opcodes without changing output. Identify the host assumptions required by uint32_t/uint64_t and compare with the C unsigned-return wrapper.",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+    },
+    {
+      "id": "PR-T60-04",
+      "tests": [
+        "subset_compiler.ir"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. CONST and ARG push; ADD/MUL consume two and push one; RET must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+    },
+    {
+      "id": "PR-T60-05",
+      "tests": [
+        "subset_compiler.verify"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final RET with height1. Return peak depth only on success. Reject any operation after RET and any missing RET.",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+    },
+    {
+      "id": "PR-T60-06",
+      "tests": [
+        "subset_compiler.x86"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid IR using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+    },
+    {
+      "id": "PR-T60-07",
+      "tests": [
+        "subset_compiler.thumb"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement cc_thumb emitting Thumb-2 GNU assembly using r3 to retain x, r0/r1 temporaries, word pushes/pops and bx lr. Constants fit movw. No nested calls or FP operations are supported. Stage output transactionally and preserve the exact same unsigned32 semantics as x86.",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+    },
+    {
+      "id": "PR-T60-08",
+      "tests": [
+        "subset_compiler.differential"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement cc_compile_eval(source,n,x,out) composing parser, verifier and interpreter with bounded128-instruction storage. Preserve output on any failure. Generate valid expression trees independently, render source and mathematical denotation, then compare interpreter and both emitted targets. Minimize a mismatch while retaining its semantic predicate.",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+    }
+  ],
+  "units": [
+    {
+      "project": "PR-T60-01",
+      "title": "Bounded lexer with exact progress",
+      "minutes": 240,
+      "objectives": [
+        "T60.01.a",
+        "T60.01.b",
+        "T60.01.c"
+      ],
+      "tests": [
+        "subset_compiler.token"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_token over a nonterminated byte span. Skip ASCII space/newline/tab; recognize decimal0..65535(kind1), x(2), ((3), )(4), +(5), *(6), and end(0). Return1 on token/end,0 on invalid or overflow. On failure preserve offset/kind/value. On success set value0 except constants. Do not call strtol or a lexer library.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the pre-multiply bound and exact consumed extent, including an unterminated span. Explain why end-of-input is a successful token distinct from rejection.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-01.a",
+          "objective": "T60.01.a",
+          "criterion": "Derive and defend: Derive the pre-multiply bound and exact consumed extent, including an unterminated span. Explain why end-of-input is a successful token distinct from rejection.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the pre-multiply bound and exact consumed extent, including an unterminated span. Explain why end-of-input is a successful token distinct from rejection. Retain original source or derivation and counterexample.",
+            "3": "Add hexadecimal constants and comments; distinguish preprocessing tokens from semantic tokens and preserve exact diagnostic spans without accepting partial malformed literals. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-01.b",
+          "objective": "T60.01.b",
+          "criterion": "Implement and investigate: Implement cc_token over a nonterminated byte span. Skip ASCII space/newline/tab; recognize decimal0..65535(kind1), x(2), ((3), )(4), +(5), *(6), and end(0). Return1 on token/end,0 on invalid or overflow. On failure preserve offset/kind/value. On success set value0 except constants. Do not call strtol or a lexer library.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_token over a nonterminated byte span. Skip ASCII space/newline/tab; recognize decimal0..65535(kind1), x(2), ((3), )(4), +(5), *(6), and end(0). Return1 on token/end,0 on invalid or overflow. On failure preserve offset/kind/value. On success set value0 except constants. Do not call strtol or a lexer library. Retain original source or derivation and counterexample.",
+            "3": "Add hexadecimal constants and comments; distinguish preprocessing tokens from semantic tokens and preserve exact diagnostic spans without accepting partial malformed literals. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-01.c",
+          "objective": "T60.01.c",
+          "criterion": "Falsify and transfer: Repair overflow accepted through unchecked decimal accumulation and a scanner that consumes a bad byte before reporting its location. Then Add hexadecimal constants and comments; distinguish preprocessing tokens from semantic tokens and preserve exact diagnostic spans without accepting partial malformed literals.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair overflow accepted through unchecked decimal accumulation and a scanner that consumes a bad byte before reporting its location. Then Add hexadecimal constants and comments; distinguish preprocessing tokens from semantic tokens and preserve exact diagnostic spans without accepting partial malformed literals. Retain original source or derivation and counterexample.",
+            "3": "Add hexadecimal constants and comments; distinguish preprocessing tokens from semantic tokens and preserve exact diagnostic spans without accepting partial malformed literals. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-01-transfer",
+          "minimum_days": 7,
+          "task": "Add hexadecimal constants and comments; distinguish preprocessing tokens from semantic tokens and preserve exact diagnostic spans without accepting partial malformed literals."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-01.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-01A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement cc_token over a nonterminated byte span. Skip ASCII space/newline/tab; recognize decimal0..65535(kind1), x(2), ((3), )(4), +(5), *(6), and end(0). Return1 on token/end,0 on invalid or overflow. On failure preserve offset/kind/value. On success set value0 except constants. Do not call strtol or a lexer library.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive the pre-multiply bound and exact consumed extent, including an unterminated span. Explain why end-of-input is a successful token distinct from rejection."
+      ],
+      "checks": [
+        "Repair overflow accepted through unchecked decimal accumulation and a scanner that consumes a bad byte before reporting its location.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T60-01",
+      "title": "Bounded lexer with exact progress",
+      "minutes": 240,
+      "objectives": [
+        "T60.01.a",
+        "T60.01.b",
+        "T60.01.c"
+      ],
+      "tests": [
+        "subset_compiler.token"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_token over a nonterminated byte span. Skip ASCII space/newline/tab; recognize decimal0..65535(kind1), x(2), ((3), )(4), +(5), *(6), and end(0). Return1 on token/end,0 on invalid or overflow. On failure preserve offset/kind/value. On success set value0 except constants. Do not call strtol or a lexer library.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the pre-multiply bound and exact consumed extent, including an unterminated span. Explain why end-of-input is a successful token distinct from rejection.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-01.a",
+          "objective": "T60.01.a",
+          "criterion": "Derive and defend: Derive the pre-multiply bound and exact consumed extent, including an unterminated span. Explain why end-of-input is a successful token distinct from rejection.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the pre-multiply bound and exact consumed extent, including an unterminated span. Explain why end-of-input is a successful token distinct from rejection. Retain original source or derivation and counterexample.",
+            "3": "Add hexadecimal constants and comments; distinguish preprocessing tokens from semantic tokens and preserve exact diagnostic spans without accepting partial malformed literals. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-01.b",
+          "objective": "T60.01.b",
+          "criterion": "Implement and investigate: Implement cc_token over a nonterminated byte span. Skip ASCII space/newline/tab; recognize decimal0..65535(kind1), x(2), ((3), )(4), +(5), *(6), and end(0). Return1 on token/end,0 on invalid or overflow. On failure preserve offset/kind/value. On success set value0 except constants. Do not call strtol or a lexer library.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_token over a nonterminated byte span. Skip ASCII space/newline/tab; recognize decimal0..65535(kind1), x(2), ((3), )(4), +(5), *(6), and end(0). Return1 on token/end,0 on invalid or overflow. On failure preserve offset/kind/value. On success set value0 except constants. Do not call strtol or a lexer library. Retain original source or derivation and counterexample.",
+            "3": "Add hexadecimal constants and comments; distinguish preprocessing tokens from semantic tokens and preserve exact diagnostic spans without accepting partial malformed literals. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-01.c",
+          "objective": "T60.01.c",
+          "criterion": "Falsify and transfer: Repair overflow accepted through unchecked decimal accumulation and a scanner that consumes a bad byte before reporting its location. Then Add hexadecimal constants and comments; distinguish preprocessing tokens from semantic tokens and preserve exact diagnostic spans without accepting partial malformed literals.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair overflow accepted through unchecked decimal accumulation and a scanner that consumes a bad byte before reporting its location. Then Add hexadecimal constants and comments; distinguish preprocessing tokens from semantic tokens and preserve exact diagnostic spans without accepting partial malformed literals. Retain original source or derivation and counterexample.",
+            "3": "Add hexadecimal constants and comments; distinguish preprocessing tokens from semantic tokens and preserve exact diagnostic spans without accepting partial malformed literals. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-01-transfer",
+          "minimum_days": 7,
+          "task": "Add hexadecimal constants and comments; distinguish preprocessing tokens from semantic tokens and preserve exact diagnostic spans without accepting partial malformed literals."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-01.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-01B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "Repair overflow accepted through unchecked decimal accumulation and a scanner that consumes a bad byte before reporting its location.",
+        "Add hexadecimal constants and comments; distinguish preprocessing tokens from semantic tokens and preserve exact diagnostic spans without accepting partial malformed literals.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive the pre-multiply bound and exact consumed extent, including an unterminated span. Explain why end-of-input is a successful token distinct from rejection.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T60-02",
+      "title": "Precedence parser and bounded syntax construction",
+      "minutes": 240,
+      "objectives": [
+        "T60.02.a",
+        "T60.02.b",
+        "T60.02.c"
+      ],
+      "tests": [
+        "subset_compiler.parse"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_parse from the declared expression grammar, generating postfix CONST/ARG/ADD/MUL followed by RET. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and IR capacity to caller storage. On failure used remains unchanged; partially written IR scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove each parser level consumes its grammar production or rejects, and derive linear token work with bounded recursion. Explain why no partially constructed IR is publishable.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-02.a",
+          "objective": "T60.02.a",
+          "criterion": "Derive and defend: Prove each parser level consumes its grammar production or rejects, and derive linear token work with bounded recursion. Explain why no partially constructed IR is publishable.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove each parser level consumes its grammar production or rejects, and derive linear token work with bounded recursion. Explain why no partially constructed IR is publishable. Retain original source or derivation and counterexample.",
+            "3": "Add subtraction and left associativity, then introduce a side-effecting call and state which source sequencing must be preserved rather than inferred from precedence. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-02.b",
+          "objective": "T60.02.b",
+          "criterion": "Implement and investigate: Implement cc_parse from the declared expression grammar, generating postfix CONST/ARG/ADD/MUL followed by RET. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and IR capacity to caller storage. On failure used remains unchanged; partially written IR scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_parse from the declared expression grammar, generating postfix CONST/ARG/ADD/MUL followed by RET. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and IR capacity to caller storage. On failure used remains unchanged; partially written IR scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte. Retain original source or derivation and counterexample.",
+            "3": "Add subtraction and left associativity, then introduce a side-effecting call and state which source sequencing must be preserved rather than inferred from precedence. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-02.c",
+          "objective": "T60.02.c",
+          "criterion": "Falsify and transfer: A parser accepts the valid prefix2 of2? and silently drops the error. Another implements2+3*x as(2+3)*x. Separate tokenization, grouping and lowering defects. Then Add subtraction and left associativity, then introduce a side-effecting call and state which source sequencing must be preserved rather than inferred from precedence.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A parser accepts the valid prefix2 of2? and silently drops the error. Another implements2+3*x as(2+3)*x. Separate tokenization, grouping and lowering defects. Then Add subtraction and left associativity, then introduce a side-effecting call and state which source sequencing must be preserved rather than inferred from precedence. Retain original source or derivation and counterexample.",
+            "3": "Add subtraction and left associativity, then introduce a side-effecting call and state which source sequencing must be preserved rather than inferred from precedence. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-02-transfer",
+          "minimum_days": 7,
+          "task": "Add subtraction and left associativity, then introduce a side-effecting call and state which source sequencing must be preserved rather than inferred from precedence."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-02.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-02A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement cc_parse from the declared expression grammar, generating postfix CONST/ARG/ADD/MUL followed by RET. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and IR capacity to caller storage. On failure used remains unchanged; partially written IR scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Prove each parser level consumes its grammar production or rejects, and derive linear token work with bounded recursion. Explain why no partially constructed IR is publishable."
+      ],
+      "checks": [
+        "A parser accepts the valid prefix2 of2? and silently drops the error. Another implements2+3*x as(2+3)*x. Separate tokenization, grouping and lowering defects.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T60-02",
+      "title": "Precedence parser and bounded syntax construction",
+      "minutes": 240,
+      "objectives": [
+        "T60.02.a",
+        "T60.02.b",
+        "T60.02.c"
+      ],
+      "tests": [
+        "subset_compiler.parse"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_parse from the declared expression grammar, generating postfix CONST/ARG/ADD/MUL followed by RET. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and IR capacity to caller storage. On failure used remains unchanged; partially written IR scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove each parser level consumes its grammar production or rejects, and derive linear token work with bounded recursion. Explain why no partially constructed IR is publishable.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-02.a",
+          "objective": "T60.02.a",
+          "criterion": "Derive and defend: Prove each parser level consumes its grammar production or rejects, and derive linear token work with bounded recursion. Explain why no partially constructed IR is publishable.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove each parser level consumes its grammar production or rejects, and derive linear token work with bounded recursion. Explain why no partially constructed IR is publishable. Retain original source or derivation and counterexample.",
+            "3": "Add subtraction and left associativity, then introduce a side-effecting call and state which source sequencing must be preserved rather than inferred from precedence. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-02.b",
+          "objective": "T60.02.b",
+          "criterion": "Implement and investigate: Implement cc_parse from the declared expression grammar, generating postfix CONST/ARG/ADD/MUL followed by RET. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and IR capacity to caller storage. On failure used remains unchanged; partially written IR scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_parse from the declared expression grammar, generating postfix CONST/ARG/ADD/MUL followed by RET. Multiplication binds tighter than addition; parentheses override. Limit nesting to16 and IR capacity to caller storage. On failure used remains unchanged; partially written IR scratch is unspecified and must never be executed. Reject every unconsumed nonspace byte. Retain original source or derivation and counterexample.",
+            "3": "Add subtraction and left associativity, then introduce a side-effecting call and state which source sequencing must be preserved rather than inferred from precedence. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-02.c",
+          "objective": "T60.02.c",
+          "criterion": "Falsify and transfer: A parser accepts the valid prefix2 of2? and silently drops the error. Another implements2+3*x as(2+3)*x. Separate tokenization, grouping and lowering defects. Then Add subtraction and left associativity, then introduce a side-effecting call and state which source sequencing must be preserved rather than inferred from precedence.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A parser accepts the valid prefix2 of2? and silently drops the error. Another implements2+3*x as(2+3)*x. Separate tokenization, grouping and lowering defects. Then Add subtraction and left associativity, then introduce a side-effecting call and state which source sequencing must be preserved rather than inferred from precedence. Retain original source or derivation and counterexample.",
+            "3": "Add subtraction and left associativity, then introduce a side-effecting call and state which source sequencing must be preserved rather than inferred from precedence. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-02-transfer",
+          "minimum_days": 7,
+          "task": "Add subtraction and left associativity, then introduce a side-effecting call and state which source sequencing must be preserved rather than inferred from precedence."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-02.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-02B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A parser accepts the valid prefix2 of2? and silently drops the error. Another implements2+3*x as(2+3)*x. Separate tokenization, grouping and lowering defects.",
+        "Add subtraction and left associativity, then introduce a side-effecting call and state which source sequencing must be preserved rather than inferred from precedence.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Prove each parser level consumes its grammar production or rejects, and derive linear token work with bounded recursion. Explain why no partially constructed IR is publishable.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T60-03",
+      "title": "Subset type and arithmetic semantics",
+      "minutes": 240,
+      "objectives": [
+        "T60.03.a",
+        "T60.03.b",
+        "T60.03.c"
+      ],
+      "tests": [
+        "subset_compiler.types"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_binary(op,a,b,out) for op3 addition and4 multiplication modulo2^32, using uint64_t intermediates and explicit conversion. Reject other opcodes without changing output. Identify the host assumptions required by uint32_t/uint64_t and compare with the C unsigned-return wrapper.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive modulo behavior independently of host signed overflow; identify absent signed conversions, floating-point rules and pointer semantics rather than pretending they are covered.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-03.a",
+          "objective": "T60.03.a",
+          "criterion": "Derive and defend: Derive modulo behavior independently of host signed overflow; identify absent signed conversions, floating-point rules and pointer semantics rather than pretending they are covered.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive modulo behavior independently of host signed overflow; identify absent signed conversions, floating-point rules and pointer semantics rather than pretending they are covered. Retain original source or derivation and counterexample.",
+            "3": "Add a signed32 type with explicit overflow diagnostics, usual arithmetic conversions and casts; construct a case where the unsigned and signed programs must differ. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-03.b",
+          "objective": "T60.03.b",
+          "criterion": "Implement and investigate: Implement cc_binary(op,a,b,out) for op3 addition and4 multiplication modulo2^32, using uint64_t intermediates and explicit conversion. Reject other opcodes without changing output. Identify the host assumptions required by uint32_t/uint64_t and compare with the C unsigned-return wrapper.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_binary(op,a,b,out) for op3 addition and4 multiplication modulo2^32, using uint64_t intermediates and explicit conversion. Reject other opcodes without changing output. Identify the host assumptions required by uint32_t/uint64_t and compare with the C unsigned-return wrapper. Retain original source or derivation and counterexample.",
+            "3": "Add a signed32 type with explicit overflow diagnostics, usual arithmetic conversions and casts; construct a case where the unsigned and signed programs must differ. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-03.c",
+          "objective": "T60.03.c",
+          "criterion": "Falsify and transfer: A backend replaces multiplication by addition or performs signed overflow in its evaluator. Passing small positive constants is insufficient evidence. Then Add a signed32 type with explicit overflow diagnostics, usual arithmetic conversions and casts; construct a case where the unsigned and signed programs must differ.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A backend replaces multiplication by addition or performs signed overflow in its evaluator. Passing small positive constants is insufficient evidence. Then Add a signed32 type with explicit overflow diagnostics, usual arithmetic conversions and casts; construct a case where the unsigned and signed programs must differ. Retain original source or derivation and counterexample.",
+            "3": "Add a signed32 type with explicit overflow diagnostics, usual arithmetic conversions and casts; construct a case where the unsigned and signed programs must differ. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-03-transfer",
+          "minimum_days": 7,
+          "task": "Add a signed32 type with explicit overflow diagnostics, usual arithmetic conversions and casts; construct a case where the unsigned and signed programs must differ."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-03.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-03A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement cc_binary(op,a,b,out) for op3 addition and4 multiplication modulo2^32, using uint64_t intermediates and explicit conversion. Reject other opcodes without changing output. Identify the host assumptions required by uint32_t/uint64_t and compare with the C unsigned-return wrapper.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive modulo behavior independently of host signed overflow; identify absent signed conversions, floating-point rules and pointer semantics rather than pretending they are covered."
+      ],
+      "checks": [
+        "A backend replaces multiplication by addition or performs signed overflow in its evaluator. Passing small positive constants is insufficient evidence.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T60-03",
+      "title": "Subset type and arithmetic semantics",
+      "minutes": 240,
+      "objectives": [
+        "T60.03.a",
+        "T60.03.b",
+        "T60.03.c"
+      ],
+      "tests": [
+        "subset_compiler.types"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_binary(op,a,b,out) for op3 addition and4 multiplication modulo2^32, using uint64_t intermediates and explicit conversion. Reject other opcodes without changing output. Identify the host assumptions required by uint32_t/uint64_t and compare with the C unsigned-return wrapper.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive modulo behavior independently of host signed overflow; identify absent signed conversions, floating-point rules and pointer semantics rather than pretending they are covered.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-03.a",
+          "objective": "T60.03.a",
+          "criterion": "Derive and defend: Derive modulo behavior independently of host signed overflow; identify absent signed conversions, floating-point rules and pointer semantics rather than pretending they are covered.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive modulo behavior independently of host signed overflow; identify absent signed conversions, floating-point rules and pointer semantics rather than pretending they are covered. Retain original source or derivation and counterexample.",
+            "3": "Add a signed32 type with explicit overflow diagnostics, usual arithmetic conversions and casts; construct a case where the unsigned and signed programs must differ. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-03.b",
+          "objective": "T60.03.b",
+          "criterion": "Implement and investigate: Implement cc_binary(op,a,b,out) for op3 addition and4 multiplication modulo2^32, using uint64_t intermediates and explicit conversion. Reject other opcodes without changing output. Identify the host assumptions required by uint32_t/uint64_t and compare with the C unsigned-return wrapper.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_binary(op,a,b,out) for op3 addition and4 multiplication modulo2^32, using uint64_t intermediates and explicit conversion. Reject other opcodes without changing output. Identify the host assumptions required by uint32_t/uint64_t and compare with the C unsigned-return wrapper. Retain original source or derivation and counterexample.",
+            "3": "Add a signed32 type with explicit overflow diagnostics, usual arithmetic conversions and casts; construct a case where the unsigned and signed programs must differ. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-03.c",
+          "objective": "T60.03.c",
+          "criterion": "Falsify and transfer: A backend replaces multiplication by addition or performs signed overflow in its evaluator. Passing small positive constants is insufficient evidence. Then Add a signed32 type with explicit overflow diagnostics, usual arithmetic conversions and casts; construct a case where the unsigned and signed programs must differ.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A backend replaces multiplication by addition or performs signed overflow in its evaluator. Passing small positive constants is insufficient evidence. Then Add a signed32 type with explicit overflow diagnostics, usual arithmetic conversions and casts; construct a case where the unsigned and signed programs must differ. Retain original source or derivation and counterexample.",
+            "3": "Add a signed32 type with explicit overflow diagnostics, usual arithmetic conversions and casts; construct a case where the unsigned and signed programs must differ. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-03-transfer",
+          "minimum_days": 7,
+          "task": "Add a signed32 type with explicit overflow diagnostics, usual arithmetic conversions and casts; construct a case where the unsigned and signed programs must differ."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-03.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-03B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A backend replaces multiplication by addition or performs signed overflow in its evaluator. Passing small positive constants is insufficient evidence.",
+        "Add a signed32 type with explicit overflow diagnostics, usual arithmetic conversions and casts; construct a case where the unsigned and signed programs must differ.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive modulo behavior independently of host signed overflow; identify absent signed conversions, floating-point rules and pointer semantics rather than pretending they are covered.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T60-04",
+      "title": "Typed intermediate representation and interpreter",
+      "minutes": 240,
+      "objectives": [
+        "T60.04.a",
+        "T60.04.b",
+        "T60.04.c"
+      ],
+      "tests": [
+        "subset_compiler.ir"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. CONST and ARG push; ADD/MUL consume two and push one; RET must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Associate every opcode with input/output type and stack effect; prove validated execution cannot underflow/overflow its bounded stack and returns the expression denotation.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-04.a",
+          "objective": "T60.04.a",
+          "criterion": "Derive and defend: Associate every opcode with input/output type and stack effect; prove validated execution cannot underflow/overflow its bounded stack and returns the expression denotation.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Associate every opcode with input/output type and stack effect; prove validated execution cannot underflow/overflow its bounded stack and returns the expression denotation. Retain original source or derivation and counterexample.",
+            "3": "Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-04.b",
+          "objective": "T60.04.b",
+          "criterion": "Implement and investigate: Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. CONST and ARG push; ADD/MUL consume two and push one; RET must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. CONST and ARG push; ADD/MUL consume two and push one; RET must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions. Retain original source or derivation and counterexample.",
+            "3": "Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-04.c",
+          "objective": "T60.04.c",
+          "criterion": "Falsify and transfer: A nominal interpreter reports success without publishing the computed result, while another executes malformed IR before checking its stack effects. Then Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A nominal interpreter reports success without publishing the computed result, while another executes malformed IR before checking its stack effects. Then Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution. Retain original source or derivation and counterexample.",
+            "3": "Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-04-transfer",
+          "minimum_days": 7,
+          "task": "Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-04.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-04A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. CONST and ARG push; ADD/MUL consume two and push one; RET must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Associate every opcode with input/output type and stack effect; prove validated execution cannot underflow/overflow its bounded stack and returns the expression denotation."
+      ],
+      "checks": [
+        "A nominal interpreter reports success without publishing the computed result, while another executes malformed IR before checking its stack effects.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T60-04",
+      "title": "Typed intermediate representation and interpreter",
+      "minutes": 240,
+      "objectives": [
+        "T60.04.a",
+        "T60.04.b",
+        "T60.04.c"
+      ],
+      "tests": [
+        "subset_compiler.ir"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. CONST and ARG push; ADD/MUL consume two and push one; RET must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Associate every opcode with input/output type and stack effect; prove validated execution cannot underflow/overflow its bounded stack and returns the expression denotation.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-04.a",
+          "objective": "T60.04.a",
+          "criterion": "Derive and defend: Associate every opcode with input/output type and stack effect; prove validated execution cannot underflow/overflow its bounded stack and returns the expression denotation.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Associate every opcode with input/output type and stack effect; prove validated execution cannot underflow/overflow its bounded stack and returns the expression denotation. Retain original source or derivation and counterexample.",
+            "3": "Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-04.b",
+          "objective": "T60.04.b",
+          "criterion": "Implement and investigate: Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. CONST and ARG push; ADD/MUL consume two and push one; RET must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_run over verified CCIns with a local64-entry uint32_t stack and one x argument. CONST and ARG push; ADD/MUL consume two and push one; RET must be last with exactly one value. Reject malformed streams and preserve output. Use cc_binary for semantic arithmetic, not native signed expressions. Retain original source or derivation and counterexample.",
+            "3": "Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-04.c",
+          "objective": "T60.04.c",
+          "criterion": "Falsify and transfer: A nominal interpreter reports success without publishing the computed result, while another executes malformed IR before checking its stack effects. Then Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A nominal interpreter reports success without publishing the computed result, while another executes malformed IR before checking its stack effects. Then Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution. Retain original source or derivation and counterexample.",
+            "3": "Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-04-transfer",
+          "minimum_days": 7,
+          "task": "Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-04.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-04B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A nominal interpreter reports success without publishing the computed result, while another executes malformed IR before checking its stack effects.",
+        "Add basic blocks and conditional branches; derive join-state type/stack compatibility and bound or explicitly budget loops before extending execution.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Associate every opcode with input/output type and stack effect; prove validated execution cannot underflow/overflow its bounded stack and returns the expression denotation.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T60-05",
+      "title": "IR verification and resource bounds",
+      "minutes": 240,
+      "objectives": [
+        "T60.05.a",
+        "T60.05.b",
+        "T60.05.c"
+      ],
+      "tests": [
+        "subset_compiler.verify"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final RET with height1. Return peak depth only on success. Reject any operation after RET and any missing RET.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive prefix-height and terminal-height conditions and peak stack bytes separately for the two backends. Explain the verifier assumptions that remain outside its scope.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-05.a",
+          "objective": "T60.05.a",
+          "criterion": "Derive and defend: Derive prefix-height and terminal-height conditions and peak stack bytes separately for the two backends. Explain the verifier assumptions that remain outside its scope.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive prefix-height and terminal-height conditions and peak stack bytes separately for the two backends. Explain the verifier assumptions that remain outside its scope. Retain original source or derivation and counterexample.",
+            "3": "Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-05.b",
+          "objective": "T60.05.b",
+          "criterion": "Implement and investigate: Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final RET with height1. Return peak depth only on success. Reject any operation after RET and any missing RET.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final RET with height1. Return peak depth only on success. Reject any operation after RET and any missing RET. Retain original source or derivation and counterexample.",
+            "3": "Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-05.c",
+          "objective": "T60.05.c",
+          "criterion": "Falsify and transfer: The faulty verifier accepts executable instructions after RET. That can conceal malformed data and causes consumers to disagree about the authoritative program extent. Then Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The faulty verifier accepts executable instructions after RET. That can conceal malformed data and causes consumers to disagree about the authoritative program extent. Then Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently. Retain original source or derivation and counterexample.",
+            "3": "Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-05-transfer",
+          "minimum_days": 7,
+          "task": "Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-05.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-05A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final RET with height1. Return peak depth only on success. Reject any operation after RET and any missing RET.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive prefix-height and terminal-height conditions and peak stack bytes separately for the two backends. Explain the verifier assumptions that remain outside its scope."
+      ],
+      "checks": [
+        "The faulty verifier accepts executable instructions after RET. That can conceal malformed data and causes consumers to disagree about the authoritative program extent.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T60-05",
+      "title": "IR verification and resource bounds",
+      "minutes": 240,
+      "objectives": [
+        "T60.05.a",
+        "T60.05.b",
+        "T60.05.c"
+      ],
+      "tests": [
+        "subset_compiler.verify"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final RET with height1. Return peak depth only on success. Reject any operation after RET and any missing RET.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive prefix-height and terminal-height conditions and peak stack bytes separately for the two backends. Explain the verifier assumptions that remain outside its scope.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-05.a",
+          "objective": "T60.05.a",
+          "criterion": "Derive and defend: Derive prefix-height and terminal-height conditions and peak stack bytes separately for the two backends. Explain the verifier assumptions that remain outside its scope.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive prefix-height and terminal-height conditions and peak stack bytes separately for the two backends. Explain the verifier assumptions that remain outside its scope. Retain original source or derivation and counterexample.",
+            "3": "Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-05.b",
+          "objective": "T60.05.b",
+          "criterion": "Implement and investigate: Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final RET with height1. Return peak depth only on success. Reject any operation after RET and any missing RET.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_validate for1..128 instructions, at most64 live stack values, constants<=65535, opcodes1..5, no underflow, and exactly one final RET with height1. Return peak depth only on success. Reject any operation after RET and any missing RET. Retain original source or derivation and counterexample.",
+            "3": "Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-05.c",
+          "objective": "T60.05.c",
+          "criterion": "Falsify and transfer: The faulty verifier accepts executable instructions after RET. That can conceal malformed data and causes consumers to disagree about the authoritative program extent. Then Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The faulty verifier accepts executable instructions after RET. That can conceal malformed data and causes consumers to disagree about the authoritative program extent. Then Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently. Retain original source or derivation and counterexample.",
+            "3": "Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-05-transfer",
+          "minimum_days": 7,
+          "task": "Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-05.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-05B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The faulty verifier accepts executable instructions after RET. That can conceal malformed data and causes consumers to disagree about the authoritative program extent.",
+        "Serialize IR to a bytecode file; add version, checked count arithmetic and canonical endianness, then fuzz parser and verifier independently.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive prefix-height and terminal-height conditions and peak stack bytes separately for the two backends. Explain the verifier assumptions that remain outside its scope.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T60-06",
+      "title": "Original x86-64 code emission",
+      "minutes": 240,
+      "objectives": [
+        "T60.06.a",
+        "T60.06.b",
+        "T60.06.c"
+      ],
+      "tests": [
+        "subset_compiler.x86"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid IR using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Map each IR stack transition to emitted instructions, prove balanced machine stack and identify all clobbered registers. The textual anchor is weaker than assembling and executing the result.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-06.a",
+          "objective": "T60.06.a",
+          "criterion": "Derive and defend: Map each IR stack transition to emitted instructions, prove balanced machine stack and identify all clobbered registers. The textual anchor is weaker than assembling and executing the result.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Map each IR stack transition to emitted instructions, prove balanced machine stack and identify all clobbered registers. The textual anchor is weaker than assembling and executing the result. Retain original source or derivation and counterexample.",
+            "3": "Add an actual function call: preserve argument x across it, restore16-byte call alignment and compare caller-saved/callee-saved decisions under nested expressions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-06.b",
+          "objective": "T60.06.b",
+          "criterion": "Implement and investigate: Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid IR using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid IR using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission. Retain original source or derivation and counterexample.",
+            "3": "Add an actual function call: preserve argument x across it, restore16-byte call alignment and compare caller-saved/callee-saved decisions under nested expressions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-06.c",
+          "objective": "T60.06.c",
+          "criterion": "Falsify and transfer: The mutant lowers multiply as addition. A different faulty emitter uses64-bit multiply without the required unsigned32 truncation. Differential execution must expose the semantic mismatch. Then Add an actual function call: preserve argument x across it, restore16-byte call alignment and compare caller-saved/callee-saved decisions under nested expressions.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant lowers multiply as addition. A different faulty emitter uses64-bit multiply without the required unsigned32 truncation. Differential execution must expose the semantic mismatch. Then Add an actual function call: preserve argument x across it, restore16-byte call alignment and compare caller-saved/callee-saved decisions under nested expressions. Retain original source or derivation and counterexample.",
+            "3": "Add an actual function call: preserve argument x across it, restore16-byte call alignment and compare caller-saved/callee-saved decisions under nested expressions. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-06-transfer",
+          "minimum_days": 7,
+          "task": "Add an actual function call: preserve argument x across it, restore16-byte call alignment and compare caller-saved/callee-saved decisions under nested expressions."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-06.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-06A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid IR using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Map each IR stack transition to emitted instructions, prove balanced machine stack and identify all clobbered registers. The textual anchor is weaker than assembling and executing the result."
+      ],
+      "checks": [
+        "The mutant lowers multiply as addition. A different faulty emitter uses64-bit multiply without the required unsigned32 truncation. Differential execution must expose the semantic mismatch.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T60-06",
+      "title": "Original x86-64 code emission",
+      "minutes": 240,
+      "objectives": [
+        "T60.06.a",
+        "T60.06.b",
+        "T60.06.c"
+      ],
+      "tests": [
+        "subset_compiler.x86"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid IR using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Map each IR stack transition to emitted instructions, prove balanced machine stack and identify all clobbered registers. The textual anchor is weaker than assembling and executing the result.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-06.a",
+          "objective": "T60.06.a",
+          "criterion": "Derive and defend: Map each IR stack transition to emitted instructions, prove balanced machine stack and identify all clobbered registers. The textual anchor is weaker than assembling and executing the result.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Map each IR stack transition to emitted instructions, prove balanced machine stack and identify all clobbered registers. The textual anchor is weaker than assembling and executing the result. Retain original source or derivation and counterexample.",
+            "3": "Add an actual function call: preserve argument x across it, restore16-byte call alignment and compare caller-saved/callee-saved decisions under nested expressions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-06.b",
+          "objective": "T60.06.b",
+          "criterion": "Implement and investigate: Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid IR using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_x86 emitting NUL-terminated GNU assembly for cm_expr(unsigned x) from valid IR using edi input, eax result, rcx temporary and64-bit push/pop storage. Use bounded staging so too-small output capacity leaves caller bytes unchanged. No LLVM, compiler library or template compiler may replace emission. Retain original source or derivation and counterexample.",
+            "3": "Add an actual function call: preserve argument x across it, restore16-byte call alignment and compare caller-saved/callee-saved decisions under nested expressions. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-06.c",
+          "objective": "T60.06.c",
+          "criterion": "Falsify and transfer: The mutant lowers multiply as addition. A different faulty emitter uses64-bit multiply without the required unsigned32 truncation. Differential execution must expose the semantic mismatch. Then Add an actual function call: preserve argument x across it, restore16-byte call alignment and compare caller-saved/callee-saved decisions under nested expressions.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The mutant lowers multiply as addition. A different faulty emitter uses64-bit multiply without the required unsigned32 truncation. Differential execution must expose the semantic mismatch. Then Add an actual function call: preserve argument x across it, restore16-byte call alignment and compare caller-saved/callee-saved decisions under nested expressions. Retain original source or derivation and counterexample.",
+            "3": "Add an actual function call: preserve argument x across it, restore16-byte call alignment and compare caller-saved/callee-saved decisions under nested expressions. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-06-transfer",
+          "minimum_days": 7,
+          "task": "Add an actual function call: preserve argument x across it, restore16-byte call alignment and compare caller-saved/callee-saved decisions under nested expressions."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-06.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-06B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The mutant lowers multiply as addition. A different faulty emitter uses64-bit multiply without the required unsigned32 truncation. Differential execution must expose the semantic mismatch.",
+        "Add an actual function call: preserve argument x across it, restore16-byte call alignment and compare caller-saved/callee-saved decisions under nested expressions.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Map each IR stack transition to emitted instructions, prove balanced machine stack and identify all clobbered registers. The textual anchor is weaker than assembling and executing the result.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T60-07",
+      "title": "Original Thumb code emission",
+      "minutes": 240,
+      "objectives": [
+        "T60.07.a",
+        "T60.07.b",
+        "T60.07.c"
+      ],
+      "tests": [
+        "subset_compiler.thumb"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_thumb emitting Thumb-2 GNU assembly using r3 to retain x, r0/r1 temporaries, word pushes/pops and bx lr. Constants fit movw. No nested calls or FP operations are supported. Stage output transactionally and preserve the exact same unsigned32 semantics as x86.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove the private operand stack remains word-aligned and returns to its public8-byte boundary. Identify the Thumb-state return and why r3 would not survive a newly added call.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-07.a",
+          "objective": "T60.07.a",
+          "criterion": "Derive and defend: Prove the private operand stack remains word-aligned and returns to its public8-byte boundary. Identify the Thumb-state return and why r3 would not survive a newly added call.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove the private operand stack remains word-aligned and returns to its public8-byte boundary. Identify the Thumb-state return and why r3 would not survive a newly added call. Retain original source or derivation and counterexample.",
+            "3": "Retarget Thumb-1 without movw or the same instruction set assumptions; synthesize constants, inspect helper dependencies and execute on the corresponding emulator CPU. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-07.b",
+          "objective": "T60.07.b",
+          "criterion": "Implement and investigate: Implement cc_thumb emitting Thumb-2 GNU assembly using r3 to retain x, r0/r1 temporaries, word pushes/pops and bx lr. Constants fit movw. No nested calls or FP operations are supported. Stage output transactionally and preserve the exact same unsigned32 semantics as x86.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_thumb emitting Thumb-2 GNU assembly using r3 to retain x, r0/r1 temporaries, word pushes/pops and bx lr. Constants fit movw. No nested calls or FP operations are supported. Stage output transactionally and preserve the exact same unsigned32 semantics as x86. Retain original source or derivation and counterexample.",
+            "3": "Retarget Thumb-1 without movw or the same instruction set assumptions; synthesize constants, inspect helper dependencies and execute on the corresponding emulator CPU. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-07.c",
+          "objective": "T60.07.c",
+          "criterion": "Falsify and transfer: The backend omits argument preservation, so expressions that load x after a constant compute from the constant instead. A constant-only test cannot detect this. Then Retarget Thumb-1 without movw or the same instruction set assumptions; synthesize constants, inspect helper dependencies and execute on the corresponding emulator CPU.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The backend omits argument preservation, so expressions that load x after a constant compute from the constant instead. A constant-only test cannot detect this. Then Retarget Thumb-1 without movw or the same instruction set assumptions; synthesize constants, inspect helper dependencies and execute on the corresponding emulator CPU. Retain original source or derivation and counterexample.",
+            "3": "Retarget Thumb-1 without movw or the same instruction set assumptions; synthesize constants, inspect helper dependencies and execute on the corresponding emulator CPU. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-07-transfer",
+          "minimum_days": 7,
+          "task": "Retarget Thumb-1 without movw or the same instruction set assumptions; synthesize constants, inspect helper dependencies and execute on the corresponding emulator CPU."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-07.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-07A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement cc_thumb emitting Thumb-2 GNU assembly using r3 to retain x, r0/r1 temporaries, word pushes/pops and bx lr. Constants fit movw. No nested calls or FP operations are supported. Stage output transactionally and preserve the exact same unsigned32 semantics as x86.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Prove the private operand stack remains word-aligned and returns to its public8-byte boundary. Identify the Thumb-state return and why r3 would not survive a newly added call."
+      ],
+      "checks": [
+        "The backend omits argument preservation, so expressions that load x after a constant compute from the constant instead. A constant-only test cannot detect this.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T60-07",
+      "title": "Original Thumb code emission",
+      "minutes": 240,
+      "objectives": [
+        "T60.07.a",
+        "T60.07.b",
+        "T60.07.c"
+      ],
+      "tests": [
+        "subset_compiler.thumb"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_thumb emitting Thumb-2 GNU assembly using r3 to retain x, r0/r1 temporaries, word pushes/pops and bx lr. Constants fit movw. No nested calls or FP operations are supported. Stage output transactionally and preserve the exact same unsigned32 semantics as x86.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove the private operand stack remains word-aligned and returns to its public8-byte boundary. Identify the Thumb-state return and why r3 would not survive a newly added call.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-07.a",
+          "objective": "T60.07.a",
+          "criterion": "Derive and defend: Prove the private operand stack remains word-aligned and returns to its public8-byte boundary. Identify the Thumb-state return and why r3 would not survive a newly added call.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove the private operand stack remains word-aligned and returns to its public8-byte boundary. Identify the Thumb-state return and why r3 would not survive a newly added call. Retain original source or derivation and counterexample.",
+            "3": "Retarget Thumb-1 without movw or the same instruction set assumptions; synthesize constants, inspect helper dependencies and execute on the corresponding emulator CPU. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-07.b",
+          "objective": "T60.07.b",
+          "criterion": "Implement and investigate: Implement cc_thumb emitting Thumb-2 GNU assembly using r3 to retain x, r0/r1 temporaries, word pushes/pops and bx lr. Constants fit movw. No nested calls or FP operations are supported. Stage output transactionally and preserve the exact same unsigned32 semantics as x86.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_thumb emitting Thumb-2 GNU assembly using r3 to retain x, r0/r1 temporaries, word pushes/pops and bx lr. Constants fit movw. No nested calls or FP operations are supported. Stage output transactionally and preserve the exact same unsigned32 semantics as x86. Retain original source or derivation and counterexample.",
+            "3": "Retarget Thumb-1 without movw or the same instruction set assumptions; synthesize constants, inspect helper dependencies and execute on the corresponding emulator CPU. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-07.c",
+          "objective": "T60.07.c",
+          "criterion": "Falsify and transfer: The backend omits argument preservation, so expressions that load x after a constant compute from the constant instead. A constant-only test cannot detect this. Then Retarget Thumb-1 without movw or the same instruction set assumptions; synthesize constants, inspect helper dependencies and execute on the corresponding emulator CPU.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: The backend omits argument preservation, so expressions that load x after a constant compute from the constant instead. A constant-only test cannot detect this. Then Retarget Thumb-1 without movw or the same instruction set assumptions; synthesize constants, inspect helper dependencies and execute on the corresponding emulator CPU. Retain original source or derivation and counterexample.",
+            "3": "Retarget Thumb-1 without movw or the same instruction set assumptions; synthesize constants, inspect helper dependencies and execute on the corresponding emulator CPU. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-07-transfer",
+          "minimum_days": 7,
+          "task": "Retarget Thumb-1 without movw or the same instruction set assumptions; synthesize constants, inspect helper dependencies and execute on the corresponding emulator CPU."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-07.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-07B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "The backend omits argument preservation, so expressions that load x after a constant compute from the constant instead. A constant-only test cannot detect this.",
+        "Retarget Thumb-1 without movw or the same instruction set assumptions; synthesize constants, inspect helper dependencies and execute on the corresponding emulator CPU.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Prove the private operand stack remains word-aligned and returns to its public8-byte boundary. Identify the Thumb-state return and why r3 would not survive a newly added call.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T60-08",
+      "title": "Differential compiler validation and translation limits",
+      "minutes": 240,
+      "objectives": [
+        "T60.08.a",
+        "T60.08.b",
+        "T60.08.c"
+      ],
+      "tests": [
+        "subset_compiler.differential"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_compile_eval(source,n,x,out) composing parser, verifier and interpreter with bounded128-instruction storage. Preserve output on any failure. Generate valid expression trees independently, render source and mathematical denotation, then compare interpreter and both emitted targets. Minimize a mismatch while retaining its semantic predicate.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Separate front-end correctness, IR semantics, backend correctness and target environment. Define the supported source subset before interpreting an oracle disagreement.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-08.a",
+          "objective": "T60.08.a",
+          "criterion": "Derive and defend: Separate front-end correctness, IR semantics, backend correctness and target environment. Define the supported source subset before interpreting an oracle disagreement.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Separate front-end correctness, IR semantics, backend correctness and target environment. Define the supported source subset before interpreting an oracle disagreement. Retain original source or derivation and counterexample.",
+            "3": "Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-08.b",
+          "objective": "T60.08.b",
+          "criterion": "Implement and investigate: Implement cc_compile_eval(source,n,x,out) composing parser, verifier and interpreter with bounded128-instruction storage. Preserve output on any failure. Generate valid expression trees independently, render source and mathematical denotation, then compare interpreter and both emitted targets. Minimize a mismatch while retaining its semantic predicate.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_compile_eval(source,n,x,out) composing parser, verifier and interpreter with bounded128-instruction storage. Preserve output on any failure. Generate valid expression trees independently, render source and mathematical denotation, then compare interpreter and both emitted targets. Minimize a mismatch while retaining its semantic predicate. Retain original source or derivation and counterexample.",
+            "3": "Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-08.c",
+          "objective": "T60.08.c",
+          "criterion": "Falsify and transfer: An integrated path perturbs an otherwise correct result; a shared parser-based expected value would reproduce some parser faults and miss them. Use independently generated trees. Then Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: An integrated path perturbs an otherwise correct result; a shared parser-based expected value would reproduce some parser faults and miss them. Use independently generated trees. Then Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct. Retain original source or derivation and counterexample.",
+            "3": "Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-08-transfer",
+          "minimum_days": 7,
+          "task": "Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-08.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-08A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement cc_compile_eval(source,n,x,out) composing parser, verifier and interpreter with bounded128-instruction storage. Preserve output on any failure. Generate valid expression trees independently, render source and mathematical denotation, then compare interpreter and both emitted targets. Minimize a mismatch while retaining its semantic predicate.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Separate front-end correctness, IR semantics, backend correctness and target environment. Define the supported source subset before interpreting an oracle disagreement."
+      ],
+      "checks": [
+        "An integrated path perturbs an otherwise correct result; a shared parser-based expected value would reproduce some parser faults and miss them. Use independently generated trees.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T60-08",
+      "title": "Differential compiler validation and translation limits",
+      "minutes": 240,
+      "objectives": [
+        "T60.08.a",
+        "T60.08.b",
+        "T60.08.c"
+      ],
+      "tests": [
+        "subset_compiler.differential"
+      ],
+      "target_scope": "host",
+      "scope": "Implement cc_compile_eval(source,n,x,out) composing parser, verifier and interpreter with bounded128-instruction storage. Preserve output on any failure. Generate valid expression trees independently, render source and mathematical denotation, then compare interpreter and both emitted targets. Minimize a mismatch while retaining its semantic predicate.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Separate front-end correctness, IR semantics, backend correctness and target environment. Define the supported source subset before interpreting an oracle disagreement.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T60-08.a",
+          "objective": "T60.08.a",
+          "criterion": "Derive and defend: Separate front-end correctness, IR semantics, backend correctness and target environment. Define the supported source subset before interpreting an oracle disagreement.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Separate front-end correctness, IR semantics, backend correctness and target environment. Define the supported source subset before interpreting an oracle disagreement. Retain original source or derivation and counterexample.",
+            "3": "Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-08.b",
+          "objective": "T60.08.b",
+          "criterion": "Implement and investigate: Implement cc_compile_eval(source,n,x,out) composing parser, verifier and interpreter with bounded128-instruction storage. Preserve output on any failure. Generate valid expression trees independently, render source and mathematical denotation, then compare interpreter and both emitted targets. Minimize a mismatch while retaining its semantic predicate.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement cc_compile_eval(source,n,x,out) composing parser, verifier and interpreter with bounded128-instruction storage. Preserve output on any failure. Generate valid expression trees independently, render source and mathematical denotation, then compare interpreter and both emitted targets. Minimize a mismatch while retaining its semantic predicate. Retain original source or derivation and counterexample.",
+            "3": "Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T60-08.c",
+          "objective": "T60.08.c",
+          "criterion": "Falsify and transfer: An integrated path perturbs an otherwise correct result; a shared parser-based expected value would reproduce some parser faults and miss them. Use independently generated trees. Then Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: An integrated path perturbs an otherwise correct result; a shared parser-based expected value would reproduce some parser faults and miss them. Use independently generated trees. Then Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct. Retain original source or derivation and counterexample.",
+            "3": "Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T60-08-transfer",
+          "minimum_days": 7,
+          "task": "Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct."
+        }
+      ],
+      "assessor_analysis": "assessor/subset_compiler/PR-T60-08.md",
+      "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler.",
+      "references": [
+        {
+          "resource_id": "R-B06-C11",
+          "locator": "6.5 paragraphs1-7; 6.5.5; 6.5.6; 6.5.7",
+          "purpose": "Actual expression sequencing/effective type, arithmetic, pointer bounds and shifts passages inspected. C17 remains implementation baseline; no claim this is the published C17 text.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-LLVMIR",
+          "locator": "IR Best Practices: The Basics; Use of allocas; Prefer zext over sext when legal",
+          "purpose": "Target data layout/triple, stack-slot promotion and extension legality inspected as comparison. Learner must implement its own IR/backend, not use LLVM to supply the compiler.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA32",
+          "locator": "6.2.1 Stack; 6.3 Subroutine Calls; 6.4 Result Return; 6.5 Parameter Passing",
+          "purpose": "Actual stack constraints, Thumb link-bit, veneer clobber and integer argument/result passages inspected. Restricted compiler backend avoids aggregate/variadic ABI claims.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-QEMU",
+          "locator": "M-profile FPGA images: mps2-an386; Differences between QEMU and real hardware",
+          "purpose": "Actual Cortex-M4 model selection and unimplemented memory-remapping/flash distinctions inspected. Emulator execution is not an STM32 or physical-board result.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-CC-08B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "An integrated path perturbs an otherwise correct result; a shared parser-based expected value would reproduce some parser faults and miss them. Use independently generated trees.",
+        "Add variables, conditionals, loops and function calls in separate increments with revised grammar, IR verifier and both backends; retain counterexamples at each boundary and state any still-unimplemented C construct.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Separate front-end correctness, IR semantics, backend correctness and target environment. Define the supported source subset before interpreting an oracle disagreement.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    }
+  ],
+  "tests": [
+    "subset_compiler.token",
+    "subset_compiler.parse",
+    "subset_compiler.types",
+    "subset_compiler.ir",
+    "subset_compiler.verify",
+    "subset_compiler.x86",
+    "subset_compiler.thumb",
+    "subset_compiler.differential"
+  ],
+  "negative_controls": [
+    "subset_compiler.mutation.token",
+    "subset_compiler.mutation.parse",
+    "subset_compiler.mutation.types",
+    "subset_compiler.mutation.ir",
+    "subset_compiler.mutation.verify",
+    "subset_compiler.mutation.x86",
+    "subset_compiler.mutation.thumb",
+    "subset_compiler.mutation.differential"
+  ],
+  "remaining_evidence": "Execute emitted x86-64 code against an independently compiled C oracle, execute Thumb output in a dedicated emulator, and complete changed-condition extensions. Public IR anchors do not certify a general C compiler."
+}

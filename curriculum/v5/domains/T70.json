@@ -1,0 +1,106 @@
+{
+  "id": "T70",
+  "domain": {
+    "family": "dod",
+    "prefix": "DO",
+    "phase": 11,
+    "strand": "toolbox",
+    "research_gate": "research/v5/modern/dod_research_gate.json",
+    "imports": {
+      "PR-T70-01": [
+        "containers.array",
+        "meta.reflect",
+        "measurement.capture"
+      ],
+      "PR-T70-02": [
+        "memory.pool",
+        "containers.array"
+      ],
+      "PR-T70-03": [
+        "algorithms.radix",
+        "measurement.capture"
+      ],
+      "PR-T70-04": [
+        "memory.pool",
+        "algorithms.freelist"
+      ],
+      "PR-T70-05": [
+        "containers.array",
+        "memory.pool",
+        "measurement.capture"
+      ],
+      "PR-T70-06": [
+        "memory.pool",
+        "containers.array"
+      ],
+      "PR-T70-07": [
+        "memory.pool",
+        "containers.array",
+        "algorithms.radix"
+      ],
+      "PR-T70-08": [
+        "containers.array",
+        "memory.pool"
+      ]
+    },
+    "artifacts": [
+      {
+        "id": "dod.ecs",
+        "producer": "PR-T70-05",
+        "contract": "Typed archetype tables, capacity-admitted migration and explicit row-borrow invalidation; no automatic concurrency or entity-reuse guarantee.",
+        "critical_objectives": [
+          "T70.05.a",
+          "T70.05.b",
+          "T70.05.c"
+        ]
+      },
+      {
+        "id": "persist.hamt",
+        "producer": "PR-T70-07",
+        "contract": "Typed arena HAMT with equality-checked collision buckets, snapshot-preserving update, separately verified deletion and explicit root lifetime/reclamation.",
+        "critical_objectives": [
+          "T70.07.a",
+          "T70.07.b",
+          "T70.07.c"
+        ]
+      },
+      {
+        "id": "text.rope",
+        "producer": "PR-T70-08",
+        "contract": "Counted byte rope DAG with immutable roots and explicit capacity/reclamation; text coordinates and editing alternatives require their declared extensions.",
+        "critical_objectives": [
+          "T70.08.a",
+          "T70.08.b",
+          "T70.08.d"
+        ]
+      },
+      {
+        "id": "dod.small_buffer",
+        "producer": "PR-T70-02",
+        "contract": "Counted byte-only inline16/max128 buffer, allocator injection, strong append failure and explicit move/reset; no arbitrary typed placement or raw-copy ownership guarantee.",
+        "critical_objectives": [
+          "T70.02.a",
+          "T70.02.b",
+          "T70.02.c",
+          "T70.02.e"
+        ]
+      }
+    ],
+    "decisions": {
+      "PR-T70-02": {
+        "question": "Which inline representation supports the actual capture contract?",
+        "alternatives": [
+          "counted byte encoding",
+          "concrete typed union",
+          "heap-owned typed capture"
+        ],
+        "discriminator": "Byte arrays do not establish arbitrary typed object access; self-referential and owning captures require a relocation/ownership rule.",
+        "reversal_trigger": "Payload gains stricter alignment, self pointers or a failing destructor."
+      }
+    }
+  },
+  "new_executable_counts": {
+    "DO": 8
+  },
+  "fixture_oracles": []
+}

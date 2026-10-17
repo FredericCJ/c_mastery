@@ -1,0 +1,56 @@
+{
+  "id": "T74",
+  "domain": {
+    "family": "object_runtime",
+    "prefix": "OR",
+    "phase": 12,
+    "strand": "appliance",
+    "research_gate": "research/v5/modern/object_runtime_research_gate.json",
+    "imports": {
+      "*": [],
+      "PR-T74-11": [
+        "runtime.vm",
+        "memory.pool",
+        "testing.faults",
+        "measurement.capture"
+      ]
+    },
+    "artifacts": [
+      {
+        "id": "rt.object_model",
+        "producer": "PR-T74-04",
+        "contract": "Original object_runtime contract in labs/object_runtime/CONTRACTS.md; explicit ownership, partial progress and adapter limits; no blanket language equivalence.",
+        "critical_objectives": [
+          "T74.04.a",
+          "T74.04.b"
+        ]
+      },
+      {
+        "id": "rt.incremental_gc",
+        "producer": "PR-T74-11",
+        "contract": "Original object_runtime contract in labs/object_runtime/CONTRACTS.md; explicit ownership, partial progress and adapter limits; no blanket language equivalence.",
+        "critical_objectives": [
+          "T74.11.a",
+          "T74.11.b"
+        ]
+      }
+    ],
+    "decisions": {
+      "PR-T74-01": {
+        "question": "Which representation preserves the required ownership and evaluation contract with lower measured cost?",
+        "alternatives": [
+          "explicit checked state and direct operations",
+          "composed wrapper/adapter representation"
+        ],
+        "discriminator": "Seal prediction before measurements; compare identical admitted inputs, rejection effects, operation counts, allocation and layout, then explain counterexamples.",
+        "reversal_trigger": "A new ownership-bearing payload, asynchronous operation or different failure guarantee changes the admitted states."
+      }
+    }
+  },
+  "new_executable_counts": {
+    "OR": 11
+  },
+  "fixture_oracles": [
+    "verify_object_runtime_fixtures.py"
+  ]
+}

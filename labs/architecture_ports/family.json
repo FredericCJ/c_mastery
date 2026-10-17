@@ -1,0 +1,2131 @@
+{
+  "version": 5,
+  "family": "architecture_ports",
+  "title": "RISC-V and AArch64 execution ports",
+  "build_system": "cmake",
+  "assessor_root": "assessor/architecture_ports",
+  "modules": [
+    "T58"
+  ],
+  "projects": [
+    {
+      "id": "PR-T58-01",
+      "tests": [
+        "architecture_ports.stack"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement po_stack(top,bytes,out): require bytes<=top, subtract and round down to16-byte alignment; publish only on success. Treat integers as modeled addresses, not dereferenceable C pointers. Then build both assembly entry stubs with a private aligned stack and inspect the map.",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
+    },
+    {
+      "id": "PR-T58-02",
+      "tests": [
+        "architecture_ports.saved"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RV x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for SP. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
+    },
+    {
+      "id": "PR-T58-03",
+      "tests": [
+        "architecture_ports.args"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement po_arg(index,reg,offset) for the deliberately restricted nine-or-fewer uint64_t scalar interface: index0..7 maps to abstract argument registers0..7 with offset0; index8..15 maps to regUINT_MAX and stack offset8*(index-8); index>=16 rejects transactionally. The assembly adapter translates abstract registers to a0..a7 or x0..x7.",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
+    },
+    {
+      "id": "PR-T58-04",
+      "tests": [
+        "architecture_ports.context"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement po_save(dst,arch,registers) copying only po_saved registers into a zero-filled32-slot image; reject arch>1 before mutation. po_restore validates image arch equals requested arch and copies only saved slots into a live register model, preserving others. Destination/source are disjoint. Extend assembly context switches using the same documented offsets.",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
+    },
+    {
+      "id": "PR-T58-05",
+      "tests": [
+        "architecture_ports.immediate"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement po_sign12(raw) for the low12 bits as a mathematical signed value -2048..2047, ignoring higher bits. Implement po_branch(delta,bits,align) accepting only bits2..30, align2 or4 and aligned signed delta in [-2^(bits-1),2^(bits-1)-align]. Use this as a relocation admission oracle, not as a complete instruction encoder.",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
+    },
+    {
+      "id": "PR-T58-06",
+      "tests": [
+        "architecture_ports.trap"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RV guest.",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
+    },
+    {
+      "id": "PR-T58-07",
+      "tests": [
+        "architecture_ports.privilege"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected SUM/MXR obligations, not a complete page walk.",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
+    },
+    {
+      "id": "PR-T58-08",
+      "tests": [
+        "architecture_ports.closure"
+      ],
+      "capabilities": [
+        "c17",
+        "cmake"
+      ],
+      "scope": "Implement po_closure(required_mask,provided_mask) returning true exactly when every required helper bit has an approved implementation. Bits represent memcpy, division, atomic fallback and stack protector for the synthetic map. Then derive the real closure from nm/readelf/map output for both ports and record every unresolved or policy-disallowed symbol.",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
+    }
+  ],
+  "units": [
+    {
+      "project": "PR-T58-01",
+      "title": "Stack extent and ABI alignment",
+      "minutes": 240,
+      "objectives": [
+        "T58.01.a",
+        "T58.01.b",
+        "T58.01.c"
+      ],
+      "tests": [
+        "architecture_ports.stack"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_stack(top,bytes,out): require bytes<=top, subtract and round down to16-byte alignment; publish only on success. Treat integers as modeled addresses, not dereferenceable C pointers. Then build both assembly entry stubs with a private aligned stack and inspect the map.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove result<=top-bytes, alignment and nonwrap; account for consumed padding and live stack bounds.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-01.a",
+          "objective": "T58.01.a",
+          "criterion": "Derive and defend: Prove result<=top-bytes, alignment and nonwrap; account for consumed padding and live stack bounds.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove result<=top-bytes, alignment and nonwrap; account for consumed padding and live stack bounds. Retain original source or derivation and counterexample.",
+            "3": "Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-01.b",
+          "objective": "T58.01.b",
+          "criterion": "Implement and investigate: Implement po_stack(top,bytes,out): require bytes<=top, subtract and round down to16-byte alignment; publish only on success. Treat integers as modeled addresses, not dereferenceable C pointers. Then build both assembly entry stubs with a private aligned stack and inspect the map.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_stack(top,bytes,out): require bytes<=top, subtract and round down to16-byte alignment; publish only on success. Treat integers as modeled addresses, not dereferenceable C pointers. Then build both assembly entry stubs with a private aligned stack and inspect the map. Retain original source or derivation and counterexample.",
+            "3": "Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-01.c",
+          "objective": "T58.01.c",
+          "criterion": "Falsify and transfer: A port aligns to8 because pointers are8 bytes, violating the16-byte call boundary. A linker-defined top is not proof that subtraction stays in the reserved stack. Then Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A port aligns to8 because pointers are8 bytes, violating the16-byte call boundary. A linker-defined top is not proof that subtraction stays in the reserved stack. Then Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion. Retain original source or derivation and counterexample.",
+            "3": "Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-01-transfer",
+          "minimum_days": 7,
+          "task": "Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-01.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-01A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement po_stack(top,bytes,out): require bytes<=top, subtract and round down to16-byte alignment; publish only on success. Treat integers as modeled addresses, not dereferenceable C pointers. Then build both assembly entry stubs with a private aligned stack and inspect the map.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Prove result<=top-bytes, alignment and nonwrap; account for consumed padding and live stack bounds."
+      ],
+      "checks": [
+        "A port aligns to8 because pointers are8 bytes, violating the16-byte call boundary. A linker-defined top is not proof that subtraction stays in the reserved stack.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T58-01",
+      "title": "Stack extent and ABI alignment",
+      "minutes": 240,
+      "objectives": [
+        "T58.01.a",
+        "T58.01.b",
+        "T58.01.c"
+      ],
+      "tests": [
+        "architecture_ports.stack"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_stack(top,bytes,out): require bytes<=top, subtract and round down to16-byte alignment; publish only on success. Treat integers as modeled addresses, not dereferenceable C pointers. Then build both assembly entry stubs with a private aligned stack and inspect the map.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove result<=top-bytes, alignment and nonwrap; account for consumed padding and live stack bounds.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-01.a",
+          "objective": "T58.01.a",
+          "criterion": "Derive and defend: Prove result<=top-bytes, alignment and nonwrap; account for consumed padding and live stack bounds.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove result<=top-bytes, alignment and nonwrap; account for consumed padding and live stack bounds. Retain original source or derivation and counterexample.",
+            "3": "Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-01.b",
+          "objective": "T58.01.b",
+          "criterion": "Implement and investigate: Implement po_stack(top,bytes,out): require bytes<=top, subtract and round down to16-byte alignment; publish only on success. Treat integers as modeled addresses, not dereferenceable C pointers. Then build both assembly entry stubs with a private aligned stack and inspect the map.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_stack(top,bytes,out): require bytes<=top, subtract and round down to16-byte alignment; publish only on success. Treat integers as modeled addresses, not dereferenceable C pointers. Then build both assembly entry stubs with a private aligned stack and inspect the map. Retain original source or derivation and counterexample.",
+            "3": "Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-01.c",
+          "objective": "T58.01.c",
+          "criterion": "Falsify and transfer: A port aligns to8 because pointers are8 bytes, violating the16-byte call boundary. A linker-defined top is not proof that subtraction stays in the reserved stack. Then Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A port aligns to8 because pointers are8 bytes, violating the16-byte call boundary. A linker-defined top is not proof that subtraction stays in the reserved stack. Then Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion. Retain original source or derivation and counterexample.",
+            "3": "Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-01-transfer",
+          "minimum_days": 7,
+          "task": "Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-01.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-01B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A port aligns to8 because pointers are8 bytes, violating the16-byte call boundary. A linker-defined top is not proof that subtraction stays in the reserved stack.",
+        "Change to RV32E or Thumb and derive the appropriate ABI alignment from its specification rather than inheriting16. Add a guard region and test exact exhaustion.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Prove result<=top-bytes, alignment and nonwrap; account for consumed padding and live stack bounds.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T58-02",
+      "title": "Callee state and platform registers",
+      "minutes": 240,
+      "objectives": [
+        "T58.02.a",
+        "T58.02.b",
+        "T58.02.c"
+      ],
+      "tests": [
+        "architecture_ports.saved"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RV x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for SP. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Identify which owner saves each register and why the return-address register needs protection in nonleaf callees despite its caller-saved classification.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-02.a",
+          "objective": "T58.02.a",
+          "criterion": "Derive and defend: Identify which owner saves each register and why the return-address register needs protection in nonleaf callees despite its caller-saved classification.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Identify which owner saves each register and why the return-address register needs protection in nonleaf callees despite its caller-saved classification. Retain original source or derivation and counterexample.",
+            "3": "Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-02.b",
+          "objective": "T58.02.b",
+          "criterion": "Implement and investigate: Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RV x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for SP. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RV x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for SP. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation. Retain original source or derivation and counterexample.",
+            "3": "Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-02.c",
+          "objective": "T58.02.c",
+          "criterion": "Falsify and transfer: A context port omits SP or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains. Then Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A context port omits SP or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains. Then Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements. Retain original source or derivation and counterexample.",
+            "3": "Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-02-transfer",
+          "minimum_days": 7,
+          "task": "Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-02.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-02A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RV x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for SP. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Identify which owner saves each register and why the return-address register needs protection in nonleaf callees despite its caller-saved classification."
+      ],
+      "checks": [
+        "A context port omits SP or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T58-02",
+      "title": "Callee state and platform registers",
+      "minutes": 240,
+      "objectives": [
+        "T58.02.a",
+        "T58.02.b",
+        "T58.02.c"
+      ],
+      "tests": [
+        "architecture_ports.saved"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RV x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for SP. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Identify which owner saves each register and why the return-address register needs protection in nonleaf callees despite its caller-saved classification.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-02.a",
+          "objective": "T58.02.a",
+          "criterion": "Derive and defend: Identify which owner saves each register and why the return-address register needs protection in nonleaf callees despite its caller-saved classification.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Identify which owner saves each register and why the return-address register needs protection in nonleaf callees despite its caller-saved classification. Retain original source or derivation and counterexample.",
+            "3": "Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-02.b",
+          "objective": "T58.02.b",
+          "criterion": "Implement and investigate: Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RV x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for SP. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_saved(arch,reg), with arch0 RV64 integer ABI and arch1 AArch64. Report saved integer registers: RV x2,x8,x9,x18..x27; Arm x19..x29 and synthetic register31 for SP. Other fields return0. Independently compare hostile-caller assembly against the declared set; exclude x18 from portable allocation. Retain original source or derivation and counterexample.",
+            "3": "Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-02.c",
+          "objective": "T58.02.c",
+          "criterion": "Falsify and transfer: A context port omits SP or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains. Then Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A context port omits SP or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains. Then Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements. Retain original source or derivation and counterexample.",
+            "3": "Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-02-transfer",
+          "minimum_days": 7,
+          "task": "Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-02.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-02B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A context port omits SP or assumes Arm x18 is a temporary everywhere. Explain a source-level test that can pass while this latent ABI violation remains.",
+        "Add floating-point state and compare only low64 preservation of selected AArch64 SIMD registers against full vector context requirements.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Identify which owner saves each register and why the return-address register needs protection in nonleaf callees despite its caller-saved classification.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T58-03",
+      "title": "Argument register exhaustion",
+      "minutes": 240,
+      "objectives": [
+        "T58.03.a",
+        "T58.03.b",
+        "T58.03.c"
+      ],
+      "tests": [
+        "architecture_ports.args"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_arg(index,reg,offset) for the deliberately restricted nine-or-fewer uint64_t scalar interface: index0..7 maps to abstract argument registers0..7 with offset0; index8..15 maps to regUINT_MAX and stack offset8*(index-8); index>=16 rejects transactionally. The assembly adapter translates abstract registers to a0..a7 or x0..x7.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the first stack argument relative to entry SP; distinguish entry-SP offsets from offsets after the callee allocates its frame.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-03.a",
+          "objective": "T58.03.a",
+          "criterion": "Derive and defend: Derive the first stack argument relative to entry SP; distinguish entry-SP offsets from offsets after the callee allocates its frame.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the first stack argument relative to entry SP; distinguish entry-SP offsets from offsets after the callee allocates its frame. Retain original source or derivation and counterexample.",
+            "3": "Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-03.b",
+          "objective": "T58.03.b",
+          "criterion": "Implement and investigate: Implement po_arg(index,reg,offset) for the deliberately restricted nine-or-fewer uint64_t scalar interface: index0..7 maps to abstract argument registers0..7 with offset0; index8..15 maps to regUINT_MAX and stack offset8*(index-8); index>=16 rejects transactionally. The assembly adapter translates abstract registers to a0..a7 or x0..x7.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_arg(index,reg,offset) for the deliberately restricted nine-or-fewer uint64_t scalar interface: index0..7 maps to abstract argument registers0..7 with offset0; index8..15 maps to regUINT_MAX and stack offset8*(index-8); index>=16 rejects transactionally. The assembly adapter translates abstract registers to a0..a7 or x0..x7. Retain original source or derivation and counterexample.",
+            "3": "Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-03.c",
+          "objective": "T58.03.c",
+          "criterion": "Falsify and transfer: A callee reads the ninth argument one slot above its defined location. All eight-register tests pass; the hostile ninth argument must falsify it. Then Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A callee reads the ninth argument one slot above its defined location. All eight-register tests pass; the hostile ninth argument must falsify it. Then Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI. Retain original source or derivation and counterexample.",
+            "3": "Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-03-transfer",
+          "minimum_days": 7,
+          "task": "Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-03.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-03A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement po_arg(index,reg,offset) for the deliberately restricted nine-or-fewer uint64_t scalar interface: index0..7 maps to abstract argument registers0..7 with offset0; index8..15 maps to regUINT_MAX and stack offset8*(index-8); index>=16 rejects transactionally. The assembly adapter translates abstract registers to a0..a7 or x0..x7.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive the first stack argument relative to entry SP; distinguish entry-SP offsets from offsets after the callee allocates its frame."
+      ],
+      "checks": [
+        "A callee reads the ninth argument one slot above its defined location. All eight-register tests pass; the hostile ninth argument must falsify it.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T58-03",
+      "title": "Argument register exhaustion",
+      "minutes": 240,
+      "objectives": [
+        "T58.03.a",
+        "T58.03.b",
+        "T58.03.c"
+      ],
+      "tests": [
+        "architecture_ports.args"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_arg(index,reg,offset) for the deliberately restricted nine-or-fewer uint64_t scalar interface: index0..7 maps to abstract argument registers0..7 with offset0; index8..15 maps to regUINT_MAX and stack offset8*(index-8); index>=16 rejects transactionally. The assembly adapter translates abstract registers to a0..a7 or x0..x7.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive the first stack argument relative to entry SP; distinguish entry-SP offsets from offsets after the callee allocates its frame.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-03.a",
+          "objective": "T58.03.a",
+          "criterion": "Derive and defend: Derive the first stack argument relative to entry SP; distinguish entry-SP offsets from offsets after the callee allocates its frame.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive the first stack argument relative to entry SP; distinguish entry-SP offsets from offsets after the callee allocates its frame. Retain original source or derivation and counterexample.",
+            "3": "Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-03.b",
+          "objective": "T58.03.b",
+          "criterion": "Implement and investigate: Implement po_arg(index,reg,offset) for the deliberately restricted nine-or-fewer uint64_t scalar interface: index0..7 maps to abstract argument registers0..7 with offset0; index8..15 maps to regUINT_MAX and stack offset8*(index-8); index>=16 rejects transactionally. The assembly adapter translates abstract registers to a0..a7 or x0..x7.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_arg(index,reg,offset) for the deliberately restricted nine-or-fewer uint64_t scalar interface: index0..7 maps to abstract argument registers0..7 with offset0; index8..15 maps to regUINT_MAX and stack offset8*(index-8); index>=16 rejects transactionally. The assembly adapter translates abstract registers to a0..a7 or x0..x7. Retain original source or derivation and counterexample.",
+            "3": "Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-03.c",
+          "objective": "T58.03.c",
+          "criterion": "Falsify and transfer: A callee reads the ninth argument one slot above its defined location. All eight-register tests pass; the hostile ninth argument must falsify it. Then Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A callee reads the ninth argument one slot above its defined location. All eight-register tests pass; the hostile ninth argument must falsify it. Then Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI. Retain original source or derivation and counterexample.",
+            "3": "Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-03-transfer",
+          "minimum_days": 7,
+          "task": "Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-03.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-03B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A callee reads the ninth argument one slot above its defined location. All eight-register tests pass; the hostile ninth argument must falsify it.",
+        "Return a large aggregate through a hidden result pointer and show why this scalar classifier cannot simply shift the same table on every ABI.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive the first stack argument relative to entry SP; distinguish entry-SP offsets from offsets after the callee allocates its frame.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T58-04",
+      "title": "Owned context images",
+      "minutes": 240,
+      "objectives": [
+        "T58.04.a",
+        "T58.04.b",
+        "T58.04.c"
+      ],
+      "tests": [
+        "architecture_ports.context"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_save(dst,arch,registers) copying only po_saved registers into a zero-filled32-slot image; reject arch>1 before mutation. po_restore validates image arch equals requested arch and copies only saved slots into a live register model, preserving others. Destination/source are disjoint. Extend assembly context switches using the same documented offsets.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove a save/restore preserves exactly the declared set and leaves nonowned registers untouched. State stack ownership, resume-address validity and exclusion of asynchronous FP/trap state.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-04.a",
+          "objective": "T58.04.a",
+          "criterion": "Derive and defend: Prove a save/restore preserves exactly the declared set and leaves nonowned registers untouched. State stack ownership, resume-address validity and exclusion of asynchronous FP/trap state.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove a save/restore preserves exactly the declared set and leaves nonowned registers untouched. State stack ownership, resume-address validity and exclusion of asynchronous FP/trap state. Retain original source or derivation and counterexample.",
+            "3": "Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-04.b",
+          "objective": "T58.04.b",
+          "criterion": "Implement and investigate: Implement po_save(dst,arch,registers) copying only po_saved registers into a zero-filled32-slot image; reject arch>1 before mutation. po_restore validates image arch equals requested arch and copies only saved slots into a live register model, preserving others. Destination/source are disjoint. Extend assembly context switches using the same documented offsets.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_save(dst,arch,registers) copying only po_saved registers into a zero-filled32-slot image; reject arch>1 before mutation. po_restore validates image arch equals requested arch and copies only saved slots into a live register model, preserving others. Destination/source are disjoint. Extend assembly context switches using the same documented offsets. Retain original source or derivation and counterexample.",
+            "3": "Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-04.c",
+          "objective": "T58.04.c",
+          "criterion": "Falsify and transfer: Repair restoration of an RV image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility. Then Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair restoration of an RV image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility. Then Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets. Retain original source or derivation and counterexample.",
+            "3": "Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-04-transfer",
+          "minimum_days": 7,
+          "task": "Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-04.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-04A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement po_save(dst,arch,registers) copying only po_saved registers into a zero-filled32-slot image; reject arch>1 before mutation. po_restore validates image arch equals requested arch and copies only saved slots into a live register model, preserving others. Destination/source are disjoint. Extend assembly context switches using the same documented offsets.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Prove a save/restore preserves exactly the declared set and leaves nonowned registers untouched. State stack ownership, resume-address validity and exclusion of asynchronous FP/trap state."
+      ],
+      "checks": [
+        "Repair restoration of an RV image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T58-04",
+      "title": "Owned context images",
+      "minutes": 240,
+      "objectives": [
+        "T58.04.a",
+        "T58.04.b",
+        "T58.04.c"
+      ],
+      "tests": [
+        "architecture_ports.context"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_save(dst,arch,registers) copying only po_saved registers into a zero-filled32-slot image; reject arch>1 before mutation. po_restore validates image arch equals requested arch and copies only saved slots into a live register model, preserving others. Destination/source are disjoint. Extend assembly context switches using the same documented offsets.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Prove a save/restore preserves exactly the declared set and leaves nonowned registers untouched. State stack ownership, resume-address validity and exclusion of asynchronous FP/trap state.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-04.a",
+          "objective": "T58.04.a",
+          "criterion": "Derive and defend: Prove a save/restore preserves exactly the declared set and leaves nonowned registers untouched. State stack ownership, resume-address validity and exclusion of asynchronous FP/trap state.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Prove a save/restore preserves exactly the declared set and leaves nonowned registers untouched. State stack ownership, resume-address validity and exclusion of asynchronous FP/trap state. Retain original source or derivation and counterexample.",
+            "3": "Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-04.b",
+          "objective": "T58.04.b",
+          "criterion": "Implement and investigate: Implement po_save(dst,arch,registers) copying only po_saved registers into a zero-filled32-slot image; reject arch>1 before mutation. po_restore validates image arch equals requested arch and copies only saved slots into a live register model, preserving others. Destination/source are disjoint. Extend assembly context switches using the same documented offsets.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_save(dst,arch,registers) copying only po_saved registers into a zero-filled32-slot image; reject arch>1 before mutation. po_restore validates image arch equals requested arch and copies only saved slots into a live register model, preserving others. Destination/source are disjoint. Extend assembly context switches using the same documented offsets. Retain original source or derivation and counterexample.",
+            "3": "Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-04.c",
+          "objective": "T58.04.c",
+          "criterion": "Falsify and transfer: Repair restoration of an RV image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility. Then Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair restoration of an RV image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility. Then Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets. Retain original source or derivation and counterexample.",
+            "3": "Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-04-transfer",
+          "minimum_days": 7,
+          "task": "Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-04.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-04B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "Repair restoration of an RV image as Arm by rejecting mismatched tags before any register mutation. A C struct size match does not establish semantic compatibility.",
+        "Add two task stacks and a yield-return continuation; inject stack exhaustion and duplicate resume, and compare cooperative with asynchronous preemption save sets.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Prove a save/restore preserves exactly the declared set and leaves nonowned registers untouched. State stack ownership, resume-address validity and exclusion of asynchronous FP/trap state.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T58-05",
+      "title": "Signed immediates and relocation ranges",
+      "minutes": 240,
+      "objectives": [
+        "T58.05.a",
+        "T58.05.b",
+        "T58.05.c"
+      ],
+      "tests": [
+        "architecture_ports.immediate"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_sign12(raw) for the low12 bits as a mathematical signed value -2048..2047, ignoring higher bits. Implement po_branch(delta,bits,align) accepting only bits2..30, align2 or4 and aligned signed delta in [-2^(bits-1),2^(bits-1)-align]. Use this as a relocation admission oracle, not as a complete instruction encoder.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive sign-extension using unsigned extraction and subtraction in a range representable by int. Separate field representability, target instruction alignment and linker relaxation.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-05.a",
+          "objective": "T58.05.a",
+          "criterion": "Derive and defend: Derive sign-extension using unsigned extraction and subtraction in a range representable by int. Separate field representability, target instruction alignment and linker relaxation.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive sign-extension using unsigned extraction and subtraction in a range representable by int. Separate field representability, target instruction alignment and linker relaxation. Retain original source or derivation and counterexample.",
+            "3": "Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-05.b",
+          "objective": "T58.05.b",
+          "criterion": "Implement and investigate: Implement po_sign12(raw) for the low12 bits as a mathematical signed value -2048..2047, ignoring higher bits. Implement po_branch(delta,bits,align) accepting only bits2..30, align2 or4 and aligned signed delta in [-2^(bits-1),2^(bits-1)-align]. Use this as a relocation admission oracle, not as a complete instruction encoder.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_sign12(raw) for the low12 bits as a mathematical signed value -2048..2047, ignoring higher bits. Implement po_branch(delta,bits,align) accepting only bits2..30, align2 or4 and aligned signed delta in [-2^(bits-1),2^(bits-1)-align]. Use this as a relocation admission oracle, not as a complete instruction encoder. Retain original source or derivation and counterexample.",
+            "3": "Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-05.c",
+          "objective": "T58.05.c",
+          "criterion": "Falsify and transfer: Truncating an odd branch displacement silently redirects execution. A range-only check is insufficient; a passing assembler can still hide linker-added veneers. Then Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Truncating an odd branch displacement silently redirects execution. A range-only check is insufficient; a passing assembler can still hide linker-added veneers. Then Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers. Retain original source or derivation and counterexample.",
+            "3": "Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-05-transfer",
+          "minimum_days": 7,
+          "task": "Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-05.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-05A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement po_sign12(raw) for the low12 bits as a mathematical signed value -2048..2047, ignoring higher bits. Implement po_branch(delta,bits,align) accepting only bits2..30, align2 or4 and aligned signed delta in [-2^(bits-1),2^(bits-1)-align]. Use this as a relocation admission oracle, not as a complete instruction encoder.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive sign-extension using unsigned extraction and subtraction in a range representable by int. Separate field representability, target instruction alignment and linker relaxation."
+      ],
+      "checks": [
+        "Truncating an odd branch displacement silently redirects execution. A range-only check is insufficient; a passing assembler can still hide linker-added veneers.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T58-05",
+      "title": "Signed immediates and relocation ranges",
+      "minutes": 240,
+      "objectives": [
+        "T58.05.a",
+        "T58.05.b",
+        "T58.05.c"
+      ],
+      "tests": [
+        "architecture_ports.immediate"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_sign12(raw) for the low12 bits as a mathematical signed value -2048..2047, ignoring higher bits. Implement po_branch(delta,bits,align) accepting only bits2..30, align2 or4 and aligned signed delta in [-2^(bits-1),2^(bits-1)-align]. Use this as a relocation admission oracle, not as a complete instruction encoder.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive sign-extension using unsigned extraction and subtraction in a range representable by int. Separate field representability, target instruction alignment and linker relaxation.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-05.a",
+          "objective": "T58.05.a",
+          "criterion": "Derive and defend: Derive sign-extension using unsigned extraction and subtraction in a range representable by int. Separate field representability, target instruction alignment and linker relaxation.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive sign-extension using unsigned extraction and subtraction in a range representable by int. Separate field representability, target instruction alignment and linker relaxation. Retain original source or derivation and counterexample.",
+            "3": "Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-05.b",
+          "objective": "T58.05.b",
+          "criterion": "Implement and investigate: Implement po_sign12(raw) for the low12 bits as a mathematical signed value -2048..2047, ignoring higher bits. Implement po_branch(delta,bits,align) accepting only bits2..30, align2 or4 and aligned signed delta in [-2^(bits-1),2^(bits-1)-align]. Use this as a relocation admission oracle, not as a complete instruction encoder.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_sign12(raw) for the low12 bits as a mathematical signed value -2048..2047, ignoring higher bits. Implement po_branch(delta,bits,align) accepting only bits2..30, align2 or4 and aligned signed delta in [-2^(bits-1),2^(bits-1)-align]. Use this as a relocation admission oracle, not as a complete instruction encoder. Retain original source or derivation and counterexample.",
+            "3": "Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-05.c",
+          "objective": "T58.05.c",
+          "criterion": "Falsify and transfer: Truncating an odd branch displacement silently redirects execution. A range-only check is insufficient; a passing assembler can still hide linker-added veneers. Then Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Truncating an odd branch displacement silently redirects execution. A range-only check is insufficient; a passing assembler can still hide linker-added veneers. Then Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers. Retain original source or derivation and counterexample.",
+            "3": "Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-05-transfer",
+          "minimum_days": 7,
+          "task": "Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-05.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-05B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "Truncating an odd branch displacement silently redirects execution. A range-only check is insufficient; a passing assembler can still hide linker-added veneers.",
+        "Encode RV B/J immediate bit scattering and compare with an independent assembler, then force an out-of-range AArch64 call and inspect its veneer clobbers.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive sign-extension using unsigned extraction and subtraction in a range representable by int. Separate field representability, target instruction alignment and linker relaxation.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T58-06",
+      "title": "Trap status versus call state",
+      "minutes": 240,
+      "objectives": [
+        "T58.06.a",
+        "T58.06.b",
+        "T58.06.c"
+      ],
+      "tests": [
+        "architecture_ports.trap"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RV guest.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Draw status before entry, after entry and after return. Explain which processor state is automatic, which is software saved and why a call-return instruction cannot replace a trap return.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-06.a",
+          "objective": "T58.06.a",
+          "criterion": "Derive and defend: Draw status before entry, after entry and after return. Explain which processor state is automatic, which is software saved and why a call-return instruction cannot replace a trap return.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Draw status before entry, after entry and after return. Explain which processor state is automatic, which is software saved and why a call-return instruction cannot replace a trap return. Retain original source or derivation and counterexample.",
+            "3": "Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-06.b",
+          "objective": "T58.06.b",
+          "criterion": "Implement and investigate: Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RV guest.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RV guest. Retain original source or derivation and counterexample.",
+            "3": "Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-06.c",
+          "objective": "T58.06.c",
+          "criterion": "Falsify and transfer: Repair stale prior-privilege state after return and a nested handler that overwrites the first saved PC. The model cannot establish interrupt controller acknowledgement behavior. Then Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair stale prior-privilege state after return and a nested handler that overwrites the first saved PC. The model cannot establish interrupt controller acknowledgement behavior. Then Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing. Retain original source or derivation and counterexample.",
+            "3": "Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-06-transfer",
+          "minimum_days": 7,
+          "task": "Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-06.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-06A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RV guest.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Draw status before entry, after entry and after return. Explain which processor state is automatic, which is software saved and why a call-return instruction cannot replace a trap return."
+      ],
+      "checks": [
+        "Repair stale prior-privilege state after return and a nested handler that overwrites the first saved PC. The model cannot establish interrupt controller acknowledgement behavior.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T58-06",
+      "title": "Trap status versus call state",
+      "minutes": 240,
+      "objectives": [
+        "T58.06.a",
+        "T58.06.b",
+        "T58.06.c"
+      ],
+      "tests": [
+        "architecture_ports.trap"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RV guest.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Draw status before entry, after entry and after return. Explain which processor state is automatic, which is software saved and why a call-return instruction cannot replace a trap return.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-06.a",
+          "objective": "T58.06.a",
+          "criterion": "Derive and defend: Draw status before entry, after entry and after return. Explain which processor state is automatic, which is software saved and why a call-return instruction cannot replace a trap return.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Draw status before entry, after entry and after return. Explain which processor state is automatic, which is software saved and why a call-return instruction cannot replace a trap return. Retain original source or derivation and counterexample.",
+            "3": "Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-06.b",
+          "objective": "T58.06.b",
+          "criterion": "Implement and investigate: Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RV guest.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_trap(status,from_supervisor) and po_return(status): trap records spp, copies sie to spie and clears sie; return restores sie from spie, sets spie1 and clears spp. Inputs are boolean fields; invalid input rejects without mutation. Compare the explicit model to supervisor CSR traces in a dedicated RV guest. Retain original source or derivation and counterexample.",
+            "3": "Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-06.c",
+          "objective": "T58.06.c",
+          "criterion": "Falsify and transfer: Repair stale prior-privilege state after return and a nested handler that overwrites the first saved PC. The model cannot establish interrupt controller acknowledgement behavior. Then Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair stale prior-privilege state after return and a nested handler that overwrites the first saved PC. The model cannot establish interrupt controller acknowledgement behavior. Then Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing. Retain original source or derivation and counterexample.",
+            "3": "Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-06-transfer",
+          "minimum_days": 7,
+          "task": "Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-06.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-06B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "Repair stale prior-privilege state after return and a nested handler that overwrites the first saved PC. The model cannot establish interrupt controller acknowledgement behavior.",
+        "Port the same logical event to an AArch64 exception level and identify every register/return difference from an inspected architecture manual before implementing.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Draw status before entry, after entry and after return. Explain which processor state is automatic, which is software saved and why a call-return instruction cannot replace a trap return.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T58-07",
+      "title": "Privilege-aware memory access",
+      "minutes": 240,
+      "objectives": [
+        "T58.07.a",
+        "T58.07.b",
+        "T58.07.c"
+      ],
+      "tests": [
+        "architecture_ports.privilege"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected SUM/MXR obligations, not a complete page walk.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive each access decision before dereferencing and identify omitted page-walk obligations: validity, canonical address, superpage alignment, access/dirty updates, translation synchronization and fault cause.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-07.a",
+          "objective": "T58.07.a",
+          "criterion": "Derive and defend: Derive each access decision before dereferencing and identify omitted page-walk obligations: validity, canonical address, superpage alignment, access/dirty updates, translation synchronization and fault cause.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive each access decision before dereferencing and identify omitted page-walk obligations: validity, canonical address, superpage alignment, access/dirty updates, translation synchronization and fault cause. Retain original source or derivation and counterexample.",
+            "3": "Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-07.b",
+          "objective": "T58.07.b",
+          "criterion": "Implement and investigate: Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected SUM/MXR obligations, not a complete page walk.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected SUM/MXR obligations, not a complete page walk. Retain original source or derivation and counterexample.",
+            "3": "Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-07.c",
+          "objective": "T58.07.c",
+          "criterion": "Falsify and transfer: Repair a supervisor execute path that assumes SUM permits executing user memory. A model allow decision never grants C pointer provenance or physical access. Then Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair a supervisor execute path that assumes SUM permits executing user memory. A model allow decision never grants C pointer provenance or physical access. Then Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences. Retain original source or derivation and counterexample.",
+            "3": "Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-07-transfer",
+          "minimum_days": 7,
+          "task": "Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-07.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-07A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected SUM/MXR obligations, not a complete page walk.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Derive each access decision before dereferencing and identify omitted page-walk obligations: validity, canonical address, superpage alignment, access/dirty updates, translation synchronization and fault cause."
+      ],
+      "checks": [
+        "Repair a supervisor execute path that assumes SUM permits executing user memory. A model allow decision never grants C pointer provenance or physical access.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T58-07",
+      "title": "Privilege-aware memory access",
+      "minutes": 240,
+      "objectives": [
+        "T58.07.a",
+        "T58.07.b",
+        "T58.07.c"
+      ],
+      "tests": [
+        "architecture_ports.privilege"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected SUM/MXR obligations, not a complete page walk.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Derive each access decision before dereferencing and identify omitted page-walk obligations: validity, canonical address, superpage alignment, access/dirty updates, translation synchronization and fault cause.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-07.a",
+          "objective": "T58.07.a",
+          "criterion": "Derive and defend: Derive each access decision before dereferencing and identify omitted page-walk obligations: validity, canonical address, superpage alignment, access/dirty updates, translation synchronization and fault cause.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Derive each access decision before dereferencing and identify omitted page-walk obligations: validity, canonical address, superpage alignment, access/dirty updates, translation synchronization and fault cause. Retain original source or derivation and counterexample.",
+            "3": "Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-07.b",
+          "objective": "T58.07.b",
+          "criterion": "Implement and investigate: Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected SUM/MXR obligations, not a complete page walk.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_access(user_page,supervisor,sum,mxr,r,w,x,operation), with boolean flags and op0 read,1 write,2 execute. User execution rejects supervisor-only pages. Supervisor execution always rejects user pages; supervisor reads/writes user pages require sum. Read requires r or mxr&&x; write requires w; execute requires x. This models the inspected SUM/MXR obligations, not a complete page walk. Retain original source or derivation and counterexample.",
+            "3": "Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-07.c",
+          "objective": "T58.07.c",
+          "criterion": "Falsify and transfer: Repair a supervisor execute path that assumes SUM permits executing user memory. A model allow decision never grants C pointer provenance or physical access. Then Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: Repair a supervisor execute path that assumes SUM permits executing user memory. A model allow decision never grants C pointer provenance or physical access. Then Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences. Retain original source or derivation and counterexample.",
+            "3": "Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-07-transfer",
+          "minimum_days": 7,
+          "task": "Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-07.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-07B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "Repair a supervisor execute path that assumes SUM permits executing user memory. A model allow decision never grants C pointer provenance or physical access.",
+        "Implement a bounded three-level page-table walker with synthetic tables, then compare RV64 Sv39 and the selected Arm translation regime; inspect their full manuals and record unresolved differences.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Derive each access decision before dereferencing and identify omitted page-walk obligations: validity, canonical address, superpage alignment, access/dirty updates, translation synchronization and fault cause.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    },
+    {
+      "project": "PR-T58-08",
+      "title": "Link closure and changed-target defense",
+      "minutes": 240,
+      "objectives": [
+        "T58.08.a",
+        "T58.08.b",
+        "T58.08.c"
+      ],
+      "tests": [
+        "architecture_ports.closure"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_closure(required_mask,provided_mask) returning true exactly when every required helper bit has an approved implementation. Bits represent memcpy, division, atomic fallback and stack protector for the synthetic map. Then derive the real closure from nm/readelf/map output for both ports and record every unresolved or policy-disallowed symbol.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Distinguish declarations, emitted references, linked providers and actually exercised target paths. Explain why hosted test libraries cannot be treated as target dependencies.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-08.a",
+          "objective": "T58.08.a",
+          "criterion": "Derive and defend: Distinguish declarations, emitted references, linked providers and actually exercised target paths. Explain why hosted test libraries cannot be treated as target dependencies.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Distinguish declarations, emitted references, linked providers and actually exercised target paths. Explain why hosted test libraries cannot be treated as target dependencies. Retain original source or derivation and counterexample.",
+            "3": "Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-08.b",
+          "objective": "T58.08.b",
+          "criterion": "Implement and investigate: Implement po_closure(required_mask,provided_mask) returning true exactly when every required helper bit has an approved implementation. Bits represent memcpy, division, atomic fallback and stack protector for the synthetic map. Then derive the real closure from nm/readelf/map output for both ports and record every unresolved or policy-disallowed symbol.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_closure(required_mask,provided_mask) returning true exactly when every required helper bit has an approved implementation. Bits represent memcpy, division, atomic fallback and stack protector for the synthetic map. Then derive the real closure from nm/readelf/map output for both ports and record every unresolved or policy-disallowed symbol. Retain original source or derivation and counterexample.",
+            "3": "Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-08.c",
+          "objective": "T58.08.c",
+          "criterion": "Falsify and transfer: A port links only because the developer machine supplies libgcc or libc; removing the runtime reveals a hidden helper. Report this as missing target support, not a compiler bug. Then Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A port links only because the developer machine supplies libgcc or libc; removing the runtime reveals a hidden helper. Report this as missing target support, not a compiler bug. Then Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion. Retain original source or derivation and counterexample.",
+            "3": "Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-08-transfer",
+          "minimum_days": 7,
+          "task": "Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-08.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-08A",
+      "new_executable": true,
+      "kind": "implementation",
+      "steps": [
+        "Implement po_closure(required_mask,provided_mask) returning true exactly when every required helper bit has an approved implementation. Bits represent memcpy, division, atomic fallback and stack protector for the synthetic map. Then derive the real closure from nm/readelf/map output for both ports and record every unresolved or policy-disallowed symbol.",
+        "Implement the declared core API in src/core.c; compare every supplied fixture and add a discriminating input.",
+        "Distinguish declarations, emitted references, linked providers and actually exercised target paths. Explain why hosted test libraries cannot be treated as target dependencies."
+      ],
+      "checks": [
+        "A port links only because the developer machine supplies libgcc or libc; removing the runtime reveals a hidden helper. Report this as missing target support, not a compiler bug.",
+        "All declared CTest cases pass for the learner source, with current source hashes; a scaffold pass is not expected."
+      ]
+    },
+    {
+      "project": "PR-T58-08",
+      "title": "Link closure and changed-target defense",
+      "minutes": 240,
+      "objectives": [
+        "T58.08.a",
+        "T58.08.b",
+        "T58.08.c"
+      ],
+      "tests": [
+        "architecture_ports.closure"
+      ],
+      "target_scope": "model",
+      "scope": "Implement po_closure(required_mask,provided_mask) returning true exactly when every required helper bit has an approved implementation. Bits represent memcpy, division, atomic fallback and stack protector for the synthetic map. Then derive the real closure from nm/readelf/map output for both ports and record every unresolved or policy-disallowed symbol.",
+      "scaffolding": "independent design with graduated hints",
+      "reasoning": "Distinguish declarations, emitted references, linked providers and actually exercised target paths. Explain why hosted test libraries cannot be treated as target dependencies.",
+      "deliverables": [
+        "D1 prediction/invariants",
+        "D2 source/build",
+        "D3 observations/oracle",
+        "D4 repair/regression",
+        "D5 transfer",
+        "D6 limitations"
+      ],
+      "rubric": [
+        {
+          "id": "PR-T58-08.a",
+          "objective": "T58.08.a",
+          "criterion": "Derive and defend: Distinguish declarations, emitted references, linked providers and actually exercised target paths. Explain why hosted test libraries cannot be treated as target dependencies.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Derive and defend: Distinguish declarations, emitted references, linked providers and actually exercised target paths. Explain why hosted test libraries cannot be treated as target dependencies. Retain original source or derivation and counterexample.",
+            "3": "Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-08.b",
+          "objective": "T58.08.b",
+          "criterion": "Implement and investigate: Implement po_closure(required_mask,provided_mask) returning true exactly when every required helper bit has an approved implementation. Bits represent memcpy, division, atomic fallback and stack protector for the synthetic map. Then derive the real closure from nm/readelf/map output for both ports and record every unresolved or policy-disallowed symbol.",
+          "evidence": [
+            "D1",
+            "D2",
+            "D3"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Implement and investigate: Implement po_closure(required_mask,provided_mask) returning true exactly when every required helper bit has an approved implementation. Bits represent memcpy, division, atomic fallback and stack protector for the synthetic map. Then derive the real closure from nm/readelf/map output for both ports and record every unresolved or policy-disallowed symbol. Retain original source or derivation and counterexample.",
+            "3": "Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion. Complete unaided after seven days and revise the affected argument."
+          }
+        },
+        {
+          "id": "PR-T58-08.c",
+          "objective": "T58.08.c",
+          "criterion": "Falsify and transfer: A port links only because the developer machine supplies libgcc or libc; removing the runtime reveals a hidden helper. Report this as missing target support, not a compiler bug. Then Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion.",
+          "evidence": [
+            "D4",
+            "D5",
+            "D6"
+          ],
+          "levels": {
+            "0": "Missing artifact or incorrect contract.",
+            "1": "Visible example passes but invariant, failure or changed assumptions are unexplained.",
+            "2": "Falsify and transfer: A port links only because the developer machine supplies libgcc or libc; removing the runtime reveals a hidden helper. Report this as missing target support, not a compiler bug. Then Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion. Retain original source or derivation and counterexample.",
+            "3": "Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion. Complete unaided after seven days and revise the affected argument."
+          }
+        }
+      ],
+      "variants": [
+        {
+          "id": "PR-T58-08-transfer",
+          "minimum_days": 7,
+          "task": "Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion."
+        }
+      ],
+      "assessor_analysis": "assessor/architecture_ports/PR-T58-08.md",
+      "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port.",
+      "references": [
+        {
+          "resource_id": "R-B06-RVABI",
+          "locator": "1.1 Integer Register Convention; 1.2 Frame Pointer Convention; 2.1 Integer Calling Convention",
+          "purpose": "Integer registers, stack alignment, aggregate/return conventions inspected. Experimental/vector ABI portions are not assigned.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-AA64",
+          "locator": "6.1.1 General-purpose Registers; 6.4.5 The Stack; 6.4.6 The Frame Pointer; 6.5 Subroutine calls",
+          "purpose": "Integer register roles, stack extent/alignment, frame record and veneer clobber rules inspected. Main branch is a moving specification; pin release for experiments.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVISA",
+          "locator": "1.1.1 Programmers model; 1.1.2 Base Instruction Formats; 1.1.3 Immediate Encoding Variants",
+          "purpose": "Actual register, instruction alignment and immediate sign-extension passages inspected; fixed encoding checks do not prove target execution.",
+          "hours": 1
+        },
+        {
+          "resource_id": "R-B06-RVPRIV",
+          "locator": "Supervisor Status Register: SPP, SIE and SPIE; Memory Privilege: SUM and MXR",
+          "purpose": "Actual current source passages inspected after versioned supervisor HTML retrieval failed. Machine-mode initialization and complete translation algorithms require separate inspection.",
+          "hours": 1
+        }
+      ],
+      "artifact_inputs": [],
+      "artifact_outputs": [],
+      "validation_status": "authored; campaign and learner evidence separate",
+      "id": "LAB-PO-08B",
+      "new_executable": false,
+      "kind": "adaptation",
+      "steps": [
+        "A port links only because the developer machine supplies libgcc or libc; removing the runtime reveals a hidden helper. Report this as missing target support, not a compiler bug.",
+        "Change optimization, atomics width and ISA extensions; regenerate closure and code-size/stack evidence and explain every new helper or inline expansion.",
+        "After seven days reconstruct the changed-condition argument without previous source."
+      ],
+      "checks": [
+        "Distinguish declarations, emitted references, linked providers and actually exercised target paths. Explain why hosted test libraries cannot be treated as target dependencies.",
+        "Assess each objective using the project rubric, including all outstanding target observations."
+      ]
+    }
+  ],
+  "tests": [
+    "architecture_ports.stack",
+    "architecture_ports.saved",
+    "architecture_ports.args",
+    "architecture_ports.context",
+    "architecture_ports.immediate",
+    "architecture_ports.trap",
+    "architecture_ports.privilege",
+    "architecture_ports.closure"
+  ],
+  "negative_controls": [
+    "architecture_ports.mutation.stack",
+    "architecture_ports.mutation.saved",
+    "architecture_ports.mutation.args",
+    "architecture_ports.mutation.context",
+    "architecture_ports.mutation.immediate",
+    "architecture_ports.mutation.trap",
+    "architecture_ports.mutation.privilege",
+    "architecture_ports.mutation.closure"
+  ],
+  "remaining_evidence": "Actual cross-linked image runs, hostile-register context tests, trap return and two-address-space translation observations in both dedicated guests are mandatory; model tests are not a complete OS port."
+}

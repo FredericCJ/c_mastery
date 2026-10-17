@@ -1,0 +1,35 @@
+{
+  "id": "PR-T68-10",
+  "description": "Declarative build graphs and deterministic table generation",
+  "input": {
+    "case": "buildgraph"
+  },
+  "expected": {
+    "contract": "Two nodes0->1 executeorder[0,1]. Changingnode0configuration changes bothkeys. A cycle0<->1 fails with previous outputs unchanged. Generated source retains all64bits of eachkey and is reproducible byte-for-byte."
+  },
+  "cases": [
+    {
+      "kind": "buildgraph",
+      "example": "Two nodes0->1 executeorder[0,1]. Changingnode0configuration changes bothkeys. A cycle0<->1 fails with previous outputs unchanged. Generated source retains all64bits of eachkey and is reproducible byte-for-byte.",
+      "input": {
+        "dependencies": [
+          0,
+          1
+        ],
+        "cycle": [
+          2,
+          1
+        ]
+      },
+      "expected": {
+        "order": [
+          0,
+          1
+        ],
+        "cycle_accepted": false
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

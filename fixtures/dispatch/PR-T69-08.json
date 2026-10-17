@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "id": "PR-T69-08",
+  "exercise": "X-T69-008",
+  "anchor": "dispatch.modules",
+  "input_contract": "Implement an opaque DSModule factory backed by two actual typed instances and a borrowed DSService read operation. twice performs two reads then checked addition; publication is atomic but external read effects are not rolled back. Add an instance-local service dictionary containing clock and sink dependencies, passing only the required subset to each operation. Build a second implementation behind the same incomplete public type contract and test clients without private-header access.",
+  "expected": "Two service reads of7 return14 with exactly two calls. Failure on the second read preserves caller output99 while the call count remains2. A third simultaneously open module returns full and preserves the output pointer. Closing ends the lease and all module aliases must be discarded.",
+  "independent_oracle": "Use a scripted service with explicit read values/statuses and compare full call trace plus output. Test maximum two live instances, close/reopen, and accidental use of a closed lease through a separate lifetime-token wrapper; never dereference an ended raw object as a test oracle. Inspect separate compilation and public headers for private representation leakage.",
+  "status": "authored; actual executions in source-bound campaign",
+  "expected_model": {
+    "capacity": 2,
+    "success": 14,
+    "reads_before_second_failure": 2,
+    "failure_output": 99
+  },
+  "verification_method": "labs/dispatch/tests/verify_fixtures.py recomputes bounded arithmetic/ownership/authority expectations independently of reference C"
+}

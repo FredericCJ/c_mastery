@@ -140,15 +140,28 @@ calibration; emulator receipts are never relabelled as physical.
 
 ## Current status
 
-Mechanics stages complete through the fifth-edition scaffold (accepted and
-packaged with no new domain). The vocabulary system is in place: a 120-term
+The evidence-based exercise expansion began with foundations and now includes
+all twenty new domains T57–T76. Its canonical plan, gap ledger and continuation map
+live in `planning/exercise_expansion_v5.md` and `curriculum/v5/expansion/`.
+Additional exercises are required core work outside accepted hour envelopes;
+historical estimates do not cap depth. Producer dependencies govern the study
+and composition order, including data-oriented storage before its dispatch consumer.
+
+The historical scaffold acceptance and packaging remain unchanged. The new
+domain sources add 178 projects and 653 objectives; the retained curriculum
+receives additive objective-level assessment contracts and targeted executable
+laboratories. Current author receipts live in `reviews/v5/expansion/integrated/`;
+`completion_ledger.json` distinguishes authored scope from remaining execution
+and independent assessment obligations.
+
+The vocabulary system is in place: a 120-term
 core glossary, domain glossaries for T09, T23, T25, T29, T30, T44, T45 and T47,
 published glossary pages with term links, `tools/check_vocabulary.py` with a
 recorded ratchet baseline over accepted prose, vocabulary recall sets, the rubric
 criterion and the contract amendment. Authority locators marked pending (126)
 await the fifth-edition research gate; the glossaries for the remaining domains
-and the terminology pass over accepted prose are stage 6 work. The catalog is
-otherwise identical to the fourth edition until domain authoring lands. See
-`reviews/v5/` for current receipts. The T65–T76 extension is authorized and
-planned (`planning/modern_techniques_plan.md`); none of its research or
-material exists yet.
+and the terminology pass over accepted prose retain their own review obligations.
+New-domain glossaries and source registers are authored. The 126 earlier pending
+authority locators are not silently promoted by these additions. Full-edition
+acceptance, non-author review, learner results and required physical observations
+still require their own valid evidence; authoring or finite tests do not supply it.

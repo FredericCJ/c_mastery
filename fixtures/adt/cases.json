@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "kind": "sums",
+      "example": "PAIR(UINT32_MAX,5) measures4294967300; NUMBER(0) is distinct from EMPTY despite equal measurement. Invalid tag99 leaves prior result unchanged. A PAIR requested as NUMBER leaves its output sentinel untouched.",
+      "input": {
+        "tag": "PAIR",
+        "x": 4294967295,
+        "y": 5
+      },
+      "expected": 4294967300,
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "quantities",
+      "example": "42seconds becomes42000milliseconds;4294967seconds becomes4294967000;4294968seconds fails without modifying output;zero succeeds.",
+      "input": {
+        "seconds": [
+          0,
+          42,
+          4294967,
+          4294968
+        ]
+      },
+      "expected": [
+        0,
+        42000,
+        4294967000,
+        null
+      ],
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "flags",
+      "example": "Inputs0 and7 succeed unchanged;8 andUINT32_MAX fail while preserving the prior ADFlags value.",
+      "input": {
+        "raw": [
+          0,
+          7,
+          8,
+          4294967295
+        ]
+      },
+      "expected": [
+        true,
+        true,
+        false,
+        false
+      ],
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "text",
+      "example": "41 E2 82 AC F4 8F BF BF is8bytes/3scalars; C0 80 and ED A0 80 fail; empty NULL input succeeds with0scalars; prefix41 E2 82 fails.",
+      "input": {
+        "hex": [
+          "41e282acf48fbfbf",
+          "c080",
+          "eda080",
+          "f4908080",
+          ""
+        ]
+      },
+      "expected": [
+        3,
+        null,
+        null,
+        null,
+        0
+      ],
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "brands",
+      "example": "A handle frompoolA is rejected bypoolB; release/reacquire invalidates the old generation; release atUINT_MAX retires its slot and reduces usable capacity to3.",
+      "input": {
+        "events": [
+          "acquire",
+          "release",
+          "acquire",
+          "old_get"
+        ],
+        "initial_generation": 1
+      },
+      "expected": {
+        "generation": 2,
+        "old_valid": false
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "views",
+      "example": "Backing[1,2,99,3,4],shape2x2,strides3/1 yields4 at(1,1) and needs5elements; capacity4fails. Shape0x3 is empty. Strides1/1 admit read-only overlap.",
+      "input": {
+        "rows": 2,
+        "columns": 2,
+        "row_stride": 3,
+        "column_stride": 1,
+        "capacity": 5
+      },
+      "expected": {
+        "offsets": [
+          0,
+          1,
+          3,
+          4
+        ],
+        "required": 5
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "arena",
+      "example": "CONST7,CONST9,ADD(0,1),root2 yields16. A self-child2 fails. UINT32_MAX+9 fails without changing prior output.",
+      "input": {
+        "literals": [
+          7,
+          9
+        ],
+        "children": [
+          0,
+          1
+        ]
+      },
+      "expected": 16,
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "optics",
+      "example": "Setting x of(1,2)to3 gives(3,2); setting it toitscurrent1 preserves bothfields. Preview(review(3))=3; preview(EMPTY)fails without publishing0.",
+      "input": {
+        "pair": [
+          1,
+          2
+        ],
+        "replace_x": 3
+      },
+      "expected": [
+        3,
+        2
+      ],
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "evolution",
+      "example": "09 03 04 05 06 round-trips byte-for-byte;01 01 07 fails as malformed known data;80 00 fails as unsupported required semantics.",
+      "input": {
+        "hex": "0903040506"
+      },
+      "expected": {
+        "tag": 9,
+        "payload": "040506",
+        "roundtrip": "0903040506"
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    },
+    {
+      "kind": "packet",
+      "example": "01 00 02 07 08 yieldskind1,length2,payload=input+3.02 00 00 isvalidack.01 00 01 07 08 islengtherror;02 00 01 07 isackerror;03 00 00 iskinderror.",
+      "input": {
+        "hex": [
+          "0100020708",
+          "020000",
+          "0100010708",
+          "02000107",
+          "030000"
+        ]
+      },
+      "expected": [
+        0,
+        0,
+        3,
+        4,
+        2
+      ],
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ]
+}

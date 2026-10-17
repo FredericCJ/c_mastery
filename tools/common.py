@@ -58,6 +58,9 @@ def require_scoped_research_gate(group):
     verify_research_hashes(scoped,'research/performance_debugging',group+'*_additional_resources.json')
 
 def require_research_gates():
+    if (ROOT/'curriculum/v5/exercises').is_dir():
+        from expansion_evidence import require_research
+        require_research()
     if not read_json(ROOT / 'reviews/research_gate.json').get('accepted'):
         raise ValueError('Research gate not accepted')
     if (ROOT / 'curriculum/enhancement_taxonomy.json').exists():
@@ -90,10 +93,12 @@ def require_research_gates():
             raise ValueError('Third-edition source research gate not accepted')
         verify_research_hashes(read_json(gate),'research/v3','*resources.json')
     if (ROOT/'curriculum/v5_taxonomy.json').exists():
-        gate=ROOT/'reviews/v5/research_gate.json'
-        if not gate.exists() or read_json(gate).get('accepted') is not True:
-            raise ValueError('Fifth-edition source research gate not accepted')
-        verify_research_hashes(read_json(gate),'research/v5','*resources.json')
+        from v5_common import require_domain_research, domains_manifest
+        data = domains_manifest()
+        require_domain_research(data)
+        authored = {d['id'] for d in read_json(ROOT/'curriculum/v5_taxonomy.json')['domains']}
+        if authored != set(data['domains']):
+            raise ValueError('Fifth-edition taxonomy and gated domain recipes differ')
 
 def check_taxonomy_preservation(taxonomy):
     if (ROOT/'curriculum/edition.json').exists():

@@ -1,0 +1,34 @@
+{
+  "id": "PR-T67-06",
+  "description": "Read-only strided views and ownership boundaries",
+  "input": {
+    "case": "views"
+  },
+  "expected": {
+    "contract": "Backing[1,2,99,3,4],shape2x2,strides3/1 yields4 at(1,1) and needs5elements; capacity4fails. Shape0x3 is empty. Strides1/1 admit read-only overlap."
+  },
+  "cases": [
+    {
+      "kind": "views",
+      "example": "Backing[1,2,99,3,4],shape2x2,strides3/1 yields4 at(1,1) and needs5elements; capacity4fails. Shape0x3 is empty. Strides1/1 admit read-only overlap.",
+      "input": {
+        "rows": 2,
+        "columns": 2,
+        "row_stride": 3,
+        "column_stride": 1,
+        "capacity": 5
+      },
+      "expected": {
+        "offsets": [
+          0,
+          1,
+          3,
+          4
+        ],
+        "required": 5
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

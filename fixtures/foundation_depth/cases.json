@@ -1,0 +1,30 @@
+{
+  "contract_version": 1,
+  "edition": "C17",
+  "semantic_cases": [
+    {"id": "MIXED_SIGN", "source": "semantic/mixed_sign.c", "question": "Classify -1 < 1u and explain the conversions.", "plausible_wrong_explanation": "A negative value is always less than a positive value."},
+    {"id": "UNSIGNED_WRAP", "source": "semantic/unsigned_wrap.c", "question": "Classify UINT_MAX + 1u and derive its value.", "plausible_wrong_explanation": "All integer overflow is undefined."},
+    {"id": "UNSEQUENCED", "source": "semantic/unsequenced.c", "question": "Classify i++ + i++ and identify each conflicting evaluation.", "plausible_wrong_explanation": "The implementation chooses one of the two orders, so either result is allowed."},
+    {"id": "CALL_ORDER", "source": "semantic/call_order.c", "question": "Classify the ordering of two emit function executions and the observable output.", "plausible_wrong_explanation": "The plus operator guarantees left-to-right calls."},
+    {"id": "NEGATIVE_SHIFT", "source": "semantic/negative_shift.c", "question": "Classify -1 >> 1 under C17 and identify required implementation documentation.", "plausible_wrong_explanation": "An arithmetic right shift is an ISO C17 requirement."},
+    {"id": "SIGNED_OVERFLOW", "source": "semantic/signed_overflow.c", "question": "Classify INT_MAX + 1 at runtime without assuming two's-complement wrap.", "plausible_wrong_explanation": "Two's-complement representation makes signed overflow defined."},
+    {"id": "SHIFT_WIDTH", "source": "semantic/shift_width.c", "question": "Classify a shift by sizeof(unsigned)*CHAR_BIT, including a hypothetical unsigned type with padding.", "plausible_wrong_explanation": "The processor masks the shift count, so the expression has a portable value."},
+    {"id": "POINTER_CONSTRAINT", "source": "semantic/pointer_constraint.c", "question": "Identify the constraint and diagnostic requirement for int *p = 1.", "plausible_wrong_explanation": "This is ordinary implementation-defined integer-to-pointer conversion, so no diagnostic is required."},
+    {"id": "ENDED_LIFETIME", "source": "semantic/ended_lifetime.c", "question": "Track lifetime and the saved pointer before its dereference.", "plausible_wrong_explanation": "The stack bytes have not been overwritten, so access remains valid."},
+    {"id": "SHORT_CIRCUIT", "source": "semantic/short_circuit.c", "question": "Classify 0 && (1 / 0) and distinguish a diagnostic from evaluation.", "plausible_wrong_explanation": "The textual division by zero makes every execution undefined."}
+  ],
+  "wire_vectors": [
+    {"hex": "0100000000000000", "flags": 0, "count": 0, "value": 0},
+    {"hex": "01031234ffffffff", "flags": 3, "count": 4660, "value": -1},
+    {"hex": "0101ffff80000000", "flags": 1, "count": 65535, "value": -2147483648},
+    {"hex": "010200017fffffff", "flags": 2, "count": 1, "value": 2147483647}
+  ],
+  "extent_vectors": [
+    {"offset": 5, "count": 3, "width": 4, "limit": 17, "expected": 17},
+    {"offset": 5, "count": 3, "width": 4, "limit": 16, "expected": null},
+    {"offset": 8, "count": 999, "width": 0, "limit": 8, "expected": 8},
+    {"offset": 9, "count": 0, "width": 0, "limit": 8, "expected": null},
+    {"offset": 0, "count": 0, "width": 999, "limit": 0, "expected": 0}
+  ],
+  "security_observation": {"target": "labs/foundation_depth/drills/authorization.c", "input_hex": "0100000200000003", "trusted_authorized": false, "initial_counter": 10, "flawed_counter": 16, "repaired_counter": 10, "claim": "Unauthorized mutation of a synthetic in-process counter, not code execution or privilege escalation."}
+}

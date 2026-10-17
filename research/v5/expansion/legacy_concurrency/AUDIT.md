@@ -1,0 +1,19 @@
+# T51–T53 depth audit before additive assessment authoring
+
+The accepted baseline contains 38 concrete projects, 114 leaf objectives and 126 linked units. Its construction requirements remain binding. The gap is explicit, discriminating per-leaf assessment: causal arguments, changed assumptions, criterion-specific controls and separately delayed transfer. Historical hours and acceptance records are unchanged.
+
+The author read all three modules, all 38 project contracts/steps/failure/acceptance sections, all 38 complete synthetic fixtures and their branches in `research/v3/verify_fixtures.py`. Unit objective/test links and each project's substantive implementation step were inspected. `labs/execution/README.md`, `labs/kernel_smp/README.md`, family mappings and `curriculum/guides/concurrent-system-contracts.md` define the environment and ownership boundaries. This is an author audit, not independent review or a fresh complete baseline execution campaign.
+
+Bounded implementation inspection covered `assessor/execution/cmx.c` wait enrollment, priority recomputation, response-time analysis, finite-horizon admission and CBS; `advanced.c` priority ordering, partitioning, simulation and replenishment; `labs/execution/tests/contracts.c` enrollment/faults and primitive/scheduling cases; `assessor/kernel_smp/smp.c` discovery, local tables, AP startup, cooperative dispatch and remote wake; `ap.S`; `cmk2_model.c`; `parallel_user.c`; and the MADT/channel tests. No uninspected implementation is credited from its filename.
+
+Consequential distinctions:
+
+- T51's primitive model is externally serialized. A serial model pass does not demonstrate interrupt-safe or SMP-safe implementation. A blocked operation completes through task state/result; repeating the original call is not its continuation.
+- PR-T51-11 and its fixture specify permanent once failure; CMX retries. The additive `X-T51-002` bridge supplies explicit policy comparison without rewriting historical evidence. PR-T51-14 asks for owner-death repair; CMX's refusal to exit while owning objects does not implement that requirement.
+- The queue anchor carries integers, whereas the project asks for copied payload lengths and capacity handling. The notification fixture's clamped arithmetic does not establish CMX's all-or-error batch-post semantics. The new criteria expose both mismatches.
+- T52's RTA and admission tests have declared finite bounds. The simulator overwrites unfinished service at the next release; it is not an arbitrary-deadline backlog simulator. Partitioning is input-order first fit, while the project asks for first-fit decreasing. The caller must sort and define failure publication.
+- The soft CBS implementation immediately replenishes and postpones its scheduling deadline. The Q=3,P=10,demand=8 fixture models periodic throttling with completion22, not the soft CBS completion on an otherwise idle processor. Linux's throttled reservation is another explicitly compared policy.
+- T53's early per-CPU cooperative scheduler and later coarse-lock global user scheduler are different implementations. Named stage markers are bounded evidence. The early TLB gate demonstrates request/invalidation acknowledgement, not the full wrong-frame-reuse security experiment.
+- The parallel helper's partial startup failure is not transactional reusable-pool cleanup. Its fixed DAG is not arbitrary-DAG validation. TSC observations in QEMU do not establish physical speedup or worst-case timing.
+
+Research was performed before authorship. The source register records exact inspected passages, including accessible local books. ACPI6.6 retrieval returned403 and is an explicit fresh-inspection gap, despite historical source records. Current platform errata, complete real-time proofs, physical measurements, full guest perturbations, learner attempts and delayed independent transfer remain open obligations.

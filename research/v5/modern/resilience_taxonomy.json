@@ -1,0 +1,218 @@
+{
+  "domains": [
+    {
+      "id": "T75",
+      "title": "Flow control and resilient services",
+      "depth": "Implementation, failure investigation, resource accounting and independent transfer",
+      "subtopics": [
+        {
+          "id": "T75.01",
+          "title": "Cancellation trees and budgets across clock domains",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T75.01.a",
+              "text": "Derive deadline versus timeout semantics, cancellation precedence, parent lifetime and nonextension of inherited budget. Distinguish stopping admission from acknowledgement and rollback."
+            },
+            {
+              "id": "T75.01.b",
+              "text": "Implement checked scope construction and cross-clock remaining-budget encoding, including zero budget, numeric horizon, depth exhaustion and stale parent-lifetime counterexamples without executing invalid access."
+            },
+            {
+              "id": "T75.01.c",
+              "text": "Enumerate cancellation/expiry/finish orderings and verify output preservation, no later child deadline, idempotent cancellation and delayed borrower cleanup. Inject a completion after cancellation and retain its state until acknowledgement."
+            },
+            {
+              "id": "T75.01.d",
+              "text": "Transfer to an RPC chain with queued transport delay and independent clocks. Quantify which latency assumptions bound end-to-end completion and show why repeated per-hop timeout resets or copying an absolute monotonic timestamp violate the intended budget."
+            }
+          ]
+        },
+        {
+          "id": "T75.02",
+          "title": "Five overload policies and bounded pending producers",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T75.02.a",
+              "text": "Specify each policy in terms of observable loss, ordering, caller ownership and completion; distinguish application admission, transport buffering and receiver consumption."
+            },
+            {
+              "id": "T75.02.b",
+              "text": "Implement all five policies, closed draining and the real channel adapter, including exactly-once transfer and explicit retained pending state."
+            },
+            {
+              "id": "T75.02.c",
+              "text": "Implement a two-producer readiness/cancellation adapter and falsify missed-wakeup, double-transfer and unbounded-pending assumptions with controlled event traces; bound queue plus producer-held memory together. Add explicit credit messages: start with four credits, consume one on admission, return one only when receiver capacity is released, and reject duplicate/stale credit returns so granted minus consumed plus returned never exceeds actual capacity."
+            },
+            {
+              "id": "T75.02.d",
+              "text": "Compare block/reject/drop/overwrite/degrade under an identical synthetic producer/consumer schedule, measuring accepted, lost, coalesced, queued and pending work separately. Transfer to owned payloads with a disposer and prove exactly-once cleanup on every rejected or discarded path."
+            }
+          ]
+        },
+        {
+          "id": "T75.03",
+          "title": "Hashed timer-wheel collisions, cancellation and expiry work",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T75.03.a",
+              "text": "Derive bucket index, full due identity, list invariants and generation retirement. Prove why modulo bucket equality alone is insufficient across revolutions."
+            },
+            {
+              "id": "T75.03.b",
+              "text": "Implement bounded schedule/cancel/tick and a two-level cascade extension with no lost or duplicate expiries, explicit horizon, late tick and immediate timer policies."
+            },
+            {
+              "id": "T75.03.c",
+              "text": "Enumerate delays1..16, cancellation/reuse traces and same-bucket collisions against an ordered due-event oracle; test numeric exhaustion and every link removal position."
+            },
+            {
+              "id": "T75.03.d",
+              "text": "Compare heap, ordered list and wheel using equivalent ordering, horizon and cancellation guarantees. Measure worst expiry burst, empty-tick work, memory and jitter; distinguish per-timer output cost from constant bookkeeping claims."
+            }
+          ]
+        },
+        {
+          "id": "T75.04",
+          "title": "Overflow-safe token buckets and competing rate contracts",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T75.04.a",
+              "text": "Derive the burst-plus-rate admission bound, initial credit, dimensional units and distinction between a policer, shaper, peak limit and concurrency limit."
+            },
+            {
+              "id": "T75.04.b",
+              "text": "Implement overflow-safe lazy refill and fixed-point fractional credit, specifying rounding, numeric horizon and which state changes persist on a rejected spend."
+            },
+            {
+              "id": "T75.04.c",
+              "text": "Exhaust small capacities/rates/time jumps against arbitrary-precision arithmetic and adversarial boundary costs; verify cumulative admitted cost bounds and kill free-refill/equality-rejection mutants."
+            },
+            {
+              "id": "T75.04.d",
+              "text": "Compose average and peak limits with atomic admission across both budgets. Compare token bucket and fixed/sliding windows under the same burst policy, and identify when different results arise from different contracts rather than implementation quality."
+            }
+          ]
+        },
+        {
+          "id": "T75.05",
+          "title": "Jittered retry schedules with a shared deadline and attempt budget",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T75.05.a",
+              "text": "Derive bounded exponential windows, count the original attempt separately and explain why nested retries multiply work. Classify retryable outcomes without treating timeout as absence of side effects."
+            },
+            {
+              "id": "T75.05.b",
+              "text": "Implement schedule, unbiased bounded PRNG adapter and actual fault-model dispatch with a common limiter, preserving ownership of outstanding attempts until completion."
+            },
+            {
+              "id": "T75.05.c",
+              "text": "Enumerate every allowed draw for windows2/4/8, deadlines at each boundary and all capped attempt histories; use fault traces where an effect commits but its acknowledgement is lost."
+            },
+            {
+              "id": "T75.05.d",
+              "text": "Compare no-jitter, full-jitter and a documented alternative under fixed seeds and equal retry/deadline budgets. Measure peak synchronized work as well as completion latency; transfer to correlated client seeds and expose why jitter is not a security or safety guarantee."
+            }
+          ]
+        },
+        {
+          "id": "T75.06",
+          "title": "Health breakers, bulkheads and stale completions",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T75.06.a",
+              "text": "Derive distinct health and capacity invariants, permit ownership, epoch identity and neutral-versus-backend-failure classification; explain why a failure window is not a concurrency bound."
+            },
+            {
+              "id": "T75.06.b",
+              "text": "Implement bounded admission/completion with generation and epoch exhaustion, including late old-epoch results and four-tick cooldown overflow retirement."
+            },
+            {
+              "id": "T75.06.c",
+              "text": "Model every two-permit completion ordering, stale/duplicate completion and half-open race. Add and test a sliding-window policy with an independent recomputation of its retained observations."
+            },
+            {
+              "id": "T75.06.d",
+              "text": "Transfer to two tenants and heterogeneous request costs. Derive isolation guarantees, starvation tradeoffs and cancellation acknowledgement, then compare recovery latency and retained resources under equal admission policies."
+            }
+          ]
+        },
+        {
+          "id": "T75.07",
+          "title": "Hedged responses and ownership of losing work",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T75.07.a",
+              "text": "Separate first response from first acceptable response, result commitment from quiescence, and cancellation request from completed losing work. State prerequisites for safe hedging of side effects."
+            },
+            {
+              "id": "T75.07.b",
+              "text": "Implement exactly one winner and separately owned attempt lifetimes, with expiry, late response, repeated completion and unstarted-attempt rejection."
+            },
+            {
+              "id": "T75.07.c",
+              "text": "Implement and verify a synchronized two-worker completion arbiter, exercising both simultaneous success orders and winner/cancellation/timeout races under a controlled scheduler plus sanitizer checks."
+            },
+            {
+              "id": "T75.07.d",
+              "text": "Measure tail latency and total backend work under explicit independent versus correlated delay models. Transfer to a slow loser that completes after the client abandons its wait; preserve cleanup and prevent a stale generation from completing a new request."
+            }
+          ]
+        },
+        {
+          "id": "T75.08",
+          "title": "Idempotent effects, finite deduplication and storage fencing",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T75.08.a",
+              "text": "Derive request identity versus payload equality, finite retention, authentication assumption and monotonic fencing enforcement at the actual effect resource. Identify which failures make a result uncertain."
+            },
+            {
+              "id": "T75.08.b",
+              "text": "Implement atomic in-memory record/effect publication, original-response replay, parameter mismatch rejection, no live-record eviction and checked arithmetic."
+            },
+            {
+              "id": "T75.08.c",
+              "text": "Demonstrate harmless replay/stale-writer violations using original mutants, then add a journal recovery model with crash injection at every write/flush/commit boundary and independently recompute recovered effects."
+            },
+            {
+              "id": "T75.08.d",
+              "text": "Transfer to multiple clients, reordered messages, restarted token issuer and expired dedup entries. State durability, uniqueness and monotonicity assumptions necessary for each guarantee; reject claims of network exactly-once delivery from a local lookup table."
+            }
+          ]
+        },
+        {
+          "id": "T75.09",
+          "title": "Resilient telemetry admission, committed effects and draining",
+          "elective": false,
+          "objectives": [
+            {
+              "id": "T75.09.a",
+              "text": "Derive a composition contract with admission, effect commit, reply availability, notification enqueue, delivery and cleanup as distinct events. Account for every retained buffer, timer, permit and borrowed owner."
+            },
+            {
+              "id": "T75.09.b",
+              "text": "Implement the bounded service anchor using actual conc.channel and all required local IPC/reactor/fault adapters; preserve exactly-once notification for a new retained request and explicit replay/expiry semantics."
+            },
+            {
+              "id": "T75.09.c",
+              "text": "Inject allocation/partial-I/O/timeout/reset/cancellation/late-completion faults across the integrated service, checking effect and notification accounting with an independent event-sourced oracle and all declared capacity bounds."
+            },
+            {
+              "id": "T75.09.d",
+              "text": "Run an independently designed workload with burst arrivals, long tails, correlated faults and slow consumers. Seal a composition decision, apply all13 cost dimensions, and explain changed results under different correctness contracts or clock assumptions."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "PR-T66-04",
+  "description": "Runtime borrow tracking, range splitting and finite token identities",
+  "input": {
+    "case": "borrows"
+  },
+  "expected": {
+    "contract": "A writer[0,8) blocks a reader[3,4). Splitting it at3 creates[0,3) and[3,8), invalidates the parent token and admits no gap or overlap. A writer[8,8) may coexist because it touches no element. A released token cannot release a later loan in the same slot."
+  },
+  "cases": [
+    {
+      "id": "borrow-8",
+      "kind": "borrow",
+      "input": [
+        8,
+        0,
+        8,
+        1,
+        3,
+        1,
+        0
+      ],
+      "expected": [
+        0,
+        4
+      ]
+    },
+    {
+      "id": "borrow-9",
+      "kind": "borrow",
+      "input": [
+        8,
+        0,
+        3,
+        1,
+        3,
+        5,
+        1
+      ],
+      "expected": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "borrow-10",
+      "kind": "borrow",
+      "input": [
+        8,
+        8,
+        0,
+        1,
+        0,
+        8,
+        1
+      ],
+      "expected": [
+        0,
+        0
+      ]
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

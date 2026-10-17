@@ -1,0 +1,788 @@
+{
+  "schema_version": 1,
+  "project": "PR-T09-04",
+  "domain": "T09",
+  "title": "Linker layout, retention and budgets — explicit depth assessments",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T09.md",
+        "sha256": "d99d0c1d84f774ae19d65bfa6c60c3014fcf12210a233836d2718cef14709e55",
+        "passages": [
+          "Topic teaching passages and reading guidance for T09.08, T09.09, T09.10"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T09-04.md",
+        "sha256": "90974ba19ba61093cad72d7e74f81866e7c34ecd00ce200166e87ca828321c99",
+        "passages": [
+          "Contract, Steps, Failure cases, Acceptance and linked-objective checklist"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T09-04.json",
+        "sha256": "5cf068788190dd2db0cffd8b4dc194e5edf1da97107fc454117415ed3cc6690f",
+        "passages": [
+          "Complete synthetic fixture and expected values"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "oracle branches used by this fixture; synthetic reference is not target execution"
+        ]
+      },
+      {
+        "path": "labs/machine_image/README.md",
+        "sha256": "0472b1599c030ab1240c22633db3da5e60a0363607ec1e366dbe13f4ef90f7e2",
+        "passages": [
+          "All twelve bounded laboratory contracts and explicit remaining obligations"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/runtime.c",
+        "sha256": "2cd3dc97c292cc6e5ed2f3b867b2f32bdd0f7fbc3c1c1aa38ebdaf93f17d66b2",
+        "passages": [
+          "abi, hostile, bytes and wide cases"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/artifacts.py",
+        "sha256": "f74dd8b6944dff1f9e36f6d870e3ae83c183db5f8cbc1bda28db14383bbb97ff",
+        "passages": [
+          "archive, relocation, tls, budget, entry, syscall, helpers, byte_closure, closure and image branches"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T09.md",
+        "anchors": [
+          "T09.08",
+          "T09.09",
+          "T09.10"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-MI-06",
+      "U-T09-04-02",
+      "U-T09-04-03",
+      "U-T09-04-04"
+    ],
+    "inspection_limits": [
+      "Project contract/steps/checklists and module teaching inspected; source registers are not treated as actual book inspections.",
+      "Unit objective/test links and selected operation steps inspected; no fresh complete historical portfolio review.",
+      "No new execution or independent learner assessment in this authoring wave."
+    ]
+  },
+  "environment": {
+    "language": "Active C17 baseline. C11/C23 comparisons require their explicitly identified wording; GNU assembly, __int128, ELF and operating-system contracts are extensions/platform rules.",
+    "target": "Linux x86-64 SysV for executable host observations; foreign targets are compile/analysis-only unless explicitly supported and recorded.",
+    "profile": "C",
+    "dependencies": "Retain the parent profile exactly. Host Python, build and binary inspection tools remain outside restricted target closures; no library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, CMake/Ninja/Make and binutils versions and effective flags",
+      "Unsupported target or instrumentation cells remain unavailable"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LSYS-ELF",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "Header entry/table bounds and Program header PT_LOAD/PT_INTERP, lines 244-413; Symbol table fields and bindings, lines 900-1011"
+      ]
+    },
+    {
+      "id": "R-LSYS-GCC-LINK",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "3.16 -l order; -nostartfiles; -nodefaultlibs; -nostdlib; -pie; -static-pie; -static; -shared"
+      ]
+    },
+    {
+      "id": "R-LSYS-LD-KEEP",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "3.6.4.4 Input Section and Garbage Collection, complete short page"
+      ]
+    },
+    {
+      "id": "R-LSYS-LD-LMA",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "3.6.8.2 Output Section LMA, complete short page"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact published C17/C23 text and private CS:APP/TLPI passages were not newly inspected.",
+    "Primary sources listed cover only the named passages; other parent references retain their historical status without a new inspection claim.",
+    "Current full ELF gABI and historical AMD64 0.99 PDF fetch unavailable; full loader/TLS implementation and selected library service contracts remain required for claims beyond supplied passages."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T09-04.md",
+    "fixtures/systems/PR-T09-04.json",
+    "tools/verify_systems_fixtures.py"
+  ],
+  "execution_support": {
+    "kind": "retained partial baseline laboratory anchors",
+    "scope": "Tests exercise only their named bounded cases; broad project acceptance and these supplemental criteria require separate evidence.",
+    "tests": [
+      "machine_image.budget"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T09-04-T09.08.a",
+      "title": "Define memory regions, output sections, and placement constraints.",
+      "objective": "T09.08.a",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Write an original linker script with FLASH[0x10000,0x10100) and RAM[0x20000,0x20080), explicit text/data/BSS sections and alignment. Reject an over-capacity object using ASSERT; do not execute the synthetic image.",
+      "purpose": "A valid syntax script establishes a physically valid board memory map.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.08 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A valid syntax script establishes a physically valid board memory map. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A valid syntax script establishes a physically valid board memory map.",
+        "D2": "Write an original linker script with FLASH[0x10000,0x10100) and RAM[0x20000,0x20080), explicit text/data/BSS sections and alignment. Reject an over-capacity object using ASSERT; do not execute the synthetic image.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add a second RAM bank and define placement when a section cannot fit contiguously in either bank."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The map proves the declared model only; region overflow/alignment and orphan-section policy need explicit checks. No board mapping is inferred.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The map proves the declared model only; region overflow/alignment and orphan-section policy need explicit checks. No board mapping is inferred. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add a second RAM bank and define placement when a section cannot fit contiguously in either bank. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Keep VMA, LMA and file offset in separate columns.",
+        "Linker symbol values and stored C objects need different declaration and access conventions."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-04-T09.08.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add a second RAM bank and define placement when a section cannot fit contiguously in either bank."
+        }
+      ],
+      "assessor_anchor": "#t0908a",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.08 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-04-T09.08.b",
+      "title": "Distinguish load addresses from execution addresses.",
+      "objective": "T09.08.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Place16 initialized data bytes at RAM VMA0x20000 with FLASH LMA0x10080, plus24 BSS bytes. Derive source/destination half-open intervals and verify the load image contains initialization bytes but not24 BSS payload bytes.",
+      "purpose": "VMA, LMA and file offset are interchangeable addresses.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.08 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "VMA, LMA and file offset are interchangeable addresses. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: VMA, LMA and file offset are interchangeable addresses.",
+        "D2": "Place16 initialized data bytes at RAM VMA0x20000 with FLASH LMA0x10080, plus24 BSS bytes. Derive source/destination half-open intervals and verify the load image contains initialization bytes but not24 BSS payload bytes.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Introduce alignment padding between load sections and recalculate the image extent and copy table."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Startup copies16 bytes from load to run location and zeros24 bytes; file offset is obtained from format mapping, not guessed from VMA.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Startup copies16 bytes from load to run location and zeros24 bytes; file offset is obtained from format mapping, not guessed from VMA. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Introduce alignment padding between load sections and recalculate the image extent and copy table. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Keep VMA, LMA and file offset in separate columns.",
+        "Linker symbol values and stored C objects need different declaration and access conventions."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-04-T09.08.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Introduce alignment padding between load sections and recalculate the image extent and copy table."
+        }
+      ],
+      "assessor_anchor": "#t0908b",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.08 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-04-T09.08.c",
+      "title": "Export linker symbols through documented C/assembly conventions.",
+      "objective": "T09.08.c",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Export data_start,data_end,data_load symbols and document the chosen compiler/linker C declaration convention. Use symbol values to construct checked counts under that implementation contract, avoiding dereferencing a linker absolute symbol as stored data.",
+      "purpose": "A linker symbol necessarily denotes an ISO C allocated object containing its numeric value.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.08 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A linker symbol necessarily denotes an ISO C allocated object containing its numeric value. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A linker symbol necessarily denotes an ISO C allocated object containing its numeric value.",
+        "D2": "Export data_start,data_end,data_load symbols and document the chosen compiler/linker C declaration convention. Use symbol values to construct checked counts under that implementation contract, avoiding dereferencing a linker absolute symbol as stored data.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Use an explicit startup table of address/length records and validate each interval before initialization."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Address-valued linker symbols and ordinary objects differ; subtraction/provenance assumptions must be explicitly implementation-bound.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Address-valued linker symbols and ordinary objects differ; subtraction/provenance assumptions must be explicitly implementation-bound. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Use an explicit startup table of address/length records and validate each interval before initialization. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Keep VMA, LMA and file offset in separate columns.",
+        "Linker symbol values and stored C objects need different declaration and access conventions."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-04-T09.08.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Use an explicit startup table of address/length records and validate each interval before initialization."
+        }
+      ],
+      "assessor_anchor": "#t0908c",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.08 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-04-T09.09.a",
+      "title": "Control section collection, KEEP, and archive extraction.",
+      "objective": "T09.09.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Put an indirect registration entry in an archive member with no ordinary reference. Compare KEEP alone, explicit extraction and section GC, recording both member inclusion and retained sections.",
+      "purpose": "KEEP pulls every matching section out of every archive automatically.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.09 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "KEEP pulls every matching section out of every archive automatically. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: KEEP pulls every matching section out of every archive automatically.",
+        "D2": "Put an indirect registration entry in an archive member with no ordinary reference. Compare KEEP alone, explicit extraction and section GC, recording both member inclusion and retained sections.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Replace the archive with directly linked objects and explain why the same KEEP rule now has a different effect."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "An unextracted member supplies no input section for KEEP; extraction and section reachability must be diagnosed separately.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "An unextracted member supplies no input section for KEEP; extraction and section reachability must be diagnosed separately. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace the archive with directly linked objects and explain why the same KEEP rule now has a different effect. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Find the first stage where the registration entry disappears.",
+        "Compiler emission, archive extraction, section retention and runtime enumeration are separate gates."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-04-T09.09.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace the archive with directly linked objects and explain why the same KEEP rule now has a different effect."
+        }
+      ],
+      "assessor_anchor": "#t0909a",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.09 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-04-T09.09.b",
+      "title": "Account for interrupt tables and registration entries with indirect references.",
+      "objective": "T09.09.b",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Build a table of two original callbacks reached only through registration, retain it deliberately and prove an unrelated unused function is eliminated. Check table boundaries and callback ownership.",
+      "purpose": "Taking an address in source always makes an entry reachable after linking.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.09 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Taking an address in source always makes an entry reachable after linking. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Taking an address in source always makes an entry reachable after linking.",
+        "D2": "Build a table of two original callbacks reached only through registration, retain it deliberately and prove an unrelated unused function is eliminated. Check table boundaries and callback ownership.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Store numeric offsets instead of relocation-bearing pointers and identify the lost automatic reachability evidence."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "A retained table must create actual relocation edges to the callbacks; source mention and compiler emission alone do not guarantee final reachability.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "A retained table must create actual relocation edges to the callbacks; source mention and compiler emission alone do not guarantee final reachability. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Store numeric offsets instead of relocation-bearing pointers and identify the lost automatic reachability evidence. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Find the first stage where the registration entry disappears.",
+        "Compiler emission, archive extraction, section retention and runtime enumeration are separate gates."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-04-T09.09.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Store numeric offsets instead of relocation-bearing pointers and identify the lost automatic reachability evidence."
+        }
+      ],
+      "assessor_anchor": "#t0909b",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.09 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-04-T09.09.c",
+      "title": "Diagnose missing code caused by unintended section elimination.",
+      "objective": "T09.09.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Diagnose a missing registration entry by tracing compiler emission, archive extraction, section GC and startup enumeration in order. Supply a deliberately broken case at each relevant stage.",
+      "purpose": "Every missing function after link is fixed by disabling garbage collection.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.09 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Every missing function after link is fixed by disabling garbage collection. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Every missing function after link is fixed by disabling garbage collection.",
+        "D2": "Diagnose a missing registration entry by tracing compiler emission, archive extraction, section GC and startup enumeration in order. Supply a deliberately broken case at each relevant stage.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Change to LTO and show how the compiler/linker boundary shifts the required evidence."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The first absent artifact identifies the mechanism; broad retention can hide missing extraction or enumeration bugs.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The first absent artifact identifies the mechanism; broad retention can hide missing extraction or enumeration bugs. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Change to LTO and show how the compiler/linker boundary shifts the required evidence. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Find the first stage where the registration entry disappears.",
+        "Compiler emission, archive extraction, section retention and runtime enumeration are separate gates."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-04-T09.09.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change to LTO and show how the compiler/linker boundary shifts the required evidence."
+        }
+      ],
+      "assessor_anchor": "#t0909c",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.09 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-04-T09.10.a",
+      "title": "Use map files and linker assertions for memory limits.",
+      "objective": "T09.10.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Use real map files and ASSERT to accept32 BSS bytes and reject128 against a64-byte budget, then add alignment and a second section. Independently compute the expected region end.",
+      "purpose": "Summing source sizeof values always equals linked region occupancy.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.10 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Summing source sizeof values always equals linked region occupancy. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Summing source sizeof values always equals linked region occupancy.",
+        "D2": "Use real map files and ASSERT to accept32 BSS bytes and reject128 against a64-byte budget, then add alignment and a second section. Independently compute the expected region end.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Include a reserved stack region and prove the combined static allocation cannot overlap it."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Padding and placement affect the map; the rejection must be the budget assertion rather than another linker failure.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Padding and placement affect the map; the rejection must be the budget assertion rather than another linker failure. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Include a reserved stack region and prove the combined static allocation cannot overlap it. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Decide whether the budget concerns file, load or runtime bytes.",
+        "Include alignment/reserved regions and distinguish initialized-data load copies from BSS residency."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-04-T09.10.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Include a reserved stack region and prove the combined static allocation cannot overlap it."
+        }
+      ],
+      "assessor_anchor": "#t0910a",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.10 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-04-T09.10.b",
+      "title": "Quantify text, read-only data, initialized data, and zero-fill storage.",
+      "objective": "T09.10.b",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Create text, constant, initialized and zero-initialized objects, inspect actual section placement and account for retained versus optimized-away bytes. Separate ROM initialization bytes from RAM residency.",
+      "purpose": "BSS is free because it occupies no ordinary data payload in the file.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.10 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "BSS is free because it occupies no ordinary data payload in the file. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: BSS is free because it occupies no ordinary data payload in the file.",
+        "D2": "Create text, constant, initialized and zero-initialized objects, inspect actual section placement and account for retained versus optimized-away bytes. Separate ROM initialization bytes from RAM residency.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Merge identical constants or enable section GC and explain the resulting resource delta without changing the correctness contract."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Zero-fill still consumes runtime memory; initialized data often consumes both load-image and runtime storage. Classification follows actual retained sections.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Zero-fill still consumes runtime memory; initialized data often consumes both load-image and runtime storage. Classification follows actual retained sections. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Merge identical constants or enable section GC and explain the resulting resource delta without changing the correctness contract. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Decide whether the budget concerns file, load or runtime bytes.",
+        "Include alignment/reserved regions and distinguish initialized-data load copies from BSS residency."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-04-T09.10.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Merge identical constants or enable section GC and explain the resulting resource delta without changing the correctness contract."
+        }
+      ],
+      "assessor_anchor": "#t0910b",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.10 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-04-T09.10.c",
+      "title": "Compare file size, load image size, and runtime RAM use.",
+      "objective": "T09.10.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Compare ELF file size, raw load-image extent and runtime RAM for the same original layout, including headers/debug bytes and sparse gaps. State the metric before comparing configurations.",
+      "purpose": "A smaller ELF necessarily means less flash and RAM.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.10 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-04 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A smaller ELF necessarily means less flash and RAM. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A smaller ELF necessarily means less flash and RAM.",
+        "D2": "Compare ELF file size, raw load-image extent and runtime RAM for the same original layout, including headers/debug bytes and sparse gaps. State the metric before comparing configurations.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Convert to a sparse address-bearing format and explain why its smaller file is not a smaller address span."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Metadata/debug data and sparse encoding can change file size independently of load/runtime requirements.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Metadata/debug data and sparse encoding can change file size independently of load/runtime requirements. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Convert to a sparse address-bearing format and explain why its smaller file is not a smaller address span. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Decide whether the budget concerns file, load or runtime bytes.",
+        "Include alignment/reserved regions and distinguish initialized-data load copies from BSS residency."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-04-T09.10.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Convert to a sparse address-bearing format and explain why its smaller file is not a smaller address span."
+        }
+      ],
+      "assessor_anchor": "#t0910c",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.10 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-04 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T09-04.md",
+  "status": {
+    "content": "authored",
+    "execution": "not-run supplemental assessments",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite visible tests are not absolute mastery.",
+      "No baseline hours, IDs, source bytes or historical acceptance receipts changed."
+    ]
+  }
+}

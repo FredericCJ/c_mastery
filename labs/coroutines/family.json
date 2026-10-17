@@ -1,0 +1,2121 @@
+{
+  "version": 1,
+  "family": "coroutines",
+  "title": "Iterators, coroutines and continuations",
+  "build_system": "cmake",
+  "assessor_root": "assessor/coroutines",
+  "projects": [
+    {
+      "id": "PR-T72-01",
+      "tests": [
+        "coroutines.iterator"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T72-02",
+      "tests": [
+        "coroutines.dataflow"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T72-03",
+      "tests": [
+        "coroutines.generator"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T72-04",
+      "tests": [
+        "coroutines.fiber"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T72-05",
+      "tests": [
+        "coroutines.cps"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T72-06",
+      "tests": [
+        "coroutines.parser"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T72-07",
+      "tests": [
+        "coroutines.packrat"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T72-08",
+      "tests": [
+        "coroutines.async"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    },
+    {
+      "id": "PR-T72-09",
+      "tests": [
+        "coroutines.effect"
+      ],
+      "scope": "Bounded executable anchor; full exercise alternatives, integration and assessment remain required."
+    }
+  ],
+  "units": [
+    {
+      "id": "LAB-CR-01",
+      "project": "PR-T72-01",
+      "title": "Construct: Lazy fused pull pipelines and typed early termination",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T72.01.a",
+        "T72.01.b"
+      ],
+      "tests": [
+        "coroutines.iterator"
+      ],
+      "steps": [
+        "Derive evaluation order, consumption and side effects for filter-even/map-square/take, and distinguish external next from an internal fold with typed break.",
+        "Implement co_next, co_flow_next and co_fold without an iterator library, then build an unfused equivalent and compare exact source-pull and callback counts before timing."
+      ],
+      "checks": [
+        "range0..10, step1, take3 emits0,4,16 after1,3,5 source pulls; the next call returns DONE without a sixth pull. Breaking after two outputs leaves16 as the next output.",
+        "Enumerate half-open ranges, nonunit steps, empty take, exhaustion and early break against a materialized mathematical oracle. Check UINT16-edge squaring and resumed iteration; reject extra-pull-after-take and skipped-map mutants."
+      ],
+      "reasoning": [
+        "Derive evaluation order, consumption and side effects for filter-even/map-square/take, and distinguish external next from an internal fold with typed break."
+      ],
+      "deliverables": [
+        "Implement co_next, co_flow_next and co_fold without an iterator library, then build an unfused equivalent and compare exact source-pull and callback counts before timing.",
+        "Enumerate half-open ranges, nonunit steps, empty take, exhaustion and early break against a materialized mathematical oracle. Check UINT16-edge squaring and resumed iteration; reject extra-pull-after-take and skipped-map mutants.",
+        "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-001-R1",
+          "objective": "T72.01.a",
+          "criterion": "Derive evaluation order, consumption and side effects for filter-even/map-square/take, and distinguish external next from an internal fold with typed break.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-001-R2",
+          "objective": "T72.01.b",
+          "criterion": "Implement co_next, co_flow_next and co_fold without an iterator library, then build an unfused equivalent and compare exact source-pull and callback counts before timing.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-001.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "iterator bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-ITER",
+          "locator": "map lazy evaluation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-02",
+      "project": "PR-T72-01",
+      "title": "Falsify: Lazy fused pull pipelines and typed early termination",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.01.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate half-open ranges, nonunit steps, empty take, exhaustion and early break against a materialized mathematical oracle. Check UINT16-edge squaring and resumed iteration; reject extra-pull-after-take and skipped-map mutants."
+      ],
+      "checks": [
+        "range0..10, step1, take3 emits0,4,16 after1,3,5 source pulls; the next call returns DONE without a sixth pull. Breaking after two outputs leaves16 as the next output.",
+        "Enumerate half-open ranges, nonunit steps, empty take, exhaustion and early break against a materialized mathematical oracle. Check UINT16-edge squaring and resumed iteration; reject extra-pull-after-take and skipped-map mutants."
+      ],
+      "reasoning": [
+        "Enumerate half-open ranges, nonunit steps, empty take, exhaustion and early break against a materialized mathematical oracle. Check UINT16-edge squaring and resumed iteration; reject extra-pull-after-take and skipped-map mutants."
+      ],
+      "deliverables": [
+        "Enumerate half-open ranges, nonunit steps, empty take, exhaustion and early break against a materialized mathematical oracle. Check UINT16-edge squaring and resumed iteration; reject extra-pull-after-take and skipped-map mutants."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-001-R3",
+          "objective": "T72.01.c",
+          "criterion": "Enumerate half-open ranges, nonunit steps, empty take, exhaustion and early break against a materialized mathematical oracle. Check UINT16-edge squaring and resumed iteration; reject extra-pull-after-take and skipped-map mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-001.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "iterator bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-ITER",
+          "locator": "map lazy evaluation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-03",
+      "project": "PR-T72-01",
+      "title": "Integrate and transfer: Lazy fused pull pipelines and typed early termination",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.01.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input."
+      ],
+      "checks": [
+        "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input."
+      ],
+      "reasoning": [
+        "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input."
+      ],
+      "deliverables": [
+        "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-001-R4",
+          "objective": "T72.01.d",
+          "criterion": "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Replace pure mapping with a callback that acquires resources and may fail. State whether a rejected item was consumed and which resources remain owned; delayed assessment adds zip with unequal lengths and forbids over-reading the shorter input."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-001.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "iterator bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-ITER",
+          "locator": "map lazy evaluation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-04",
+      "project": "PR-T72-02",
+      "title": "Construct: Volcano scan/filter/group operators with pull backpressure",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T72.02.a",
+        "T72.02.b"
+      ],
+      "tests": [
+        "coroutines.dataflow"
+      ],
+      "steps": [
+        "Explain open/next/close and group-boundary ownership in a pull dataflow plan; distinguish iterator backpressure from unbounded eager materialization.",
+        "Implement the fused contiguous-key nonnegative-sum query, an unfused scan/filter/group operator chain and a bounded push adapter with identical error and order contracts."
+      ],
+      "checks": [
+        "Rows(1,-1),(1,3),(1,4),(2,-8),(3,5),(4,6) produce(1,7),(3,5),(4,6). A first next stops at index3 and cannot consume group3.",
+        "Compare all short key/value streams against an independent grouping oracle, including negative-only groups, overflow, repeated keys separated by another group, early close and output canaries. Reject negative-value inclusion and consuming-later-groups mutants."
+      ],
+      "reasoning": [
+        "Explain open/next/close and group-boundary ownership in a pull dataflow plan; distinguish iterator backpressure from unbounded eager materialization."
+      ],
+      "deliverables": [
+        "Implement the fused contiguous-key nonnegative-sum query, an unfused scan/filter/group operator chain and a bounded push adapter with identical error and order contracts.",
+        "Compare all short key/value streams against an independent grouping oracle, including negative-only groups, overflow, repeated keys separated by another group, early close and output canaries. Reject negative-value inclusion and consuming-later-groups mutants.",
+        "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-002-R1",
+          "objective": "T72.02.a",
+          "criterion": "Explain open/next/close and group-boundary ownership in a pull dataflow plan; distinguish iterator backpressure from unbounded eager materialization.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-002-R2",
+          "objective": "T72.02.b",
+          "criterion": "Implement the fused contiguous-key nonnegative-sum query, an unfused scan/filter/group operator chain and a bounded push adapter with identical error and order contracts.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-002.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "dataflow bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-ITER",
+          "locator": "map lazy evaluation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-05",
+      "project": "PR-T72-02",
+      "title": "Falsify: Volcano scan/filter/group operators with pull backpressure",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.02.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Compare all short key/value streams against an independent grouping oracle, including negative-only groups, overflow, repeated keys separated by another group, early close and output canaries. Reject negative-value inclusion and consuming-later-groups mutants."
+      ],
+      "checks": [
+        "Rows(1,-1),(1,3),(1,4),(2,-8),(3,5),(4,6) produce(1,7),(3,5),(4,6). A first next stops at index3 and cannot consume group3.",
+        "Compare all short key/value streams against an independent grouping oracle, including negative-only groups, overflow, repeated keys separated by another group, early close and output canaries. Reject negative-value inclusion and consuming-later-groups mutants."
+      ],
+      "reasoning": [
+        "Compare all short key/value streams against an independent grouping oracle, including negative-only groups, overflow, repeated keys separated by another group, early close and output canaries. Reject negative-value inclusion and consuming-later-groups mutants."
+      ],
+      "deliverables": [
+        "Compare all short key/value streams against an independent grouping oracle, including negative-only groups, overflow, repeated keys separated by another group, early close and output canaries. Reject negative-value inclusion and consuming-later-groups mutants."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-002-R3",
+          "objective": "T72.02.c",
+          "criterion": "Compare all short key/value streams against an independent grouping oracle, including negative-only groups, overflow, repeated keys separated by another group, early close and output canaries. Reject negative-value inclusion and consuming-later-groups mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-002.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "dataflow bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-ITER",
+          "locator": "map lazy evaluation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-06",
+      "project": "PR-T72-02",
+      "title": "Integrate and transfer: Volcano scan/filter/group operators with pull backpressure",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.02.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission."
+      ],
+      "checks": [
+        "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission."
+      ],
+      "reasoning": [
+        "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission."
+      ],
+      "deliverables": [
+        "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-002-R4",
+          "objective": "T72.02.d",
+          "criterion": "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Change the source to partial asynchronous batches and the sink to bounded capacity. Preserve one pending group across empty batches and cancellation; delayed assessment adds an ordering operator that cannot remain streaming and requires explicit memory admission."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-002.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "dataflow bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-ITER",
+          "locator": "map lazy evaluation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-07",
+      "project": "PR-T72-03",
+      "title": "Construct: Allocated coroutine frames and generator ownership",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T72.03.a",
+        "T72.03.b"
+      ],
+      "tests": [
+        "coroutines.generator"
+      ],
+      "steps": [
+        "Derive frame state, suspension lifetime, allocation failure and destruction rules; distinguish compiler-generated C++ coroutine storage from an explicit C frame.",
+        "Implement allocator-backed Fibonacci generators with one owned frame, stable DONE, cancellation through destroy and exactly-once release, plus a caller-provided-frame alternative under an equal value contract."
+      ],
+      "checks": [
+        "count3 emits0,1,1 then stable DONE. count47 ends at1836311903. Allocation failure leaves the caller output unchanged and performs no release.",
+        "Inject allocation failure, count0/1/47, suspension then destroy, repeated destroy through the cleared owner and interleaved generators. Compare every value with an independent integer recurrence and record allocation counts; reject extra-yield and omitted-release mutants."
+      ],
+      "reasoning": [
+        "Derive frame state, suspension lifetime, allocation failure and destruction rules; distinguish compiler-generated C++ coroutine storage from an explicit C frame."
+      ],
+      "deliverables": [
+        "Implement allocator-backed Fibonacci generators with one owned frame, stable DONE, cancellation through destroy and exactly-once release, plus a caller-provided-frame alternative under an equal value contract.",
+        "Inject allocation failure, count0/1/47, suspension then destroy, repeated destroy through the cleared owner and interleaved generators. Compare every value with an independent integer recurrence and record allocation counts; reject extra-yield and omitted-release mutants.",
+        "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-003-R1",
+          "objective": "T72.03.a",
+          "criterion": "Derive frame state, suspension lifetime, allocation failure and destruction rules; distinguish compiler-generated C++ coroutine storage from an explicit C frame.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-003-R2",
+          "objective": "T72.03.b",
+          "criterion": "Implement allocator-backed Fibonacci generators with one owned frame, stable DONE, cancellation through destroy and exactly-once release, plus a caller-provided-frame alternative under an equal value contract.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-003.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "generator bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-CPP",
+          "locator": "paragraphs9-10 coroutine state allocation and allocation failure",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-08",
+      "project": "PR-T72-03",
+      "title": "Falsify: Allocated coroutine frames and generator ownership",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.03.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Inject allocation failure, count0/1/47, suspension then destroy, repeated destroy through the cleared owner and interleaved generators. Compare every value with an independent integer recurrence and record allocation counts; reject extra-yield and omitted-release mutants."
+      ],
+      "checks": [
+        "count3 emits0,1,1 then stable DONE. count47 ends at1836311903. Allocation failure leaves the caller output unchanged and performs no release.",
+        "Inject allocation failure, count0/1/47, suspension then destroy, repeated destroy through the cleared owner and interleaved generators. Compare every value with an independent integer recurrence and record allocation counts; reject extra-yield and omitted-release mutants."
+      ],
+      "reasoning": [
+        "Inject allocation failure, count0/1/47, suspension then destroy, repeated destroy through the cleared owner and interleaved generators. Compare every value with an independent integer recurrence and record allocation counts; reject extra-yield and omitted-release mutants."
+      ],
+      "deliverables": [
+        "Inject allocation failure, count0/1/47, suspension then destroy, repeated destroy through the cleared owner and interleaved generators. Compare every value with an independent integer recurrence and record allocation counts; reject extra-yield and omitted-release mutants."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-003-R3",
+          "objective": "T72.03.c",
+          "criterion": "Inject allocation failure, count0/1/47, suspension then destroy, repeated destroy through the cleared owner and interleaved generators. Compare every value with an independent integer recurrence and record allocation counts; reject extra-yield and omitted-release mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-003.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "generator bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-CPP",
+          "locator": "paragraphs9-10 coroutine state allocation and allocation failure",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-09",
+      "project": "PR-T72-03",
+      "title": "Integrate and transfer: Allocated coroutine frames and generator ownership",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.03.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame."
+      ],
+      "checks": [
+        "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame."
+      ],
+      "reasoning": [
+        "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame."
+      ],
+      "deliverables": [
+        "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-003-R4",
+          "objective": "T72.03.d",
+          "criterion": "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Make yielded values own heap buffers and retain one across suspension. Define borrow/transfer/clone explicitly and compare cleanup after partial construction; delayed assessment introduces an address-sensitive self-reference that forbids moving the frame."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-003.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "generator bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-CPP",
+          "locator": "paragraphs9-10 coroutine state allocation and allocation failure",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-10",
+      "project": "PR-T72-04",
+      "title": "Construct: Actual x86-64 stack switching, ABI state and sanitizer fibers",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T72.04.a",
+        "T72.04.b"
+      ],
+      "tests": [
+        "coroutines.fiber"
+      ],
+      "steps": [
+        "Derive the SysV stack-entry alignment and callee-preserved context, separating ABI obligations, ISO C, compiler extensions and detector annotations.",
+        "Implement the assembly context switch plus fresh/resume/yield/completed/destroyed lifecycle on a caller-owned aligned stack; preserve FP control and integrate ASan/TSan fiber APIs."
+      ],
+      "checks": [
+        "The callback sees its own128KiB stack, local17 then29 survive yields, caller rounding changes remain independent of fiber FE_DOWNWARD, and destruction while suspended rejects.",
+        "Run real two-yield callbacks with persistent locals, architectural RSP inside the supplied stack and independent caller/fiber rounding modes. Reject FP-control omission and suspended-destruction mutants. Inspect ELF notes, disassembly, registers, detector results and exact unsupported ABI features."
+      ],
+      "reasoning": [
+        "Derive the SysV stack-entry alignment and callee-preserved context, separating ABI obligations, ISO C, compiler extensions and detector annotations."
+      ],
+      "deliverables": [
+        "Implement the assembly context switch plus fresh/resume/yield/completed/destroyed lifecycle on a caller-owned aligned stack; preserve FP control and integrate ASan/TSan fiber APIs.",
+        "Run real two-yield callbacks with persistent locals, architectural RSP inside the supplied stack and independent caller/fiber rounding modes. Reject FP-control omission and suspended-destruction mutants. Inspect ELF notes, disassembly, registers, detector results and exact unsupported ABI features.",
+        "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-004-R1",
+          "objective": "T72.04.a",
+          "criterion": "Derive the SysV stack-entry alignment and callee-preserved context, separating ABI obligations, ISO C, compiler extensions and detector annotations.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-004-R2",
+          "objective": "T72.04.b",
+          "criterion": "Implement the assembly context switch plus fresh/resume/yield/completed/destroyed lifecycle on a caller-owned aligned stack; preserve FP control and integrate ASan/TSan fiber APIs.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-004.md",
+      "target_scope": "host-abi-only",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "fiber bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-ABI",
+          "locator": "Function Calling Sequence: Registers",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ASAN",
+          "locator": "start_switch_fiber and finish_switch_fiber documentation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-TSAN",
+          "locator": "Fiber switching API and synchronization flags",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-11",
+      "project": "PR-T72-04",
+      "title": "Falsify: Actual x86-64 stack switching, ABI state and sanitizer fibers",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.04.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Run real two-yield callbacks with persistent locals, architectural RSP inside the supplied stack and independent caller/fiber rounding modes. Reject FP-control omission and suspended-destruction mutants. Inspect ELF notes, disassembly, registers, detector results and exact unsupported ABI features."
+      ],
+      "checks": [
+        "The callback sees its own128KiB stack, local17 then29 survive yields, caller rounding changes remain independent of fiber FE_DOWNWARD, and destruction while suspended rejects.",
+        "Run real two-yield callbacks with persistent locals, architectural RSP inside the supplied stack and independent caller/fiber rounding modes. Reject FP-control omission and suspended-destruction mutants. Inspect ELF notes, disassembly, registers, detector results and exact unsupported ABI features."
+      ],
+      "reasoning": [
+        "Run real two-yield callbacks with persistent locals, architectural RSP inside the supplied stack and independent caller/fiber rounding modes. Reject FP-control omission and suspended-destruction mutants. Inspect ELF notes, disassembly, registers, detector results and exact unsupported ABI features."
+      ],
+      "deliverables": [
+        "Run real two-yield callbacks with persistent locals, architectural RSP inside the supplied stack and independent caller/fiber rounding modes. Reject FP-control omission and suspended-destruction mutants. Inspect ELF notes, disassembly, registers, detector results and exact unsupported ABI features."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-004-R3",
+          "objective": "T72.04.c",
+          "criterion": "Run real two-yield callbacks with persistent locals, architectural RSP inside the supplied stack and independent caller/fiber rounding modes. Reject FP-control omission and suspended-destruction mutants. Inspect ELF notes, disassembly, registers, detector results and exact unsupported ABI features.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-004.md",
+      "target_scope": "host-abi-only",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "fiber bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-ABI",
+          "locator": "Function Calling Sequence: Registers",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ASAN",
+          "locator": "start_switch_fiber and finish_switch_fiber documentation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-TSAN",
+          "locator": "Fiber switching API and synchronization flags",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-12",
+      "project": "PR-T72-04",
+      "title": "Integrate and transfer: Actual x86-64 stack switching, ABI state and sanitizer fibers",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.04.d",
+        "T72.04.a",
+        "T72.04.b"
+      ],
+      "tests": [],
+      "steps": [
+        "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code.",
+        "Before exporting fiber.context, re-derive and demonstrate on the actual composed artifact: Derive the SysV stack-entry alignment and callee-preserved context, separating ABI obligations, ISO C, compiler extensions and detector annotations.",
+        "Before exporting fiber.context, re-derive and demonstrate on the actual composed artifact: Implement the assembly context switch plus fresh/resume/yield/completed/destroyed lifecycle on a caller-owned aligned stack; preserve FP control and integrate ASan/TSan fiber APIs."
+      ],
+      "checks": [
+        "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code.",
+        "Export review fails if the composed artifact violates any critical representation, lifetime or operation invariant, even when the isolated anchor still passes."
+      ],
+      "reasoning": [
+        "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code."
+      ],
+      "deliverables": [
+        "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-004-R4",
+          "objective": "T72.04.d",
+          "criterion": "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-004-R1",
+          "objective": "T72.04.a",
+          "criterion": "Derive the SysV stack-entry alignment and callee-preserved context, separating ABI obligations, ISO C, compiler extensions and detector annotations.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-004-R2",
+          "objective": "T72.04.b",
+          "criterion": "Implement the assembly context switch plus fresh/resume/yield/completed/destroyed lifecycle on a caller-owned aligned stack; preserve FP control and integrate ASan/TSan fiber APIs.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add nested fiber scheduling and cooperative cancellation with owned automatic resources. Design guard-page allocation only in an isolated process without host-policy changes, and explain why CET, unwinding, signals and thread migration each require a new backend contract; delayed assessment ports the context layout to another ABI on paper before code."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-004.md",
+      "target_scope": "host-abi-only",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "fiber bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-ABI",
+          "locator": "Function Calling Sequence: Registers",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ASAN",
+          "locator": "start_switch_fiber and finish_switch_fiber documentation",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-TSAN",
+          "locator": "Fiber switching API and synchronization flags",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-13",
+      "project": "PR-T72-05",
+      "title": "Construct: Defunctionalized continuations and a budgeted trampoline",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T72.05.a",
+        "T72.05.b"
+      ],
+      "tests": [
+        "coroutines.cps"
+      ],
+      "steps": [
+        "Transform recursive factorial into continuation-passing form and then a finite continuation representation, explaining which control and environment values were made explicit.",
+        "Implement the factorial0..12 frame with a bounded multiplier stack, one-transition budgets, stable completion and cancellation, without recursive calls or tail-call optimization assumptions."
+      ],
+      "checks": [
+        "factorial6 takes14 single-transition steps: six pushes, one base transition, six pops and one completion. Output stays91 until completion then becomes720.",
+        "Compare factorial values with Python integers for every admitted n and every budget partition, including budget0 and cancellation at each state. Assert maximum depth and output publication; reject zero-base and omitted-multiplication mutants."
+      ],
+      "reasoning": [
+        "Transform recursive factorial into continuation-passing form and then a finite continuation representation, explaining which control and environment values were made explicit."
+      ],
+      "deliverables": [
+        "Implement the factorial0..12 frame with a bounded multiplier stack, one-transition budgets, stable completion and cancellation, without recursive calls or tail-call optimization assumptions.",
+        "Compare factorial values with Python integers for every admitted n and every budget partition, including budget0 and cancellation at each state. Assert maximum depth and output publication; reject zero-base and omitted-multiplication mutants.",
+        "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-005-R1",
+          "objective": "T72.05.a",
+          "criterion": "Transform recursive factorial into continuation-passing form and then a finite continuation representation, explaining which control and environment values were made explicit.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-005-R2",
+          "objective": "T72.05.b",
+          "criterion": "Implement the factorial0..12 frame with a bounded multiplier stack, one-transition budgets, stable completion and cancellation, without recursive calls or tail-call optimization assumptions.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-005.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "cps bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-14",
+      "project": "PR-T72-05",
+      "title": "Falsify: Defunctionalized continuations and a budgeted trampoline",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.05.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Compare factorial values with Python integers for every admitted n and every budget partition, including budget0 and cancellation at each state. Assert maximum depth and output publication; reject zero-base and omitted-multiplication mutants."
+      ],
+      "checks": [
+        "factorial6 takes14 single-transition steps: six pushes, one base transition, six pops and one completion. Output stays91 until completion then becomes720.",
+        "Compare factorial values with Python integers for every admitted n and every budget partition, including budget0 and cancellation at each state. Assert maximum depth and output publication; reject zero-base and omitted-multiplication mutants."
+      ],
+      "reasoning": [
+        "Compare factorial values with Python integers for every admitted n and every budget partition, including budget0 and cancellation at each state. Assert maximum depth and output publication; reject zero-base and omitted-multiplication mutants."
+      ],
+      "deliverables": [
+        "Compare factorial values with Python integers for every admitted n and every budget partition, including budget0 and cancellation at each state. Assert maximum depth and output publication; reject zero-base and omitted-multiplication mutants."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-005-R3",
+          "objective": "T72.05.c",
+          "criterion": "Compare factorial values with Python integers for every admitted n and every budget partition, including budget0 and cancellation at each state. Assert maximum depth and output publication; reject zero-base and omitted-multiplication mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-005.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "cps bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-15",
+      "project": "PR-T72-05",
+      "title": "Integrate and transfer: Defunctionalized continuations and a budgeted trampoline",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.05.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return."
+      ],
+      "checks": [
+        "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return."
+      ],
+      "reasoning": [
+        "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return."
+      ],
+      "deliverables": [
+        "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-005-R4",
+          "objective": "T72.05.d",
+          "criterion": "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Replace factorial with a binary expression evaluator whose continuations own temporary buffers. Define tagged continuation cases, overflow/error propagation and cancellation cleanup; delayed assessment introduces an externally supplied continuation that can suspend rather than immediately return."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-005.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "cps bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-16",
+      "project": "PR-T72-06",
+      "title": "Construct: Cursor parser combinators with rollback and progress checks",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T72.06.a",
+        "T72.06.b"
+      ],
+      "tests": [
+        "coroutines.parser"
+      ],
+      "steps": [
+        "Derive ordered-choice, sequence and repetition semantics over a cursor, distinguishing ordinary mismatch from resource/structural failure and identifying nullable repetition nontermination.",
+        "Implement literal/empty/sequence/choice/many on the bounded immutable parser DAG with a node-visit budget, output rollback and no parser library; integrate an explicit bytes.cursor adapter."
+      ],
+      "checks": [
+        "choice(sequence(a,b),a) parses ac through position1 and ab through2. many(empty) returns STATE with end unchanged; budget0 returns RANGE with zero visits.",
+        "Enumerate short strings against an independently written grammar evaluator, including ambiguous prefixes, empty input, exhausted budgets, malformed graph edges and many(empty). Reject committed-choice and nullable-many acceptance mutants."
+      ],
+      "reasoning": [
+        "Derive ordered-choice, sequence and repetition semantics over a cursor, distinguishing ordinary mismatch from resource/structural failure and identifying nullable repetition nontermination."
+      ],
+      "deliverables": [
+        "Implement literal/empty/sequence/choice/many on the bounded immutable parser DAG with a node-visit budget, output rollback and no parser library; integrate an explicit bytes.cursor adapter.",
+        "Enumerate short strings against an independently written grammar evaluator, including ambiguous prefixes, empty input, exhausted budgets, malformed graph edges and many(empty). Reject committed-choice and nullable-many acceptance mutants.",
+        "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-006-R1",
+          "objective": "T72.06.a",
+          "criterion": "Derive ordered-choice, sequence and repetition semantics over a cursor, distinguishing ordinary mismatch from resource/structural failure and identifying nullable repetition nontermination.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-006-R2",
+          "objective": "T72.06.b",
+          "criterion": "Implement literal/empty/sequence/choice/many on the bounded immutable parser DAG with a node-visit budget, output rollback and no parser library; integrate an explicit bytes.cursor adapter.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-006.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "parser bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-FORD",
+          "locator": "2.3.1 parsing expressions: sequence ordered choice repetition",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-17",
+      "project": "PR-T72-06",
+      "title": "Falsify: Cursor parser combinators with rollback and progress checks",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.06.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate short strings against an independently written grammar evaluator, including ambiguous prefixes, empty input, exhausted budgets, malformed graph edges and many(empty). Reject committed-choice and nullable-many acceptance mutants."
+      ],
+      "checks": [
+        "choice(sequence(a,b),a) parses ac through position1 and ab through2. many(empty) returns STATE with end unchanged; budget0 returns RANGE with zero visits.",
+        "Enumerate short strings against an independently written grammar evaluator, including ambiguous prefixes, empty input, exhausted budgets, malformed graph edges and many(empty). Reject committed-choice and nullable-many acceptance mutants."
+      ],
+      "reasoning": [
+        "Enumerate short strings against an independently written grammar evaluator, including ambiguous prefixes, empty input, exhausted budgets, malformed graph edges and many(empty). Reject committed-choice and nullable-many acceptance mutants."
+      ],
+      "deliverables": [
+        "Enumerate short strings against an independently written grammar evaluator, including ambiguous prefixes, empty input, exhausted budgets, malformed graph edges and many(empty). Reject committed-choice and nullable-many acceptance mutants."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-006-R3",
+          "objective": "T72.06.c",
+          "criterion": "Enumerate short strings against an independently written grammar evaluator, including ambiguous prefixes, empty input, exhausted budgets, malformed graph edges and many(empty). Reject committed-choice and nullable-many acceptance mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-006.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "parser bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-FORD",
+          "locator": "2.3.1 parsing expressions: sequence ordered choice repetition",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-18",
+      "project": "PR-T72-06",
+      "title": "Integrate and transfer: Cursor parser combinators with rollback and progress checks",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.06.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH."
+      ],
+      "checks": [
+        "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH."
+      ],
+      "reasoning": [
+        "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH."
+      ],
+      "deliverables": [
+        "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-006-R4",
+          "objective": "T72.06.d",
+          "criterion": "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add a cut/commit operator and bounded diagnostic expectations. Explain which alternatives can no longer backtrack and how error offsets remain meaningful; delayed assessment changes complete input to segmented input and distinguishes NEED_MORE from NO_MATCH."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-006.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "parser bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-FORD",
+          "locator": "2.3.1 parsing expressions: sequence ordered choice repetition",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-19",
+      "project": "PR-T72-07",
+      "title": "Construct: Packrat success and failure memoization with explicit cache identity",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T72.07.a",
+        "T72.07.b"
+      ],
+      "tests": [
+        "coroutines.packrat"
+      ],
+      "steps": [
+        "Derive the memo key and time/space bound for the fixed ordered-choice grammar; explain why mutable semantic state, input revision and hidden iterative work can invalidate a linear-time claim.",
+        "Implement the bounded S grammar with caller-owned success/failure cells, full-input acceptance and per-cell evaluation counts, preserving payload output on mismatch."
+      ],
+      "checks": [
+        "aaxcc succeeds at5 with exactly3 evaluated S cells. Twelve a characters, x and twelve c characters use13 cells despite repeated alternative attempts. aac fails without changing end.",
+        "Enumerate all short strings over a,b,c,x against a direct language-shape recognizer, then test deep c-ending branches that revisit the same inner S. Assert at most n+1 cell evaluations and exact endpoints; reject omitted memo lookup and wrong cached endpoint mutants."
+      ],
+      "reasoning": [
+        "Derive the memo key and time/space bound for the fixed ordered-choice grammar; explain why mutable semantic state, input revision and hidden iterative work can invalidate a linear-time claim."
+      ],
+      "deliverables": [
+        "Implement the bounded S grammar with caller-owned success/failure cells, full-input acceptance and per-cell evaluation counts, preserving payload output on mismatch.",
+        "Enumerate all short strings over a,b,c,x against a direct language-shape recognizer, then test deep c-ending branches that revisit the same inner S. Assert at most n+1 cell evaluations and exact endpoints; reject omitted memo lookup and wrong cached endpoint mutants.",
+        "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-007-R1",
+          "objective": "T72.07.a",
+          "criterion": "Derive the memo key and time/space bound for the fixed ordered-choice grammar; explain why mutable semantic state, input revision and hidden iterative work can invalidate a linear-time claim.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-007-R2",
+          "objective": "T72.07.b",
+          "criterion": "Implement the bounded S grammar with caller-owned success/failure cells, full-input acceptance and per-cell evaluation counts, preserving payload output on mismatch.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-007.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "packrat bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-FORD",
+          "locator": "2.3.1 parsing expressions: sequence ordered choice repetition",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-20",
+      "project": "PR-T72-07",
+      "title": "Falsify: Packrat success and failure memoization with explicit cache identity",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.07.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate all short strings over a,b,c,x against a direct language-shape recognizer, then test deep c-ending branches that revisit the same inner S. Assert at most n+1 cell evaluations and exact endpoints; reject omitted memo lookup and wrong cached endpoint mutants."
+      ],
+      "checks": [
+        "aaxcc succeeds at5 with exactly3 evaluated S cells. Twelve a characters, x and twelve c characters use13 cells despite repeated alternative attempts. aac fails without changing end.",
+        "Enumerate all short strings over a,b,c,x against a direct language-shape recognizer, then test deep c-ending branches that revisit the same inner S. Assert at most n+1 cell evaluations and exact endpoints; reject omitted memo lookup and wrong cached endpoint mutants."
+      ],
+      "reasoning": [
+        "Enumerate all short strings over a,b,c,x against a direct language-shape recognizer, then test deep c-ending branches that revisit the same inner S. Assert at most n+1 cell evaluations and exact endpoints; reject omitted memo lookup and wrong cached endpoint mutants."
+      ],
+      "deliverables": [
+        "Enumerate all short strings over a,b,c,x against a direct language-shape recognizer, then test deep c-ending branches that revisit the same inner S. Assert at most n+1 cell evaluations and exact endpoints; reject omitted memo lookup and wrong cached endpoint mutants."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-007-R3",
+          "objective": "T72.07.c",
+          "criterion": "Enumerate all short strings over a,b,c,x against a direct language-shape recognizer, then test deep c-ending branches that revisit the same inner S. Assert at most n+1 cell evaluations and exact endpoints; reject omitted memo lookup and wrong cached endpoint mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-007.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "packrat bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-FORD",
+          "locator": "2.3.1 parsing expressions: sequence ordered choice repetition",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-21",
+      "project": "PR-T72-07",
+      "title": "Integrate and transfer: Packrat success and failure memoization with explicit cache identity",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.07.d",
+        "T72.07.a",
+        "T72.07.b"
+      ],
+      "tests": [],
+      "steps": [
+        "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy.",
+        "Before exporting parse.combinators, re-derive and demonstrate on the actual composed artifact: Derive the memo key and time/space bound for the fixed ordered-choice grammar; explain why mutable semantic state, input revision and hidden iterative work can invalidate a linear-time claim.",
+        "Before exporting parse.combinators, re-derive and demonstrate on the actual composed artifact: Implement the bounded S grammar with caller-owned success/failure cells, full-input acceptance and per-cell evaluation counts, preserving payload output on mismatch."
+      ],
+      "checks": [
+        "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy.",
+        "Export review fails if the composed artifact violates any critical representation, lifetime or operation invariant, even when the isolated anchor still passes."
+      ],
+      "reasoning": [
+        "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy."
+      ],
+      "deliverables": [
+        "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-007-R4",
+          "objective": "T72.07.d",
+          "criterion": "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-007-R1",
+          "objective": "T72.07.a",
+          "criterion": "Derive the memo key and time/space bound for the fixed ordered-choice grammar; explain why mutable semantic state, input revision and hidden iterative work can invalidate a linear-time claim.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-007-R2",
+          "objective": "T72.07.b",
+          "criterion": "Implement the bounded S grammar with caller-owned success/failure cells, full-input acceptance and per-cell evaluation counts, preserving payload output on mismatch.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Add a stateful symbol predicate or an input edit and derive the necessary cache invalidation/key expansion. Then add direct left recursion and show why the current recursion algorithm does not become safe merely by setting an in-progress bit; delayed assessment designs a bounded left-recursion policy."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-007.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "packrat bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-FORD",
+          "locator": "2.3.1 parsing expressions: sequence ordered choice repetition",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-22",
+      "project": "PR-T72-08",
+      "title": "Construct: Readiness-based async frames and the register/recheck race",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T72.08.a",
+        "T72.08.b"
+      ],
+      "tests": [
+        "coroutines.async"
+      ],
+      "steps": [
+        "Explain readiness as a hint, partial progress as frame state, and registration/quiescence lifetime; distinguish this model from completion submission rings and automatic Rust Future pinning.",
+        "Implement exact-length asynchronous reads with at most two reads per poll, arm-then-recheck, generation-scoped notifications, synchronous disarm and cancelled/error terminal states. Build an io.reactor/io.stream/io.deadline adapter."
+      ],
+      "checks": [
+        "The fake reader returns AGAIN until arm, then supplies all three bytes on the immediate recheck: one poll completes after2 reads,1 arm,1 disarm. A stale generation cannot mark the next frame ready.",
+        "Script readiness arriving between the first AGAIN and arm, repeated spurious wakeups, short progress plus ERROR, EOF, stale notifications and cancel. Preserve final output until complete and count all callbacks; reject omitted recheck and omitted disarm mutants."
+      ],
+      "reasoning": [
+        "Explain readiness as a hint, partial progress as frame state, and registration/quiescence lifetime; distinguish this model from completion submission rings and automatic Rust Future pinning."
+      ],
+      "deliverables": [
+        "Implement exact-length asynchronous reads with at most two reads per poll, arm-then-recheck, generation-scoped notifications, synchronous disarm and cancelled/error terminal states. Build an io.reactor/io.stream/io.deadline adapter.",
+        "Script readiness arriving between the first AGAIN and arm, repeated spurious wakeups, short progress plus ERROR, EOF, stale notifications and cancel. Preserve final output until complete and count all callbacks; reject omitted recheck and omitted disarm mutants.",
+        "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-008-R1",
+          "objective": "T72.08.a",
+          "criterion": "Explain readiness as a hint, partial progress as frame state, and registration/quiescence lifetime; distinguish this model from completion submission rings and automatic Rust Future pinning.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-008-R2",
+          "objective": "T72.08.b",
+          "criterion": "Implement exact-length asynchronous reads with at most two reads per poll, arm-then-recheck, generation-scoped notifications, synchronous disarm and cancelled/error terminal states. Build an io.reactor/io.stream/io.deadline adapter.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-008.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "async bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-FUTURE",
+          "locator": "The poll method: return value and latest Waker",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-23",
+      "project": "PR-T72-08",
+      "title": "Falsify: Readiness-based async frames and the register/recheck race",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.08.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Script readiness arriving between the first AGAIN and arm, repeated spurious wakeups, short progress plus ERROR, EOF, stale notifications and cancel. Preserve final output until complete and count all callbacks; reject omitted recheck and omitted disarm mutants."
+      ],
+      "checks": [
+        "The fake reader returns AGAIN until arm, then supplies all three bytes on the immediate recheck: one poll completes after2 reads,1 arm,1 disarm. A stale generation cannot mark the next frame ready.",
+        "Script readiness arriving between the first AGAIN and arm, repeated spurious wakeups, short progress plus ERROR, EOF, stale notifications and cancel. Preserve final output until complete and count all callbacks; reject omitted recheck and omitted disarm mutants."
+      ],
+      "reasoning": [
+        "Script readiness arriving between the first AGAIN and arm, repeated spurious wakeups, short progress plus ERROR, EOF, stale notifications and cancel. Preserve final output until complete and count all callbacks; reject omitted recheck and omitted disarm mutants."
+      ],
+      "deliverables": [
+        "Script readiness arriving between the first AGAIN and arm, repeated spurious wakeups, short progress plus ERROR, EOF, stale notifications and cancel. Preserve final output until complete and count all callbacks; reject omitted recheck and omitted disarm mutants."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-008-R3",
+          "objective": "T72.08.c",
+          "criterion": "Script readiness arriving between the first AGAIN and arm, repeated spurious wakeups, short progress plus ERROR, EOF, stale notifications and cancel. Preserve final output until complete and count all callbacks; reject omitted recheck and omitted disarm mutants.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-008.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "async bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-FUTURE",
+          "locator": "The poll method: return value and latest Waker",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-24",
+      "project": "PR-T72-08",
+      "title": "Integrate and transfer: Readiness-based async frames and the register/recheck race",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.08.d"
+      ],
+      "tests": [],
+      "steps": [
+        "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message."
+      ],
+      "checks": [
+        "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message."
+      ],
+      "reasoning": [
+        "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message."
+      ],
+      "deliverables": [
+        "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-008-R4",
+          "objective": "T72.08.d",
+          "criterion": "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Move notification delivery to another thread and make disarm asynchronous. Introduce a separate quiescence acknowledgment and retained frame ownership, then test all cancellation/completion orders; delayed assessment replaces a borrowed read buffer with a copied channel message."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-008.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "async bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-FUTURE",
+          "locator": "The poll method: return value and latest Waker",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-25",
+      "project": "PR-T72-09",
+      "title": "Construct: Single-shot resumable effects with explicit continuation ownership",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T72.09.a",
+        "T72.09.b"
+      ],
+      "tests": [
+        "coroutines.effect"
+      ],
+      "steps": [
+        "Derive a two-question effect program and its defunctionalized continuation environment, separating single-shot runtime tokens from effect typing and multi-shot control capture.",
+        "Implement start/resume/abort with owner+generation tokens, checked second-answer addition, consumed continuation handles and unchanged state on arithmetic rejection."
+      ],
+      "checks": [
+        "Answers12 then30 produce42. The copied question1 continuation rejects after the first resume. A rejected overflowing second answer leaves its continuation available for correction or abort.",
+        "Enumerate answer pairs and replay every stale token while the frame is live; test overflow followed by a valid retry, abort and completed reuse. Reject replay-admission and dropped-first-answer mutants; record synthetic duplicate-result attempts as bounded property violations."
+      ],
+      "reasoning": [
+        "Derive a two-question effect program and its defunctionalized continuation environment, separating single-shot runtime tokens from effect typing and multi-shot control capture."
+      ],
+      "deliverables": [
+        "Implement start/resume/abort with owner+generation tokens, checked second-answer addition, consumed continuation handles and unchanged state on arithmetic rejection.",
+        "Enumerate answer pairs and replay every stale token while the frame is live; test overflow followed by a valid retry, abort and completed reuse. Reject replay-admission and dropped-first-answer mutants; record synthetic duplicate-result attempts as bounded property violations.",
+        "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-009-R1",
+          "objective": "T72.09.a",
+          "criterion": "Derive a two-question effect program and its defunctionalized continuation environment, separating single-shot runtime tokens from effect typing and multi-shot control capture.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-009-R2",
+          "objective": "T72.09.b",
+          "criterion": "Implement start/resume/abort with owner+generation tokens, checked second-answer addition, consumed continuation handles and unchanged state on arithmetic rejection.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-009.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "effect bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-KOKA",
+          "locator": "3.4.2 Resuming",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-26",
+      "project": "PR-T72-09",
+      "title": "Falsify: Single-shot resumable effects with explicit continuation ownership",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.09.c"
+      ],
+      "tests": [],
+      "steps": [
+        "Enumerate answer pairs and replay every stale token while the frame is live; test overflow followed by a valid retry, abort and completed reuse. Reject replay-admission and dropped-first-answer mutants; record synthetic duplicate-result attempts as bounded property violations."
+      ],
+      "checks": [
+        "Answers12 then30 produce42. The copied question1 continuation rejects after the first resume. A rejected overflowing second answer leaves its continuation available for correction or abort.",
+        "Enumerate answer pairs and replay every stale token while the frame is live; test overflow followed by a valid retry, abort and completed reuse. Reject replay-admission and dropped-first-answer mutants; record synthetic duplicate-result attempts as bounded property violations."
+      ],
+      "reasoning": [
+        "Enumerate answer pairs and replay every stale token while the frame is live; test overflow followed by a valid retry, abort and completed reuse. Reject replay-admission and dropped-first-answer mutants; record synthetic duplicate-result attempts as bounded property violations."
+      ],
+      "deliverables": [
+        "Enumerate answer pairs and replay every stale token while the frame is live; test overflow followed by a valid retry, abort and completed reuse. Reject replay-admission and dropped-first-answer mutants; record synthetic duplicate-result attempts as bounded property violations."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-009-R3",
+          "objective": "T72.09.c",
+          "criterion": "Enumerate answer pairs and replay every stale token while the frame is live; test overflow followed by a valid retry, abort and completed reuse. Reject replay-admission and dropped-first-answer mutants; record synthetic duplicate-result attempts as bounded property violations.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-009.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "effect bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-KOKA",
+          "locator": "3.4.2 Resuming",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    },
+    {
+      "id": "LAB-CR-27",
+      "project": "PR-T72-09",
+      "title": "Integrate and transfer: Single-shot resumable effects with explicit continuation ownership",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "bounded choice",
+      "kind": "adaptation",
+      "objectives": [
+        "T72.09.d",
+        "T72.09.a",
+        "T72.09.b"
+      ],
+      "tests": [],
+      "steps": [
+        "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers.",
+        "Before exporting coro.frame, re-derive and demonstrate on the actual composed artifact: Derive a two-question effect program and its defunctionalized continuation environment, separating single-shot runtime tokens from effect typing and multi-shot control capture.",
+        "Before exporting coro.frame, re-derive and demonstrate on the actual composed artifact: Implement start/resume/abort with owner+generation tokens, checked second-answer addition, consumed continuation handles and unchanged state on arithmetic rejection."
+      ],
+      "checks": [
+        "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers.",
+        "Export review fails if the composed artifact violates any critical representation, lifetime or operation invariant, even when the isolated anchor still passes."
+      ],
+      "reasoning": [
+        "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers."
+      ],
+      "deliverables": [
+        "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers.",
+        "Complete the source-bound imported-artifact adapter and13-dimension COST_REVIEW under the explicit shared contract."
+      ],
+      "rubric": [
+        {
+          "id": "X-T72-009-R4",
+          "objective": "T72.09.d",
+          "criterion": "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-009-R1",
+          "objective": "T72.09.a",
+          "criterion": "Derive a two-question effect program and its defunctionalized continuation environment, separating single-shot runtime tokens from effect typing and multi-shot control capture.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        },
+        {
+          "id": "X-T72-009-R2",
+          "objective": "T72.09.b",
+          "criterion": "Implement start/resume/abort with owner+generation tokens, checked second-answer addition, consumed continuation handles and unchanged state on arithmetic rejection.",
+          "levels": {
+            "0": "Missing or incorrect mechanism/contract.",
+            "1": "Nominal implementation or recalled explanation only; cannot falsify the stated misconception.",
+            "2": "Correct derivation, implementation and independently checked evidence for this exact objective.",
+            "3": "Independently solve and defend its changed-contract case, including a minimal counterexample and revised resource/lifetime proof."
+          }
+        }
+      ],
+      "variants": [
+        "Nest two handlers with different question policies and add a resource owned across a suspension. Specify lexical/dynamic handler lookup and abort cleanup; delayed assessment asks for multi-shot continuation cloning and requires an explicit clone policy instead of copying owned pointers."
+      ],
+      "assessor_analysis": "assessor/coroutines/analyses/X-T72-009.md",
+      "target_scope": "host-and-target-build-audit",
+      "remaining_evidence": "Independent assessment, full adapter integration, alternative implementations, physical validation where relevant and delayed transfer are not implied by public tests.",
+      "scope": "effect bounded mechanism contract.",
+      "references": [
+        {
+          "resource_id": "R-CR-KOKA",
+          "locator": "3.4.2 Resuming",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-ISO",
+          "locator": "6.2.4p1-8 Storage durations",
+          "purpose": "Bound the comparison between the original C mechanism and the source guarantee."
+        },
+        {
+          "resource_id": "R-CR-MODEL",
+          "locator": "Complete shared mechanism contract",
+          "purpose": "Exact original model semantics and scope, distinct from language-level guarantees."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "X-T72-001",
+      "project": "PR-T72-01",
+      "tests": [
+        "coroutines.iterator"
+      ]
+    },
+    {
+      "id": "X-T72-002",
+      "project": "PR-T72-02",
+      "tests": [
+        "coroutines.dataflow"
+      ]
+    },
+    {
+      "id": "X-T72-003",
+      "project": "PR-T72-03",
+      "tests": [
+        "coroutines.generator"
+      ]
+    },
+    {
+      "id": "X-T72-004",
+      "project": "PR-T72-04",
+      "tests": [
+        "coroutines.fiber"
+      ]
+    },
+    {
+      "id": "X-T72-005",
+      "project": "PR-T72-05",
+      "tests": [
+        "coroutines.cps"
+      ]
+    },
+    {
+      "id": "X-T72-006",
+      "project": "PR-T72-06",
+      "tests": [
+        "coroutines.parser"
+      ]
+    },
+    {
+      "id": "X-T72-007",
+      "project": "PR-T72-07",
+      "tests": [
+        "coroutines.packrat"
+      ]
+    },
+    {
+      "id": "X-T72-008",
+      "project": "PR-T72-08",
+      "tests": [
+        "coroutines.async"
+      ]
+    },
+    {
+      "id": "X-T72-009",
+      "project": "PR-T72-09",
+      "tests": [
+        "coroutines.effect"
+      ]
+    }
+  ],
+  "tests": [
+    "coroutines.iterator",
+    "coroutines.dataflow",
+    "coroutines.generator",
+    "coroutines.fiber",
+    "coroutines.cps",
+    "coroutines.parser",
+    "coroutines.packrat",
+    "coroutines.async",
+    "coroutines.effect"
+  ],
+  "modules": [
+    "T72"
+  ],
+  "contract": "labs/coroutines/CONTRACTS.md",
+  "campaign": {
+    "producer": "tools/run_coroutines.py",
+    "receipt": "coroutines_campaign.json",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "CR_CHECK:",
+    "fixture_oracle": "tools/verify_coroutines_fixtures.py"
+  },
+  "dependencies": [],
+  "scope": "Portable C17 mechanisms and explicitly separate host ABI backend; authored alternatives and real integrations require their own evidence."
+}

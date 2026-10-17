@@ -1,0 +1,1806 @@
+{
+  "version": 1,
+  "family": "dod",
+  "title": "Data-oriented layout and persistent structures",
+  "build_system": "cmake",
+  "assessor_root": "assessor/dod",
+  "projects": [
+    {
+      "id": "PR-T70-01",
+      "tests": [
+        "dod.columns"
+      ],
+      "scope": "Hosted anchors do not replace full exercise obligations."
+    },
+    {
+      "id": "PR-T70-02",
+      "tests": [
+        "dod.small"
+      ],
+      "scope": "Hosted anchors do not replace full exercise obligations."
+    },
+    {
+      "id": "PR-T70-03",
+      "tests": [
+        "dod.swar"
+      ],
+      "scope": "Hosted anchors do not replace full exercise obligations."
+    },
+    {
+      "id": "PR-T70-04",
+      "tests": [
+        "dod.sparse"
+      ],
+      "scope": "Hosted anchors do not replace full exercise obligations."
+    },
+    {
+      "id": "PR-T70-05",
+      "tests": [
+        "dod.ecs"
+      ],
+      "scope": "Hosted anchors do not replace full exercise obligations."
+    },
+    {
+      "id": "PR-T70-06",
+      "tests": [
+        "dod.persistent"
+      ],
+      "scope": "Hosted anchors do not replace full exercise obligations."
+    },
+    {
+      "id": "PR-T70-07",
+      "tests": [
+        "dod.hamt"
+      ],
+      "scope": "Hosted anchors do not replace full exercise obligations."
+    },
+    {
+      "id": "PR-T70-08",
+      "tests": [
+        "dod.rope"
+      ],
+      "scope": "Hosted anchors do not replace full exercise obligations."
+    }
+  ],
+  "units": [
+    {
+      "id": "LAB-DO-01",
+      "project": "PR-T70-01",
+      "title": "Construct: Hot and cold columns with transactional numeric updates",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T70.01.a",
+        "T70.01.b",
+        "T70.01.c",
+        "T70.01.d",
+        "T70.01.e"
+      ],
+      "tests": [
+        "dod.columns"
+      ],
+      "steps": [
+        "Derive AoS and SoA address/traffic models for a position-only update and a whole-record consumer, including padding, cache-line assumptions and the different identity of a record after splitting fields.",
+        "Implement a staged SoA update and an equal-contract AoS version generated from a shared field list; distinguish token-driven generation from runtime or language reflection."
+      ],
+      "checks": [
+        "Positions[1,2,3,4], velocities[2,-1,1,0], ticks2 produce[5,0,5,4] with cold labels unchanged. If the last position is INT32_MAX and velocity1, ticks1 rejects without changing even the first position.",
+        "For each count0–4 and ticks0–3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model."
+      ],
+      "reasoning": [
+        "The label data-oriented design does not choose a layout. Access patterns, overflow semantics and conversion/identity costs determine whether splitting fields helps; removing overflow checks to obtain SIMD changes the correctness contract.",
+        "Derive AoS and SoA address/traffic models for a position-only update and a whole-record consumer, including padding, cache-line assumptions and the different identity of a record after splitting fields."
+      ],
+      "deliverables": [
+        "Implement d_columns_step for4 parallel typed arrays under the shared contract, then implement an equal-contract AoS adapter and generate both declarations and field visitors from one C17 field-list definition. Inputs are count0–4, int32 positions/velocities, ticks0–10 and cold labels. Outputs are updated positions or a rejection preserving every position. Never update a prefix before discovering a later overflow. Use the supplied4-record model for exhaustive small-range tests and an explicitly allocated large synthetic population for measurements; large-population code must retain the same numeric contract.",
+        "For each count0–4 and ticks0–3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model.",
+        "X-T70-001-DELAYED: add a nullable cold label column and tile width3. The last tile is partial. Implement conversion in both directions with unchanged output on capacity failure and compare against the original AoS oracle."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-001-R1",
+          "objective": "T70.01.a",
+          "criterion": "Derive AoS and SoA address/traffic models for a position-only update and a whole-record consumer, including padding, cache-line assumptions and the different identity of a record after splitting fields.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-001-R2",
+          "objective": "T70.01.b",
+          "criterion": "Implement a staged SoA update and an equal-contract AoS version generated from a shared field list; distinguish token-driven generation from runtime or language reflection.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-001-R3",
+          "objective": "T70.01.c",
+          "criterion": "Enumerate small signed input products and all failing record positions with an independent integer oracle; verify untouched columns and kill skipped-update and premature-prefix-commit mutants.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-001-R4",
+          "objective": "T70.01.d",
+          "criterion": "Measure warmed and cold working sets, vectorization reports, code size and conversion costs under equal overflow semantics. Report crossover uncertainty; demonstrate a whole-record workload where SoA can lose.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-001-R5",
+          "objective": "T70.01.e",
+          "criterion": "Transfer to an array-of-small-tiles layout with an optional cold column. Derive row/column bounds and schema evolution before changing the implementation; C diagnostics do not verify field-list semantic consistency.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-001-DELAYED: add a nullable cold label column and tile width3. The last tile is partial. Implement conversion in both directions with unchanged output on capacity failure and compare against the original AoS oracle."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-001.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-FLECS",
+          "locator": "Caching: what is it? archetype grouping and component-set tables",
+          "purpose": "The label data-oriented design does not choose a layout. Access patterns, overflow semantics and conversion/identity costs determine whether splitting fields helps; removing overflow checks to obtain SIMD changes the correctness contract."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-02",
+      "project": "PR-T70-01",
+      "title": "Falsify and transfer: Hot and cold columns with transactional numeric updates",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent transfer",
+      "kind": "assessment",
+      "objectives": [
+        "T70.01.a",
+        "T70.01.b",
+        "T70.01.c",
+        "T70.01.d",
+        "T70.01.e"
+      ],
+      "tests": [
+        "dod.columns"
+      ],
+      "steps": [
+        "For each count0–4 and ticks0–3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model.",
+        "X-T70-001-DELAYED: add a nullable cold label column and tile width3. The last tile is partial. Implement conversion in both directions with unchanged output on capacity failure and compare against the original AoS oracle."
+      ],
+      "checks": [
+        "Positions[1,2,3,4], velocities[2,-1,1,0], ticks2 produce[5,0,5,4] with cold labels unchanged. If the last position is INT32_MAX and velocity1, ticks1 rejects without changing even the first position.",
+        "For each count0–4 and ticks0–3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model."
+      ],
+      "reasoning": [
+        "The label data-oriented design does not choose a layout. Access patterns, overflow semantics and conversion/identity costs determine whether splitting fields helps; removing overflow checks to obtain SIMD changes the correctness contract.",
+        "Derive AoS and SoA address/traffic models for a position-only update and a whole-record consumer, including padding, cache-line assumptions and the different identity of a record after splitting fields."
+      ],
+      "deliverables": [
+        "Implement d_columns_step for4 parallel typed arrays under the shared contract, then implement an equal-contract AoS adapter and generate both declarations and field visitors from one C17 field-list definition. Inputs are count0–4, int32 positions/velocities, ticks0–10 and cold labels. Outputs are updated positions or a rejection preserving every position. Never update a prefix before discovering a later overflow. Use the supplied4-record model for exhaustive small-range tests and an explicitly allocated large synthetic population for measurements; large-population code must retain the same numeric contract.",
+        "For each count0–4 and ticks0–3 enumerate each coordinate/velocity from {-2,-1,0,1,2} in pairwise combinations and independently calculate with unbounded integers. Add extrema in every row, preserving a typed before snapshot. Inspect compiler vectorization reports and generated assembly. Benchmark identical initialized synthetic values and check the same checksum outside timing; randomize run order and report distributions, target, affinity policy and unavailable counters. Do not fabricate a second data model.",
+        "X-T70-001-DELAYED: add a nullable cold label column and tile width3. The last tile is partial. Implement conversion in both directions with unchanged output on capacity failure and compare against the original AoS oracle."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-001-R1",
+          "objective": "T70.01.a",
+          "criterion": "Derive AoS and SoA address/traffic models for a position-only update and a whole-record consumer, including padding, cache-line assumptions and the different identity of a record after splitting fields.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-001-R2",
+          "objective": "T70.01.b",
+          "criterion": "Implement a staged SoA update and an equal-contract AoS version generated from a shared field list; distinguish token-driven generation from runtime or language reflection.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-001-R3",
+          "objective": "T70.01.c",
+          "criterion": "Enumerate small signed input products and all failing record positions with an independent integer oracle; verify untouched columns and kill skipped-update and premature-prefix-commit mutants.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-001-R4",
+          "objective": "T70.01.d",
+          "criterion": "Measure warmed and cold working sets, vectorization reports, code size and conversion costs under equal overflow semantics. Report crossover uncertainty; demonstrate a whole-record workload where SoA can lose.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-001-R5",
+          "objective": "T70.01.e",
+          "criterion": "Transfer to an array-of-small-tiles layout with an optional cold column. Derive row/column bounds and schema evolution before changing the implementation; C diagnostics do not verify field-list semantic consistency.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-001-DELAYED: add a nullable cold label column and tile width3. The last tile is partial. Implement conversion in both directions with unchanged output on capacity failure and compare against the original AoS oracle."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-001.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-FLECS",
+          "locator": "Caching: what is it? archetype grouping and component-set tables",
+          "purpose": "The label data-oriented design does not choose a layout. Access patterns, overflow semantics and conversion/identity costs determine whether splitting fields helps; removing overflow checks to obtain SIMD changes the correctness contract."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-03",
+      "project": "PR-T70-02",
+      "title": "Construct: Inline bytes, allocator failure and explicit relocation",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T70.02.a",
+        "T70.02.b",
+        "T70.02.c",
+        "T70.02.d",
+        "T70.02.e"
+      ],
+      "tests": [
+        "dod.small"
+      ],
+      "steps": [
+        "Derive the representation invariant for empty, inline and heap states and the exact invalidation events for borrowed views; explain why alignment of a character array alone does not permit arbitrary typed C objects.",
+        "Implement all capacity transitions and a fixed-capacity alternative using allocator injection, with strong append rejection and exactly-once resource release under move/reset."
+      ],
+      "checks": [
+        "Appending16 bytes performs no allocation. A failed17th byte preserves length16 and all bytes. Successful spill followed by move leaves the source empty and transfers exactly one allocation. Truncating to8 and compacting frees that allocation once; resetting both owners performs no second free.",
+        "Run an operation-model generator over append lengths0,1,15,16,17,127,128,129; truncate, compact, move and reset. Preserve operation traces and independent byte-list state. Inject allocator failure at every spill and verify live allocation ownership, exact release counts and output state separately from callback instrumentation. Compile without a container/string library. Record sizeof/_Alignof on each available target. The header intentionally exposes fields for teaching, so forged state is outside the checked API contract and must be discussed."
+      ],
+      "reasoning": [
+        "Small-buffer optimization introduces two ownership regimes and an often-hidden object-type problem. An address satisfying alignment is not proof that a declared unsigned-char array may be accessed through any desired struct pointer.",
+        "Derive the representation invariant for empty, inline and heap states and the exact invalidation events for borrowed views; explain why alignment of a character array alone does not permit arbitrary typed C objects."
+      ],
+      "deliverables": [
+        "Implement the DSmall operations: init, append, truncate, compact, move, reset and borrowed data access. Inline capacity16 and maximum128 are part of the shared contract. Supply a fixed-capacity, typed byte-array allocator adapter that records requests and fails each requested allocation in turn; a host malloc adapter is an additional test only. Construct a separate fixed-capacity16-byte variant that always rejects spill. Compare its contract and owner size with DSmall. No string terminator, generic typed placement, automatic copy constructor or raw-struct move is supplied.",
+        "Run an operation-model generator over append lengths0,1,15,16,17,127,128,129; truncate, compact, move and reset. Preserve operation traces and independent byte-list state. Inject allocator failure at every spill and verify live allocation ownership, exact release counts and output state separately from callback instrumentation. Compile without a container/string library. Record sizeof/_Alignof on each available target. The header intentionally exposes fields for teaching, so forged state is outside the checked API contract and must be discussed.",
+        "X-T70-002-DELAYED: inline capacity becomes0 and the allocator has a128-byte total quota shared by two buffers. Implement move and rollback when one buffer spills during composition; demonstrate that allocator rollback and byte-state rollback are different properties."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-002-R1",
+          "objective": "T70.02.a",
+          "criterion": "Derive the representation invariant for empty, inline and heap states and the exact invalidation events for borrowed views; explain why alignment of a character array alone does not permit arbitrary typed C objects.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-002-R2",
+          "objective": "T70.02.b",
+          "criterion": "Implement all capacity transitions and a fixed-capacity alternative using allocator injection, with strong append rejection and exactly-once resource release under move/reset.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-002-R3",
+          "objective": "T70.02.c",
+          "criterion": "Inject every allocation failure and test capacity16/17, maximum128, zero append, self move, nonempty destination, repeated reset and compact after truncation; compare byte sequences with an independent list model.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-002-R4",
+          "objective": "T70.02.d",
+          "criterion": "Compare the documented LLVM inline-vector idea with this C byte representation and a typed-union alternative. Measure owner footprint, allocations, copy traffic and spill hysteresis rather than claiming universal zero overhead.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-002-R5",
+          "objective": "T70.02.e",
+          "criterion": "Integrate dod.small_buffer with an erased closure byte capture: define which values can be encoded, which callbacks own external resources and why memcpy of a self-referential capture is not relocation.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-002-DELAYED: inline capacity becomes0 and the allocator has a128-byte total quota shared by two buffers. Implement move and rollback when one buffer spills during composition; demonstrate that allocator rollback and byte-state rollback are different properties."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-002.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-LLVM",
+          "locator": "llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance",
+          "purpose": "Small-buffer optimization introduces two ownership regimes and an often-hidden object-type problem. An address satisfying alignment is not proof that a declared unsigned-char array may be accessed through any desired struct pointer."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-04",
+      "project": "PR-T70-02",
+      "title": "Falsify and transfer: Inline bytes, allocator failure and explicit relocation",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent transfer",
+      "kind": "assessment",
+      "objectives": [
+        "T70.02.a",
+        "T70.02.b",
+        "T70.02.c",
+        "T70.02.d",
+        "T70.02.e"
+      ],
+      "tests": [
+        "dod.small"
+      ],
+      "steps": [
+        "Run an operation-model generator over append lengths0,1,15,16,17,127,128,129; truncate, compact, move and reset. Preserve operation traces and independent byte-list state. Inject allocator failure at every spill and verify live allocation ownership, exact release counts and output state separately from callback instrumentation. Compile without a container/string library. Record sizeof/_Alignof on each available target. The header intentionally exposes fields for teaching, so forged state is outside the checked API contract and must be discussed.",
+        "X-T70-002-DELAYED: inline capacity becomes0 and the allocator has a128-byte total quota shared by two buffers. Implement move and rollback when one buffer spills during composition; demonstrate that allocator rollback and byte-state rollback are different properties."
+      ],
+      "checks": [
+        "Appending16 bytes performs no allocation. A failed17th byte preserves length16 and all bytes. Successful spill followed by move leaves the source empty and transfers exactly one allocation. Truncating to8 and compacting frees that allocation once; resetting both owners performs no second free.",
+        "Run an operation-model generator over append lengths0,1,15,16,17,127,128,129; truncate, compact, move and reset. Preserve operation traces and independent byte-list state. Inject allocator failure at every spill and verify live allocation ownership, exact release counts and output state separately from callback instrumentation. Compile without a container/string library. Record sizeof/_Alignof on each available target. The header intentionally exposes fields for teaching, so forged state is outside the checked API contract and must be discussed."
+      ],
+      "reasoning": [
+        "Small-buffer optimization introduces two ownership regimes and an often-hidden object-type problem. An address satisfying alignment is not proof that a declared unsigned-char array may be accessed through any desired struct pointer.",
+        "Derive the representation invariant for empty, inline and heap states and the exact invalidation events for borrowed views; explain why alignment of a character array alone does not permit arbitrary typed C objects."
+      ],
+      "deliverables": [
+        "Implement the DSmall operations: init, append, truncate, compact, move, reset and borrowed data access. Inline capacity16 and maximum128 are part of the shared contract. Supply a fixed-capacity, typed byte-array allocator adapter that records requests and fails each requested allocation in turn; a host malloc adapter is an additional test only. Construct a separate fixed-capacity16-byte variant that always rejects spill. Compare its contract and owner size with DSmall. No string terminator, generic typed placement, automatic copy constructor or raw-struct move is supplied.",
+        "Run an operation-model generator over append lengths0,1,15,16,17,127,128,129; truncate, compact, move and reset. Preserve operation traces and independent byte-list state. Inject allocator failure at every spill and verify live allocation ownership, exact release counts and output state separately from callback instrumentation. Compile without a container/string library. Record sizeof/_Alignof on each available target. The header intentionally exposes fields for teaching, so forged state is outside the checked API contract and must be discussed.",
+        "X-T70-002-DELAYED: inline capacity becomes0 and the allocator has a128-byte total quota shared by two buffers. Implement move and rollback when one buffer spills during composition; demonstrate that allocator rollback and byte-state rollback are different properties."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-002-R1",
+          "objective": "T70.02.a",
+          "criterion": "Derive the representation invariant for empty, inline and heap states and the exact invalidation events for borrowed views; explain why alignment of a character array alone does not permit arbitrary typed C objects.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-002-R2",
+          "objective": "T70.02.b",
+          "criterion": "Implement all capacity transitions and a fixed-capacity alternative using allocator injection, with strong append rejection and exactly-once resource release under move/reset.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-002-R3",
+          "objective": "T70.02.c",
+          "criterion": "Inject every allocation failure and test capacity16/17, maximum128, zero append, self move, nonempty destination, repeated reset and compact after truncation; compare byte sequences with an independent list model.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-002-R4",
+          "objective": "T70.02.d",
+          "criterion": "Compare the documented LLVM inline-vector idea with this C byte representation and a typed-union alternative. Measure owner footprint, allocations, copy traffic and spill hysteresis rather than claiming universal zero overhead.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-002-R5",
+          "objective": "T70.02.e",
+          "criterion": "Integrate dod.small_buffer with an erased closure byte capture: define which values can be encoded, which callbacks own external resources and why memcpy of a self-referential capture is not relocation.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-002-DELAYED: inline capacity becomes0 and the allocator has a128-byte total quota shared by two buffers. Implement move and rollback when one buffer spills during composition; demonstrate that allocator rollback and byte-state rollback are different properties."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-002.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-LLVM",
+          "locator": "llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance",
+          "purpose": "Small-buffer optimization introduces two ownership regimes and an often-hidden object-type problem. An address satisfying alignment is not proof that a declared unsigned-char array may be accessed through any desired struct pointer."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-05",
+      "project": "PR-T70-03",
+      "title": "Construct: Four saturating byte lanes without cross-lane carries",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T70.03.a",
+        "T70.03.b",
+        "T70.03.c",
+        "T70.03.d"
+      ],
+      "tests": [
+        "dod.swar"
+      ],
+      "steps": [
+        "Derive low7-bit addition, high-bit combination and saturation masks, proving which intermediate carries can occur and why neighboring lanes remain independent.",
+        "Implement the unsigned SWAR expression and an independent scalar oracle without relying on char signedness, endian memory reinterpretation or vector extensions."
+      ],
+      "checks": [
+        "0xff00ff00 plus0x01010101 produces0xff01ff01. A255+1 low lane must saturate without adding1 to the adjacent lane. Every pair of byte inputs must agree with min(255,a+b).",
+        "The supplied anchor exhausts65,536 pairs repeated across lanes and placed into each isolated lane. Extend the oracle with all neighbor lane boundaries0,127,128,255 around each active pair and100,000 seeded mixed words. Record that the exhaustive dimension is the single-lane value pair, not all2^64 word pairs. Inspect shifts against width and integer promotions. Compare little- and big-endian serialization separately from numerical results."
+      ],
+      "reasoning": [
+        "Ordinary word addition is not lane-wise addition; carries and saturation require a proof. A benchmark over only identical lanes can miss a carry leaking into a different neighboring lane.",
+        "Derive low7-bit addition, high-bit combination and saturation masks, proving which intermediate carries can occur and why neighboring lanes remain independent."
+      ],
+      "deliverables": [
+        "Derive and implement d_swar_add for four unsigned8-bit lanes inside uint32_t using shifts, masks and unsigned arithmetic only. No intrinsics, scalar per-lane loop in the assessed implementation or signed overflow is allowed. A separate scalar oracle extracts each lane, adds in unsigned int and clamps to255. The packed numerical lane convention is independent of how a uint32_t is stored as bytes.",
+        "The supplied anchor exhausts65,536 pairs repeated across lanes and placed into each isolated lane. Extend the oracle with all neighbor lane boundaries0,127,128,255 around each active pair and100,000 seeded mixed words. Record that the exhaustive dimension is the single-lane value pair, not all2^64 word pairs. Inspect shifts against width and integer promotions. Compare little- and big-endian serialization separately from numerical results.",
+        "X-T70-003-DELAYED: implement two saturating signed16-bit lanes with an explicit mathematical range oracle. Derive signed overflow detection without evaluating overflowing signed expressions; compare costs to the unsigned version."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-003-R1",
+          "objective": "T70.03.a",
+          "criterion": "Derive low7-bit addition, high-bit combination and saturation masks, proving which intermediate carries can occur and why neighboring lanes remain independent.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-003-R2",
+          "objective": "T70.03.b",
+          "criterion": "Implement the unsigned SWAR expression and an independent scalar oracle without relying on char signedness, endian memory reinterpretation or vector extensions.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-003-R3",
+          "objective": "T70.03.c",
+          "criterion": "Exhaust all65,536 lane input pairs in every position and with neighboring boundary lanes, then add deterministic mixed-lane random words; kill ordinary packed-add and inverted-overflow-mask mutants.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-003-R4",
+          "objective": "T70.03.d",
+          "criterion": "Compare scalar and SWAR code under equal saturation semantics at multiple optimization levels, checking generated instructions and a changed16-bit-lane derivation. Distinguish source-level branchlessness from timing guarantees and ISA support.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-003-DELAYED: implement two saturating signed16-bit lanes with an explicit mathematical range oracle. Derive signed overflow detection without evaluating overflowing signed expressions; compare costs to the unsigned version."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-003.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-LLVM",
+          "locator": "llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance",
+          "purpose": "Ordinary word addition is not lane-wise addition; carries and saturation require a proof. A benchmark over only identical lanes can miss a carry leaking into a different neighboring lane."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-06",
+      "project": "PR-T70-03",
+      "title": "Falsify and transfer: Four saturating byte lanes without cross-lane carries",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent transfer",
+      "kind": "assessment",
+      "objectives": [
+        "T70.03.a",
+        "T70.03.b",
+        "T70.03.c",
+        "T70.03.d"
+      ],
+      "tests": [
+        "dod.swar"
+      ],
+      "steps": [
+        "The supplied anchor exhausts65,536 pairs repeated across lanes and placed into each isolated lane. Extend the oracle with all neighbor lane boundaries0,127,128,255 around each active pair and100,000 seeded mixed words. Record that the exhaustive dimension is the single-lane value pair, not all2^64 word pairs. Inspect shifts against width and integer promotions. Compare little- and big-endian serialization separately from numerical results.",
+        "X-T70-003-DELAYED: implement two saturating signed16-bit lanes with an explicit mathematical range oracle. Derive signed overflow detection without evaluating overflowing signed expressions; compare costs to the unsigned version."
+      ],
+      "checks": [
+        "0xff00ff00 plus0x01010101 produces0xff01ff01. A255+1 low lane must saturate without adding1 to the adjacent lane. Every pair of byte inputs must agree with min(255,a+b).",
+        "The supplied anchor exhausts65,536 pairs repeated across lanes and placed into each isolated lane. Extend the oracle with all neighbor lane boundaries0,127,128,255 around each active pair and100,000 seeded mixed words. Record that the exhaustive dimension is the single-lane value pair, not all2^64 word pairs. Inspect shifts against width and integer promotions. Compare little- and big-endian serialization separately from numerical results."
+      ],
+      "reasoning": [
+        "Ordinary word addition is not lane-wise addition; carries and saturation require a proof. A benchmark over only identical lanes can miss a carry leaking into a different neighboring lane.",
+        "Derive low7-bit addition, high-bit combination and saturation masks, proving which intermediate carries can occur and why neighboring lanes remain independent."
+      ],
+      "deliverables": [
+        "Derive and implement d_swar_add for four unsigned8-bit lanes inside uint32_t using shifts, masks and unsigned arithmetic only. No intrinsics, scalar per-lane loop in the assessed implementation or signed overflow is allowed. A separate scalar oracle extracts each lane, adds in unsigned int and clamps to255. The packed numerical lane convention is independent of how a uint32_t is stored as bytes.",
+        "The supplied anchor exhausts65,536 pairs repeated across lanes and placed into each isolated lane. Extend the oracle with all neighbor lane boundaries0,127,128,255 around each active pair and100,000 seeded mixed words. Record that the exhaustive dimension is the single-lane value pair, not all2^64 word pairs. Inspect shifts against width and integer promotions. Compare little- and big-endian serialization separately from numerical results.",
+        "X-T70-003-DELAYED: implement two saturating signed16-bit lanes with an explicit mathematical range oracle. Derive signed overflow detection without evaluating overflowing signed expressions; compare costs to the unsigned version."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-003-R1",
+          "objective": "T70.03.a",
+          "criterion": "Derive low7-bit addition, high-bit combination and saturation masks, proving which intermediate carries can occur and why neighboring lanes remain independent.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-003-R2",
+          "objective": "T70.03.b",
+          "criterion": "Implement the unsigned SWAR expression and an independent scalar oracle without relying on char signedness, endian memory reinterpretation or vector extensions.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-003-R3",
+          "objective": "T70.03.c",
+          "criterion": "Exhaust all65,536 lane input pairs in every position and with neighboring boundary lanes, then add deterministic mixed-lane random words; kill ordinary packed-add and inverted-overflow-mask mutants.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-003-R4",
+          "objective": "T70.03.d",
+          "criterion": "Compare scalar and SWAR code under equal saturation semantics at multiple optimization levels, checking generated instructions and a changed16-bit-lane derivation. Distinguish source-level branchlessness from timing guarantees and ISA support.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-003-DELAYED: implement two saturating signed16-bit lanes with an explicit mathematical range oracle. Derive signed overflow detection without evaluating overflowing signed expressions; compare costs to the unsigned version."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-003.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-LLVM",
+          "locator": "llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance",
+          "purpose": "Ordinary word addition is not lane-wise addition; carries and saturation require a proof. A benchmark over only identical lanes can miss a carry leaking into a different neighboring lane."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-07",
+      "project": "PR-T70-04",
+      "title": "Construct: Stable typed slots, dense iteration and finite identity",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T70.04.a",
+        "T70.04.b",
+        "T70.04.c",
+        "T70.04.d"
+      ],
+      "tests": [
+        "dod.sparse"
+      ],
+      "steps": [
+        "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime.",
+        "Implement swap-erased dense IDs with typed slot storage, generation admission and retirement; implement a two-page extension without moving live payload objects."
+      ],
+      "checks": [
+        "After inserting11,22,33 and removing22, the dense list contains the slots for11 and33; rank of33 is1. The removed handle rejects and preserves output. Removing/reusing slot0 through generation3 retires it; further insertion must choose another slot or report full.",
+        "Validate every live dense index round-trips through rank and every unoccupied slot is absent. Enumerate bounded operations with independent logical IDs and retain every stale handle. Inject page allocation failure before publication; verify existing page addresses and values. Record holes, page metadata, indirection, iteration traffic and retired capacity. The public4-slot anchor does not validate the submitted segmented extension, so attach its separate oracle and failure traces."
+      ],
+      "reasoning": [
+        "Dense iteration and stable addresses can coexist only by choosing what moves. Many sparse-set bugs repair one mapping but forget the inverse; generation counters eventually wrap unless exhaustion is part of the contract.",
+        "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime."
+      ],
+      "deliverables": [
+        "Implement DSparse add/get/remove with4 typed slots, a dense ID list, rank inverse, owner-bound handles and generations1–3 followed by retirement. Derive a segmented extension with2 pages of4 slots allocated through a caller-supplied page table: page addresses remain stable while the table can move. Give the extension a complete acquire/release and exhaustion contract before implementing it. Contrast a pointer to a stable live slot with a handle that must be revalidated after deletion.",
+        "Validate every live dense index round-trips through rank and every unoccupied slot is absent. Enumerate bounded operations with independent logical IDs and retain every stale handle. Inject page allocation failure before publication; verify existing page addresses and values. Record holes, page metadata, indirection, iteration traffic and retired capacity. The public4-slot anchor does not validate the submitted segmented extension, so attach its separate oracle and failure traces.",
+        "X-T70-004-DELAYED: preserve insertion iteration order while retaining stable payload addresses and O(1) handle lookup. Derive a tombstone/linked-order alternative and measure the new deletion or iteration costs."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-004-R1",
+          "objective": "T70.04.a",
+          "criterion": "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-004-R2",
+          "objective": "T70.04.b",
+          "criterion": "Implement swap-erased dense IDs with typed slot storage, generation admission and retirement; implement a two-page extension without moving live payload objects.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-004-R3",
+          "objective": "T70.04.c",
+          "criterion": "Explore all add/remove sequences up to length7 over four IDs against an independent live-set model, checking stale and foreign-owner handles, last-row removal and pool exhaustion.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-004-R4",
+          "objective": "T70.04.d",
+          "criterion": "Transfer to a payload owning a resource and a consumer holding a raw pointer. Define destruction and invalidation, then show why generation checks do not revoke that pointer or authorize concurrent reclamation.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-004-DELAYED: preserve insertion iteration order while retaining stable payload addresses and O(1) handle lookup. Derive a tombstone/linked-order alternative and measure the new deletion or iteration costs."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-004.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-LLVM",
+          "locator": "llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance",
+          "purpose": "Dense iteration and stable addresses can coexist only by choosing what moves. Many sparse-set bugs repair one mapping but forget the inverse; generation counters eventually wrap unless exhaustion is part of the contract."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-08",
+      "project": "PR-T70-04",
+      "title": "Falsify and transfer: Stable typed slots, dense iteration and finite identity",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent transfer",
+      "kind": "assessment",
+      "objectives": [
+        "T70.04.a",
+        "T70.04.b",
+        "T70.04.c",
+        "T70.04.d"
+      ],
+      "tests": [
+        "dod.sparse"
+      ],
+      "steps": [
+        "Validate every live dense index round-trips through rank and every unoccupied slot is absent. Enumerate bounded operations with independent logical IDs and retain every stale handle. Inject page allocation failure before publication; verify existing page addresses and values. Record holes, page metadata, indirection, iteration traffic and retired capacity. The public4-slot anchor does not validate the submitted segmented extension, so attach its separate oracle and failure traces.",
+        "X-T70-004-DELAYED: preserve insertion iteration order while retaining stable payload addresses and O(1) handle lookup. Derive a tombstone/linked-order alternative and measure the new deletion or iteration costs."
+      ],
+      "checks": [
+        "After inserting11,22,33 and removing22, the dense list contains the slots for11 and33; rank of33 is1. The removed handle rejects and preserves output. Removing/reusing slot0 through generation3 retires it; further insertion must choose another slot or report full.",
+        "Validate every live dense index round-trips through rank and every unoccupied slot is absent. Enumerate bounded operations with independent logical IDs and retain every stale handle. Inject page allocation failure before publication; verify existing page addresses and values. Record holes, page metadata, indirection, iteration traffic and retired capacity. The public4-slot anchor does not validate the submitted segmented extension, so attach its separate oracle and failure traces."
+      ],
+      "reasoning": [
+        "Dense iteration and stable addresses can coexist only by choosing what moves. Many sparse-set bugs repair one mapping but forget the inverse; generation counters eventually wrap unless exhaustion is part of the contract.",
+        "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime."
+      ],
+      "deliverables": [
+        "Implement DSparse add/get/remove with4 typed slots, a dense ID list, rank inverse, owner-bound handles and generations1–3 followed by retirement. Derive a segmented extension with2 pages of4 slots allocated through a caller-supplied page table: page addresses remain stable while the table can move. Give the extension a complete acquire/release and exhaustion contract before implementing it. Contrast a pointer to a stable live slot with a handle that must be revalidated after deletion.",
+        "Validate every live dense index round-trips through rank and every unoccupied slot is absent. Enumerate bounded operations with independent logical IDs and retain every stale handle. Inject page allocation failure before publication; verify existing page addresses and values. Record holes, page metadata, indirection, iteration traffic and retired capacity. The public4-slot anchor does not validate the submitted segmented extension, so attach its separate oracle and failure traces.",
+        "X-T70-004-DELAYED: preserve insertion iteration order while retaining stable payload addresses and O(1) handle lookup. Derive a tombstone/linked-order alternative and measure the new deletion or iteration costs."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-004-R1",
+          "objective": "T70.04.a",
+          "criterion": "Prove both directions of the dense/rank bijection and distinguish stable address, stable logical identity, stable iteration order and owner lifetime.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-004-R2",
+          "objective": "T70.04.b",
+          "criterion": "Implement swap-erased dense IDs with typed slot storage, generation admission and retirement; implement a two-page extension without moving live payload objects.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-004-R3",
+          "objective": "T70.04.c",
+          "criterion": "Explore all add/remove sequences up to length7 over four IDs against an independent live-set model, checking stale and foreign-owner handles, last-row removal and pool exhaustion.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-004-R4",
+          "objective": "T70.04.d",
+          "criterion": "Transfer to a payload owning a resource and a consumer holding a raw pointer. Define destruction and invalidation, then show why generation checks do not revoke that pointer or authorize concurrent reclamation.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-004-DELAYED: preserve insertion iteration order while retaining stable payload addresses and O(1) handle lookup. Derive a tombstone/linked-order alternative and measure the new deletion or iteration costs."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-004.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-LLVM",
+          "locator": "llvm/ADT/SmallVector.h: inline capacity, object size, storage and API guidance",
+          "purpose": "Dense iteration and stable addresses can coexist only by choosing what moves. Many sparse-set bugs repair one mapping but forget the inverse; generation counters eventually wrap unless exhaustion is part of the contract."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-09",
+      "project": "PR-T70-05",
+      "title": "Construct: Archetype migration with capacity admission and row repair",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T70.05.a",
+        "T70.05.b",
+        "T70.05.c",
+        "T70.05.d"
+      ],
+      "tests": [
+        "dod.ecs"
+      ],
+      "steps": [
+        "Derive entity-to-table/row and table-row-to-entity invariants, query mask semantics and the distinction between stable entity ID and invalidated row references.",
+        "Implement migration with destination admission before source removal, swap-row repair and transactional query updates; implement required/excluded-mask query selection and versioned cache invalidation."
+      ],
+      "checks": [
+        "Create entity0/1 in mask1 and entity2 in mask3. Moving0 into mask3 succeeds and moves1 to row0 of mask1. Moving1 into now-full mask3 rejects without deleting it. Step changes both-component positions30,10 with velocities2,1 into32,11; a later overflow preserves the whole table.",
+        "Enumerate all legal entity/mask requests for bounded traces up to length6, compare masks and active values with a dictionary oracle and check both mapping directions after every step. Explicitly test self-migration, last-row removal, destination full and overflow at each visited row. For cache tests, distinguish a changed set of matching tables from changed rows within an existing table. Benchmark equal query results with a scalar dictionary and include structural edits in the workload."
+      ],
+      "reasoning": [
+        "An archetype label does not teach migration atomicity or query invalidation. Deleting the old row before discovering a full destination loses an entity even though the numerical component code is correct.",
+        "Derive entity-to-table/row and table-row-to-entity invariants, query mask semantics and the distinction between stable entity ID and invalidated row references."
+      ],
+      "deliverables": [
+        "Implement DEcs with4 entity IDs, component masks1(position),2(velocity),3(both), and2 rows per archetype. Set creates, replaces or migrates an entity; step updates only the both-component table. Build a query adapter for required/excluded masks and a structural version counter for cached table selection. Specify deletion/reuse as a separate generation-bearing extension, never silently reuse an ID while old views survive. All structural edits happen outside an active iteration borrow.",
+        "Enumerate all legal entity/mask requests for bounded traces up to length6, compare masks and active values with a dictionary oracle and check both mapping directions after every step. Explicitly test self-migration, last-row removal, destination full and overflow at each visited row. For cache tests, distinguish a changed set of matching tables from changed rows within an existing table. Benchmark equal query results with a scalar dictionary and include structural edits in the workload.",
+        "X-T70-005-DELAYED: entities can be deleted and IDs reused. Integrate DSparse-style generations, then deliver a deferred migration command list whose capacity failure leaves the currently iterated tables unchanged."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-005-R1",
+          "objective": "T70.05.a",
+          "criterion": "Derive entity-to-table/row and table-row-to-entity invariants, query mask semantics and the distinction between stable entity ID and invalidated row references.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-005-R2",
+          "objective": "T70.05.b",
+          "criterion": "Implement migration with destination admission before source removal, swap-row repair and transactional query updates; implement required/excluded-mask query selection and versioned cache invalidation.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-005-R3",
+          "objective": "T70.05.c",
+          "criterion": "Enumerate create/migrate/update sequences against an independent per-entity dictionary, inject destination-full and arithmetic rejection, and diagnose lost-entity and stale-row-map mutants.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-005-R4",
+          "objective": "T70.05.d",
+          "criterion": "Compare sparse-set and archetype storage under query-heavy and mutation-heavy workloads, including migration copies, cache maintenance and iterator invalidation. Compose with typed stable handles under a changed deletion/reuse policy.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-005-DELAYED: entities can be deleted and IDs reused. Integrate DSparse-style generations, then deliver a deferred migration command list whose capacity failure leaves the currently iterated tables unchanged."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-005.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-FLECS",
+          "locator": "Caching: what is it? archetype grouping and component-set tables",
+          "purpose": "An archetype label does not teach migration atomicity or query invalidation. Deleting the old row before discovering a full destination loses an entity even though the numerical component code is correct."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-10",
+      "project": "PR-T70-05",
+      "title": "Falsify and transfer: Archetype migration with capacity admission and row repair",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent transfer",
+      "kind": "assessment",
+      "objectives": [
+        "T70.05.a",
+        "T70.05.b",
+        "T70.05.c",
+        "T70.05.d"
+      ],
+      "tests": [
+        "dod.ecs"
+      ],
+      "steps": [
+        "Enumerate all legal entity/mask requests for bounded traces up to length6, compare masks and active values with a dictionary oracle and check both mapping directions after every step. Explicitly test self-migration, last-row removal, destination full and overflow at each visited row. For cache tests, distinguish a changed set of matching tables from changed rows within an existing table. Benchmark equal query results with a scalar dictionary and include structural edits in the workload.",
+        "X-T70-005-DELAYED: entities can be deleted and IDs reused. Integrate DSparse-style generations, then deliver a deferred migration command list whose capacity failure leaves the currently iterated tables unchanged."
+      ],
+      "checks": [
+        "Create entity0/1 in mask1 and entity2 in mask3. Moving0 into mask3 succeeds and moves1 to row0 of mask1. Moving1 into now-full mask3 rejects without deleting it. Step changes both-component positions30,10 with velocities2,1 into32,11; a later overflow preserves the whole table.",
+        "Enumerate all legal entity/mask requests for bounded traces up to length6, compare masks and active values with a dictionary oracle and check both mapping directions after every step. Explicitly test self-migration, last-row removal, destination full and overflow at each visited row. For cache tests, distinguish a changed set of matching tables from changed rows within an existing table. Benchmark equal query results with a scalar dictionary and include structural edits in the workload."
+      ],
+      "reasoning": [
+        "An archetype label does not teach migration atomicity or query invalidation. Deleting the old row before discovering a full destination loses an entity even though the numerical component code is correct.",
+        "Derive entity-to-table/row and table-row-to-entity invariants, query mask semantics and the distinction between stable entity ID and invalidated row references."
+      ],
+      "deliverables": [
+        "Implement DEcs with4 entity IDs, component masks1(position),2(velocity),3(both), and2 rows per archetype. Set creates, replaces or migrates an entity; step updates only the both-component table. Build a query adapter for required/excluded masks and a structural version counter for cached table selection. Specify deletion/reuse as a separate generation-bearing extension, never silently reuse an ID while old views survive. All structural edits happen outside an active iteration borrow.",
+        "Enumerate all legal entity/mask requests for bounded traces up to length6, compare masks and active values with a dictionary oracle and check both mapping directions after every step. Explicitly test self-migration, last-row removal, destination full and overflow at each visited row. For cache tests, distinguish a changed set of matching tables from changed rows within an existing table. Benchmark equal query results with a scalar dictionary and include structural edits in the workload.",
+        "X-T70-005-DELAYED: entities can be deleted and IDs reused. Integrate DSparse-style generations, then deliver a deferred migration command list whose capacity failure leaves the currently iterated tables unchanged."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-005-R1",
+          "objective": "T70.05.a",
+          "criterion": "Derive entity-to-table/row and table-row-to-entity invariants, query mask semantics and the distinction between stable entity ID and invalidated row references.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-005-R2",
+          "objective": "T70.05.b",
+          "criterion": "Implement migration with destination admission before source removal, swap-row repair and transactional query updates; implement required/excluded-mask query selection and versioned cache invalidation.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-005-R3",
+          "objective": "T70.05.c",
+          "criterion": "Enumerate create/migrate/update sequences against an independent per-entity dictionary, inject destination-full and arithmetic rejection, and diagnose lost-entity and stale-row-map mutants.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-005-R4",
+          "objective": "T70.05.d",
+          "criterion": "Compare sparse-set and archetype storage under query-heavy and mutation-heavy workloads, including migration copies, cache maintenance and iterator invalidation. Compose with typed stable handles under a changed deletion/reuse policy.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-005-DELAYED: entities can be deleted and IDs reused. Integrate DSparse-style generations, then deliver a deferred migration command list whose capacity failure leaves the currently iterated tables unchanged."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-005.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-FLECS",
+          "locator": "Caching: what is it? archetype grouping and component-set tables",
+          "purpose": "An archetype label does not teach migration atomicity or query invalidation. Deleting the old row before discovering a full destination loses an entity even though the numerical component code is correct."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-11",
+      "project": "PR-T70-06",
+      "title": "Construct: Path copying, zipper contexts and retained-version costs",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T70.06.a",
+        "T70.06.b",
+        "T70.06.c",
+        "T70.06.d",
+        "T70.06.e"
+      ],
+      "tests": [
+        "dod.persistent"
+      ],
+      "steps": [
+        "Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer.",
+        "Implement leaf-to-root path copying, an explicit zipper reconstruction and failure rollback without mutating published nodes; state allocator ownership and snapshot lifetime."
+      ],
+      "checks": [
+        "Updating root0 cell3=17 creates4 nodes; updating that root cell6=29 creates4 more. The first root still reads cell6=0. Each of the four allocation-failure ordinals rejects with the output root and previously reachable nodes unchanged.",
+        "For update sequences of length0–5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected."
+      ],
+      "reasoning": [
+        "Cheap root copying shifts costs into path cloning and retained history. Const qualification does not freeze aliases, and a path-copy algorithm that silently mutates one old node breaks every older version sharing it.",
+        "Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer."
+      ],
+      "deliverables": [
+        "Implement the8-cell persistent binary trie using a64-node typed arena. Root0 denotes all zeros. An update clones one leaf and three ancestors, returning a new root; old roots remain readable. Add an explicit zipper with a focus plus three ancestor/direction crumbs and reconstruct by path copying. The zipper may borrow a live arena and immutable root, but never retain raw pointers across arena reset. Implement a reachability census over a chosen root set and compare region reset with a separately specified reference-count reclamation design, including rollback if construction fails.",
+        "For update sequences of length0–5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected.",
+        "X-T70-006-DELAYED: replace region reset with incremental reclamation under an explicit work budget. Return unfinished reclamation state; prove no live root is reclaimed and report worst-case retained nodes while work is deferred."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-006-R1",
+          "objective": "T70.06.a",
+          "criterion": "Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-006-R2",
+          "objective": "T70.06.b",
+          "criterion": "Implement leaf-to-root path copying, an explicit zipper reconstruction and failure rollback without mutating published nodes; state allocator ownership and snapshot lifetime.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-006-R3",
+          "objective": "T70.06.c",
+          "criterion": "Inject failure at every cloned-node ordinal, compare all8 cells of every retained root with independent array snapshots, and recompute reachability and sharing from roots.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-006-R4",
+          "objective": "T70.06.d",
+          "criterion": "Analyze fresh-node work, retained-node space, stack depth and region reclamation latency; implement a bounded reference-count alternative with exactly-once reclamation for a shared child and explain why it is not concurrent safe by itself.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-006-R5",
+          "objective": "T70.06.e",
+          "criterion": "Transfer to a tree with owned string leaves and a clone callback that can fail. Define rollback for already cloned resources and compare the documented persistent-collection Clone requirement with C programmer discipline.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-006-DELAYED: replace region reset with incremental reclamation under an explicit work budget. Return unfinished reclamation state; prove no live root is reclaimed and report worst-case retained nodes while work is deferred."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-006.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-IM",
+          "locator": "Why Would I Want This?: structural sharing and workload tradeoffs",
+          "purpose": "Cheap root copying shifts costs into path cloning and retained history. Const qualification does not freeze aliases, and a path-copy algorithm that silently mutates one old node breaks every older version sharing it."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-12",
+      "project": "PR-T70-06",
+      "title": "Falsify and transfer: Path copying, zipper contexts and retained-version costs",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent transfer",
+      "kind": "assessment",
+      "objectives": [
+        "T70.06.a",
+        "T70.06.b",
+        "T70.06.c",
+        "T70.06.d",
+        "T70.06.e"
+      ],
+      "tests": [
+        "dod.persistent"
+      ],
+      "steps": [
+        "For update sequences of length0–5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected.",
+        "X-T70-006-DELAYED: replace region reset with incremental reclamation under an explicit work budget. Return unfinished reclamation state; prove no live root is reclaimed and report worst-case retained nodes while work is deferred."
+      ],
+      "checks": [
+        "Updating root0 cell3=17 creates4 nodes; updating that root cell6=29 creates4 more. The first root still reads cell6=0. Each of the four allocation-failure ordinals rejects with the output root and previously reachable nodes unchanged.",
+        "For update sequences of length0–5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected."
+      ],
+      "reasoning": [
+        "Cheap root copying shifts costs into path cloning and retained history. Const qualification does not freeze aliases, and a path-copy algorithm that silently mutates one old node breaks every older version sharing it.",
+        "Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer."
+      ],
+      "deliverables": [
+        "Implement the8-cell persistent binary trie using a64-node typed arena. Root0 denotes all zeros. An update clones one leaf and three ancestors, returning a new root; old roots remain readable. Add an explicit zipper with a focus plus three ancestor/direction crumbs and reconstruct by path copying. The zipper may borrow a live arena and immutable root, but never retain raw pointers across arena reset. Implement a reachability census over a chosen root set and compare region reset with a separately specified reference-count reclamation design, including rollback if construction fails.",
+        "For update sequences of length0–5 over indices0,3,7 and values0,1,-1 compare every retained version with a copied8-element Python/list model. Traverse nodes independently to count reachability and shared edges; reject cycles or depth errors. Run each allocation failure ordinal. Test zipper root/leaf moves and reconstruction equality, including returning to the original snapshot. Report measured allocation/retention and not merely O(log n); for the bounded trie exactly4 nodes/update is independently expected.",
+        "X-T70-006-DELAYED: replace region reset with incremental reclamation under an explicit work budget. Return unfinished reclamation state; prove no live root is reclaimed and report worst-case retained nodes while work is deferred."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-006-R1",
+          "objective": "T70.06.a",
+          "criterion": "Derive persistence as multiple observable versions with shared immutable subgraphs, distinguishing it from durable storage and from a mutable object with a const pointer.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-006-R2",
+          "objective": "T70.06.b",
+          "criterion": "Implement leaf-to-root path copying, an explicit zipper reconstruction and failure rollback without mutating published nodes; state allocator ownership and snapshot lifetime.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-006-R3",
+          "objective": "T70.06.c",
+          "criterion": "Inject failure at every cloned-node ordinal, compare all8 cells of every retained root with independent array snapshots, and recompute reachability and sharing from roots.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-006-R4",
+          "objective": "T70.06.d",
+          "criterion": "Analyze fresh-node work, retained-node space, stack depth and region reclamation latency; implement a bounded reference-count alternative with exactly-once reclamation for a shared child and explain why it is not concurrent safe by itself.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-006-R5",
+          "objective": "T70.06.e",
+          "criterion": "Transfer to a tree with owned string leaves and a clone callback that can fail. Define rollback for already cloned resources and compare the documented persistent-collection Clone requirement with C programmer discipline.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-006-DELAYED: replace region reset with incremental reclamation under an explicit work budget. Return unfinished reclamation state; prove no live root is reclaimed and report worst-case retained nodes while work is deferred."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-006.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-IM",
+          "locator": "Why Would I Want This?: structural sharing and workload tradeoffs",
+          "purpose": "Cheap root copying shifts costs into path cloning and retained history. Const qualification does not freeze aliases, and a path-copy algorithm that silently mutates one old node breaks every older version sharing it."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-13",
+      "project": "PR-T70-07",
+      "title": "Construct: Bitmap rank, full-hash collisions and persistent map updates",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T70.07.a",
+        "T70.07.b",
+        "T70.07.c",
+        "T70.07.d"
+      ],
+      "tests": [
+        "dod.hamt"
+      ],
+      "steps": [
+        "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality.",
+        "Implement lookup/update with collision buckets and path copying, then deletion with defined empty-node normalization and immutable prior snapshots."
+      ],
+      "checks": [
+        "Keys1 and17 deliberately share the full4-bit hash but retain values10 and20. Updating17 to88 in a new root leaves20 in the old root. Inserting key0 changes bitmap rank and must not make key1 unreachable. Each of3 allocation failure points preserves old snapshots.",
+        "Generate every key pair and both insertion orders, then update and delete either member while retaining all roots. Add triplets selecting low chunks0,1,3 and full-hash pair0/16; compare flattening to sorted key/value pairs from a dictionary. For every node recompute count and rank independently; test pool exhaustion. Public reference implements lookup/update only: submitted deletion and its failure/normalization evidence are separately required and remain unexecuted in the author campaign."
+      ],
+      "reasoning": [
+        "A HAMT description hides three distinct equivalences: shared prefix, identical hash and equal key. Confusing them overwrites unrelated values. Sparse child packing also makes insertion rank as important as lookup rank.",
+        "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality."
+      ],
+      "deliverables": [
+        "Implement DHamt for keys0–31 with hash(key)=key&15, two2-bit levels, compact bitmap-indexed children, and equality-checked two-entry terminal collision buckets. Empty root0 and64 typed nodes bound the model. Update copies leaf and ancestors; lookup returns D_STALE for absence. Add a deletion operation with an explicit policy for empty internal nodes, and a tree-to-flat-map oracle. Do not use hash equality as key equality. Discuss extension to arbitrary-length keys by defining hash/equality contracts and ownership before substituting a hash function.",
+        "Generate every key pair and both insertion orders, then update and delete either member while retaining all roots. Add triplets selecting low chunks0,1,3 and full-hash pair0/16; compare flattening to sorted key/value pairs from a dictionary. For every node recompute count and rank independently; test pool exhaustion. Public reference implements lookup/update only: submitted deletion and its failure/normalization evidence are separately required and remain unexecuted in the author campaign.",
+        "X-T70-007-DELAYED: use two-byte keys and a caller-supplied hash/equality dictionary. Construct unequal keys with equal hash and equal logical keys with different backing bytes; define canonical equality and ownership, then re-evaluate collision and failure costs."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-007-R1",
+          "objective": "T70.07.a",
+          "criterion": "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-007-R2",
+          "objective": "T70.07.b",
+          "criterion": "Implement lookup/update with collision buckets and path copying, then deletion with defined empty-node normalization and immutable prior snapshots.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-007-R3",
+          "objective": "T70.07.c",
+          "criterion": "Exhaust keys0–31 and insertion/deletion permutations for collision pairs and differing bitmap positions; compare each version with an independent dictionary and inject every clone failure.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-007-R4",
+          "objective": "T70.07.d",
+          "criterion": "Analyze hash quality, collision-bucket growth, retained versions and pointer/bitmap costs under equal contracts. Transfer to an attacker-selected constant hash and specify bounded denial-of-service behavior without claiming constant worst-case lookup.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-007-DELAYED: use two-byte keys and a caller-supplied hash/equality dictionary. Construct unequal keys with equal hash and equal logical keys with different backing bytes; define canonical equality and ownership, then re-evaluate collision and failure costs."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-007.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-HAMT",
+          "locator": "HashMap description: immutable HAMT and hash/equality requirements",
+          "purpose": "A HAMT description hides three distinct equivalences: shared prefix, identical hash and equal key. Confusing them overwrites unrelated values. Sparse child packing also makes insertion rank as important as lookup rank."
+        },
+        {
+          "resource_id": "R-MOD-DOD-IM",
+          "locator": "Why Would I Want This?: structural sharing and workload tradeoffs",
+          "purpose": "A HAMT description hides three distinct equivalences: shared prefix, identical hash and equal key. Confusing them overwrites unrelated values. Sparse child packing also makes insertion rank as important as lookup rank."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-14",
+      "project": "PR-T70-07",
+      "title": "Falsify and transfer: Bitmap rank, full-hash collisions and persistent map updates",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent transfer",
+      "kind": "assessment",
+      "objectives": [
+        "T70.07.a",
+        "T70.07.b",
+        "T70.07.c",
+        "T70.07.d"
+      ],
+      "tests": [
+        "dod.hamt"
+      ],
+      "steps": [
+        "Generate every key pair and both insertion orders, then update and delete either member while retaining all roots. Add triplets selecting low chunks0,1,3 and full-hash pair0/16; compare flattening to sorted key/value pairs from a dictionary. For every node recompute count and rank independently; test pool exhaustion. Public reference implements lookup/update only: submitted deletion and its failure/normalization evidence are separately required and remain unexecuted in the author campaign.",
+        "X-T70-007-DELAYED: use two-byte keys and a caller-supplied hash/equality dictionary. Construct unequal keys with equal hash and equal logical keys with different backing bytes; define canonical equality and ownership, then re-evaluate collision and failure costs."
+      ],
+      "checks": [
+        "Keys1 and17 deliberately share the full4-bit hash but retain values10 and20. Updating17 to88 in a new root leaves20 in the old root. Inserting key0 changes bitmap rank and must not make key1 unreachable. Each of3 allocation failure points preserves old snapshots.",
+        "Generate every key pair and both insertion orders, then update and delete either member while retaining all roots. Add triplets selecting low chunks0,1,3 and full-hash pair0/16; compare flattening to sorted key/value pairs from a dictionary. For every node recompute count and rank independently; test pool exhaustion. Public reference implements lookup/update only: submitted deletion and its failure/normalization evidence are separately required and remain unexecuted in the author campaign."
+      ],
+      "reasoning": [
+        "A HAMT description hides three distinct equivalences: shared prefix, identical hash and equal key. Confusing them overwrites unrelated values. Sparse child packing also makes insertion rank as important as lookup rank.",
+        "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality."
+      ],
+      "deliverables": [
+        "Implement DHamt for keys0–31 with hash(key)=key&15, two2-bit levels, compact bitmap-indexed children, and equality-checked two-entry terminal collision buckets. Empty root0 and64 typed nodes bound the model. Update copies leaf and ancestors; lookup returns D_STALE for absence. Add a deletion operation with an explicit policy for empty internal nodes, and a tree-to-flat-map oracle. Do not use hash equality as key equality. Discuss extension to arbitrary-length keys by defining hash/equality contracts and ownership before substituting a hash function.",
+        "Generate every key pair and both insertion orders, then update and delete either member while retaining all roots. Add triplets selecting low chunks0,1,3 and full-hash pair0/16; compare flattening to sorted key/value pairs from a dictionary. For every node recompute count and rank independently; test pool exhaustion. Public reference implements lookup/update only: submitted deletion and its failure/normalization evidence are separately required and remain unexecuted in the author campaign.",
+        "X-T70-007-DELAYED: use two-byte keys and a caller-supplied hash/equality dictionary. Construct unequal keys with equal hash and equal logical keys with different backing bytes; define canonical equality and ownership, then re-evaluate collision and failure costs."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-007-R1",
+          "objective": "T70.07.a",
+          "criterion": "Derive bitmap rank as the population count of preceding bits and prove compact-child count/order invariants; distinguish trie-prefix, full-hash and actual-key equality.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-007-R2",
+          "objective": "T70.07.b",
+          "criterion": "Implement lookup/update with collision buckets and path copying, then deletion with defined empty-node normalization and immutable prior snapshots.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-007-R3",
+          "objective": "T70.07.c",
+          "criterion": "Exhaust keys0–31 and insertion/deletion permutations for collision pairs and differing bitmap positions; compare each version with an independent dictionary and inject every clone failure.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-007-R4",
+          "objective": "T70.07.d",
+          "criterion": "Analyze hash quality, collision-bucket growth, retained versions and pointer/bitmap costs under equal contracts. Transfer to an attacker-selected constant hash and specify bounded denial-of-service behavior without claiming constant worst-case lookup.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-007-DELAYED: use two-byte keys and a caller-supplied hash/equality dictionary. Construct unequal keys with equal hash and equal logical keys with different backing bytes; define canonical equality and ownership, then re-evaluate collision and failure costs."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-007.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-HAMT",
+          "locator": "HashMap description: immutable HAMT and hash/equality requirements",
+          "purpose": "A HAMT description hides three distinct equivalences: shared prefix, identical hash and equal key. Confusing them overwrites unrelated values. Sparse child packing also makes insertion rank as important as lookup rank."
+        },
+        {
+          "resource_id": "R-MOD-DOD-IM",
+          "locator": "Why Would I Want This?: structural sharing and workload tradeoffs",
+          "purpose": "A HAMT description hides three distinct equivalences: shared prefix, identical hash and equal key. Confusing them overwrites unrelated values. Sparse child packing also makes insertion rank as important as lookup rank."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-15",
+      "project": "PR-T70-08",
+      "title": "Construct: Shared text DAGs, editing alternatives and coordinate meaning",
+      "minutes": 240,
+      "new_executable": true,
+      "scaffolding": "bounded choice",
+      "kind": "implementation",
+      "objectives": [
+        "T70.08.a",
+        "T70.08.b",
+        "T70.08.c",
+        "T70.08.d",
+        "T70.08.e"
+      ],
+      "tests": [
+        "dod.rope"
+      ],
+      "steps": [
+        "Prove ordered-DAG sequence semantics, cached length consistency and ownership of shared leaves; distinguish byte, codepoint, grapheme and line coordinates.",
+        "Implement transactional leaf/concat/flatten and byte-index/split operations, including empty boundaries and shared subgraphs without cycles."
+      ],
+      "checks": [
+        "Leaves ab and cd concatenate to abcd; concatenating that root with itself flattens to abcdabcd while the ab leaf remains ab. Capacity7 rejects an8-byte flatten without touching the output canary or written. An empty leaf returns root0.",
+        "Generate edit traces length0–5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor."
+      ],
+      "reasoning": [
+        "Ropes trade copying for metadata, traversal and retained sharing. Text-editing structures are not interchangeable until coordinate system, ownership, capacity, snapshot and failure contracts agree.",
+        "Prove ordered-DAG sequence semantics, cached length consistency and ownership of shared leaves; distinguish byte, codepoint, grapheme and line coordinates."
+      ],
+      "deliverables": [
+        "Implement the DRope leaf/concat/flatten anchor with64 typed nodes, leaf length0–8 and maximum expanded length128. A rope is an ordered shared DAG: concatenating a root with itself must duplicate its logical bytes without mutating the shared leaf. Extend it with byte-index lookup and split, specifying allocation rollback and balancing separately. Implement two equal-byte-contract editing alternatives for a128-byte document: a gap buffer with explicit gap bounds and a piece table whose immutable original/add buffers are caller-owned and whose pieces are offset/length triples. Apply the same edit scripts to all three and a flat byte-list oracle. No Unicode scalar, grapheme or line-number equivalence is implied by byte offsets.",
+        "Generate edit traces length0–5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor.",
+        "X-T70-008-DELAYED: preserve immutable snapshots while compacting piece-table backing storage under a fixed additional-memory budget. State whether compaction may fail, how old snapshots remain valid and which reclamation event releases the previous backing store."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-008-R1",
+          "objective": "T70.08.a",
+          "criterion": "Prove ordered-DAG sequence semantics, cached length consistency and ownership of shared leaves; distinguish byte, codepoint, grapheme and line coordinates.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-008-R2",
+          "objective": "T70.08.b",
+          "criterion": "Implement transactional leaf/concat/flatten and byte-index/split operations, including empty boundaries and shared subgraphs without cycles.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-008-R3",
+          "objective": "T70.08.c",
+          "criterion": "Implement gap-buffer and piece-table editing with complete capacity and source-lifetime contracts; drive identical insert/delete scripts through all representations and an independent flat oracle.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-008-R4",
+          "objective": "T70.08.d",
+          "criterion": "Investigate chain depth, rebalancing, fragmentation and retained backing storage using adversarial concatenation and edit locality; derive a balance criterion from the inspected rope paper without importing its measurements as this lab results.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-008-R5",
+          "objective": "T70.08.e",
+          "criterion": "Transfer to UTF-8 scalar-index edits and invalid byte sequences. Define validation, coordinate conversion and snapshot ownership, then demonstrate a case where byte equality alone does not establish the requested text operation.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-008-DELAYED: preserve immutable snapshots while compacting piece-table backing storage under a fixed additional-memory budget. State whether compaction may fail, how old snapshots remain valid and which reclamation event releases the previous backing store."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-008.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-ROPES",
+          "locator": "Representation pages1316–1318: ordered shared DAG, lengths and operations",
+          "purpose": "Ropes trade copying for metadata, traversal and retained sharing. Text-editing structures are not interchangeable until coordinate system, ownership, capacity, snapshot and failure contracts agree."
+        }
+      ]
+    },
+    {
+      "id": "LAB-DO-16",
+      "project": "PR-T70-08",
+      "title": "Falsify and transfer: Shared text DAGs, editing alternatives and coordinate meaning",
+      "minutes": 240,
+      "new_executable": false,
+      "scaffolding": "independent transfer",
+      "kind": "assessment",
+      "objectives": [
+        "T70.08.a",
+        "T70.08.b",
+        "T70.08.c",
+        "T70.08.d",
+        "T70.08.e"
+      ],
+      "tests": [
+        "dod.rope"
+      ],
+      "steps": [
+        "Generate edit traces length0–5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor.",
+        "X-T70-008-DELAYED: preserve immutable snapshots while compacting piece-table backing storage under a fixed additional-memory budget. State whether compaction may fail, how old snapshots remain valid and which reclamation event releases the previous backing store."
+      ],
+      "checks": [
+        "Leaves ab and cd concatenate to abcd; concatenating that root with itself flattens to abcdabcd while the ab leaf remains ab. Capacity7 rejects an8-byte flatten without touching the output canary or written. An empty leaf returns root0.",
+        "Generate edit traces length0–5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor."
+      ],
+      "reasoning": [
+        "Ropes trade copying for metadata, traversal and retained sharing. Text-editing structures are not interchangeable until coordinate system, ownership, capacity, snapshot and failure contracts agree.",
+        "Prove ordered-DAG sequence semantics, cached length consistency and ownership of shared leaves; distinguish byte, codepoint, grapheme and line coordinates."
+      ],
+      "deliverables": [
+        "Implement the DRope leaf/concat/flatten anchor with64 typed nodes, leaf length0–8 and maximum expanded length128. A rope is an ordered shared DAG: concatenating a root with itself must duplicate its logical bytes without mutating the shared leaf. Extend it with byte-index lookup and split, specifying allocation rollback and balancing separately. Implement two equal-byte-contract editing alternatives for a128-byte document: a gap buffer with explicit gap bounds and a piece table whose immutable original/add buffers are caller-owned and whose pieces are offset/length triples. Apply the same edit scripts to all three and a flat byte-list oracle. No Unicode scalar, grapheme or line-number equivalence is implied by byte offsets.",
+        "Generate edit traces length0–5 over insert empty/a/ab/NUL, delete zero/one/all and each boundary position, comparing byte sequences after every step. Check invalid positions and capacity exhaustion preserve state. Independently traverse the DAG to verify cached lengths, older-node edges and sharing; flatten must visit logical occurrences, not each unique node once. Construct left-deep concatenation to measure depth and compare balanced rebuild. The author anchor covers concat/flatten; split, balance, gap and piece implementations require their own submitted evidence and are not counted executed by that anchor.",
+        "X-T70-008-DELAYED: preserve immutable snapshots while compacting piece-table backing storage under a fixed additional-memory budget. State whether compaction may fail, how old snapshots remain valid and which reclamation event releases the previous backing store."
+      ],
+      "rubric": [
+        {
+          "id": "X-T70-008-R1",
+          "objective": "T70.08.a",
+          "criterion": "Prove ordered-DAG sequence semantics, cached length consistency and ownership of shared leaves; distinguish byte, codepoint, grapheme and line coordinates.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-008-R2",
+          "objective": "T70.08.b",
+          "criterion": "Implement transactional leaf/concat/flatten and byte-index/split operations, including empty boundaries and shared subgraphs without cycles.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-008-R3",
+          "objective": "T70.08.c",
+          "criterion": "Implement gap-buffer and piece-table editing with complete capacity and source-lifetime contracts; drive identical insert/delete scripts through all representations and an independent flat oracle.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-008-R4",
+          "objective": "T70.08.d",
+          "criterion": "Investigate chain depth, rebalancing, fragmentation and retained backing storage using adversarial concatenation and edit locality; derive a balance criterion from the inspected rope paper without importing its measurements as this lab results.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        },
+        {
+          "id": "X-T70-008-R5",
+          "objective": "T70.08.e",
+          "criterion": "Transfer to UTF-8 scalar-index edits and invalid byte sequences. Define validation, coordinate conversion and snapshot ownership, then demonstrate a case where byte equality alone does not establish the requested text operation.",
+          "levels": {
+            "0": "Absent or contradicts the stated representation/contract.",
+            "1": "Runs the nominal example but cannot derive the relevant invariant or explain a failing boundary.",
+            "2": "Provides the complete stated result, a justified invariant and independently checked falsification evidence.",
+            "3": "Transfers the argument to the changed assumptions without a worked solution, identifying the revised costs and limits."
+          }
+        }
+      ],
+      "variants": [
+        "X-T70-008-DELAYED: preserve immutable snapshots while compacting piece-table backing storage under a fixed additional-memory budget. State whether compaction may fail, how old snapshots remain valid and which reclamation event releases the previous backing store."
+      ],
+      "assessor_analysis": "assessor/dod/analyses/X-T70-008.md",
+      "target_scope": "host",
+      "scope": "Bounded reference anchor plus required separately assessed extensions.",
+      "remaining_evidence": "Independent reasoning, written extensions, cost measurements and delayed transfer remain unassessed.",
+      "references": [
+        {
+          "resource_id": "R-MOD-DOD-ROPES",
+          "locator": "Representation pages1316–1318: ordered shared DAG, lengths and operations",
+          "purpose": "Ropes trade copying for metadata, traversal and retained sharing. Text-editing structures are not interchangeable until coordinate system, ownership, capacity, snapshot and failure contracts agree."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "X-T70-001",
+      "project": "PR-T70-01",
+      "tests": [
+        "dod.columns"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T70-002",
+      "project": "PR-T70-02",
+      "tests": [
+        "dod.small"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T70-003",
+      "project": "PR-T70-03",
+      "tests": [
+        "dod.swar"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T70-004",
+      "project": "PR-T70-04",
+      "tests": [
+        "dod.sparse"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T70-005",
+      "project": "PR-T70-05",
+      "tests": [
+        "dod.ecs"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T70-006",
+      "project": "PR-T70-06",
+      "tests": [
+        "dod.persistent"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T70-007",
+      "project": "PR-T70-07",
+      "tests": [
+        "dod.hamt"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    },
+    {
+      "id": "X-T70-008",
+      "project": "PR-T70-08",
+      "tests": [
+        "dod.rope"
+      ],
+      "capabilities": [
+        "linux-c17"
+      ]
+    }
+  ],
+  "tests": [
+    "dod.columns",
+    "dod.small",
+    "dod.swar",
+    "dod.sparse",
+    "dod.ecs",
+    "dod.persistent",
+    "dod.hamt",
+    "dod.rope"
+  ],
+  "modules": [
+    "T70"
+  ],
+  "contract": "labs/dod/CONTRACTS.md",
+  "campaign": {
+    "producer": "tools/run_dod.py",
+    "receipt": "dod_campaign.json",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "DOD_CHECK:",
+    "fixture_oracle": "labs/dod/tests/verify_fixtures.py"
+  },
+  "dependencies": [],
+  "scope": "Hosted typed bounded models; full written extensions and delayed transfer remain explicit requirements."
+}

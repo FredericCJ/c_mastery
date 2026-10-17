@@ -11,9 +11,11 @@ domain numbers organize the reference catalog, dependencies determine order.
 |---|---|---|---|
 | {{COVERAGE}} | {{UNITS}} | {{EXECUTABLE}} | {{RECALL}} |
 
-The catalog stays within {{HOURS}} planned hours. Source, image, emulator, physical
-and learner-mastery claims remain distinct. Original freestanding and
-physical-interface requirements are retained.
+The catalog records {{HOURS}} descriptive hours, with accepted baseline accounting
+preserved separately. Required exercise expansions add work with no learner-time
+ceiling. Source, image,
+emulator, physical and learner-mastery claims remain distinct. Original
+freestanding and physical-interface requirements are retained.
 
 | Study | Build | Check |
 |---|---|---|

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "FIX-LCP-P5",
+  "oracle": "cancel-ownership",
+  "input": {
+    "generation": 1,
+    "queue": [
+      1,
+      2
+    ],
+    "events": [
+      {
+        "action": "cancel"
+      },
+      {
+        "action": "complete",
+        "generation": 0
+      },
+      {
+        "action": "cancel"
+      },
+      {
+        "action": "complete",
+        "generation": 1
+      },
+      {
+        "action": "complete",
+        "generation": 1
+      }
+    ]
+  },
+  "expected": {
+    "trace": [
+      {
+        "pending": true,
+        "complete": false,
+        "queued": 2,
+        "releases": 0,
+        "discarded": 0
+      },
+      {
+        "pending": true,
+        "complete": false,
+        "queued": 2,
+        "releases": 0,
+        "discarded": 0
+      },
+      {
+        "pending": true,
+        "complete": false,
+        "queued": 2,
+        "releases": 0,
+        "discarded": 0
+      },
+      {
+        "pending": false,
+        "complete": true,
+        "queued": 0,
+        "releases": 1,
+        "discarded": 2
+      },
+      {
+        "pending": false,
+        "complete": true,
+        "queued": 0,
+        "releases": 1,
+        "discarded": 2
+      }
+    ],
+    "releases": 1,
+    "discarded": 2
+  },
+  "scope": "Bounded independent host model; not learner or target execution.",
+  "provenance": "Concrete inputs and hand-derived state/layout/rational expectations; P3 CRC bytes authored with zlib and checked by a distinct bitwise oracle."
+}

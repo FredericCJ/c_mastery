@@ -1,0 +1,69 @@
+{
+  "id": "PR-T66-06",
+  "description": "Strong and weak ownership with atomic and non-atomic counts",
+  "input": {
+    "case": "shared"
+  },
+  "expected": {
+    "contract": "Downgrade, retain, drop, drop yields strong0,weak1, one value destruction and no control reclamation. Upgrade now fails DEAD. Dropping the remaining weak reclaims the control once. Four threads each retain/drop5000 times while holding their own strong reference; after all owned strong references end, destruction occurs once, and a retained weak keeps the control available for a failed upgrade."
+  },
+  "cases": [
+    {
+      "id": "shared-12",
+      "kind": "shared",
+      "input": [
+        "downgrade",
+        "retain",
+        "drop",
+        "drop",
+        "upgrade",
+        "weak_drop"
+      ],
+      "expected": [
+        [
+          1,
+          2,
+          0,
+          0,
+          "OK"
+        ],
+        [
+          2,
+          2,
+          0,
+          0,
+          "OK"
+        ],
+        [
+          1,
+          2,
+          0,
+          0,
+          "OK"
+        ],
+        [
+          0,
+          1,
+          1,
+          0,
+          "OK"
+        ],
+        [
+          0,
+          1,
+          1,
+          0,
+          "DEAD"
+        ],
+        [
+          0,
+          0,
+          1,
+          1,
+          "OK"
+        ]
+      ]
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

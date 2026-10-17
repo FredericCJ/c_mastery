@@ -1,9 +1,12 @@
 # Modern programming techniques from first principles (T65–T76)
 
 Authorized 2026-10-16 as an extension of the fifth edition (see
-`planning/decisions.md` and `planning/overhaul_v5.md`). Nothing here is authored
-yet; every count below is planned and becomes binding only through the research
-gate, the domain recipe and acceptance.
+`planning/decisions.md` and `planning/overhaul_v5.md`). All twelve domains now have
+canonical modules, 114 projects, laboratory contracts, separate assessor sources,
+objective rubrics and scoped author campaigns. The integrated manifest and
+`research/v5/modern/coverage/` record their actual identities and census mapping.
+The estimates below preserve the original plan; source-bound author validation,
+independent review, physical validation and learner assessment remain distinct.
 
 ## Purpose
 
@@ -63,6 +66,11 @@ data models". Both phases follow every phase T57–T64 introduce.
 Planned size: 114 projects of 6–10 hours, about 910 project hours plus about 28
 hours per domain of reading, assessment and consolidation, roughly 1,250 hours in
 total. `tools/write_program.py` computes the binding figure.
+
+The later evidence-based exercise expansion treats those figures as historical
+planning estimates, not a learner-time ceiling or an exercise quota. Mechanism,
+boundary, failure and transfer coverage determines the added work. The required
+exercise layer records that work separately from accepted project envelopes.
 
 ## Subtopics
 
@@ -339,6 +347,9 @@ elements by the SWE catalog).
 4. Evidence. `COST_REVIEW.md` from the census thirteen-dimension sheet, comparing
    implementations under an equivalent contract, with allocation counts from the
    T66 counting allocator and layout from `sizeof` and `offsetof`.
+   The T65 pilot records direct operation and storage counts first; its allocation
+   comparison is revisited after T66 supplies the counting allocator. Do not
+   claim an import from a producer that has not yet been implemented.
 5. Crosswalk reading. The Rust, C++, Go, Swift, Zig, Odin or C3 counterpart from
    registered documentation: what the language enforces statically and what the
    C version checks at run time.
@@ -388,7 +399,8 @@ elements by the SWE catalog).
 - M3, pilot: T65 end to end through `tools/run_unit_campaigns_v5.py family
   errors`.
 - M4, waves along the import graph, producers before consumers: T66, T67, T68;
-  then T69, T70, T71; then T72; then T73, T74; then T75, T76. TSan profiles for
+  then T70, T69, T71; then T72; then T73, T74; then T75, T76. T70 freezes
+  its small-buffer storage contract before the T69.05 consumer starts. TSan profiles for
   T73, T75, T76 and the atomic projects of T66; T72 and T74 are x86-64 only; all
   families run in WSL.
 - M5, integration and acceptance: artifact consumers updated with old lists as

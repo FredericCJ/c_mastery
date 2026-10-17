@@ -1,0 +1,63 @@
+{
+  "id": "PR-T66-02",
+  "description": "Scoped cleanup, conditional undo and publication by swap",
+  "input": {
+    "case": "scope"
+  },
+  "expected": {
+    "contract": "Register digits1 ALWAYS,2 ON_SUCCESS,3 ON_ERROR. Failure produces trace31; success produces21; a second finish appends nothing. Publishing three staged blocks over three old blocks leaves exactly three live blocks and consumes the staged owner."
+  },
+  "cases": [
+    {
+      "id": "scope-5",
+      "kind": "scope",
+      "input": {
+        "entries": [
+          [
+            "always",
+            1
+          ],
+          [
+            "success",
+            2
+          ],
+          [
+            "error",
+            3
+          ]
+        ],
+        "success": false
+      },
+      "expected": [
+        3,
+        1
+      ]
+    },
+    {
+      "id": "scope-6",
+      "kind": "scope",
+      "input": {
+        "entries": [
+          [
+            "always",
+            1
+          ],
+          [
+            "success",
+            2
+          ],
+          [
+            "error",
+            3
+          ]
+        ],
+        "success": true
+      },
+      "expected": [
+        2,
+        1
+      ]
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

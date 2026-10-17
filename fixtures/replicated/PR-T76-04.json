@@ -1,0 +1,31 @@
+{
+  "id": "PR-T76-04",
+  "description": "Join-semilattice counters and deterministic registers",
+  "input": {
+    "case": "counters"
+  },
+  "expected": {
+    "contract": "Replica0 adds5; replica1 subtracts3. Merge yields2 and repeating the same merge remains2. Register(7,0,1) joined with(7,2,9) chooses9; another payload at(7,2) is a conflict. Adding UINT32_MAX to component5 fails unchanged."
+  },
+  "cases": [
+    {
+      "kind": "counters",
+      "example": "Replica0 adds5; replica1 subtracts3. Merge yields2 and repeating the same merge remains2. Register(7,0,1) joined with(7,2,9) chooses9; another payload at(7,2) is a conflict. Adding UINT32_MAX to component5 fails unchanged.",
+      "input": {
+        "positive": [
+          5,
+          0,
+          0
+        ],
+        "negative": [
+          0,
+          3,
+          0
+        ]
+      },
+      "expected": 2,
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

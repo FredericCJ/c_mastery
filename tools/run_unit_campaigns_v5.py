@@ -126,6 +126,30 @@ def family(name_of_family, native):
         command = python_command('tools/run_unit_campaigns_v5.py', 'family', name_of_family, '--native', platform='wsl')
         return subprocess.run(command, cwd=ROOT).returncode
     meta = read_json(ROOT / 'labs' / name_of_family / 'family.json')
+    campaign_meta = meta.get('campaign')
+    campaign_meta = campaign_meta if isinstance(campaign_meta, dict) else {}
+    producer = campaign_meta.get('producer')
+    if name_of_family in {'kernel_lifecycle', 'architecture_ports', 'firmware_lifecycle', 'subset_compiler',
+                          'verification_fuzzing', 'linux_io_depth', 'memory_defense', 'numeric_simd'}:
+        # B06 uses one shared producer with a family selector and explicit output.
+        # Do not overwrite the all-eight-family campaign with a one-family run.
+        destination = RECEIPTS + '/' + name_of_family + '_campaign.json'
+        return subprocess.run(python_command('tools/run_b06_campaign.py', '--family', name_of_family,
+                                             '--output', destination), cwd=ROOT).returncode
+    if name_of_family == 'foundation_depth' or producer:
+        producer = producer or 'tools/run_foundation_depth.py'
+        target = (ROOT / producer).resolve()
+        if (not target.is_file() or target.parent != (ROOT / 'tools').resolve()
+                or not target.name.startswith('run_') or target.suffix != '.py'):
+            raise ValueError('Family campaign producer must be a tracked tools/run_*.py: ' + producer)
+        receipt = campaign_meta.get('receipt', 'foundation_depth_campaign.json')
+        if Path(receipt).name != receipt or not receipt.endswith('_campaign.json'):
+            raise ValueError('Invalid family campaign receipt name: ' + receipt)
+        destination = RECEIPTS + '/' + receipt
+        command = python_command(producer, '--report', destination)
+        return subprocess.run(command, cwd=ROOT).returncode
+    if meta.get('exercises'):
+        raise ValueError('Exercise family needs an explicit tracked campaign producer: ' + name_of_family)
     campaign = meta.get('campaign', {})
     units = meta.get('units', [])
     entries = meta.get('projects', [])

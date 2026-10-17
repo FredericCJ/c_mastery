@@ -1,0 +1,469 @@
+{
+  "domain": "T62",
+  "sets": [
+    {
+      "id": "T62.01",
+      "title": "Vectored partial progress",
+      "objectives": [
+        "T62.01.a",
+        "T62.01.b",
+        "T62.01.c"
+      ],
+      "objective_text": {
+        "T62.01.a": "Derive and defend: Prove accepted progress plus remaining extent equals the original stream length, including zero spans and overflow. Distinguish kernel acceptance from remote delivery or persistence.",
+        "T62.01.b": "Implement and investigate: Implement li_advance(lengths,count,position,bytes) for a valid vector cursor. Compute remaining extent with checked size_t arithmetic, reject excess progress transactionally, then advance across zero-length elements and normalize the terminal position to{count,0}. This is caller-side accounting, not a writev replacement.",
+        "T62.01.c": "Falsify and transfer: The faulty cursor resets the within-element offset after a short write, duplicating the first byte of the next span on retry. Then Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers."
+      },
+      "projects": [
+        "PR-T62-01"
+      ],
+      "resource_ids": [
+        "R-B06-EPOLL",
+        "R-B06-URING",
+        "R-B06-CANCEL",
+        "R-B06-FSYNC",
+        "R-B06-SENDFILE"
+      ],
+      "variants": [
+        {
+          "id": "T62.01-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T62.01.a"
+          ],
+          "prompt": "Prove accepted progress plus remaining extent equals the original stream length, including zero spans and overflow. Distinguish kernel acceptance from remote delivery or persistence.",
+          "checklist": [
+            "Validate total remaining bytes before mutating the public cursor."
+          ]
+        },
+        {
+          "id": "T62.01-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T62.01.b"
+          ],
+          "prompt": "The faulty cursor resets the within-element offset after a short write, duplicating the first byte of the next span on retry.",
+          "checklist": [
+            "Implement li_advance(lengths,count,position,bytes) for a valid vector cursor. Compute remaining extent with checked size_t arithmetic, reject excess progress transactionally, then advance across zero-length elements and normalize the terminal position to{count,0}. This is caller-side accounting, not a writev replacement."
+          ]
+        },
+        {
+          "id": "T62.01-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T62.01.c"
+          ],
+          "prompt": "Add EINTR, EAGAIN and an error after a nonzero prefix; define whether the API returns progress plus deferred error or an immediate terminal error and test consumers.",
+          "checklist": [
+            "Prove accepted progress plus remaining extent equals the original stream length, including zero spans and overflow. Distinguish kernel acceptance from remote delivery or persistence."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T62.02",
+      "title": "Edge readiness and fair draining",
+      "objectives": [
+        "T62.02.a",
+        "T62.02.b",
+        "T62.02.c"
+      ],
+      "objective_text": {
+        "T62.02.a": "Derive and defend: Distinguish kernel notification, locally remembered readiness and actual EAGAIN. Derive a fairness budget that does not lose readiness or spin forever after EOF.",
+        "T62.02.b": "Implement and investigate: Implement li_ready_after(result,budget_exhausted) for a synthetic read result: positive progress retains readiness, -2 means EAGAIN and clears readiness,0 EOF clears readiness,-1 terminal error clears readiness. Return1 while progress remains, even when a dispatch budget was exhausted. Exercise the actual anonymous-pipe EPOLLET adapter and compare drain-to-EAGAIN with a local ready queue.",
+        "T62.02.c": "Falsify and transfer: The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash. Then Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts."
+      },
+      "projects": [
+        "PR-T62-02"
+      ],
+      "resource_ids": [
+        "R-B06-EPOLL"
+      ],
+      "variants": [
+        {
+          "id": "T62.02-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T62.02.a"
+          ],
+          "prompt": "Distinguish kernel notification, locally remembered readiness and actual EAGAIN. Derive a fairness budget that does not lose readiness or spin forever after EOF.",
+          "checklist": [
+            "Budget exhaustion moves work to a ready queue rather than forgetting it."
+          ]
+        },
+        {
+          "id": "T62.02-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T62.02.b"
+          ],
+          "prompt": "The mutant clears readiness at budget exhaustion while unread data remains. The pipe receives no new edge, exposing a liveness failure without a crash.",
+          "checklist": [
+            "Implement li_ready_after(result,budget_exhausted) for a synthetic read result: positive progress retains readiness, -2 means EAGAIN and clears readiness,0 EOF clears readiness,-1 terminal error clears readiness. Return1 while progress remains, even when a dispatch budget was exhausted. Exercise the actual anonymous-pipe EPOLLET adapter and compare drain-to-EAGAIN with a local ready queue."
+          ]
+        },
+        {
+          "id": "T62.02-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T62.02.c"
+          ],
+          "prompt": "Add two continuously active peers and timerfd deadlines; prove bounded dispatch work and measure fairness under equivalent correctness contracts.",
+          "checklist": [
+            "Distinguish kernel notification, locally remembered readiness and actual EAGAIN. Derive a fairness budget that does not lose readiness or spin forever after EOF."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T62.03",
+      "title": "Shared submission ring arithmetic",
+      "objectives": [
+        "T62.03.a",
+        "T62.03.b",
+        "T62.03.c"
+      ],
+      "objective_text": {
+        "T62.03.a": "Derive and defend: Derive the bounded-distance interpretation under counter wrap. Separate single-producer ownership, ring-slot lifetime and payload-before-tail publication.",
+        "T62.03.b": "Implement and investigate: Implement li_slot(head,tail,capacity,out) for uint32_t monotonic counters: capacity is a power of two in1..2^30, unsigned tail-head must be<capacity, and output is tail&(capacity-1). Reject invalid/full states unchanged. Then map the arithmetic to raw io_uring offsets and acquire/release operations after feature probing.",
+        "T62.03.c": "Falsify and transfer: A producer masks tail and overwrites a still-owned full slot. Adding a barrier cannot repair missing capacity admission. Then Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof."
+      },
+      "projects": [
+        "PR-T62-03"
+      ],
+      "resource_ids": [
+        "R-B06-URING"
+      ],
+      "variants": [
+        {
+          "id": "T62.03-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T62.03.a"
+          ],
+          "prompt": "Derive the bounded-distance interpretation under counter wrap. Separate single-producer ownership, ring-slot lifetime and payload-before-tail publication.",
+          "checklist": [
+            "Acquire the peer position, fill owned storage, then publish the tail with the required ordering."
+          ]
+        },
+        {
+          "id": "T62.03-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T62.03.b"
+          ],
+          "prompt": "A producer masks tail and overwrites a still-owned full slot. Adding a barrier cannot repair missing capacity admission.",
+          "checklist": [
+            "Implement li_slot(head,tail,capacity,out) for uint32_t monotonic counters: capacity is a power of two in1..2^30, unsigned tail-head must be<capacity, and output is tail&(capacity-1). Reject invalid/full states unchanged. Then map the arithmetic to raw io_uring offsets and acquire/release operations after feature probing."
+          ]
+        },
+        {
+          "id": "T62.03-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T62.03.c"
+          ],
+          "prompt": "Add multiple producers or change queue depth away from a power of two; redesign reservation and indexing rather than reusing the single-owner mask proof.",
+          "checklist": [
+            "Derive the bounded-distance interpretation under counter wrap. Separate single-producer ownership, ring-slot lifetime and payload-before-tail publication."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T62.04",
+      "title": "Generation-tagged completion ownership",
+      "objectives": [
+        "T62.04.a",
+        "T62.04.b",
+        "T62.04.c"
+      ],
+      "objective_text": {
+        "T62.04.a": "Derive and defend: Prove each target completion is consumed once and cannot authorize release of another generation. State finite-generation exhaustion policy and metadata versus payload lifetime.",
+        "T62.04.b": "Implement and investigate: Implement li_event on LIRequest with state0 idle,1 submitted,2 cancel-requested,3 completed,4 released. Events0 submit,1 request cancel,2 target completion(result),3 release. Require matching generation for every event. Completion is allowed from1/2 once; release only from3 once. Failed transitions preserve the object.",
+        "T62.04.c": "Falsify and transfer: The mutant ignores generation and lets a stale completion finish a new request. Demonstrate harmless wrong-result publication using two synthetic requests, not another process’s data. Then Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags."
+      },
+      "projects": [
+        "PR-T62-04"
+      ],
+      "resource_ids": [
+        "R-B06-URING"
+      ],
+      "variants": [
+        {
+          "id": "T62.04-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T62.04.a"
+          ],
+          "prompt": "Prove each target completion is consumed once and cannot authorize release of another generation. State finite-generation exhaustion policy and metadata versus payload lifetime.",
+          "checklist": [
+            "Retain payload until a terminal event for the same generation is processed."
+          ]
+        },
+        {
+          "id": "T62.04-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T62.04.b"
+          ],
+          "prompt": "The mutant ignores generation and lets a stale completion finish a new request. Demonstrate harmless wrong-result publication using two synthetic requests, not another process’s data.",
+          "checklist": [
+            "Implement li_event on LIRequest with state0 idle,1 submitted,2 cancel-requested,3 completed,4 released. Events0 submit,1 request cancel,2 target completion(result),3 release. Require matching generation for every event. Completion is allowed from1/2 once; release only from3 once. Failed transitions preserve the object."
+          ]
+        },
+        {
+          "id": "T62.04-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T62.04.c"
+          ],
+          "prompt": "Add multishot operations where nonterminal completions retain ownership; derive terminal recognition and buffer recycling from the actual opcode flags.",
+          "checklist": [
+            "Prove each target completion is consumed once and cannot authorize release of another generation. State finite-generation exhaustion policy and metadata versus payload lifetime."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T62.05",
+      "title": "Cancellation acknowledgement versus target completion",
+      "objectives": [
+        "T62.05.a",
+        "T62.05.b",
+        "T62.05.c"
+      ],
+      "objective_text": {
+        "T62.05.a": "Derive and defend: Name separate ownership of cancel request, target request and payload. Explain how success, not-found and already-completing cancellation results change scheduling but do not substitute for a target terminal event.",
+        "T62.05.b": "Implement and investigate: Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations.",
+        "T62.05.c": "Falsify and transfer: The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability. Then Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics."
+      },
+      "projects": [
+        "PR-T62-05"
+      ],
+      "resource_ids": [
+        "R-B06-URING"
+      ],
+      "variants": [
+        {
+          "id": "T62.05-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T62.05.a"
+          ],
+          "prompt": "Name separate ownership of cancel request, target request and payload. Explain how success, not-found and already-completing cancellation results change scheduling but do not substitute for a target terminal event.",
+          "checklist": [
+            "A cancellation acknowledgement does not release the target’s lifetime claim."
+          ]
+        },
+        {
+          "id": "T62.05-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T62.05.b"
+          ],
+          "prompt": "The faulty adapter frees the target buffer when its cancel request completes, then processes a late target CQE. A sanitizer finding identifies a lifetime violation, not kernel exploitability.",
+          "checklist": [
+            "Implement li_releasable(cancel_ack,target_terminal) accepting only boolean inputs and returning target_terminal. Build a two-CQE schedule harness that permutes cancellation completion, target completion and close; inspect actual io_uring cancellation result codes on the original temporary-file/pipe operations."
+          ]
+        },
+        {
+          "id": "T62.05-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T62.05.c"
+          ],
+          "prompt": "Add a timeout linked to a multishot request; enumerate which CQEs are terminal and determine whether the backend supports the requested cancellation semantics.",
+          "checklist": [
+            "Name separate ownership of cancel request, target request and payload. Explain how success, not-found and already-completing cancellation results change scheduling but do not substitute for a target terminal event."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T62.06",
+      "title": "Deadlines, timer events and wraparound",
+      "objectives": [
+        "T62.06.a",
+        "T62.06.b",
+        "T62.06.c"
+      ],
+      "objective_text": {
+        "T62.06.a": "Derive and defend: State the half-range observation assumption and prove equality is expiration. Distinguish wall-clock corrections, monotonic elapsed time and deadline policy.",
+        "T62.06.b": "Implement and investigate: Implement li_expired(start,now,duration,out) for a wrapping32-bit tick model with duration1..2^31-1 and elapsed distance known below2^31. Set out when unsigned now-start>=duration. Reject invalid duration without changing out. Use timerfd in the Linux adapter and keep real monotonic timestamps separate from modeled ticks.",
+        "T62.06.c": "Falsify and transfer: The faulty start+duration comparison wraps the deadline and expires an operation prematurely. Resetting the total deadline after each byte also permits indefinite slow progress. Then Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds."
+      },
+      "projects": [
+        "PR-T62-06"
+      ],
+      "resource_ids": [
+        "R-B06-EPOLL",
+        "R-B06-URING",
+        "R-B06-CANCEL",
+        "R-B06-FSYNC",
+        "R-B06-SENDFILE"
+      ],
+      "variants": [
+        {
+          "id": "T62.06-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T62.06.a"
+          ],
+          "prompt": "State the half-range observation assumption and prove equality is expiration. Distinguish wall-clock corrections, monotonic elapsed time and deadline policy.",
+          "checklist": [
+            "The finite-width argument needs a bound on the unobserved elapsed interval."
+          ]
+        },
+        {
+          "id": "T62.06-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T62.06.b"
+          ],
+          "prompt": "The faulty start+duration comparison wraps the deadline and expires an operation prematurely. Resetting the total deadline after each byte also permits indefinite slow progress.",
+          "checklist": [
+            "Implement li_expired(start,now,duration,out) for a wrapping32-bit tick model with duration1..2^31-1 and elapsed distance known below2^31. Set out when unsigned now-start>=duration. Reject invalid duration without changing out. Use timerfd in the Linux adapter and keep real monotonic timestamps separate from modeled ticks."
+          ]
+        },
+        {
+          "id": "T62.06-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T62.06.c"
+          ],
+          "prompt": "Combine idle and total deadlines with eventfd shutdown and signalfd notifications; measure cancellation latency without claiming observed maxima are universal bounds.",
+          "checklist": [
+            "State the half-range observation assumption and prove equality is expiration. Distinguish wall-clock corrections, monotonic elapsed time and deadline policy."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T62.07",
+      "title": "Durable replacement and crash cuts",
+      "objectives": [
+        "T62.07.a",
+        "T62.07.b",
+        "T62.07.c"
+      ],
+      "objective_text": {
+        "T62.07.a": "Derive and defend: Specify observable atomicity, persistence, filesystem assumptions and failure recovery. Account for open descriptors to the replaced old inode and permissions on the new object.",
+        "T62.07.b": "Implement and investigate: Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit.",
+        "T62.07.c": "Falsify and transfer: A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee. Then Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated."
+      },
+      "projects": [
+        "PR-T62-07"
+      ],
+      "resource_ids": [
+        "R-B06-EPOLL",
+        "R-B06-URING",
+        "R-B06-CANCEL",
+        "R-B06-FSYNC",
+        "R-B06-SENDFILE"
+      ],
+      "variants": [
+        {
+          "id": "T62.07-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T62.07.a"
+          ],
+          "prompt": "Specify observable atomicity, persistence, filesystem assumptions and failure recovery. Account for open descriptors to the replaced old inode and permissions on the new object.",
+          "checklist": [
+            "A pathname update and the file’s data require distinct durability evidence."
+          ]
+        },
+        {
+          "id": "T62.07-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T62.07.b"
+          ],
+          "prompt": "A program reports durable success after rename but before directory synchronization. Its normal readback passes while a crash can invalidate the stated guarantee.",
+          "checklist": [
+            "Implement li_durable(write_done,file_synced,renamed,directory_synced) requiring all flags exactly1. Then write a local temporary-file replacement adapter: write fully, fsync the new file, rename within its temporary directory, fsync that directory, and report exactly which stage failed. Use a synthetic crash-cut ledger; do not claim real power-loss durability from a normal process exit."
+          ]
+        },
+        {
+          "id": "T62.07-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T62.07.c"
+          ],
+          "prompt": "Change filesystem, mount options and cross-directory replacement; derive which ordering/atomicity arguments and crash experiments must be repeated.",
+          "checklist": [
+            "Specify observable atomicity, persistence, filesystem assumptions and failure recovery. Account for open descriptors to the replaced old inode and permissions on the new object."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    },
+    {
+      "id": "T62.08",
+      "title": "Zero-copy claims and retained buffers",
+      "objectives": [
+        "T62.08.a",
+        "T62.08.b",
+        "T62.08.c"
+      ],
+      "objective_text": {
+        "T62.08.a": "Derive and defend: Distinguish copy avoidance, kernel retention, DMA mapping and application borrowing. Derive memory-pressure/backpressure costs and what the selected syscall actually promises.",
+        "T62.08.b": "Implement and investigate: Implement li_buffer_release(submitted,terminal,borrowers) returning true only when submitted/terminal are booleans, every submitted operation is terminal, and borrowers0. Use it to compare read/write, sendfile/splice and a mapped-buffer path over synthetic local files; measure bytes copied, syscalls, CPU time and retained memory under the same output contract.",
+        "T62.08.c": "Falsify and transfer: The mutant releases after terminal I/O while an application borrower still uses the buffer. Kernel completion does not revoke independent application ownership. Then Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability."
+      },
+      "projects": [
+        "PR-T62-08"
+      ],
+      "resource_ids": [
+        "R-B06-EPOLL",
+        "R-B06-URING",
+        "R-B06-CANCEL",
+        "R-B06-FSYNC",
+        "R-B06-SENDFILE"
+      ],
+      "variants": [
+        {
+          "id": "T62.08-derive",
+          "kind": "mechanism",
+          "objectives": [
+            "T62.08.a"
+          ],
+          "prompt": "Distinguish copy avoidance, kernel retention, DMA mapping and application borrowing. Derive memory-pressure/backpressure costs and what the selected syscall actually promises.",
+          "checklist": [
+            "Compare equivalent bytes and durability before comparing throughput."
+          ]
+        },
+        {
+          "id": "T62.08-repair",
+          "kind": "trace-or-small-implementation",
+          "objectives": [
+            "T62.08.b"
+          ],
+          "prompt": "The mutant releases after terminal I/O while an application borrower still uses the buffer. Kernel completion does not revoke independent application ownership.",
+          "checklist": [
+            "Implement li_buffer_release(submitted,terminal,borrowers) returning true only when submitted/terminal are booleans, every submitted operation is terminal, and borrowers0. Use it to compare read/write, sendfile/splice and a mapped-buffer path over synthetic local files; measure bytes copied, syscalls, CPU time and retained memory under the same output contract."
+          ]
+        },
+        {
+          "id": "T62.08-transfer",
+          "kind": "changed-condition",
+          "objectives": [
+            "T62.08.c"
+          ],
+          "prompt": "Introduce direct I/O alignment constraints and unsupported-filesystem errors; preserve a semantically equivalent fallback and measure overhead without silently changing durability.",
+          "checklist": [
+            "Distinguish copy avoidance, kernel retention, DMA mapping and application borrowing. Derive memory-pressure/backpressure costs and what the selected syscall actually promises."
+          ]
+        }
+      ],
+      "grading": "Per-objective evidence; consulted answers are assisted practice."
+    }
+  ]
+}

@@ -1,0 +1,3522 @@
+{
+  "passed": true,
+  "recorded_at": "2026-10-16T16:51:08.715470+00:00",
+  "checks": [
+    {
+      "kind": "linux probe build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-Wall",
+        "-Wextra",
+        "-O2",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/linux_io_depth/targets/observe.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/io"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "local epoll/eventfd/timerfd/signalfd/fsync/sendfile",
+      "command": [
+        "/tmp/cmastery-b06-experiments-ge_7uwro/io"
+      ],
+      "returncode": 0,
+      "stdout": "EPOLL partial-drain leaves bytes without a new edge; EAGAIN reached\nEVENTFD TIMERFD SIGNALFD observed local events\nFSYNC file+directory and SENDFILE observed; no physical power-loss claim\nIO_URING setup features=262143; operation/cancellation experiments pending\n",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": "FSYNC file+directory"
+    },
+    {
+      "kind": "format target build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O1",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/memory_defense/targets/format_target.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/format"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "format integrity witness",
+      "command": [
+        "/tmp/cmastery-b06-experiments-ge_7uwro/format",
+        "flawed"
+      ],
+      "returncode": 0,
+      "stdout": "sentinel=3 output=abc\n",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": "sentinel=3 output=abc"
+    },
+    {
+      "kind": "format repair",
+      "command": [
+        "/tmp/cmastery-b06-experiments-ge_7uwro/format",
+        "repaired"
+      ],
+      "returncode": 0,
+      "stdout": "sentinel=91 output=abc%n\n",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": "sentinel=91 output=abc%n"
+    },
+    {
+      "kind": "original heap target build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O1",
+        "-g",
+        "-fsanitize=address",
+        "-fno-omit-frame-pointer",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/memory_defense/targets/heap_target.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/heap"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "ASan bounds",
+      "command": [
+        "/tmp/cmastery-b06-experiments-ge_7uwro/heap",
+        "bounds"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "=================================================================\n==495==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x6d4ee8de0018 at pc 0x5cd076ae0bf6 bp 0x7ffeaf10aeb0 sp 0x7ffeaf10aea8\nWRITE of size 1 at 0x6d4ee8de0018 thread T0\n==495==WARNING: invalid path to external symbolizer!\n==495==WARNING: Failed to use and restart external symbolizer!\n    #0 0x5cd076ae0bf5  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x115bf5) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #1 0x712ee9a2a600  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #2 0x712ee9a2a717  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #3 0x5cd0769f7364  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x2c364) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n\n0x6d4ee8de0018 is located 0 bytes after 8-byte region [0x6d4ee8de0010,0x6d4ee8de0018)\nallocated by thread T0 here:\n    #0 0x5cd076a9c908  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0xd1908) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #1 0x5cd076ae0ad4  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x115ad4) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #2 0x712ee9a2a600  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #3 0x712ee9a2a717  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #4 0x5cd0769f7364  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x2c364) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n\nSUMMARY: AddressSanitizer: heap-buffer-overflow (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x115bf5) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b) \nShadow bytes around the buggy address:\n  0x6d4ee8ddfd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x6d4ee8ddfe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x6d4ee8ddfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x6d4ee8ddff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x6d4ee8ddff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n=>0x6d4ee8de0000: fa fa 00[fa]fa fa fa fa fa fa fa fa fa fa fa fa\n  0x6d4ee8de0080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x6d4ee8de0100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x6d4ee8de0180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x6d4ee8de0200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x6d4ee8de0280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==495==ABORTING\n",
+      "passed": true,
+      "expected_nonzero": true,
+      "expected_returncode": 0,
+      "required_marker": "heap-buffer-overflow"
+    },
+    {
+      "kind": "ASan lifetime",
+      "command": [
+        "/tmp/cmastery-b06-experiments-ge_7uwro/heap",
+        "lifetime"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "=================================================================\n==496==ERROR: AddressSanitizer: heap-use-after-free on address 0x7a7743fe0010 at pc 0x5c6dc73e4c07 bp 0x7ffcb593da70 sp 0x7ffcb593da68\nREAD of size 1 at 0x7a7743fe0010 thread T0\n==496==WARNING: invalid path to external symbolizer!\n==496==WARNING: Failed to use and restart external symbolizer!\n    #0 0x5c6dc73e4c06  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x115c06) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #1 0x7e5744c2a600  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #2 0x7e5744c2a717  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #3 0x5c6dc72fb364  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x2c364) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n\n0x7a7743fe0010 is located 0 bytes inside of 8-byte region [0x7a7743fe0010,0x7a7743fe0018)\nfreed by thread T0 here:\n    #0 0x5c6dc73a066a  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0xd166a) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #1 0x5c6dc73e4b9d  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x115b9d) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #2 0x7e5744c2a600  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #3 0x7e5744c2a717  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #4 0x5c6dc72fb364  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x2c364) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n\npreviously allocated by thread T0 here:\n    #0 0x5c6dc73a0908  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0xd1908) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #1 0x5c6dc73e4ad4  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x115ad4) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #2 0x7e5744c2a600  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #3 0x7e5744c2a717  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #4 0x5c6dc72fb364  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x2c364) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n\nSUMMARY: AddressSanitizer: heap-use-after-free (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x115c06) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b) \nShadow bytes around the buggy address:\n  0x7a7743fdfd80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7a7743fdfe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7a7743fdfe80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7a7743fdff00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x7a7743fdff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n=>0x7a7743fe0000: fa fa[fd]fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x7a7743fe0080: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x7a7743fe0100: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x7a7743fe0180: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x7a7743fe0200: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\n  0x7a7743fe0280: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==496==ABORTING\n",
+      "passed": true,
+      "expected_nonzero": true,
+      "expected_returncode": 0,
+      "required_marker": "heap-use-after-free"
+    },
+    {
+      "kind": "ASan double",
+      "command": [
+        "/tmp/cmastery-b06-experiments-ge_7uwro/heap",
+        "double"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "=================================================================\n==497==ERROR: AddressSanitizer: attempting double-free on 0x762a9c5e0010 in thread T0:\n==497==WARNING: invalid path to external symbolizer!\n==497==WARNING: Failed to use and restart external symbolizer!\n    #0 0x64e28eef666a  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0xd166a) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #1 0x64e28ef3abc5  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x115bc5) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #2 0x7a0a9d22a600  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #3 0x7a0a9d22a717  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #4 0x64e28ee51364  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x2c364) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n\n0x762a9c5e0010 is located 0 bytes inside of 8-byte region [0x762a9c5e0010,0x762a9c5e0018)\nfreed by thread T0 here:\n    #0 0x64e28eef666a  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0xd166a) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #1 0x64e28ef3abbd  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x115bbd) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #2 0x7a0a9d22a600  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #3 0x7a0a9d22a717  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #4 0x64e28ee51364  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x2c364) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n\npreviously allocated by thread T0 here:\n    #0 0x64e28eef6908  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0xd1908) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #1 0x64e28ef3aad4  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x115ad4) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n    #2 0x7a0a9d22a600  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a600) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #3 0x7a0a9d22a717  (/usr/lib/x86_64-linux-gnu/libc.so.6+0x2a717) (BuildId: 066527e430a32768d82741e00b81eebb1a872294)\n    #4 0x64e28ee51364  (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0x2c364) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b)\n\nSUMMARY: AddressSanitizer: double-free (/tmp/cmastery-b06-experiments-ge_7uwro/heap+0xd166a) (BuildId: f1e0e22c4174ef701e5a6313e05260d0b00cac7b) \n==497==ABORTING\n",
+      "passed": true,
+      "expected_nonzero": true,
+      "expected_returncode": 0,
+      "required_marker": "double-free"
+    },
+    {
+      "kind": "ASan repaired owner",
+      "command": [
+        "/tmp/cmastery-b06-experiments-ge_7uwro/heap",
+        "repaired"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "explicit vector build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/numeric_simd/include",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/numeric_simd/core.c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/numeric_simd/targets/vector.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/numeric_simd/targets/vector_test.c",
+        "-lm",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/vector"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "vector/scalar differential",
+      "command": [
+        "/tmp/cmastery-b06-experiments-ge_7uwro/vector"
+      ],
+      "returncode": 0,
+      "stdout": "VECTOR_DIFFERENTIAL lengths=68 seed=7\n",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": "lengths=68"
+    },
+    {
+      "kind": "explicit vector assembly",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/numeric_simd/include",
+        "-S",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/numeric_simd/targets/vector.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/vector.s"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "emitted x86 packed arithmetic",
+      "passed": true,
+      "details": {
+        "matched": [
+          "paddd",
+          "pcmpgtd"
+        ],
+        "assembly": "\t.file\t\"vector.c\"\n\t.text\n\t.p2align 4\n\t.globl\tns_vector_add\n\t.type\tns_vector_add, @function\nns_vector_add:\n.LFB7:\n\t.cfi_startproc\n\tendbr64\n\tmovq\t%rdx, %r8\n\tmovq\t%rcx, %r9\n\txorl\t%eax, %eax\n\tcmpq\t$65535, %rdx\n\tja\t.L1\n\tcmpq\t$3, %rdx\n\tjbe\t.L8\n\tleaq\t-4(%rdx), %rdx\n\tpcmpeqd\t%xmm3, %xmm3\n\tmovq\t%rdx, %rax\n\tmovdqa\t%xmm3, %xmm4\n\tpslld\t$15, %xmm4\n\tshrq\t$2, %rax\n\tpsrld\t$17, %xmm3\n\tleaq\t4(,%rax,4), %rcx\n\txorl\t%eax, %eax\n\t.p2align 4\n\t.p2align 3\n.L4:\n\tmovq\t(%rsi,%rax,2), %xmm1\n\tmovdqa\t%xmm3, %xmm5\n\tmovdqa\t%xmm1, %xmm0\n\tpsraw\t$15, %xmm0\n\tpunpcklwd\t%xmm0, %xmm1\n\tmovq\t(%rdi,%rax,2), %xmm0\n\tmovdqa\t%xmm0, %xmm2\n\tpsraw\t$15, %xmm2\n\tpunpcklwd\t%xmm2, %xmm0\n\tpaddd\t%xmm0, %xmm1\n\tmovdqa\t%xmm4, %xmm0\n\tmovdqa\t%xmm1, %xmm2\n\tpcmpgtd\t%xmm1, %xmm0\n\tpcmpgtd\t%xmm3, %xmm2\n\tpand\t%xmm2, %xmm5\n\tpandn\t%xmm1, %xmm2\n\tmovdqa\t%xmm4, %xmm1\n\tpor\t%xmm5, %xmm2\n\tpand\t%xmm0, %xmm1\n\tpandn\t%xmm2, %xmm0\n\tpor\t%xmm1, %xmm0\n\tmovdqa\t%xmm0, %xmm1\n\tpsrldq\t$8, %xmm0\n\tmovdqa\t%xmm1, %xmm2\n\tpunpcklwd\t%xmm0, %xmm1\n\tpunpcklwd\t%xmm0, %xmm2\n\tpshufd\t$78, %xmm2, %xmm2\n\tpunpcklwd\t%xmm2, %xmm1\n\tmovq\t%xmm1, (%r9,%rax,2)\n\taddq\t$4, %rax\n\tcmpq\t%rcx, %rax\n\tjne\t.L4\n\tandq\t$-4, %rdx\n\taddq\t$4, %rdx\n.L3:\n\tcmpq\t%r8, %rdx\n\tjnb\t.L6\n\t.p2align 6\n\t.p2align 4\n\t.p2align 3\n.L5:\n\tmovswl\t(%rsi,%rdx,2), %ecx\n\tmovswl\t(%rdi,%rdx,2), %eax\n\taddl\t%ecx, %eax\n\tmovl\t$-32768, %ecx\n\tcmpl\t%ecx, %eax\n\tcmovl\t%ecx, %eax\n\tmovl\t$32767, %ecx\n\tcmpl\t%ecx, %eax\n\tcmovg\t%ecx, %eax\n\tmovw\t%ax, (%r9,%rdx,2)\n\taddq\t$1, %rdx\n\tcmpq\t%rdx, %r8\n\tjne\t.L5\n.L6:\n\tmovl\t$1, %eax\n\tret\n\t.p2align 4,,10\n\t.p2align 3\n.L1:\n\tret\n.L8:\n\txorl\t%edx, %edx\n\tjmp\t.L3\n\t.cfi_endproc\n.LFE7:\n\t.size\tns_vector_add, .-ns_vector_add\n\t.ident\t\"GCC: (Ubuntu 15.2.0-16ubuntu1) 15.2.0\"\n\t.section\t.note.GNU-stack,\"\",@progbits\n\t.section\t.note.gnu.property,\"a\"\n\t.align 8\n\t.long\t1f - 0f\n\t.long\t4f - 1f\n\t.long\t5\n0:\n\t.string\t\"GNU\"\n1:\n\t.align 8\n\t.long\t0xc0000002\n\t.long\t3f - 2f\n2:\n\t.long\t0x3\n3:\n\t.align 8\n4:\n"
+      }
+    },
+    {
+      "kind": "changed-math build",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O2",
+        "-ffast-math",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/numeric_simd/include",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/numeric_simd/core.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/numeric_simd/tests/tests.c",
+        "-lm",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/fast"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "fast-math counterexample",
+      "command": [
+        "/tmp/cmastery-b06-experiments-ge_7uwro/fast",
+        "compensated"
+      ],
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "B06_CHECK /mnt/f/Learning/Curricula/c_mastery/labs/numeric_simd/tests/tests.c:18: ns_sum(a,3,&o)&&o==1\n",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 1,
+      "required_marker": "B06_CHECK"
+    },
+    {
+      "kind": "fuzz semantic target build",
+      "command": [
+        "clang",
+        "-std=c17",
+        "-O1",
+        "-g",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/include",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/core.c",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/targets/fuzz_frame.c",
+        "-fsanitize=fuzzer,address,undefined",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/fuzz"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "bounded semantic fuzz",
+      "command": [
+        "/tmp/cmastery-b06-experiments-ge_7uwro/fuzz",
+        "-runs=10000",
+        "-seed=1706",
+        "-max_len=64",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/corpus"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "INFO: Running with entropic power schedule (0xFF, 100).\nINFO: Seed: 1706\nINFO: Loaded 1 modules   (212 inline 8-bit counters): 212 [0x607e688d3730, 0x607e688d3804), \nINFO: Loaded 1 PC tables (212 PCs): 212 [0x607e688d3808,0x607e688d4548), \nINFO:        3 files found in /tmp/cmastery-b06-experiments-ge_7uwro/corpus\nINFO: seed corpus: files: 3 min: 2b max: 4b total: 10b rss: 32Mb\n#4\tINITED cov: 16 ft: 17 corp: 2/6b exec/s: 0 rss: 33Mb\n#11\tNEW    cov: 18 ft: 19 corp: 3/8b lim: 4 exec/s: 0 rss: 33Mb L: 2/4 MS: 2 ShuffleBytes-ChangeByte-\n#12\tNEW    cov: 20 ft: 21 corp: 4/10b lim: 4 exec/s: 0 rss: 33Mb L: 2/4 MS: 1 ChangeBinInt-\n#18\tNEW    cov: 22 ft: 23 corp: 5/11b lim: 4 exec/s: 0 rss: 33Mb L: 1/4 MS: 1 EraseBytes-\n#82\tNEW    cov: 22 ft: 25 corp: 6/14b lim: 4 exec/s: 0 rss: 33Mb L: 3/4 MS: 4 EraseBytes-CopyPart-EraseBytes-CMP- DE: \"\\001\\000\"-\n#490\tNEW    cov: 22 ft: 28 corp: 7/19b lim: 6 exec/s: 0 rss: 33Mb L: 5/5 MS: 3 CrossOver-EraseBytes-CrossOver-\n#1699\tNEW    cov: 22 ft: 31 corp: 8/26b lim: 17 exec/s: 0 rss: 33Mb L: 7/7 MS: 4 CrossOver-ChangeBit-ChangeByte-CopyPart-\n#2523\tNEW    cov: 22 ft: 33 corp: 9/36b lim: 25 exec/s: 0 rss: 33Mb L: 10/10 MS: 4 ChangeBit-CMP-ChangeBinInt-InsertByte- DE: \"\\001\\000\\000\\000\\000\\000\\000\\000\"-\n#4766\tNEW    cov: 22 ft: 34 corp: 10/42b lim: 43 exec/s: 0 rss: 34Mb L: 6/10 MS: 3 ChangeBinInt-ChangeBinInt-CrossOver-\n#10000\tDONE   cov: 22 ft: 34 corp: 10/42b lim: 64 exec/s: 0 rss: 34Mb\n###### Recommended dictionary. ######\n\"\\001\\000\" # Uses: 601\n\"\\001\\000\\000\\000\\000\\000\\000\\000\" # Uses: 249\n###### End of recommended dictionary. ######\nDone 10000 runs in 0 second(s)\n",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": "DONE"
+    },
+    {
+      "kind": "verification_fuzzing shared core",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O1",
+        "-fPIC",
+        "-shared",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/verification_fuzzing/include",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/verification_fuzzing/core.c",
+        "-lm",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/verification_fuzzing.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "exhaustive event words through length6",
+      "passed": true,
+      "details": {
+        "words": 5461,
+        "alphabet": 4,
+        "model": "single-owner atomic transitions; no weak-memory or liveness claim"
+      }
+    },
+    {
+      "kind": "firmware_lifecycle shared core",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O1",
+        "-fPIC",
+        "-shared",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/firmware_lifecycle/include",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/firmware_lifecycle/core.c",
+        "-lm",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/firmware_lifecycle.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "journal byte-prefix reset cuts",
+      "passed": true,
+      "details": [
+        {
+          "cut": 0,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 1,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 2,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 3,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 4,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 5,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 6,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 7,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 8,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 9,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 10,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 11,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 12,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 13,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 14,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 15,
+          "accepted": 1,
+          "selected": 0,
+          "expected": 0
+        },
+        {
+          "cut": 16,
+          "accepted": 1,
+          "selected": 1,
+          "expected": 1
+        }
+      ]
+    },
+    {
+      "kind": "rv64 cross assembly",
+      "command": [
+        "clang",
+        "--target=riscv64-none-elf",
+        "-ffreestanding",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/targets/rv64_context.S",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/rv64.o"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "rv64 unresolved symbols",
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/rv64.o"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "rv64 no undefined helpers",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "kind": "aa64 cross assembly",
+      "command": [
+        "clang",
+        "--target=aarch64-none-elf",
+        "-ffreestanding",
+        "-c",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/architecture_ports/targets/aa64_context.S",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/aa64.o"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "aa64 unresolved symbols",
+      "command": [
+        "nm",
+        "-u",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/aa64.o"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "aa64 no undefined helpers",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "kind": "subset_compiler shared core",
+      "command": [
+        "gcc",
+        "-std=c17",
+        "-O1",
+        "-fPIC",
+        "-shared",
+        "-I",
+        "/mnt/f/Learning/Curricula/c_mastery/labs/subset_compiler/include",
+        "/mnt/f/Learning/Curricula/c_mastery/assessor/subset_compiler/core.c",
+        "-lm",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/subset_compiler.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "compiler parse generated tree",
+      "passed": true,
+      "details": {
+        "index": 0,
+        "source": "((x+65535)*(x*17))",
+        "C_correspondence": "((x+65535u)*(x*17u))"
+      }
+    },
+    {
+      "kind": "x86 emitted tree link",
+      "command": [
+        "gcc",
+        "-shared",
+        "-fPIC",
+        "-O2",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr0.s",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/ref0.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr0.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Python/IR/x86/GCC differential",
+      "passed": true,
+      "details": {
+        "tree": 0,
+        "cases": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1114112,
+            1114112,
+            1114112,
+            1114112,
+            1
+          ],
+          [
+            65535,
+            4290510882,
+            4290510882,
+            4290510882,
+            4290510882,
+            1
+          ],
+          [
+            4294967295,
+            4293853218,
+            4293853218,
+            4293853218,
+            4293853218,
+            1
+          ],
+          [
+            3701597211,
+            1872929438,
+            1872929438,
+            1872929438,
+            1872929438,
+            1
+          ],
+          [
+            2581628378,
+            986788970,
+            986788970,
+            986788970,
+            986788970,
+            1
+          ],
+          [
+            4131085156,
+            871308908,
+            871308908,
+            871308908,
+            871308908,
+            1
+          ],
+          [
+            1907255278,
+            3280506550,
+            3280506550,
+            3280506550,
+            3280506550,
+            1
+          ],
+          [
+            838135111,
+            1577083658,
+            1577083658,
+            1577083658,
+            1577083658,
+            1
+          ],
+          [
+            3679957158,
+            2759240414,
+            2759240414,
+            2759240414,
+            2759240414,
+            1
+          ],
+          [
+            1124104997,
+            3883047796,
+            3883047796,
+            3883047796,
+            3883047796,
+            1
+          ],
+          [
+            2359205506,
+            344052642,
+            344052642,
+            344052642,
+            344052642,
+            1
+          ],
+          [
+            2316065371,
+            3496403422,
+            3496403422,
+            3496403422,
+            3496403422,
+            1
+          ],
+          [
+            967855852,
+            1796605156,
+            1796605156,
+            1796605156,
+            1796605156,
+            1
+          ],
+          [
+            2909372327,
+            1829540842,
+            1829540842,
+            1829540842,
+            1829540842,
+            1
+          ],
+          [
+            1244882656,
+            4152471328,
+            4152471328,
+            4152471328,
+            4152471328,
+            1
+          ],
+          [
+            1478787450,
+            121403210,
+            121403210,
+            121403210,
+            121403210,
+            1
+          ],
+          [
+            2721852247,
+            3503026138,
+            3503026138,
+            3503026138,
+            3503026138,
+            1
+          ],
+          [
+            3608306284,
+            4134022500,
+            4134022500,
+            4134022500,
+            4134022500,
+            1
+          ],
+          [
+            3893792653,
+            2001044956,
+            2001044956,
+            2001044956,
+            2001044956,
+            1
+          ],
+          [
+            3009616786,
+            2336440018,
+            2336440018,
+            2336440018,
+            2336440018,
+            1
+          ],
+          [
+            1148776233,
+            292027368,
+            292027368,
+            292027368,
+            292027368,
+            1
+          ],
+          [
+            506242313,
+            1307068872,
+            1307068872,
+            1307068872,
+            1307068872,
+            1
+          ],
+          [
+            838850238,
+            430588582,
+            430588582,
+            430588582,
+            430588582,
+            1
+          ],
+          [
+            895508321,
+            82180448,
+            82180448,
+            82180448,
+            82180448,
+            1
+          ],
+          [
+            1569876908,
+            1019203108,
+            1019203108,
+            1019203108,
+            1019203108,
+            1
+          ],
+          [
+            1102656201,
+            2918440840,
+            2918440840,
+            2918440840,
+            2918440840,
+            1
+          ],
+          [
+            2205017456,
+            1094608016,
+            1094608016,
+            1094608016,
+            1094608016,
+            1
+          ],
+          [
+            3328389280,
+            2194434400,
+            2194434400,
+            2194434400,
+            2194434400,
+            1
+          ],
+          [
+            4039415098,
+            6404746,
+            6404746,
+            6404746,
+            6404746,
+            1
+          ],
+          [
+            1092323372,
+            2906338724,
+            2906338724,
+            2906338724,
+            2906338724,
+            1
+          ],
+          [
+            1686369212,
+            1687577492,
+            1687577492,
+            1687577492,
+            1687577492,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "kind": "Thumb emitted tree link",
+      "command": [
+        "arm-none-eabi-gcc",
+        "-mcpu=cortex-m4",
+        "-mthumb",
+        "-std=c17",
+        "-O1",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-nostdlib",
+        "-Wl,-T,/tmp/cmastery-b06-experiments-ge_7uwro/thumb.ld",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb0.S",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/start0.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb0.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final closure",
+      "command": [
+        "arm-none-eabi-nm",
+        "-u",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb0.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final no helpers",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "kind": "Thumb emulator differential",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "mps2-an386",
+        "-cpu",
+        "cortex-m4",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb0.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "B06_THUMB_PASS\n",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": "B06_THUMB_PASS"
+    },
+    {
+      "kind": "compiler parse generated tree",
+      "passed": true,
+      "details": {
+        "index": 1,
+        "source": "(65535+(65535*65535))",
+        "C_correspondence": "(65535u+(65535u*65535u))"
+      }
+    },
+    {
+      "kind": "x86 emitted tree link",
+      "command": [
+        "gcc",
+        "-shared",
+        "-fPIC",
+        "-O2",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr1.s",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/ref1.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr1.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Python/IR/x86/GCC differential",
+      "passed": true,
+      "details": {
+        "tree": 1,
+        "cases": [
+          [
+            0,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            1,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            65535,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            4294967295,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            3416554623,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            2634756736,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            3806919599,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            3093866106,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            3904431261,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            3038771484,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            2181794421,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            2261043381,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            2024974650,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            240123032,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            2178428148,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            2903808786,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            2810345927,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            4269314227,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            3838543363,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            3974059491,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            4199426021,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            1689904622,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            2425895870,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            1478220206,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            3090415380,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            4020332133,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            3611120823,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            4085466664,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            520397441,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            4038965379,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            2279313342,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ],
+          [
+            76301223,
+            4294901760,
+            4294901760,
+            4294901760,
+            4294901760,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "kind": "Thumb emitted tree link",
+      "command": [
+        "arm-none-eabi-gcc",
+        "-mcpu=cortex-m4",
+        "-mthumb",
+        "-std=c17",
+        "-O1",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-nostdlib",
+        "-Wl,-T,/tmp/cmastery-b06-experiments-ge_7uwro/thumb.ld",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb1.S",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/start1.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb1.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final closure",
+      "command": [
+        "arm-none-eabi-nm",
+        "-u",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb1.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final no helpers",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "kind": "Thumb emulator differential",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "mps2-an386",
+        "-cpu",
+        "cortex-m4",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb1.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "B06_THUMB_PASS\n",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": "B06_THUMB_PASS"
+    },
+    {
+      "kind": "compiler parse generated tree",
+      "passed": true,
+      "details": {
+        "index": 2,
+        "source": "(((62784*x)+(64156*6733))+24282)",
+        "C_correspondence": "(((62784u*x)+(64156u*6733u))+24282u)"
+      }
+    },
+    {
+      "kind": "x86 emitted tree link",
+      "command": [
+        "gcc",
+        "-shared",
+        "-fPIC",
+        "-O2",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr2.s",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/ref2.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr2.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Python/IR/x86/GCC differential",
+      "passed": true,
+      "details": {
+        "tree": 2,
+        "cases": [
+          [
+            0,
+            431986630,
+            431986630,
+            431986630,
+            431986630,
+            1
+          ],
+          [
+            1,
+            432049414,
+            432049414,
+            432049414,
+            432049414,
+            1
+          ],
+          [
+            65535,
+            251568774,
+            251568774,
+            251568774,
+            251568774,
+            1
+          ],
+          [
+            4294967295,
+            431923846,
+            431923846,
+            431923846,
+            431923846,
+            1
+          ],
+          [
+            3454446925,
+            1464179718,
+            1464179718,
+            1464179718,
+            1464179718,
+            1
+          ],
+          [
+            358601425,
+            645288198,
+            645288198,
+            645288198,
+            645288198,
+            1
+          ],
+          [
+            2498983180,
+            1436636870,
+            1436636870,
+            1436636870,
+            1436636870,
+            1
+          ],
+          [
+            3017492272,
+            3954332614,
+            3954332614,
+            3954332614,
+            3954332614,
+            1
+          ],
+          [
+            1082844456,
+            700983750,
+            700983750,
+            700983750,
+            700983750,
+            1
+          ],
+          [
+            3568708716,
+            2681081542,
+            2681081542,
+            2681081542,
+            2681081542,
+            1
+          ],
+          [
+            1711417398,
+            2865058630,
+            2865058630,
+            2865058630,
+            2865058630,
+            1
+          ],
+          [
+            4013652348,
+            3554779846,
+            3554779846,
+            3554779846,
+            3554779846,
+            1
+          ],
+          [
+            3758628837,
+            3796744710,
+            3796744710,
+            3796744710,
+            3796744710,
+            1
+          ],
+          [
+            3052920564,
+            3491158214,
+            3491158214,
+            3491158214,
+            3491158214,
+            1
+          ],
+          [
+            1725354973,
+            1748439046,
+            1748439046,
+            1748439046,
+            1748439046,
+            1
+          ],
+          [
+            4164209697,
+            2924360966,
+            2924360966,
+            2924360966,
+            2924360966,
+            1
+          ],
+          [
+            3446396895,
+            2857237126,
+            2857237126,
+            2857237126,
+            2857237126,
+            1
+          ],
+          [
+            2714791958,
+            153135942,
+            153135942,
+            153135942,
+            153135942,
+            1
+          ],
+          [
+            1399479831,
+            3227721862,
+            3227721862,
+            3227721862,
+            3227721862,
+            1
+          ],
+          [
+            43839553,
+            4075412742,
+            4075412742,
+            4075412742,
+            4075412742,
+            1
+          ],
+          [
+            3215354882,
+            1220051526,
+            1220051526,
+            1220051526,
+            1220051526,
+            1
+          ],
+          [
+            1176061345,
+            3484685574,
+            3484685574,
+            3484685574,
+            3484685574,
+            1
+          ],
+          [
+            3993121134,
+            3013228870,
+            3013228870,
+            3013228870,
+            3013228870,
+            1
+          ],
+          [
+            608269772,
+            3487123142,
+            3487123142,
+            3487123142,
+            3487123142,
+            1
+          ],
+          [
+            267419444,
+            1067198662,
+            1067198662,
+            1067198662,
+            1067198662,
+            1
+          ],
+          [
+            2552651202,
+            3675370054,
+            3675370054,
+            3675370054,
+            3675370054,
+            1
+          ],
+          [
+            3173121,
+            2084719878,
+            2084719878,
+            2084719878,
+            2084719878,
+            1
+          ],
+          [
+            1930178249,
+            2240915206,
+            2240915206,
+            2240915206,
+            2240915206,
+            1
+          ],
+          [
+            901723785,
+            2294175494,
+            2294175494,
+            2294175494,
+            2294175494,
+            1
+          ],
+          [
+            3679674604,
+            3126439622,
+            3126439622,
+            3126439622,
+            3126439622,
+            1
+          ],
+          [
+            662212967,
+            1527481478,
+            1527481478,
+            1527481478,
+            1527481478,
+            1
+          ],
+          [
+            1949023823,
+            30459526,
+            30459526,
+            30459526,
+            30459526,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "kind": "Thumb emitted tree link",
+      "command": [
+        "arm-none-eabi-gcc",
+        "-mcpu=cortex-m4",
+        "-mthumb",
+        "-std=c17",
+        "-O1",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-nostdlib",
+        "-Wl,-T,/tmp/cmastery-b06-experiments-ge_7uwro/thumb.ld",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb2.S",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/start2.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb2.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final closure",
+      "command": [
+        "arm-none-eabi-nm",
+        "-u",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb2.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final no helpers",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "kind": "Thumb emulator differential",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "mps2-an386",
+        "-cpu",
+        "cortex-m4",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb2.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "B06_THUMB_PASS\n",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": "B06_THUMB_PASS"
+    },
+    {
+      "kind": "compiler parse generated tree",
+      "passed": true,
+      "details": {
+        "index": 3,
+        "source": "(((40809*x)*(x+55794))+((19049+364)+(30694+x)))",
+        "C_correspondence": "(((40809u*x)*(x+55794u))+((19049u+364u)+(30694u+x)))"
+      }
+    },
+    {
+      "kind": "x86 emitted tree link",
+      "command": [
+        "gcc",
+        "-shared",
+        "-fPIC",
+        "-O2",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr3.s",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/ref3.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr3.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Python/IR/x86/GCC differential",
+      "passed": true,
+      "details": {
+        "tree": 3,
+        "cases": [
+          [
+            0,
+            50107,
+            50107,
+            50107,
+            50107,
+            1
+          ],
+          [
+            1,
+            2276988263,
+            2276988263,
+            2276988263,
+            2276988263,
+            1
+          ],
+          [
+            65535,
+            3954946273,
+            3954946273,
+            3954946273,
+            3954946273,
+            1
+          ],
+          [
+            4294967295,
+            2018160865,
+            2018160865,
+            2018160865,
+            2018160865,
+            1
+          ],
+          [
+            3483930597,
+            448411819,
+            448411819,
+            448411819,
+            448411819,
+            1
+          ],
+          [
+            723391698,
+            1083731605,
+            1083731605,
+            1083731605,
+            1083731605,
+            1
+          ],
+          [
+            2606157656,
+            3477221379,
+            3477221379,
+            3477221379,
+            3477221379,
+            1
+          ],
+          [
+            788765174,
+            1860311073,
+            1860311073,
+            1860311073,
+            1860311073,
+            1
+          ],
+          [
+            813910415,
+            909259377,
+            909259377,
+            909259377,
+            909259377,
+            1
+          ],
+          [
+            2597092089,
+            2444971519,
+            2444971519,
+            2444971519,
+            2444971519,
+            1
+          ],
+          [
+            2830232480,
+            2957537947,
+            2957537947,
+            2957537947,
+            2957537947,
+            1
+          ],
+          [
+            1729110020,
+            4266058583,
+            4266058583,
+            4266058583,
+            4266058583,
+            1
+          ],
+          [
+            3583107830,
+            3314769697,
+            3314769697,
+            3314769697,
+            3314769697,
+            1
+          ],
+          [
+            4155888658,
+            682613077,
+            682613077,
+            682613077,
+            682613077,
+            1
+          ],
+          [
+            4223506647,
+            2319265913,
+            2319265913,
+            2319265913,
+            2319265913,
+            1
+          ],
+          [
+            1486228148,
+            749117927,
+            749117927,
+            749117927,
+            749117927,
+            1
+          ],
+          [
+            2281901358,
+            1041522345,
+            1041522345,
+            1041522345,
+            1041522345,
+            1
+          ],
+          [
+            3699483105,
+            992174279,
+            992174279,
+            992174279,
+            992174279,
+            1
+          ],
+          [
+            252811705,
+            2135971775,
+            2135971775,
+            2135971775,
+            2135971775,
+            1
+          ],
+          [
+            42898672,
+            2252171147,
+            2252171147,
+            2252171147,
+            2252171147,
+            1
+          ],
+          [
+            639958637,
+            1316130899,
+            1316130899,
+            1316130899,
+            1316130899,
+            1
+          ],
+          [
+            1395612070,
+            2820535409,
+            2820535409,
+            2820535409,
+            2820535409,
+            1
+          ],
+          [
+            398002768,
+            1560254379,
+            1560254379,
+            1560254379,
+            1560254379,
+            1
+          ],
+          [
+            2743151774,
+            1048909881,
+            1048909881,
+            1048909881,
+            1048909881,
+            1
+          ],
+          [
+            66497412,
+            3415761367,
+            3415761367,
+            3415761367,
+            3415761367,
+            1
+          ],
+          [
+            503015203,
+            365829973,
+            365829973,
+            365829973,
+            365829973,
+            1
+          ],
+          [
+            1971728690,
+            2433476917,
+            2433476917,
+            2433476917,
+            2433476917,
+            1
+          ],
+          [
+            1226207372,
+            3383027567,
+            3383027567,
+            3383027567,
+            3383027567,
+            1
+          ],
+          [
+            429475671,
+            2794204921,
+            2794204921,
+            2794204921,
+            2794204921,
+            1
+          ],
+          [
+            647712179,
+            2726148709,
+            2726148709,
+            2726148709,
+            2726148709,
+            1
+          ],
+          [
+            1421511651,
+            646344213,
+            646344213,
+            646344213,
+            646344213,
+            1
+          ],
+          [
+            2524996967,
+            4193636361,
+            4193636361,
+            4193636361,
+            4193636361,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "kind": "Thumb emitted tree link",
+      "command": [
+        "arm-none-eabi-gcc",
+        "-mcpu=cortex-m4",
+        "-mthumb",
+        "-std=c17",
+        "-O1",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-nostdlib",
+        "-Wl,-T,/tmp/cmastery-b06-experiments-ge_7uwro/thumb.ld",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb3.S",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/start3.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb3.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final closure",
+      "command": [
+        "arm-none-eabi-nm",
+        "-u",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb3.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final no helpers",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "kind": "Thumb emulator differential",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "mps2-an386",
+        "-cpu",
+        "cortex-m4",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb3.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "B06_THUMB_PASS\n",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": "B06_THUMB_PASS"
+    },
+    {
+      "kind": "compiler parse generated tree",
+      "passed": true,
+      "details": {
+        "index": 4,
+        "source": "22071",
+        "C_correspondence": "22071u"
+      }
+    },
+    {
+      "kind": "x86 emitted tree link",
+      "command": [
+        "gcc",
+        "-shared",
+        "-fPIC",
+        "-O2",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr4.s",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/ref4.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr4.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Python/IR/x86/GCC differential",
+      "passed": true,
+      "details": {
+        "tree": 4,
+        "cases": [
+          [
+            0,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            1,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            65535,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            4294967295,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            2164980040,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            494465996,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            694335208,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            4202557500,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            551576179,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            724154954,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            2883635368,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            1744134268,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            305019792,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            3743135384,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            812107841,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            309706165,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            2511716089,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            2356285211,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            3067684041,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            3685378486,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            2253430890,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            2853043763,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            3091097266,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            4195433224,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            2518300118,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            3310080829,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            616090617,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            1830632811,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            1386645864,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            4188217419,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            1819208854,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ],
+          [
+            2239901208,
+            22071,
+            22071,
+            22071,
+            22071,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "kind": "Thumb emitted tree link",
+      "command": [
+        "arm-none-eabi-gcc",
+        "-mcpu=cortex-m4",
+        "-mthumb",
+        "-std=c17",
+        "-O1",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-nostdlib",
+        "-Wl,-T,/tmp/cmastery-b06-experiments-ge_7uwro/thumb.ld",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb4.S",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/start4.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb4.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final closure",
+      "command": [
+        "arm-none-eabi-nm",
+        "-u",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb4.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final no helpers",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "kind": "Thumb emulator differential",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "mps2-an386",
+        "-cpu",
+        "cortex-m4",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb4.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "B06_THUMB_PASS\n",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": "B06_THUMB_PASS"
+    },
+    {
+      "kind": "compiler parse generated tree",
+      "passed": true,
+      "details": {
+        "index": 5,
+        "source": "(((x+9584)+(65117+61050))*((x*958)+x))",
+        "C_correspondence": "(((x+9584u)+(65117u+61050u))*((x*958u)+x))"
+      }
+    },
+    {
+      "kind": "x86 emitted tree link",
+      "command": [
+        "gcc",
+        "-shared",
+        "-fPIC",
+        "-O2",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr5.s",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/ref5.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr5.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Python/IR/x86/GCC differential",
+      "passed": true,
+      "details": {
+        "tree": 5,
+        "cases": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            130186168,
+            130186168,
+            130186168,
+            130186168,
+            1
+          ],
+          [
+            65535,
+            1756924870,
+            1756924870,
+            1756924870,
+            1756924870,
+            1
+          ],
+          [
+            4294967295,
+            4164783046,
+            4164783046,
+            4164783046,
+            4164783046,
+            1
+          ],
+          [
+            329602491,
+            1200183050,
+            1200183050,
+            1200183050,
+            1200183050,
+            1
+          ],
+          [
+            1973622760,
+            4044097128,
+            4044097128,
+            4044097128,
+            4044097128,
+            1
+          ],
+          [
+            477501190,
+            642621874,
+            642621874,
+            642621874,
+            642621874,
+            1
+          ],
+          [
+            3380836740,
+            1481424212,
+            1481424212,
+            1481424212,
+            1481424212,
+            1
+          ],
+          [
+            2370716970,
+            4086626294,
+            4086626294,
+            4086626294,
+            4086626294,
+            1
+          ],
+          [
+            1598898237,
+            2273298828,
+            2273298828,
+            2273298828,
+            2273298828,
+            1
+          ],
+          [
+            2008888860,
+            620252716,
+            620252716,
+            620252716,
+            620252716,
+            1
+          ],
+          [
+            1188794871,
+            2428976558,
+            2428976558,
+            2428976558,
+            2428976558,
+            1
+          ],
+          [
+            682887526,
+            1211932818,
+            1211932818,
+            1211932818,
+            1211932818,
+            1
+          ],
+          [
+            2217018829,
+            3730465532,
+            3730465532,
+            3730465532,
+            3730465532,
+            1
+          ],
+          [
+            2289848647,
+            2138137886,
+            2138137886,
+            2138137886,
+            2138137886,
+            1
+          ],
+          [
+            1091206276,
+            3838021716,
+            3838021716,
+            3838021716,
+            3838021716,
+            1
+          ],
+          [
+            2982323065,
+            3198281792,
+            3198281792,
+            3198281792,
+            3198281792,
+            1
+          ],
+          [
+            3087105169,
+            3975332264,
+            3975332264,
+            3975332264,
+            3975332264,
+            1
+          ],
+          [
+            2069014112,
+            3963670368,
+            3963670368,
+            3963670368,
+            3963670368,
+            1
+          ],
+          [
+            2333505809,
+            2615103784,
+            2615103784,
+            2615103784,
+            2615103784,
+            1
+          ],
+          [
+            813657722,
+            2685149062,
+            2685149062,
+            2685149062,
+            2685149062,
+            1
+          ],
+          [
+            2018141854,
+            3655771946,
+            3655771946,
+            3655771946,
+            3655771946,
+            1
+          ],
+          [
+            511612566,
+            3725043970,
+            3725043970,
+            3725043970,
+            3725043970,
+            1
+          ],
+          [
+            1937780808,
+            2703313352,
+            2703313352,
+            2703313352,
+            2703313352,
+            1
+          ],
+          [
+            2404573031,
+            500725886,
+            500725886,
+            500725886,
+            500725886,
+            1
+          ],
+          [
+            2297015899,
+            1589861610,
+            1589861610,
+            1589861610,
+            1589861610,
+            1
+          ],
+          [
+            2050766524,
+            4145578700,
+            4145578700,
+            4145578700,
+            4145578700,
+            1
+          ],
+          [
+            1339935934,
+            4122339530,
+            4122339530,
+            4122339530,
+            4122339530,
+            1
+          ],
+          [
+            2380562676,
+            1391332548,
+            1391332548,
+            1391332548,
+            1391332548,
+            1
+          ],
+          [
+            3296400840,
+            1131653960,
+            1131653960,
+            1131653960,
+            1131653960,
+            1
+          ],
+          [
+            2223658189,
+            1260139516,
+            1260139516,
+            1260139516,
+            1260139516,
+            1
+          ],
+          [
+            1434022305,
+            1896679704,
+            1896679704,
+            1896679704,
+            1896679704,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "kind": "Thumb emitted tree link",
+      "command": [
+        "arm-none-eabi-gcc",
+        "-mcpu=cortex-m4",
+        "-mthumb",
+        "-std=c17",
+        "-O1",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-nostdlib",
+        "-Wl,-T,/tmp/cmastery-b06-experiments-ge_7uwro/thumb.ld",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb5.S",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/start5.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb5.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final closure",
+      "command": [
+        "arm-none-eabi-nm",
+        "-u",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb5.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final no helpers",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "kind": "Thumb emulator differential",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "mps2-an386",
+        "-cpu",
+        "cortex-m4",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb5.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "B06_THUMB_PASS\n",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": "B06_THUMB_PASS"
+    },
+    {
+      "kind": "compiler parse generated tree",
+      "passed": true,
+      "details": {
+        "index": 6,
+        "source": "x",
+        "C_correspondence": "x"
+      }
+    },
+    {
+      "kind": "x86 emitted tree link",
+      "command": [
+        "gcc",
+        "-shared",
+        "-fPIC",
+        "-O2",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr6.s",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/ref6.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr6.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Python/IR/x86/GCC differential",
+      "passed": true,
+      "details": {
+        "tree": 6,
+        "cases": [
+          [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            65535,
+            65535,
+            65535,
+            65535,
+            65535,
+            1
+          ],
+          [
+            4294967295,
+            4294967295,
+            4294967295,
+            4294967295,
+            4294967295,
+            1
+          ],
+          [
+            515223852,
+            515223852,
+            515223852,
+            515223852,
+            515223852,
+            1
+          ],
+          [
+            2456405569,
+            2456405569,
+            2456405569,
+            2456405569,
+            2456405569,
+            1
+          ],
+          [
+            4063976224,
+            4063976224,
+            4063976224,
+            4063976224,
+            4063976224,
+            1
+          ],
+          [
+            3841934059,
+            3841934059,
+            3841934059,
+            3841934059,
+            3841934059,
+            1
+          ],
+          [
+            1681516370,
+            1681516370,
+            1681516370,
+            1681516370,
+            1681516370,
+            1
+          ],
+          [
+            4191499163,
+            4191499163,
+            4191499163,
+            4191499163,
+            4191499163,
+            1
+          ],
+          [
+            2444239978,
+            2444239978,
+            2444239978,
+            2444239978,
+            2444239978,
+            1
+          ],
+          [
+            910069746,
+            910069746,
+            910069746,
+            910069746,
+            910069746,
+            1
+          ],
+          [
+            1836617206,
+            1836617206,
+            1836617206,
+            1836617206,
+            1836617206,
+            1
+          ],
+          [
+            2334414427,
+            2334414427,
+            2334414427,
+            2334414427,
+            2334414427,
+            1
+          ],
+          [
+            3943593449,
+            3943593449,
+            3943593449,
+            3943593449,
+            3943593449,
+            1
+          ],
+          [
+            2772850207,
+            2772850207,
+            2772850207,
+            2772850207,
+            2772850207,
+            1
+          ],
+          [
+            3181207897,
+            3181207897,
+            3181207897,
+            3181207897,
+            3181207897,
+            1
+          ],
+          [
+            587017067,
+            587017067,
+            587017067,
+            587017067,
+            587017067,
+            1
+          ],
+          [
+            261444344,
+            261444344,
+            261444344,
+            261444344,
+            261444344,
+            1
+          ],
+          [
+            3545767721,
+            3545767721,
+            3545767721,
+            3545767721,
+            3545767721,
+            1
+          ],
+          [
+            3989961411,
+            3989961411,
+            3989961411,
+            3989961411,
+            3989961411,
+            1
+          ],
+          [
+            3993899184,
+            3993899184,
+            3993899184,
+            3993899184,
+            3993899184,
+            1
+          ],
+          [
+            2127233977,
+            2127233977,
+            2127233977,
+            2127233977,
+            2127233977,
+            1
+          ],
+          [
+            76781323,
+            76781323,
+            76781323,
+            76781323,
+            76781323,
+            1
+          ],
+          [
+            3244761050,
+            3244761050,
+            3244761050,
+            3244761050,
+            3244761050,
+            1
+          ],
+          [
+            644665189,
+            644665189,
+            644665189,
+            644665189,
+            644665189,
+            1
+          ],
+          [
+            3465996075,
+            3465996075,
+            3465996075,
+            3465996075,
+            3465996075,
+            1
+          ],
+          [
+            828622426,
+            828622426,
+            828622426,
+            828622426,
+            828622426,
+            1
+          ],
+          [
+            2403278603,
+            2403278603,
+            2403278603,
+            2403278603,
+            2403278603,
+            1
+          ],
+          [
+            259094273,
+            259094273,
+            259094273,
+            259094273,
+            259094273,
+            1
+          ],
+          [
+            1576372188,
+            1576372188,
+            1576372188,
+            1576372188,
+            1576372188,
+            1
+          ],
+          [
+            3509687708,
+            3509687708,
+            3509687708,
+            3509687708,
+            3509687708,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "kind": "Thumb emitted tree link",
+      "command": [
+        "arm-none-eabi-gcc",
+        "-mcpu=cortex-m4",
+        "-mthumb",
+        "-std=c17",
+        "-O1",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-nostdlib",
+        "-Wl,-T,/tmp/cmastery-b06-experiments-ge_7uwro/thumb.ld",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb6.S",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/start6.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb6.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final closure",
+      "command": [
+        "arm-none-eabi-nm",
+        "-u",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb6.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final no helpers",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "kind": "Thumb emulator differential",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "mps2-an386",
+        "-cpu",
+        "cortex-m4",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb6.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "B06_THUMB_PASS\n",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": "B06_THUMB_PASS"
+    },
+    {
+      "kind": "compiler parse generated tree",
+      "passed": true,
+      "details": {
+        "index": 7,
+        "source": "(((18799+13261)+48208)*((47038*x)+(64204+x)))",
+        "C_correspondence": "(((18799u+13261u)+48208u)*((47038u*x)+(64204u+x)))"
+      }
+    },
+    {
+      "kind": "x86 emitted tree link",
+      "command": [
+        "gcc",
+        "-shared",
+        "-fPIC",
+        "-O2",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr7.s",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/ref7.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/expr7.so"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Python/IR/x86/GCC differential",
+      "passed": true,
+      "details": {
+        "tree": 7,
+        "cases": [
+          [
+            0,
+            858559376,
+            858559376,
+            858559376,
+            858559376,
+            1
+          ],
+          [
+            1,
+            339318532,
+            339318532,
+            339318532,
+            339318532,
+            1
+          ],
+          [
+            65535,
+            1435734044,
+            1435734044,
+            1435734044,
+            1435734044,
+            1
+          ],
+          [
+            4294967295,
+            1377800220,
+            1377800220,
+            1377800220,
+            1377800220,
+            1
+          ],
+          [
+            2687823731,
+            2781768876,
+            2781768876,
+            2781768876,
+            2781768876,
+            1
+          ],
+          [
+            2825030743,
+            1055141884,
+            1055141884,
+            1055141884,
+            1055141884,
+            1
+          ],
+          [
+            1123542985,
+            3782079908,
+            3782079908,
+            3782079908,
+            3782079908,
+            1
+          ],
+          [
+            4181303826,
+            3675929016,
+            3675929016,
+            3675929016,
+            3675929016,
+            1
+          ],
+          [
+            445618455,
+            3895736060,
+            3895736060,
+            3895736060,
+            3895736060,
+            1
+          ],
+          [
+            3263937881,
+            3560663780,
+            3560663780,
+            3560663780,
+            3560663780,
+            1
+          ],
+          [
+            1503969173,
+            1872962068,
+            1872962068,
+            1872962068,
+            1872962068,
+            1
+          ],
+          [
+            1135198157,
+            3284132724,
+            3284132724,
+            3284132724,
+            3284132724,
+            1
+          ],
+          [
+            3848232789,
+            3436365076,
+            3436365076,
+            3436365076,
+            3436365076,
+            1
+          ],
+          [
+            2471814568,
+            1172151216,
+            1172151216,
+            1172151216,
+            1172151216,
+            1
+          ],
+          [
+            1968955862,
+            38955656,
+            38955656,
+            38955656,
+            38955656,
+            1
+          ],
+          [
+            3150207847,
+            3228775228,
+            3228775228,
+            3228775228,
+            3228775228,
+            1
+          ],
+          [
+            1004865261,
+            2903604724,
+            2903604724,
+            2903604724,
+            2903604724,
+            1
+          ],
+          [
+            699977712,
+            3297418320,
+            3297418320,
+            3297418320,
+            3297418320,
+            1
+          ],
+          [
+            3867632653,
+            3227193460,
+            3227193460,
+            3227193460,
+            3227193460,
+            1
+          ],
+          [
+            2825352531,
+            2695149100,
+            2695149100,
+            2695149100,
+            2695149100,
+            1
+          ],
+          [
+            1978600308,
+            4186185760,
+            4186185760,
+            4186185760,
+            4186185760,
+            1
+          ],
+          [
+            1006434652,
+            3731203392,
+            3731203392,
+            3731203392,
+            3731203392,
+            1
+          ],
+          [
+            3766487812,
+            2156305760,
+            2156305760,
+            2156305760,
+            2156305760,
+            1
+          ],
+          [
+            3299590317,
+            705358068,
+            705358068,
+            705358068,
+            705358068,
+            1
+          ],
+          [
+            752552991,
+            4096093852,
+            4096093852,
+            4096093852,
+            4096093852,
+            1
+          ],
+          [
+            4160529409,
+            3164595972,
+            3164595972,
+            3164595972,
+            3164595972,
+            1
+          ],
+          [
+            1727316875,
+            3513700236,
+            3513700236,
+            3513700236,
+            3513700236,
+            1
+          ],
+          [
+            654055224,
+            931447024,
+            931447024,
+            931447024,
+            931447024,
+            1
+          ],
+          [
+            2111462035,
+            2510575404,
+            2510575404,
+            2510575404,
+            2510575404,
+            1
+          ],
+          [
+            3217492723,
+            2413126316,
+            2413126316,
+            2413126316,
+            2413126316,
+            1
+          ],
+          [
+            3760488153,
+            1530370276,
+            1530370276,
+            1530370276,
+            1530370276,
+            1
+          ],
+          [
+            1708056874,
+            447748248,
+            447748248,
+            447748248,
+            447748248,
+            1
+          ]
+        ]
+      }
+    },
+    {
+      "kind": "Thumb emitted tree link",
+      "command": [
+        "arm-none-eabi-gcc",
+        "-mcpu=cortex-m4",
+        "-mthumb",
+        "-std=c17",
+        "-O1",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-nostdlib",
+        "-Wl,-T,/tmp/cmastery-b06-experiments-ge_7uwro/thumb.ld",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb7.S",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/start7.c",
+        "-o",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb7.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final closure",
+      "command": [
+        "arm-none-eabi-nm",
+        "-u",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb7.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": null
+    },
+    {
+      "kind": "Thumb final no helpers",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "kind": "Thumb emulator differential",
+      "command": [
+        "qemu-system-arm",
+        "-M",
+        "mps2-an386",
+        "-cpu",
+        "cortex-m4",
+        "-nographic",
+        "-monitor",
+        "none",
+        "-serial",
+        "none",
+        "-semihosting-config",
+        "enable=on,target=native",
+        "-kernel",
+        "/tmp/cmastery-b06-experiments-ge_7uwro/thumb7.elf"
+      ],
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "B06_THUMB_PASS\n",
+      "passed": true,
+      "expected_nonzero": false,
+      "expected_returncode": 0,
+      "required_marker": "B06_THUMB_PASS"
+    }
+  ],
+  "input_sha256": {
+    "labs/linux_io_depth/targets/observe.c": "937b5907e09b921b35be041ab22cccfda9859078efc0f0aabe26bf9e380b711b",
+    "labs/memory_defense/targets/format_target.c": "3f66d40e48b2f8dd138bff2dcf33c202a0093c8fa51c2cf14da8ed1f5d2d4cf7",
+    "labs/memory_defense/targets/heap_target.c": "3037ae5f54fb3a584fa3573abc1675c5414f31f857bbc93ee29d5347165951f7",
+    "assessor/numeric_simd/core.c": "fad0abd36e11256436c34ace907c550f61e2d54b23b53fa666774b577aca2ddd",
+    "assessor/numeric_simd/targets/vector.c": "b775af36fe6e89540b75dfae3a292c18b15e2f8fdb3cf981a8a5ce12a7f595c8",
+    "labs/numeric_simd/targets/vector_test.c": "6fae03fcd928566b0685044d97f633781e481eea344a7dbf1d178fb59df28290",
+    "labs/verification_fuzzing/targets/fuzz_frame.c": "fa3a6fb85ecb219583b3c7320b7fe7cf8655bf22bc40a165d1c0e3475aaeb043",
+    "assessor/verification_fuzzing/core.c": "3a6d91044bdd3a6994221bc7262fc7bf252fa1765a3ab91604883af8162793a9",
+    "labs/verification_fuzzing/include/core.h": "0a573e36af0fcac65f22bca8698895400eb1fa17505348c7aaee2edfa01903b2",
+    "assessor/firmware_lifecycle/core.c": "aa032cc4f205f9f0ce6cbf7e287c68e79a1c1eb37b5821e6605d078c50205222",
+    "labs/firmware_lifecycle/include/core.h": "432eb124e020405db51a6550a5abe2948e77af03ab967210bd6769a36465ad99",
+    "assessor/architecture_ports/targets/rv64_context.S": "fe7d75a55c12e4a8d6baf01ea0f67c5be01c2be821bd5707c355765eb4a715ae",
+    "assessor/architecture_ports/targets/aa64_context.S": "d38b8514ebaf41c661dd815e144136ea2d949ac658e183f50f48f87ab19dc767",
+    "assessor/subset_compiler/core.c": "c568cf88baa21e27fd6e7900642fb7b03940e8963e96fe2f7b306a3bcf8232c0",
+    "labs/subset_compiler/include/core.h": "0fa376f8c58bff1fce1b8ef85413daa387f122fc1b23ad9cf084a84c6b51a2d9",
+    "tools/run_b06_experiments.py": "cf987386d063c3e0f8400fd4ddc8f2e5eadd66996405490c0cef35da374ca4ca"
+  },
+  "remaining_required": [
+    "io_uring actual submission/cancellation and splice under adversarial schedules remain unexecuted; setup probe is narrower.",
+    "No timing/speed advantage, fenv mode, physical SIMD target or universal constant-time claim was measured.",
+    "CBMC executable absent: authored bounded proof harness not executed; no proof success claimed.",
+    "Synthetic byte-prefix cuts are not all flash fault patterns, trusted authentication, or physical power-loss validation.",
+    "RV64/AArch64 context assembly not executed; reset, hostile ABI, trap and page-table experiments remain mandatory.",
+    "Kernel teaching module not built or loaded: disposable matching guest headers and execution not available in this campaign.",
+    "No F439/H745 physical flashing, captures, update/reset or ten-interface campaign performed.",
+    "Compiler validates the declared expression subset only; control flow, locals, pointers, function calls and Thumb-1 remain required extensions."
+  ],
+  "reviewer": "author agent; no independent human review",
+  "learner_assessment": "not-assessed",
+  "physical_validation": "not-run"
+}

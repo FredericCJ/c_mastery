@@ -1,0 +1,57 @@
+{
+  "project": "PR-T02-02",
+  "scope": "Independent protocol expectations; wrong-type or missing varargs are analysis-only precondition violations",
+  "grammar": {
+    "max_pairs": 4,
+    "tags": {
+      "I": "int payload, decimal output",
+      "D": "double payload, fixed2 decimal output under C locale"
+    },
+    "required_excludes_nul": true,
+    "full_preserves_destination": true,
+    "formatting_backend": "typed scalar snprintf allowed in profile A; whole-list vprintf/vsnprintf delegation forbidden"
+  },
+  "cases": [
+    {
+      "pairs": [],
+      "expected_text": "",
+      "required": 0,
+      "capacity_success": 1
+    },
+    {
+      "pairs": [
+        [
+          "I",
+          7
+        ],
+        [
+          "D",
+          1.25
+        ]
+      ],
+      "expected_text": "I=7;D=1.25;",
+      "required": 11,
+      "capacity_success": 12
+    },
+    {
+      "pairs": [
+        [
+          "I",
+          -2
+        ],
+        [
+          "D",
+          -0.5
+        ]
+      ],
+      "expected_text": "I=-2;D=-0.50;",
+      "required": 13,
+      "capacity_success": 14
+    }
+  ],
+  "invalid_cases": [
+    "count5: INVALID, no output/required change",
+    "unknown tag: INVALID before consuming unknown payload; no output/required change",
+    "wrong promoted payload type: caller contract violation; do not execute as malformed data"
+  ]
+}

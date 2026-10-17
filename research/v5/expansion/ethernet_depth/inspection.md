@@ -1,0 +1,7 @@
+# Ethernet depth evidence audit
+
+The retained T39 fixtures specify useful size, bridge, PHY and descriptor expectations, but the inspected C baseline only implements generic single-slot ownership/length transitions. Seven bounded original mechanisms now have concrete learner APIs, C controls and independent host oracles. Each source record lists only passages actually read. Device ownership modeled by injected status is distinct from actual device memory ordering or stop evidence. The initialization event DAG and SRAM interval are explicit original selected policies, not invented full vendor sequences.
+
+Primary documents were actually inspected before the completed specifications: RM0090 Rev21 and LAN8742A Rev1.1 downloaded to build/ and extracted as named page text; RFC1952 section8 read through the official web page. Their byte hashes and exact scope are registered. Full standards, changed board routing, physical captures and complete driver recovery remain gaps.
+
+Compiling mutants isolate missing wrapper, incompatible service, bad construction padding, unchecked FCS, stale bridge aging, same-port flooding, stale latch-low status, incorrect negotiated speed, missing first descriptor, unstripped FCS, head-before-tail publication, unconfirmed stop release, missing minimum padding and erased timestamp uncertainty. Initial mutation build revealed an unused diagnostic variable when the FS check was disabled; the control was corrected to compile so rejection is semantic. No hardware was flashed or external traffic emitted.

@@ -1,0 +1,780 @@
+{
+  "schema_version": 1,
+  "project": "PR-T09-03",
+  "domain": "T09",
+  "title": "Loader, TLS and versioned exports — explicit depth assessments",
+  "shared_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/shared-contract.md"
+  ],
+  "baseline_binding": {
+    "files": [
+      {
+        "path": "curriculum/modules/T09.md",
+        "sha256": "d99d0c1d84f774ae19d65bfa6c60c3014fcf12210a233836d2718cef14709e55",
+        "passages": [
+          "Topic teaching passages and reading guidance for T09.06, T09.07, T09.11"
+        ]
+      },
+      {
+        "path": "curriculum/projects/PR-T09-03.md",
+        "sha256": "830d5d62c1504974e895ec04b44190ea9a0df34c28591928e07d8c2a9b874c4b",
+        "passages": [
+          "Contract, Steps, Failure cases, Acceptance and linked-objective checklist"
+        ]
+      },
+      {
+        "path": "fixtures/systems/PR-T09-03.json",
+        "sha256": "db9ff4cada93d3b7a0c9e184b4476f5a76f0748be40b1cb373b5747a8a52d709",
+        "passages": [
+          "Complete synthetic fixture and expected values"
+        ]
+      },
+      {
+        "path": "tools/verify_systems_fixtures.py",
+        "sha256": "65d0079ba0defd2bcdc206b8ed670eee8a9f51497e36906c8a987d9337a036b0",
+        "passages": [
+          "oracle branches used by this fixture; synthetic reference is not target execution"
+        ]
+      },
+      {
+        "path": "labs/machine_image/README.md",
+        "sha256": "0472b1599c030ab1240c22633db3da5e60a0363607ec1e366dbe13f4ef90f7e2",
+        "passages": [
+          "All twelve bounded laboratory contracts and explicit remaining obligations"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/runtime.c",
+        "sha256": "2cd3dc97c292cc6e5ed2f3b867b2f32bdd0f7fbc3c1c1aa38ebdaf93f17d66b2",
+        "passages": [
+          "abi, hostile, bytes and wide cases"
+        ]
+      },
+      {
+        "path": "labs/machine_image/tests/artifacts.py",
+        "sha256": "f74dd8b6944dff1f9e36f6d870e3ae83c183db5f8cbc1bda28db14383bbb97ff",
+        "passages": [
+          "archive, relocation, tls, budget, entry, syscall, helpers, byte_closure, closure and image branches"
+        ]
+      }
+    ],
+    "teaching": [
+      {
+        "path": "curriculum/modules/T09.md",
+        "anchors": [
+          "T09.06",
+          "T09.07",
+          "T09.11"
+        ]
+      }
+    ],
+    "units": [
+      "LAB-MI-05",
+      "U-T09-03-02",
+      "U-T09-03-03",
+      "U-T09-03-04"
+    ],
+    "inspection_limits": [
+      "Project contract/steps/checklists and module teaching inspected; source registers are not treated as actual book inspections.",
+      "Unit objective/test links and selected operation steps inspected; no fresh complete historical portfolio review.",
+      "No new execution or independent learner assessment in this authoring wave."
+    ]
+  },
+  "environment": {
+    "language": "Active C17 baseline. C11/C23 comparisons require their explicitly identified wording; GNU assembly, __int128, ELF and operating-system contracts are extensions/platform rules.",
+    "target": "Linux x86-64 SysV for executable host observations; foreign targets are compile/analysis-only unless explicitly supported and recorded.",
+    "profile": "A",
+    "dependencies": "Retain the parent profile exactly. Host Python, build and binary inspection tools remain outside restricted target closures; no library may implement the mechanism being taught.",
+    "toolchain": [
+      "Record GCC/Clang, CMake/Ninja/Make and binutils versions and effective flags",
+      "Unsupported target or instrumentation cells remain unavailable"
+    ]
+  },
+  "source_records": [
+    {
+      "id": "R-LSYS-DLOPEN",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "DESCRIPTION search policy, RTLD_LAZY/NOW/LOCAL/GLOBAL and handle reference counts, lines 31-158"
+      ]
+    },
+    {
+      "id": "R-LSYS-ELF",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "Header entry/table bounds and Program header PT_LOAD/PT_INTERP, lines 244-413; Symbol table fields and bindings, lines 900-1011"
+      ]
+    },
+    {
+      "id": "R-LSYS-MUSL-START",
+      "path": "research/v5/expansion/legacy_systems/resources.json",
+      "passages": [
+        "__init_libc, libc_start_init, __libc_start_main and stage2, complete function bodies"
+      ]
+    }
+  ],
+  "reference_gaps": [
+    "Exact published C17/C23 text and private CS:APP/TLPI passages were not newly inspected.",
+    "Primary sources listed cover only the named passages; other parent references retain their historical status without a new inspection claim.",
+    "Current full ELF gABI and historical AMD64 0.99 PDF fetch unavailable; full loader/TLS implementation and selected library service contracts remain required for claims beyond supplied passages."
+  ],
+  "supplied_artifacts": [
+    "curriculum/projects/PR-T09-03.md",
+    "fixtures/systems/PR-T09-03.json",
+    "tools/verify_systems_fixtures.py"
+  ],
+  "execution_support": {
+    "kind": "retained partial baseline laboratory anchors",
+    "scope": "Tests exercise only their named bounded cases; broad project acceptance and these supplemental criteria require separate evidence.",
+    "tests": [
+      "machine_image.tls"
+    ],
+    "fresh_execution": "not-run in this depth-authoring wave"
+  },
+  "criteria": [
+    {
+      "id": "AX-PR-T09-03-T09.06.a",
+      "title": "Trace interpreter selection, dependency discovery, and symbol lookup.",
+      "objective": "T09.06.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Load a trusted original plugin by absolute path and then by a controlled local search path; record its recursive dependencies and selected interpreter. Deliberately supply a missing dependency without altering system loader configuration.",
+      "purpose": "Finding the first plugin proves its entire dependency closure is present.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.06 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Finding the first plugin proves its entire dependency closure is present. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Finding the first plugin proves its entire dependency closure is present.",
+        "D2": "Load a trusted original plugin by absolute path and then by a controlled local search path; record its recursive dependencies and selected interpreter. Deliberately supply a missing dependency without altering system loader configuration.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Relocate the plugin and its dependency together and justify an origin-relative policy without private build paths."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Each dependency has its own resolution; failure must name the missing object. Local process environment changes do not establish universal search behavior.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Each dependency has its own resolution; failure must name the missing object. Local process environment changes do not establish universal search behavior. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Relocate the plugin and its dependency together and justify an origin-relative policy without private build paths. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Record both the selected object and the scope used to find symbols.",
+        "Lazy function binding does not imply delayed variable relocation or missing recursive dependencies."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-03-T09.06.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Relocate the plugin and its dependency together and justify an origin-relative policy without private build paths."
+        }
+      ],
+      "assessor_anchor": "#t0906a",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.06 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-03-T09.06.b",
+      "title": "Inspect GOT, PLT, binding behavior, and symbol interposition.",
+      "objective": "T09.06.b",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Provide two original implementations of a toy function returning11 or22 and compare an explicitly controlled interposition experiment. Inspect GOT/PLT and binding logs; no third-party process is targeted.",
+      "purpose": "A symbol's source definition uniquely fixes every dynamic call target.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.06 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A symbol's source definition uniquely fixes every dynamic call target. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A symbol's source definition uniquely fixes every dynamic call target.",
+        "D2": "Provide two original implementations of a toy function returning11 or22 and compare an explicitly controlled interposition experiment. Inspect GOT/PLT and binding logs; no third-party process is targeted.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Hide the symbol or bind it locally and explain which interposition expectation changes."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Visibility, lookup scope and binding policy can redirect the toy call; numeric output alone does not identify the selected symbol origin.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Visibility, lookup scope and binding policy can redirect the toy call; numeric output alone does not identify the selected symbol origin. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Hide the symbol or bind it locally and explain which interposition expectation changes. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Record both the selected object and the scope used to find symbols.",
+        "Lazy function binding does not imply delayed variable relocation or missing recursive dependencies."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-03-T09.06.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Hide the symbol or bind it locally and explain which interposition expectation changes."
+        }
+      ],
+      "assessor_anchor": "#t0906b",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.06 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-03-T09.06.c",
+      "title": "Compare startup and lazy-resolution behavior without assuming universality.",
+      "objective": "T09.06.c",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Create a plugin with a deliberately unresolved function used only on an uncalled branch. Compare RTLD_NOW and RTLD_LAZY in separate bounded child processes with a known-good plugin control.",
+      "purpose": "Lazy mode postpones resolution of all symbols including data.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.06 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Lazy mode postpones resolution of all symbols including data. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Lazy mode postpones resolution of all symbols including data.",
+        "D2": "Create a plugin with a deliberately unresolved function used only on an uncalled branch. Compare RTLD_NOW and RTLD_LAZY in separate bounded child processes with a known-good plugin control.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Replace the missing function reference with a data reference and predict the changed load-time outcome."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "The declared loader may defer function resolution; data relocations and other loading work remain immediate. Unsupported lazy behavior must be reported, not guessed.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "The declared loader may defer function resolution; data relocations and other loading work remain immediate. Unsupported lazy behavior must be reported, not guessed. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Replace the missing function reference with a data reference and predict the changed load-time outcome. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Record both the selected object and the scope used to find symbols.",
+        "Lazy function binding does not imply delayed variable relocation or missing recursive dependencies."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-03-T09.06.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Replace the missing function reference with a data reference and predict the changed load-time outcome."
+        }
+      ],
+      "assessor_anchor": "#t0906c",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.06 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-03-T09.07.a",
+      "title": "Inspect thread-local sections and access models.",
+      "objective": "T09.07.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Extend the existing TLS test to record values and addresses for main and two threads before/after independent increments; inspect TLS sections and access sequences. Do not retain a pointer after its thread's lifetime.",
+      "purpose": "Thread-local storage is one globally shared object with a special keyword.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.07 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Thread-local storage is one globally shared object with a special keyword. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Thread-local storage is one globally shared object with a special keyword.",
+        "D2": "Extend the existing TLS test to record values and addresses for main and two threads before/after independent increments; inspect TLS sections and access sequences. Do not retain a pointer after its thread's lifetime.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Load an original TLS-bearing plugin after threads already exist and identify additional loader/runtime responsibilities."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Independent thread state and lifetime must both hold; the existing10/11 observations cover values but not every TLS model or lifetime case.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Independent thread state and lifetime must both hold; the existing10/11 observations cover values but not every TLS model or lifetime case. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Load an original TLS-bearing plugin after threads already exist and identify additional loader/runtime responsibilities. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Identify the producer of metadata and the code that consumes it.",
+        "Presence of an init array or TLS template does not establish that a particular instance was initialized."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-03-T09.07.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Load an original TLS-bearing plugin after threads already exist and identify additional loader/runtime responsibilities."
+        }
+      ],
+      "assessor_anchor": "#t0907a",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.07 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-03-T09.07.b",
+      "title": "Locate initialization/finalization arrays and their execution mechanisms.",
+      "objective": "T09.07.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Put two original initialization hooks in an ordered toy executable and record hook/body/finalization events. Identify sections and the runtime loop that invokes them; do not assume order beyond the explicit construction.",
+      "purpose": "The linker executes functions merely by placing pointers in an init array.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.07 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "The linker executes functions merely by placing pointers in an init array. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: The linker executes functions merely by placing pointers in an init array.",
+        "D2": "Put two original initialization hooks in an ordered toy executable and record hook/body/finalization events. Identify sections and the runtime loop that invokes them; do not assume order beyond the explicit construction.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Link the same metadata into a custom-entry image that omits the walker and explain why no hook executes automatically."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Metadata supplies addresses; startup/loader code performs calls. Recorded ordering must be tied to the selected runtime and link policy.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Metadata supplies addresses; startup/loader code performs calls. Recorded ordering must be tied to the selected runtime and link policy. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Link the same metadata into a custom-entry image that omits the walker and explain why no hook executes automatically. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Identify the producer of metadata and the code that consumes it.",
+        "Presence of an init array or TLS template does not establish that a particular instance was initialized."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-03-T09.07.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Link the same metadata into a custom-entry image that omits the walker and explain why no hook executes automatically."
+        }
+      ],
+      "assessor_anchor": "#t0907b",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.07 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-03-T09.07.c",
+      "title": "Separate linker metadata from the code that actually processes it.",
+      "objective": "T09.07.c",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Draw producer/consumer/lifetime chains for TLS templates, init arrays and fini arrays using the supplied runtime source passages and actual metadata. Mark uninspected runtime bodies explicitly instead of filling gaps from function names.",
+      "purpose": "A section name is evidence that the required initialization has occurred.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.07 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A section name is evidence that the required initialization has occurred. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A section name is evidence that the required initialization has occurred.",
+        "D2": "Draw producer/consumer/lifetime chains for TLS templates, init arrays and fini arrays using the supplied runtime source passages and actual metadata. Mark uninspected runtime bodies explicitly instead of filling gaps from function names.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Retain only one initialization service in a custom runtime and specify all dependencies its callback contract permits."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Presence of metadata, an identified consumer and observed execution are separate evidence categories; missing consumer work remains open.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Presence of metadata, an identified consumer and observed execution are separate evidence categories; missing consumer work remains open. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Retain only one initialization service in a custom runtime and specify all dependencies its callback contract permits. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "Identify the producer of metadata and the code that consumes it.",
+        "Presence of an init array or TLS template does not establish that a particular instance was initialized."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-03-T09.07.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Retain only one initialization service in a custom runtime and specify all dependencies its callback contract permits."
+        }
+      ],
+      "assessor_anchor": "#t0907c",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.07 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-03-T09.11.a",
+      "title": "Control visibility and stable exported interfaces.",
+      "objective": "T09.11.a",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Define an original plugin ABI with a version/size header, one exported operation and hidden helpers. Reject a caller with an unsupported contract before interpreting later fields and inspect the dynamic symbol set.",
+      "purpose": "Hiding helpers alone gives a stable semantic ABI.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.11 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Hiding helpers alone gives a stable semantic ABI. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Hiding helpers alone gives a stable semantic ABI.",
+        "D2": "Define an original plugin ABI with a version/size header, one exported operation and hidden helpers. Reject a caller with an unsupported contract before interpreting later fields and inspect the dynamic symbol set.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Add an optional tail field while retaining an older consumer and specify precise default behavior."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Visibility reduces exposed names but layout, ownership, errors and behavior remain contracts; the size/version gate must prevent incompatible access.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Visibility reduces exposed names but layout, ownership, errors and behavior remain contracts; the size/version gate must prevent incompatible access. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Add an optional tail field while retaining an older consumer and specify precise default behavior. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "List names, layout, ownership and behavior as separate compatibility promises.",
+        "A symbol version can exist while violating the behavior promised to that version's callers."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-03-T09.11.a-DELAYED",
+          "minimum_days": 7,
+          "task": "Add an optional tail field while retaining an older consumer and specify precise default behavior."
+        }
+      ],
+      "assessor_anchor": "#t0911a",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.11 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-03-T09.11.b",
+      "title": "Study symbol versioning and compatibility testing for shared libraries.",
+      "objective": "T09.11.b",
+      "families": [
+        "A",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Export two named toy interface versions and test old/new consumer combinations, including one deliberately missing required version. Separate symbol-resolution failure from changed numeric behavior.",
+      "purpose": "A version label guarantees backward-compatible semantics.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.11 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "A version label guarantees backward-compatible semantics. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: A version label guarantees backward-compatible semantics.",
+        "D2": "Export two named toy interface versions and test old/new consumer combinations, including one deliberately missing required version. Separate symbol-resolution failure from changed numeric behavior.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Keep the version name unchanged while changing error semantics and design a compatibility test that catches it."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Version availability is only one predicate; observable behavior and representation must satisfy the promised version contract.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Version availability is only one predicate; observable behavior and representation must satisfy the promised version contract. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Keep the version name unchanged while changing error semantics and design a compatibility test that catches it. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "List names, layout, ownership and behavior as separate compatibility promises.",
+        "A symbol version can exist while violating the behavior promised to that version's callers."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-03-T09.11.b-DELAYED",
+          "minimum_days": 7,
+          "task": "Keep the version name unchanged while changing error semantics and design a compatibility test that catches it."
+        }
+      ],
+      "assessor_anchor": "#t0911b",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.11 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    },
+    {
+      "id": "AX-PR-T09-03-T09.11.c",
+      "title": "Compare source compatibility with binary compatibility.",
+      "objective": "T09.11.c",
+      "families": [
+        "A",
+        "B",
+        "D",
+        "F",
+        "I",
+        "J"
+      ],
+      "task": "Change a public structure's layout and separately change an implementation behind an opaque handle. Classify source rebuild, old-binary linkage and semantic compatibility in a matrix; unsafe old-layout execution is excluded.",
+      "purpose": "Recompiling successfully proves old binaries remain compatible.",
+      "prerequisites": {
+        "knowledge": [
+          "The retained T09.11 teaching passage and parent project prerequisites",
+          "C17 semantics distinguished from the named tool/ABI/OS contract"
+        ],
+        "artifacts": [
+          "PR-T09-03 learner-owned implementation or diagnostic dossier",
+          "Predicted original fixture outcome before observing the expected data"
+        ]
+      },
+      "reasoning": [
+        "Recompiling successfully proves old binaries remain compatible. Supply the smallest counterexample or missing precondition.",
+        "State the producer/consumer or ownership boundary, valid inputs, permitted side effects, failure behavior and resource model for this task.",
+        "The exact source/target assumptions and evidence limits must accompany the result."
+      ],
+      "deliverables": {
+        "D1": "A pre-experiment prediction and causal argument addressing: Recompiling successfully proves old binaries remain compatible.",
+        "D2": "Change a public structure's layout and separately change an implementation behind an opaque handle. Classify source rebuild, old-binary linkage and semantic compatibility in a matrix; unsafe old-layout execution is excluded.",
+        "D3": "Commands or derivation steps, original inputs, observed outputs, a minimized disagreement and an independent control for the criterion-specific expected result.",
+        "D4": "Change ownership of a returned pointer without changing its C type and identify the binary-compatible but semantically incompatible contract."
+      },
+      "verification": {
+        "procedure": "Predict first, execute or derive the task within its declared boundary, and compare every specified artifact/result. Retain positive and negative controls and identify launch/tool failures separately. Reuse the accepted fixture only for its stated synthetic model; add the task-specific cases above.",
+        "expected": "Source, symbol and behavioral compatibility are independent; an unchanged symbol can conceal a layout break.",
+        "pass": "Meet every task clause and justify the expected argument using the actual artifact or trace. A matching result with an incorrect cause or undeclared dependency fails this objective.",
+        "limits": "Authored supplemental assessment; old laboratory names identify partial support only. No fresh execution, independent review, target availability or learner success is inferred."
+      },
+      "rubric": {
+        "0": "Missing artifact, incorrect expected result, unsafe precondition or false semantic claim.",
+        "1": "Reproduces the ordinary example but cannot reject the stated misconception or explain the boundary.",
+        "2": "Source, symbol and behavioral compatibility are independent; an unchanged symbol can conceal a layout break. Supplies criterion-specific evidence and a distinct falsification control.",
+        "3": "Change ownership of a returned pointer without changing its C type and identify the binary-compatible but semantically incompatible contract. Derives the changed obligations independently after the recorded delay."
+      },
+      "hints": [
+        "List names, layout, ownership and behavior as separate compatibility promises.",
+        "A symbol version can exist while violating the behavior promised to that version's callers."
+      ],
+      "variants": [
+        {
+          "id": "AX-PR-T09-03-T09.11.c-DELAYED",
+          "minimum_days": 7,
+          "task": "Change ownership of a returned pointer without changing its C type and identify the binary-compatible but semantically incompatible contract."
+        }
+      ],
+      "assessor_anchor": "#t0911c",
+      "facet_scope": {
+        "teaching": "Retained substantive T09.11 module passage; scope bounded by the recorded inspection.",
+        "implementation_or_analysis": "Retain PR-T09-03 construction and add this explicit per-leaf investigation; no duplicate executable unit claimed.",
+        "boundary_adversarial": "The concrete changed, missing, incompatible or failure case in this task is assessed separately from the ordinary result.",
+        "independent_assessment": "New objective-specific level2 criterion and seven-day changed-condition level3 variant; unattempted.",
+        "remaining": "Learner execution/analysis, source-bound evidence review and delayed independent attempt remain required; listed source and target gaps stay open."
+      },
+      "security": {
+        "applicable": false,
+        "scope": "Original learner programs and synthetic local artifacts only. No external target, privileged host action, real credential or other person data. ABI/UB-invalid cases are analysis or compile-only unless the parent supplies an explicitly contained original experiment."
+      }
+    }
+  ],
+  "assessor_analysis": "assessor/legacy_depth/PR-T09-03.md",
+  "status": {
+    "content": "authored",
+    "execution": "not-run supplemental assessments",
+    "independent_review": "not-run",
+    "learner_assessment": "not-assessed",
+    "limitations": [
+      "Finite visible tests are not absolute mastery.",
+      "No baseline hours, IDs, source bytes or historical acceptance receipts changed."
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "id": "PR-T76-09",
+  "description": "Pure reducers, explicit effects and rollback replay",
+  "input": {
+    "case": "replay"
+  },
+  "expected": {
+    "contract": "Initial(0,0,0,1),movement-1 gives position15,random1015568748,score0; next movement1 gives position0,score3. Eight inputs[1,1,0,-1,1,0,1,-1] produce score12. Replacing input4 with1 and replaying from the prior snapshot equals a fresh corrected fold. All six checkpoint failure cuts preserve the published root and used count."
+  },
+  "cases": [
+    {
+      "kind": "replay",
+      "example": "Initial(0,0,0,1),movement-1 gives position15,random1015568748,score0; next movement1 gives position0,score3. Eight inputs[1,1,0,-1,1,0,1,-1] produce score12. Replacing input4 with1 and replaying from the prior snapshot equals a fresh corrected fold. All six checkpoint failure cuts preserve the published root and used count.",
+      "input": {
+        "moves": [
+          1,
+          1,
+          0,
+          -1,
+          1,
+          0,
+          1,
+          -1
+        ]
+      },
+      "expected": {
+        "tick": 8,
+        "position": 2,
+        "score": 12,
+        "random": 2388811721
+      },
+      "oracle_scope": "Case-specific independent oracle and public C boundary assertions; prose obligations remain separately assessed."
+    }
+  ],
+  "verification_method": "Independent state/set oracle recomputes cases.json; prose and changed conditions are assessed separately."
+}

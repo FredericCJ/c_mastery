@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "family": "api_depth",
+  "title": "Forbidden overlap and callback retirement contracts",
+  "build_system": "cmake",
+  "assessor_root": "assessor/api_depth",
+  "tests": [
+    "api_depth.append",
+    "api_depth.registry"
+  ],
+  "projects": [
+    {
+      "id": "PR-T18-01",
+      "tests": [
+        "api_depth.append"
+      ],
+      "scope": "Whole-descriptor overlap rejection and failure preservation; lifetime/extents remain caller preconditions."
+    },
+    {
+      "id": "PR-T19-01",
+      "tests": [
+        "api_depth.registry"
+      ],
+      "scope": "Serialized four-slot snapshot dispatch, deferred removal/destruction and finite handle retirement."
+    }
+  ],
+  "assessment_contracts": [
+    "curriculum/v5/expansion/legacy_assessments/PR-T18-01.json",
+    "curriculum/v5/expansion/legacy_assessments/PR-T19-01.json"
+  ],
+  "campaign": {
+    "producer": "tools/run_api_depth.py",
+    "receipt": "api_depth_campaign.json",
+    "profiles": [
+      "gcc-debug",
+      "gcc-release",
+      "gcc-asan",
+      "clang-debug",
+      "clang-release",
+      "clang-asan"
+    ],
+    "mutants_per_anchor": 2,
+    "assertion_marker": "API_CHECK:",
+    "fixture_oracle": "tools/verify_api_depth_fixtures.py"
+  },
+  "limits": [
+    "Existing accepted units remain unchanged; these laboratory anchors attach to required additive AX criteria.",
+    "No thread synchronization, foreign callback, physical target execution or arbitrary dangling-pointer validation is claimed."
+  ]
+}

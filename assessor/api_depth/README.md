@@ -1,0 +1,7 @@
+# Assessor technical analysis
+
+For append, establish valid scalar state before subtracting and check capacity before forming source-byte addresses. Compare in-range byte pointers using equality; no unrelated-pointer ordering is required. The conservative complete-descriptor scan also rejects sources into length/capacity metadata. Copying follows all checks, so the strong failure guarantee follows from absence of precommit writes. Capacity bounds make length+n representable. The supplied learner still owes valid source extent and lifetime; a null check cannot establish either.
+
+For registry, snapshot handles establish this dispatch's membership. Retaining active slots until after dispatch preserves both callback eligibility and context lifetime. Removing B during A does not cancel B under this particular contract. Destruction is a distinct operation that suppresses later calls but delays all drops until the current callback returns. Release clears slot state before invoking the drop hook and uses a releasing guard to reject reentry. Storage cannot be freed by drop hooks under this contract.
+
+Mutation1 omits overlap admission;2 changes length on a full failure;3 releases during dispatch;4 omits slot1 cleanup on deferred destruction. Intermediate assertions reject premature retirement even when final occupancy could look correct. A passing finite campaign does not assess the independent event-history generator, all callback trust violations, a concurrent variant or delayed transfer. Compare the AX assessor analyses for per-objective scoring.

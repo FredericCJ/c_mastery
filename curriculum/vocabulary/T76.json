@@ -1,0 +1,802 @@
+{
+  "domain": "T76",
+  "entries": [
+    {
+      "id": "V-T76-01-1",
+      "term": "event position",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "A stable ordinal within one identified immutable log history.",
+      "authority": [
+        {
+          "resource_id": "R-RP-EVENTS",
+          "locator": "How it Works; Application State Storage; Reversing Events; External Updates; External Queries; Code Changes"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "wall-clock timestamp",
+          "distinction": "Clock values can tie or move backward and do not identify a contiguous prefix."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For log, state event position before claiming correctness."
+      ],
+      "symbols": [
+        "log"
+      ],
+      "objectives": [
+        "T76.01.a",
+        "T76.01.b",
+        "T76.01.c",
+        "T76.01.d"
+      ],
+      "misconception": "A retained root is a memory snapshot, not a durable transaction.",
+      "recall": {
+        "define": "Define event position and its invariant.",
+        "distinguish": "Distinguish event position from wall-clock timestamp.",
+        "counterexample": "Replace the in-memory append with versioned checksummed records on the prior storage.pages artifact; enumerate every tear/flush prefix and recover the longest committed prefix. Persist snapshots with their event position and schema identity. Demonstrate why replaying an external effect twice or using a changed external query result changes semantics; retain original responses as events where required."
+      }
+    },
+    {
+      "id": "V-T76-01-2",
+      "term": "projection snapshot root",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "A retained immutable root describing state after a particular event prefix.",
+      "authority": [
+        {
+          "resource_id": "R-RP-EVENTS",
+          "locator": "How it Works; Application State Storage; Reversing Events; External Updates; External Queries; Code Changes"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "durable checkpoint",
+          "distinction": "Memory reachability alone survives neither process loss nor storage corruption."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For log, state projection snapshot root before claiming correctness."
+      ],
+      "symbols": [
+        "log"
+      ],
+      "objectives": [
+        "T76.01.a",
+        "T76.01.b",
+        "T76.01.c",
+        "T76.01.d"
+      ],
+      "misconception": "A retained root is a memory snapshot, not a durable transaction.",
+      "recall": {
+        "define": "Define projection snapshot root and its invariant.",
+        "distinguish": "Distinguish projection snapshot root from durable checkpoint.",
+        "counterexample": "Replace the in-memory append with versioned checksummed records on the prior storage.pages artifact; enumerate every tear/flush prefix and recover the longest committed prefix. Persist snapshots with their event position and schema identity. Demonstrate why replaying an external effect twice or using a changed external query result changes semantics; retain original responses as events where required."
+      }
+    },
+    {
+      "id": "V-T76-02-1",
+      "term": "projection application identity",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "The combination of log identity, event position and immutable event content used to admit a duplicate.",
+      "authority": [
+        {
+          "resource_id": "R-RP-CQRS",
+          "locator": "Separate conceptual update and query models, paragraphs beginning CQRS stands and As this occurs"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "transport delivery identity",
+          "distinction": "A new delivery may carry an already applied event."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For projection, state projection application identity before claiming correctness."
+      ],
+      "symbols": [
+        "projection"
+      ],
+      "objectives": [
+        "T76.02.a",
+        "T76.02.b",
+        "T76.02.c",
+        "T76.02.d"
+      ],
+      "misconception": "CQRS separates models; it does not supply delivery or storage atomicity.",
+      "recall": {
+        "define": "Define projection application identity and its invariant.",
+        "distinguish": "Distinguish projection application identity from transport delivery identity.",
+        "counterexample": "Add a durable inbox/outbox with log UUID and idempotency keys using storage.pages and ipc.local. Enumerate crash/retry points on both sides of a local synthetic receiver. Produce one duplicate-side-effect counterexample without receiver deduplication and show the residual requirement for atomic receiver state. Compare rebuildable read models with authoritative event history."
+      }
+    },
+    {
+      "id": "V-T76-02-2",
+      "term": "projection commit boundary",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "The atomic transition joining query-state change and its progress cursor.",
+      "authority": [
+        {
+          "resource_id": "R-RP-CQRS",
+          "locator": "Separate conceptual update and query models, paragraphs beginning CQRS stands and As this occurs"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "cursor-only synchronization",
+          "distinction": "Protecting a cursor while racing the state does not preserve the projection invariant."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For projection, state projection commit boundary before claiming correctness."
+      ],
+      "symbols": [
+        "projection"
+      ],
+      "objectives": [
+        "T76.02.a",
+        "T76.02.b",
+        "T76.02.c",
+        "T76.02.d"
+      ],
+      "misconception": "CQRS separates models; it does not supply delivery or storage atomicity.",
+      "recall": {
+        "define": "Define projection commit boundary and its invariant.",
+        "distinguish": "Distinguish projection commit boundary from cursor-only synchronization.",
+        "counterexample": "Add a durable inbox/outbox with log UUID and idempotency keys using storage.pages and ipc.local. Enumerate crash/retry points on both sides of a local synthetic receiver. Produce one duplicate-side-effect counterexample without receiver deduplication and show the residual requirement for atomic receiver state. Compare rebuildable read models with authoritative event history."
+      }
+    },
+    {
+      "id": "V-T76-03-1",
+      "term": "happened-before order",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "The transitive relation generated by local event order and message send-before-receive.",
+      "authority": [
+        {
+          "resource_id": "R-RP-LAMPORT",
+          "locator": "Clock Condition and its non-converse, PDF p3; IR1/IR2, PDF p3; Ordering Events Totally, PDF pp3-4"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "total timestamp order",
+          "distinction": "Tie-breaking concurrent events creates order without creating causality."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For clocks, state happened-before order before claiming correctness."
+      ],
+      "symbols": [
+        "clocks"
+      ],
+      "objectives": [
+        "T76.03.a",
+        "T76.03.b",
+        "T76.03.c",
+        "T76.03.d"
+      ],
+      "misconception": "Timestamp order is not the converse of causal order.",
+      "recall": {
+        "define": "Define happened-before order and its invariant.",
+        "distinguish": "Distinguish happened-before order from total timestamp order.",
+        "counterexample": "Change replica membership and persisted restart identities; show why resetting a vector slot or reusing a timestamp identity loses history. Add a bounded clock-skew model and prove exactly which HLC closeness bound follows. Compare scalar timestamp wire size, vector growth, and a protocol that waits versus rejects on finite counter exhaustion."
+      }
+    },
+    {
+      "id": "V-T76-03-2",
+      "term": "HLC physical maximum",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "The largest physical component known through local wall observations and received histories.",
+      "authority": [
+        {
+          "resource_id": "R-RP-LAMPORT",
+          "locator": "Clock Condition and its non-converse, PDF p3; IR1/IR2, PDF p3; Ordering Events Totally, PDF pp3-4"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "synchronized wall time",
+          "distinction": "A causal maximum alone does not establish a bound relative to true time."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For clocks, state HLC physical maximum before claiming correctness."
+      ],
+      "symbols": [
+        "clocks"
+      ],
+      "objectives": [
+        "T76.03.a",
+        "T76.03.b",
+        "T76.03.c",
+        "T76.03.d"
+      ],
+      "misconception": "Timestamp order is not the converse of causal order.",
+      "recall": {
+        "define": "Define HLC physical maximum and its invariant.",
+        "distinguish": "Distinguish HLC physical maximum from synchronized wall time.",
+        "counterexample": "Change replica membership and persisted restart identities; show why resetting a vector slot or reusing a timestamp identity loses history. Add a bounded clock-skew model and prove exactly which HLC closeness bound follows. Compare scalar timestamp wire size, vector growth, and a protocol that waits versus rejects on finite counter exhaustion."
+      }
+    },
+    {
+      "id": "V-T76-04-1",
+      "term": "state join idempotence",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "Joining an admitted state with itself leaves it unchanged.",
+      "authority": [
+        {
+          "resource_id": "R-RP-CRDT",
+          "locator": "Sections3.1.2-3.1.3, Specifications6-7 G/PN counters; section3.2.1 LWW register; section3.3.5 Specification15 observed-remove set; section3.5.1 Specification19 RGA"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "operation replay",
+          "distinction": "Reapplying a non-idempotent increment can change the result."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For counters, state state join idempotence before claiming correctness."
+      ],
+      "symbols": [
+        "counters"
+      ],
+      "objectives": [
+        "T76.04.a",
+        "T76.04.b",
+        "T76.04.c",
+        "T76.04.d"
+      ],
+      "misconception": "A unique replica label is an ownership obligation, not a property of an unsigned field.",
+      "recall": {
+        "define": "Define state join idempotence and its invariant.",
+        "distinguish": "Distinguish state join idempotence from operation replay.",
+        "counterexample": "Add membership replacement, serialized snapshots and state corruption detection. Distinguish crash fault tolerance from Byzantine tolerance: demonstrate a synthetic forged high component monopolizing the merge and specify an authenticated admission/identity policy without claiming signatures solve semantic authorization. Compare state size with operation-log retention under the same delivery assumptions."
+      }
+    },
+    {
+      "id": "V-T76-04-2",
+      "term": "register arbitration stamp",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "A protocol-defined totally ordered event identity selecting a value.",
+      "authority": [
+        {
+          "resource_id": "R-RP-CRDT",
+          "locator": "Sections3.1.2-3.1.3, Specifications6-7 G/PN counters; section3.2.1 LWW register; section3.3.5 Specification15 observed-remove set; section3.5.1 Specification19 RGA"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "real-time last write",
+          "distinction": "The stamp order need not match physical occurrence order."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For counters, state register arbitration stamp before claiming correctness."
+      ],
+      "symbols": [
+        "counters"
+      ],
+      "objectives": [
+        "T76.04.a",
+        "T76.04.b",
+        "T76.04.c",
+        "T76.04.d"
+      ],
+      "misconception": "A unique replica label is an ownership obligation, not a property of an unsigned field.",
+      "recall": {
+        "define": "Define register arbitration stamp and its invariant.",
+        "distinguish": "Distinguish register arbitration stamp from real-time last write.",
+        "counterexample": "Add membership replacement, serialized snapshots and state corruption detection. Distinguish crash fault tolerance from Byzantine tolerance: demonstrate a synthetic forged high component monopolizing the merge and specify an authenticated admission/identity policy without claiming signatures solve semantic authorization. Compare state size with operation-log retention under the same delivery assumptions."
+      }
+    },
+    {
+      "id": "V-T76-05-1",
+      "term": "observed removal",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "Removal of the particular add identities visible to a replica.",
+      "authority": [
+        {
+          "resource_id": "R-RP-CRDT",
+          "locator": "Sections3.1.2-3.1.3, Specifications6-7 G/PN counters; section3.2.1 LWW register; section3.3.5 Specification15 observed-remove set; section3.5.1 Specification19 RGA"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "remove-wins value deletion",
+          "distinction": "A remove-wins policy can suppress a concurrent unseen addition."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For sets, state observed removal before claiming correctness."
+      ],
+      "symbols": [
+        "sets"
+      ],
+      "objectives": [
+        "T76.05.a",
+        "T76.05.b",
+        "T76.05.c",
+        "T76.05.d"
+      ],
+      "misconception": "Deleting tombstones is not ordinary memory cleanup; delayed messages can resurrect state.",
+      "recall": {
+        "define": "Define observed removal and its invariant.",
+        "distinguish": "Distinguish observed removal from remove-wins value deletion.",
+        "counterexample": "Introduce a third replica, disconnection and crash/restart. Design a causal delta-interval anti-entropy protocol with durable incarnation/counter identity and full-state fallback; falsify premature garbage collection with a delayed old delta. Prove a stable frontier before discarding tombstones, or retain them and quantify growth."
+      }
+    },
+    {
+      "id": "V-T76-05-2",
+      "term": "causal delta interval",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "A joined range of deltas whose receiver must satisfy the required predecessor-state condition.",
+      "authority": [
+        {
+          "resource_id": "R-RP-CRDT",
+          "locator": "Sections3.1.2-3.1.3, Specifications6-7 G/PN counters; section3.2.1 LWW register; section3.3.5 Specification15 observed-remove set; section3.5.1 Specification19 RGA"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "arbitrary message subset",
+          "distinction": "An arbitrary subset may omit the causal context required by another CRDT."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For sets, state causal delta interval before claiming correctness."
+      ],
+      "symbols": [
+        "sets"
+      ],
+      "objectives": [
+        "T76.05.a",
+        "T76.05.b",
+        "T76.05.c",
+        "T76.05.d"
+      ],
+      "misconception": "Deleting tombstones is not ordinary memory cleanup; delayed messages can resurrect state.",
+      "recall": {
+        "define": "Define causal delta interval and its invariant.",
+        "distinguish": "Distinguish causal delta interval from arbitrary message subset.",
+        "counterexample": "Introduce a third replica, disconnection and crash/restart. Design a causal delta-interval anti-entropy protocol with durable incarnation/counter identity and full-state fallback; falsify premature garbage collection with a delayed old delta. Prove a stable frontier before discarding tombstones, or retain them and quantify growth."
+      }
+    },
+    {
+      "id": "V-T76-06-1",
+      "term": "sequence anchor identity",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "A persistent node identifier used to locate insertion context after visible edits.",
+      "authority": [
+        {
+          "resource_id": "R-RP-CRDT",
+          "locator": "Sections3.1.2-3.1.3, Specifications6-7 G/PN counters; section3.2.1 LWW register; section3.3.5 Specification15 observed-remove set; section3.5.1 Specification19 RGA"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "visible character offset",
+          "distinction": "Offsets change when concurrent insertions or removals occur."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For sequence, state sequence anchor identity before claiming correctness."
+      ],
+      "symbols": [
+        "sequence"
+      ],
+      "objectives": [
+        "T76.06.a",
+        "T76.06.b",
+        "T76.06.c",
+        "T76.06.d"
+      ],
+      "misconception": "Two correct transformed insertions do not establish a complete distributed editor.",
+      "recall": {
+        "define": "Define sequence anchor identity and its invariant.",
+        "distinguish": "Distinguish sequence anchor identity from visible character offset.",
+        "counterexample": "Add delete operations delivered before insert, Unicode scalar payloads and snapshot compaction. Compare an explicit pending-dependency queue with tombstone admission. Implement an OT context-control protocol with state vectors and retained transformations, identify assumptions about fixed membership and failures, and test more than pairwise transformation equations."
+      }
+    },
+    {
+      "id": "V-T76-06-2",
+      "term": "transformation context",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "The document version and causal history relative to which an operation was defined.",
+      "authority": [
+        {
+          "resource_id": "R-RP-CRDT",
+          "locator": "Sections3.1.2-3.1.3, Specifications6-7 G/PN counters; section3.2.1 LWW register; section3.3.5 Specification15 observed-remove set; section3.5.1 Specification19 RGA"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "operation syntax",
+          "distinction": "Equal position/value fields can mean different actions in different contexts."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For sequence, state transformation context before claiming correctness."
+      ],
+      "symbols": [
+        "sequence"
+      ],
+      "objectives": [
+        "T76.06.a",
+        "T76.06.b",
+        "T76.06.c",
+        "T76.06.d"
+      ],
+      "misconception": "Two correct transformed insertions do not establish a complete distributed editor.",
+      "recall": {
+        "define": "Define transformation context and its invariant.",
+        "distinguish": "Distinguish transformation context from operation syntax.",
+        "counterexample": "Add delete operations delivered before insert, Unicode scalar payloads and snapshot compaction. Compare an explicit pending-dependency queue with tombstone admission. Implement an OT context-control protocol with state vectors and retained transformations, identify assumptions about fixed membership and failures, and test more than pairwise transformation equations."
+      }
+    },
+    {
+      "id": "V-T76-07-1",
+      "term": "Merkle domain separation",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "Distinct input encodings for leaf and interior-node hash computations.",
+      "authority": [
+        {
+          "resource_id": "R-RP-MERKLE",
+          "locator": "Section2.1.1 empty/leaf/node tree hashes and split rule; section2.1.2 stack construction; section2.1.3 inclusion paths"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "hash algorithm choice",
+          "distinction": "A strong hash does not repair ambiguous structural encodings."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For merkle, state Merkle domain separation before claiming correctness."
+      ],
+      "symbols": [
+        "merkle"
+      ],
+      "objectives": [
+        "T76.07.a",
+        "T76.07.b",
+        "T76.07.c",
+        "T76.07.d"
+      ],
+      "misconception": "Content addressing does not authenticate who supplied content.",
+      "recall": {
+        "define": "Define Merkle domain separation and its invariant.",
+        "distinguish": "Distinguish Merkle domain separation from hash algorithm choice.",
+        "counterexample": "Add inclusion proofs with explicit leaf index/count, verify malformed/truncated/extra paths, then implement anti-entropy over a synthetic local framed transport. Vary chunking and domain identifiers and show root incompatibility. Model a malicious peer returning a missing or inconsistent node; fail without publishing partial repaired state. Do not claim collision resistance from a finite test suite."
+      }
+    },
+    {
+      "id": "V-T76-07-2",
+      "term": "anti-entropy range commitment",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "A hash tied to an exact ordered range and tree shape used to locate divergence.",
+      "authority": [
+        {
+          "resource_id": "R-RP-MERKLE",
+          "locator": "Section2.1.1 empty/leaf/node tree hashes and split rule; section2.1.2 stack construction; section2.1.3 inclusion paths"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "whole-system consistency",
+          "distinction": "Equal range commitments do not establish availability, authorized history or concurrent update ordering."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For merkle, state anti-entropy range commitment before claiming correctness."
+      ],
+      "symbols": [
+        "merkle"
+      ],
+      "objectives": [
+        "T76.07.a",
+        "T76.07.b",
+        "T76.07.c",
+        "T76.07.d"
+      ],
+      "misconception": "Content addressing does not authenticate who supplied content.",
+      "recall": {
+        "define": "Define anti-entropy range commitment and its invariant.",
+        "distinguish": "Distinguish anti-entropy range commitment from whole-system consistency.",
+        "counterexample": "Add inclusion proofs with explicit leaf index/count, verify malformed/truncated/extra paths, then implement anti-entropy over a synthetic local framed transport. Vary chunking and domain identifiers and show root incompatibility. Model a malicious peer returning a missing or inconsistent node; fail without publishing partial repaired state. Do not claim collision resistance from a finite test suite."
+      }
+    },
+    {
+      "id": "V-T76-08-1",
+      "term": "minimal varint",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "The shortest base128 continuation encoding of an admitted unsigned integer.",
+      "authority": [
+        {
+          "resource_id": "R-RP-WIRE",
+          "locator": "Base128 Varints; Message Structure; Signed Integers; Field Order and deterministic serialization limits"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "parsable varint",
+          "distinction": "A decoder can accept several byte strings for the same number."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For wire, state minimal varint before claiming correctness."
+      ],
+      "symbols": [
+        "wire"
+      ],
+      "objectives": [
+        "T76.08.a",
+        "T76.08.b",
+        "T76.08.c",
+        "T76.08.d"
+      ],
+      "misconception": "A serializer can be deterministic within one build without being canonical across versions.",
+      "recall": {
+        "define": "Define minimal varint and its invariant.",
+        "distinguish": "Distinguish minimal varint from parsable varint.",
+        "counterexample": "Add length-delimited nested records with depth and total-byte budgets, a critical/advisory negotiation rule and an incremental io.frame decoder. Compare schema migration that retains unknown fields against field-wise reconstruction that loses them. Define canonical NaN/negative-zero/string normalization policy before adding floating or textual values; do not assume the current integer proof extends."
+      }
+    },
+    {
+      "id": "V-T76-08-2",
+      "term": "canonical field-map encoding",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "One byte sequence selected by explicit ordering, numeric and duplicate rules for a semantic field map.",
+      "authority": [
+        {
+          "resource_id": "R-RP-WIRE",
+          "locator": "Base128 Varints; Message Structure; Signed Integers; Field Order and deterministic serialization limits"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "implementation determinism",
+          "distinction": "Repeated output from one binary need not be stable across implementations or versions."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For wire, state canonical field-map encoding before claiming correctness."
+      ],
+      "symbols": [
+        "wire"
+      ],
+      "objectives": [
+        "T76.08.a",
+        "T76.08.b",
+        "T76.08.c",
+        "T76.08.d"
+      ],
+      "misconception": "A serializer can be deterministic within one build without being canonical across versions.",
+      "recall": {
+        "define": "Define canonical field-map encoding and its invariant.",
+        "distinguish": "Distinguish canonical field-map encoding from implementation determinism.",
+        "counterexample": "Add length-delimited nested records with depth and total-byte budgets, a critical/advisory negotiation rule and an incremental io.frame decoder. Compare schema migration that retains unknown fields against field-wise reconstruction that loses them. Define canonical NaN/negative-zero/string normalization policy before adding floating or textual values; do not assume the current integer proof extends."
+      }
+    },
+    {
+      "id": "V-T76-09-1",
+      "term": "replay state completeness",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "The snapshot contains every value that can influence future core transitions under recorded inputs.",
+      "authority": [
+        {
+          "resource_id": "R-RP-ROLLBACK",
+          "locator": "How Does It Work: deterministic engine, predicted inputs, divergence replay, save/load/advance without rendering"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "visible state snapshot",
+          "distinction": "Rendered position alone can omit random, timing or protocol state."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For replay, state replay state completeness before claiming correctness."
+      ],
+      "symbols": [
+        "replay"
+      ],
+      "objectives": [
+        "T76.09.a",
+        "T76.09.b",
+        "T76.09.c",
+        "T76.09.d"
+      ],
+      "misconception": "A pure core helps replay; it does not make a failing effect adapter transactional.",
+      "recall": {
+        "define": "Define replay state completeness and its invariant.",
+        "distinguish": "Distinguish replay state completeness from visible state snapshot.",
+        "counterexample": "Introduce two local simulated players, predicted remote inputs and delayed corrections using ipc.local/io.frame, with bounded rollback horizon and retained snapshots. Separate authoritative committed effects from speculative presentation and define replacement/cancellation semantics. Reuse the actual T20.03 learner reducer adapter and storage.pages snapshot backend, then vary compiler/endianness and compare canonical state hashes. Implement a hidden wall-clock/random dependency as a deliberately failing counterexample, not a production change."
+      }
+    },
+    {
+      "id": "V-T76-09-2",
+      "term": "effect request value",
+      "owner": "T76",
+      "kind": "programming-model",
+      "definition": "Data describing an intended external action returned by a pure transition.",
+      "authority": [
+        {
+          "resource_id": "R-RP-ROLLBACK",
+          "locator": "How Does It Work: deterministic engine, predicted inputs, divergence replay, save/load/advance without rendering"
+        }
+      ],
+      "edition_notes": [
+        {
+          "edition": "ISO C17 baseline",
+          "note": "This is a stated abstraction contract, not an automatic C safety guarantee. Compare only the registered passages."
+        }
+      ],
+      "distinguish_from": [
+        {
+          "term": "performed effect",
+          "distinction": "A returned request has not yet succeeded, failed or acquired external ownership."
+        }
+      ],
+      "avoid": [],
+      "idiom": [
+        "For replay, state effect request value before claiming correctness."
+      ],
+      "symbols": [
+        "replay"
+      ],
+      "objectives": [
+        "T76.09.a",
+        "T76.09.b",
+        "T76.09.c",
+        "T76.09.d"
+      ],
+      "misconception": "A pure core helps replay; it does not make a failing effect adapter transactional.",
+      "recall": {
+        "define": "Define effect request value and its invariant.",
+        "distinguish": "Distinguish effect request value from performed effect.",
+        "counterexample": "Introduce two local simulated players, predicted remote inputs and delayed corrections using ipc.local/io.frame, with bounded rollback horizon and retained snapshots. Separate authoritative committed effects from speculative presentation and define replacement/cancellation semantics. Reuse the actual T20.03 learner reducer adapter and storage.pages snapshot backend, then vary compiler/endianness and compare canonical state hashes. Implement a hidden wall-clock/random dependency as a deliberately failing counterexample, not a production change."
+      }
+    }
+  ],
+  "recall": {
+    "define": "Define every representation and validity condition in this domain using its actual C declarations.",
+    "distinguish": "Distinguish runtime admission, ISO C type constraints, optional diagnostics and caller lifetime obligations for each abstraction.",
+    "apply": "Solve the named delayed variants and record a counterexample to a stronger claim for every exported artifact."
+  }
+}
